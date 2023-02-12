@@ -1,0 +1,462 @@
+/* 
+	When this file is changed, update the version number in index.html's <head>
+ */
+
+/* global variables */
+:root {
+	--content-width: 800px;
+	--background-color: #dfeeff;
+}
+
+body { background-color: var(--blue); }
+
+
+#header-menu, #footer, nav, article, main, body {
+	display:block;
+}
+
+body {
+	background-color: var(--background-color);
+	max-width: var(--content-width);
+}	
+
+#header-menu, #footer {
+	background-color: #5480df;
+}
+
+h1, h2, h3, h4, h5 {
+	font-family: sans-serif;
+	font-weight: normal;
+}
+h5 {
+	width: -moz-fit-content;
+	width: fit-content;
+	padding: .3em .3em .3em .3em;
+	border: 1px solid #aaa;
+	color: #00f;
+	background-color: var(--background-color);
+}
+
+/*
+details {
+	margin-bottom: .5em;
+}
+summary {
+	font-family: sans-serif;
+	font-size: 1.2em;
+	color: #44b;
+}
+*/
+
+p {
+	font-family: serif;
+}
+
+.italic {
+	font-style: italic;
+}
+.small {
+	font-size: small;
+}
+.single-space {
+	margin: 0px;
+}
+.pad-top {
+	padding-top: 1em;
+}
+
+/* p .blockquote {
+	text-indent: 15%;
+} */
+
+/* li {
+	margin: 0 0 1em 0;
+} */	
+
+/* old global */
+
+
+#header-menu {
+	border-radius: .5em;
+	padding: 0 1em 0 1em; /* top, right, bottom, left */
+}
+
+#page-content {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+#footer {
+	border-radius: .5em;
+	font-family: sans-serif;
+	font-size: 75%;
+	padding: .4em 1em .4em 1.5em; /* top, right, bottom, left */
+	color: #eef;
+}
+
+nav {
+	position: absolute;
+	/* top: 5px; */
+	/* right: 10px; */
+	/* left: 10px; */
+	/* position: relative; */
+}
+
+#menu {
+	padding: .5em .2em .25em 0;
+	border-radius: .5em;
+	font-size: small;
+	display: flex; /* works with align-items, below */
+	align-items: center; /* aligns items vertically */
+}
+
+#menu li {
+	display: inline;
+	font-family: sans-serif;
+}
+
+#menu li a {
+	text-decoration: none;
+	text-align: center;
+	padding: .5em .5em .5em .5em;
+	color: #eef;
+}
+
+#menu li a:hover {
+	color: #ffff00;
+}
+#menu-list {
+	color: #eef;
+}
+#menu-list:hover {
+	color: #acf69b
+}
+.menu-icon {
+	fill: #eef;
+}
+.menu-icon:hover{
+	fill: orange;
+}
+
+/* .xblockquote { */
+	/* display: block; */
+	/* margin-top: 1em; */
+	/* margin-bottom: 1em; */
+	/* margin-left: 5%; */
+	/* margin-right: 5%; */
+	/* color: gray; */
+	/* background-color: white; */
+/* } */
+blockquote {
+	/* font: 14px/22px normal helvetica, sans-serif; */
+	font-size: 90%;
+	margin-top: 0;
+	margin-bottom: 0;
+	margin-left: 2em;
+	padding-left: 1em;
+	border-left: .5em solid #ccc;
+} 
+
+.center { /* was used for Home banner */
+	display: block;
+	margin-left: 16px;
+	margin-right: auto;
+	/* width: 100%; */
+}
+
+/* article {
+	border: solid 1px #ccc;
+	border-radius: .5em;
+	background-color: rgba(0, 183, 255, 0.116);
+	padding: 20px;
+} */
+
+article li {
+   margin: 0 0 1em 0;   
+}
+
+figure {
+	float: right;
+	width: 30%;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: smaller;
+	border: thin silver solid;
+	max-width: 50px;
+}
+
+code { /* inline <code></code> */
+	font-family: monospace;
+	color: crimson;
+	/* background-color: #f1f1f1; */
+	background-color: #cee5ff;
+	padding: 2px;
+	/* font-size: 100%; */
+}
+
+pre code { /* fenced code blocks */
+	display: block;
+	border: 1px solid #bababa;
+	margin-left: 2em;
+	margin-right: 2em;
+	color: #080808;
+	/* background-color: #f1f1f1; */
+	padding: 1.5em 1.5em 1.5em 1.5em; /* top right bottom left */
+	/* font-size: 80%; */
+}
+
+.question {
+	color: #00f;
+	font-style: italic;
+}
+
+.left {
+	float: left;
+	padding: 0 1em 1em 0;
+}
+
+.right {
+	float: right;
+	padding: 0 1em 1em 1em;
+}
+
+.image-row {
+	padding: 0 1em 0 0;
+}
+
+/* home page */
+#banner-image {
+	width: auto;
+	max-height: 100vh;
+}
+#home-quote {
+	font-size: 90%;
+	margin-top: 1em;
+	padding-left: 1em;
+	border-left: .5em solid #ccc;
+}
+.article-header {
+	width: -moz-fit-content;
+	width: fit-content;
+	padding: .5em 1em .5em 1em;
+	border-radius: .5em;
+	font-family: sans-serif;
+	font-size: .75em;
+	color: #eef;
+	background-color: #5480df;
+}
+
+/* audio */
+#controls-block {
+	padding: .5em 0;
+}
+.track-list {
+	width: -moz-fit-content;
+	width: fit-content;
+}
+.track-list-item {
+	cursor: pointer;
+	/* padding: 0 0 .2em; */
+	font-size: small;
+	margin: .2em;
+}
+.track-list-item:hover {
+	color: red;
+	/* font-size: 1em; */
+	/* padding: 1em 0; */
+}
+
+/* modal, dialog, popup */
+.modal {
+	position: fixed;
+	top: 25%; /* 25 */
+	left: calc(var(--content-width) * .1); /* 150 */
+	/* transform: translate(-50%, -50%); true center */
+	transform: scale(0); /* hide modal */
+	transition: 200ms ease-in-out;
+	border: 1px solid black;
+	border-radius: 10px;
+	z-index: 10; /* big number ensures modal will draw on top of everything else */
+	background-color: var(--background-color);
+	width: calc(var(--content-width) * .50); /* 500px */
+	max-width: 80%;
+}
+.modal.active {
+	/* transform: translate(-50%, -50%); true center */
+	transform: scale(1); /* show modal */
+	transition: 200ms ease-in-out;
+}
+#modal-overlay {
+	position: fixed;
+	opacity: 0;
+	transition: 200ms ease-in-out;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, .5);
+	pointer-events: none; /* prevent click events on overlay */
+}
+#modal-overlay.active {
+	opacity: 1;
+	pointer-events: all; /* allow click events on overlay */
+}
+.modal-header {
+	padding: 5px 15px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid black;
+}
+.modal-header .title {
+	/* font-size: 1.25rem; */
+	font-weight: bold;
+}
+.modal-header .close-button {
+	cursor: pointer;
+	border: none;
+	outline: none;
+	background: none;
+	font-size: 1.25rem;
+	font-weight: bold;
+}
+.modal-body {
+	padding: 0px 15px 10px;
+}
+
+/* camp page(s) */
+.alert {background-color: #f98989; color: black;}
+.good-campsite {background-color: #acf69b;}
+.bad-campsite {background-color: #eba5b1;}
+.limited-campsite {background-color: #c9c8c8;}
+table, th, td {border: 1px solid black; border-collapse: collapse;}
+th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
+.campsite-comments {font-family: sans-serif; font-size: .75em;}
+
+/* iching page(s) */
+.iching-table {
+	table-layout:fixed;
+	width: 50px; /* 350px; */
+	height: 50px; /* 350px; */
+	/* font-size: 1.5rem; */
+	font-family: serif;
+	font-size: 3em;
+}
+.iching-tr {
+	max-height: 15px;
+}
+.iching-td {
+	background-color: #22bbff;
+	border: white solid .1rem;
+	text-align: center;
+	/* position: relative; */
+	width: 50px; /* 114px; */
+	height: 50px; /* 114px; */
+}
+.iching-hexagram {
+	font-family: serif;
+	font-size: 4em;
+}
+.iching-heading {
+	font-family: sans-serif;
+	font-size: 1.2em;
+}
+.iching-verse {
+	font-style: italic;
+}
+
+/* songbook page(s) */
+.song-title-link {
+	margin: .5em 1em;
+}
+#song-error {
+	font-family: sans-serif;
+	font-size: 80%;
+	color: red;
+}
+#song-metadata {
+	font-family: sans-serif;
+	font-size: 80%;
+	margin-top: 0;
+	margin-bottom: 1.75em;
+	margin-left: .4em;
+	padding-left: .5em;
+	border-left: .4em solid #ccc;
+}
+.songbook-metadata-label {
+	font-weight: bold;
+}
+.songbook-metadata-value {
+	font-weight: normal;
+}
+.chords {
+	color: #a76f6f;
+}
+
+/* these were in fake.css, but I think they are not being used:
+h3.mono { font-family: Menlo; font-size: 18px; }
+h4.mono { font-family: Menlo; font-size: 14px; }
+span.mono { font-family: Menlo; font-size: 12px; }
+*/
+
+/* for testing span markup */
+.intro {
+	font-size: smaller;
+}
+.red {
+	color: #f00;
+}
+.blue {
+	color: #00f;
+}
+
+.test-icons {
+	/* fill: red; */
+	transform: scale(2);
+	padding: 0 2em 0 0;
+}
+.test-icons svg path:hover {
+	fill: red;
+}
+/* svg {
+	fill: red;
+} */
+.test-columns-2 {
+	/* column-count: 2; */
+	column-width: 150px;
+	/* width: 300px; */
+	/* columns: 2 150px; */
+	column-rule: 1px solid #bbb;
+	column-gap: 3em;
+}
+.test-columns-3 {
+	/* column-count: 3; */
+	column-width: 150px;
+	/* width: 450px; */
+	/* columns: 3 150px; */
+	column-rule: 1px solid #bbb;
+	column-gap: 3em;
+}
+.test-columns-4 {
+	/* column-count: 4; */
+	column-width: 150px;
+	/* width: 600px; */
+	/* columns: 4 150px; */
+	column-rule: 1px solid #bbb;
+	column-gap: 3em;
+}
+
+/*
+font-family: 'Cormorant', serif;
+font-family: 'Inter', sans-serif;
+font-family: 'Special Elite', cursive;
+font-family: 'Halant', serif;
+font-family: 'Abhaya Libre', serif;
+font-family: 'Average Sans', sans-serif;
+font-family: 'Cambay', sans-serif;
+font-family: 'NTR', sans-serif;
+font-family: 'Rosarivo', serif;
+font-family: sans-serif;
+*/

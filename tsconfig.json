@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+	  /* Visit https://aka.ms/tsconfig.json to read more about this file */
+	  "target": "ES2020",
+	  "module": "es2020",
+	  "outDir": "js",
+	  "rootDir": "ts",
+	  "strict": true,
+	  "esModuleInterop": true,
+	  "skipLibCheck": true,
+	  "forceConsistentCasingInFileNames": true,
+	  "moduleResolution": "node"
+	}
+  }
+  

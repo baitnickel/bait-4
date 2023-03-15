@@ -18,11 +18,12 @@ if (body) {
 	let imageElement = new Image();
 	// imageElement.src = 'https://photos.smugmug.com/Bait-4/i-5FZ7TvW/0/284bbe68/S/16-88-S.jpg';
 	imageElement.src = `${smugmug}/${photoID}/${photoSize}/${photoFile}-${photoSize}.jpg`;
-	if (imageElement.width > 250) imageElement.width = 250;
+	// if (imageElement.width > 250) imageElement.width = 250;
 	body.append(imageElement);
 
-	// SVG.appendSVG(body, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
+	SVG.appendSVG(body, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
 
+	appendLines(body,'<iframe width="560" height="315" src="https://www.youtube.com/embed/INlBnm_1-sg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>');
 }
 
 function appendLines(body: HTMLElement, lines: string|string[]) {

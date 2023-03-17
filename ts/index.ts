@@ -1,29 +1,34 @@
-import * as YAML from './lib/yaml.js';
-import * as Moon from './lib/moon.js';
 import * as SVG from './lib/svg.js';
-
-const smugmug = 'https://photos.smugmug.com/Bait-4';
-const photoID = 'i-5FZ7TvW/0/284bbe68';
-const photoSize = 'S';
-const photoFile = '16-88';
 
 let body = document.querySelector('body');
 if (body) {
+
+	// appendLines(body, '<input type="file" id="input" multiple />');
+	// let inputFiles = document.getElementById("input") as FileList;
+	// if (inputFiles) {
+	// 	const selectedFile = inputFiles.files[0];
+	// }
+
+	appendLines(body, '<input id="fileItem" type="file" />');
+	let inputElement = document.getElementById("fileItem") as HTMLInputElement;
+	if (inputElement && inputElement.files && inputElement.files.length) {
+		const file = inputElement.files[0];
+		console.log(file);
+	}
 	
-	let wood: string[] = ['I once had a girl—', 'or should I say', 'she once had me?'];
-	appendLines(body, wood);
+	let lyrics: string[] = [
+		'There’s nothing you can know that isn’t known',
+		'Nothing you can see that isn’t shown',
+		'Nowhere you can be that isn’t where you’re meant to be',
+	];
+	appendLines(body, lyrics);
 
-	// Moon.displayMoonData(body);
+	body.append(smugImage('i-SDpf2qV', 'S'));
 
-	let imageElement = new Image();
-	// imageElement.src = 'https://photos.smugmug.com/Bait-4/i-5FZ7TvW/0/284bbe68/S/16-88-S.jpg';
-	imageElement.src = `${smugmug}/${photoID}/${photoSize}/${photoFile}-${photoSize}.jpg`;
-	// if (imageElement.width > 250) imageElement.width = 250;
-	body.append(imageElement);
-
-	SVG.appendSVG(body, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
-
-	appendLines(body,'<iframe width="560" height="315" src="https://www.youtube.com/embed/INlBnm_1-sg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>');
+	// SVG.appendSVG(body, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
+	
+	// appendLines(body, youTubePlayer('5FQpeqFmwVk', 560, 315));
+	
 }
 
 function appendLines(body: HTMLElement, lines: string|string[]) {
@@ -31,4 +36,34 @@ function appendLines(body: HTMLElement, lines: string|string[]) {
 	if (typeof lines == 'object') lines = lines.join('<br>');
 	paragraph.innerHTML = lines;
 	body.append(paragraph);
+}
+
+function smugImage(id: string, size: string) {
+	let imageElement = new Image();
+	const smugMug = 'https://photos.smugmug.com/photos';
+	imageElement.src = `${smugMug}/${id}/0/${size}/${id}-${size}.jpg`;
+	return imageElement;
+}
+
+function youTubePlayer(embedID: string, width: number, height:number, options: string[] = []) {
+	if (!options.length) {
+		let defaultOptions = [
+			'title="YouTube video player"',
+			'frameborder="0"',
+			'allow="accelerometer"',
+			'allow="autoplay"',
+			'allow="clipboard-write"',
+			'allow="encrypted-media"',
+			'allow="gyroscope"',
+			'allow="picture-in-picture"',
+			'allow="web-share"',
+			'allowfullscreen',
+		]
+		options = defaultOptions;
+	}
+	const source = `https://www.youtube.com/embed/${embedID}`;
+	let iFrame = `<iframe width="${width}" height="${height}" src="${source}"`;
+	if (options.length) iFrame += ` ${options.join(' ')}`;
+	iFrame += '></iframe>';
+	return iFrame;
 }

@@ -17,7 +17,7 @@ export function render() {
     page.setTitle('Campsites', 2);
     let mapDiv = document.createElement('div');
     page.content.append(mapDiv);
-    DB.fetchData(ParkFilePath).then((parkText) => {
+    DB.fetchData(ParkFilePath, 'md').then((parkText) => {
         let obsidian = new Document(parkText);
         if (obsidian.metadata) {
             if ('map' in obsidian.metadata) {

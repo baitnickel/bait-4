@@ -15,6 +15,7 @@ export function render() {
 	const ThisYear = new Date().getFullYear();
 	const ParkFilePath = './data/park.md';
 	const page = new Page();
+	console.log(`origin: ${page.origin}`);
 	console.log(`url: ${page.url}`);
 	console.log(`parameters: ${page.parameters}`);
 

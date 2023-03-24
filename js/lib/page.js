@@ -1,6 +1,7 @@
 import { MarkupLine } from './markup.js';
 export class Page {
     constructor() {
+        this.origin = window.location.origin;
         this.url = window.location.origin + window.location.pathname;
         this.parameters = new URLSearchParams(window.location.search);
         this.name = this.parameters.get('page');

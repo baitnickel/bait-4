@@ -22,7 +22,21 @@ export function appendSVG(targetElement: HTMLElement, svgFile: string, reservedS
 		const url = URL.createObjectURL(blob);
 		const imageElement = new Image();
 		imageElement.src = url;
-		imageElement.width = 500;
+		// imageElement.width = 500;
 		targetElement.append(imageElement);
 	});
+}
+
+	// let mapFile = `data/${obsidian.metadata['map']}`;
+	// DB.fetchData(mapFile).then((SVGText: string) => {
+	// /* manipulate SVGText string here */
+	// 	mapDiv.append(SVG.imageElement(SVGText, 700));
+	// });
+export function imageElement(svgText: string, width: number = 0){
+	const imageElement = new Image();
+	const blob = new Blob([svgText], {type: 'image/svg+xml'});
+	const url = URL.createObjectURL(blob);
+	imageElement.src = url;
+	if (width) imageElement.width = width;
+	return imageElement;
 }

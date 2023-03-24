@@ -4,7 +4,7 @@ export class Page {
 	name: string|null;                  /** name of requested page (via query 'page=<name>') */
 	url: string;                        /** URL origin + pathname (full URL without '?query') */
 	parameters: URLSearchParams;        /** URL query parameters */
-	options: {[key: string]: string}; /** associative array of options */
+	options: {[key: string]: string};   /** associative array of options */
 	local: boolean;                     /** is the server 'localhost'? */
 	header: HTMLDivElement;
 	content: HTMLDivElement;

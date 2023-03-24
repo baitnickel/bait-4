@@ -11,24 +11,24 @@ comments:
 # Color names must be official CSS color names;
 # see: https://drafts.csswg.org/css-color/#named-colors
 
-accounts:
-  Pete:     {color: skyblue}
-  Joni:     {color: skyblue}
-  Carisa:   {color: skyblue}
-  Paul:     {color: skyblue}
-  Duck:     {color: skyblue}
-  PWesley:  {color: skyblue}
+accountColors:
+  Pete:     skyblue
+  Joni:     skyblue
+  Carisa:   skyblue
+  Paul:     skyblue
+  Duck:     skyblue
+  PWesley:  skyblue
   
-  Dan:      {color: palegreen}
-  Laurel:   {color: palegreen}
-  Zach:     {color: palegreen}
-  Wei:      {color: palegreen}
-  Becca:    {color: palegreen}
+  Dan:      palegreen
+  Laurel:   palegreen
+  Zach:     palegreen
+  Wei:      palegreen
+  Becca:    palegreen
   
-  James:    {color: khaki}
-  Corin:    {color: khaki}
-  Isabella: {color: khaki}
-  Andrew:   {color: khaki}
+  James:    khaki
+  Corin:    khaki
+  Isabella: khaki
+  Andrew:   khaki
 
 # The account names below must match the account names above;
 # upper/lowercase is significant
@@ -56,39 +56,39 @@ reservations:
 sites:
   -
     site: 1
-    category: ?
+    category:
     type: MAIN
     size: L
-    tents: 0
-    table: ?
+    tents:
+    table: 
     comment: open, on corner, exposed and near entrance & highway
   -
     site: 2
-    category: ?
+    category:
     type: MAIN
     size: L
     tents: 5
-    table: ?
+    table: 
     comment: lots of tent space, could be OK in combination with 4, but near entrance & highway
   -
     site: 3
-    category: ?
+    category:
     type: MAIN
     size: L
     tents: 5
-    table: ?
+    table:
     comment: drive-thru vehicle access, exposed to much road and site 7
   -
     site: 4
-    category: ?
+    category:
     type: MAIN
     size: XL
-    tents: 0
-    table: ?
+    tents:
+    table:
     comment: secluded if combined with 5, but site of thefts, near entrance
   -
     site: 5
-    category: ?
+    category:
     type: MAIN
     size: L
     tents: 6
@@ -100,15 +100,15 @@ sites:
     type: MAIN
     size: L
     tents: 5
-    table: ?
+    table:
     comment: semi-secluded, some exposure to sites 5 & 8
   -
     site: 7
-    category: ?
+    category:
     type: MAIN
     size: M
     tents: 3
-    table: ?
+    table:
     comment: exposed to sites 3 & 9
   -
     site: 8
@@ -116,15 +116,15 @@ sites:
     type: MAIN
     size: M
     tents: 2
-    table: ?
+    table:
     comment: pretty secluded
   -
     site: 9
-    category: ?
+    category:
     type: MAIN
     size: L
     tents: 4
-    table: ?
+    table:
     comment: deep, secluded, 6,8,9 would be a good combination, exposed to site 7, front of site is next to bathroom trail
   -
     site: 10
@@ -132,15 +132,15 @@ sites:
     type: MAIN
     size: L
     tents: 3
-    table: ?
+    table:
     comment: deep, very secluded, good combo with 12,14
   -
     site: 11
     category: limited
     type: HOST
     size: L
-    tents: 0
-    table: ?
+    tents:
+    table:
     comment: largely paved, open view of bathroom in back
   -
     site: 12
@@ -155,8 +155,8 @@ sites:
     category: limited
     type: ADA
     size: M
-    tents: 0
-    table: ?
+    tents:
+    table:
     comment: largely paved/leveled, formal trail to bathroom in back, secluded
   -
     site: 14
@@ -164,7 +164,7 @@ sites:
     type: HAZARD
     size: L
     tents: 3
-    table: ?
+    table:
     comment: deep, pretty secluded, closed in 2014 due to hazardous limbs
   -
     site: 15
@@ -172,7 +172,7 @@ sites:
     type: MAIN
     size: S
     tents: 2
-    table: ?
+    table:
     comment: deep, secluded, 12,14,15 would be a good combination
   -
     site: 16
@@ -180,15 +180,15 @@ sites:
     type: MAIN
     size: S
     tents: 2
-    table: ?
+    table:
     comment: River Trail at back of site
   -
     site: 17
     category: limited
     type: ADA
     size: S
-    tents: 0
-    table: ?
+    tents:
+    table:
     comment: largely paved/leveled, formal trail to bathroom in back, service road to bathroom on side
   -
     site: 18
@@ -196,15 +196,15 @@ sites:
     type: MAIN
     size: S
     tents: 2
-    table: ?
+    table:
     comment: River Trail at back of site
   -
     site: 19
-    category: ?
+    category:
     type: MAIN
     size: L
     tents: 3
-    table: ?
+    table:
     comment: secluded, deep, next to bathroom trail and service road, open to site 21
   -
     site: 20
@@ -212,15 +212,15 @@ sites:
     type: REMOVED?
     size: S
     tents: 2
-    table: ?
+    table:
     comment: River Trail practically part of site at rear
   -
     site: 21
-    category: ?
+    category:
     type: REMOVED?
     size:
     tents: 3
-    table: ?
+    table:
     comment: exposed, only OK in combo with 19,23,24
   -
     site: 22
@@ -228,15 +228,15 @@ sites:
     type: MAIN
     size:
     tents: 3
-    table: ?
+    table:
     comment: nice site on River Trail (at back of site), deep & secluded
   -
     site: 23
-    category: ?
+    category:
     type: MAIN
     size:
     tents: 1
-    table: ?
+    table:
     comment: nice bedroom site with 24; on corner, very open and exposed, only OK with 21 & 24
   -
     site: J24
@@ -244,7 +244,7 @@ sites:
     type: CABIN
     size: L
     tents: 7
-    table: ?
+    table:
     comment: adjoins 23; exposed on all sides, only OK with 21 & 23
   -
     site: 25
@@ -252,7 +252,7 @@ sites:
     type: ADA
     size:
     tents: 3
-    table: ?
+    table:
     comment: mostly paved/leveled, secluded, near bathroom
   -
     site: J26
@@ -260,11 +260,11 @@ sites:
     type: CABIN
     size: L
     tents: 3
-    table: ?
+    table:
     comment: deep, very exposed to 27 & 29
   -
     site: 27
-    category: ?
+    category:
     type: MAIN
     size: L
     tents: 2
@@ -276,7 +276,7 @@ sites:
     type: MAIN
     size:
     tents: 4
-    table: ?
+    table:
     comment: on corner, exposed to traffic, near campground entrance, good bedroom site, small area allotted for vehicles and for table, bear box, fire pit, equipment
   -
     site: 29
@@ -300,7 +300,7 @@ sites:
     type: MAIN
     size:
     tents: 2
-    table: ?
+    table:
     comment: exposed site—31 & 32 are basically part of the same site
   -
     site: 32
@@ -312,7 +312,7 @@ sites:
     comment: 31 & 32 are basically part of the same site, very high fire pit
   -
     site: 33
-    category: ?
+    category:
     type: MAIN
     size: M
     tents: 3
@@ -320,7 +320,7 @@ sites:
     comment: lots of sun, little tree cover, fire pit close to parking and road, secluded from other sites (except 34 across road)
   -
     site: 34
-    category: ?
+    category:
     type: MAIN
     size: S
     tents: 2
@@ -328,7 +328,7 @@ sites:
     comment: lots of sun, fire pit does not accommodate chairs (large rock and post in the way), secluded (except for 33 across road)
   -
     site: 35
-    category: ?
+    category:
     type: MAIN
     size: M
     tents: 2
@@ -336,7 +336,7 @@ sites:
     comment: lots of afternoon sun, fire pit very close to bear box and parking, secluded
   -
     site: 36
-    category: ?
+    category:
     type: MAIN
     size: S
     tents: 2
@@ -352,7 +352,7 @@ sites:
     comment: mostly paved/leveled, secluded next to campground host on south
   -
     site: 38
-    category: ?
+    category:
     type: MAIN
     size: S
     tents: 1
@@ -384,7 +384,7 @@ sites:
     comment: mostly paved/leveled, secluded but across from south entrance to campfire center
   -
     site: 42
-    category: ?
+    category:
     type: MAIN
     size: S
     tents: 2
@@ -392,7 +392,7 @@ sites:
     comment: some exposure to 44 and adjacent to campfire center on north
   -
     site: 43
-    category: ?
+    category:
     type: MAIN
     size: S
     tents: 2
@@ -420,7 +420,7 @@ sites:
     type: REMOVED?
     size: L
     tents: 4
-    table: ?
+    table:
     comment: cannot be reserved, large rock near very high fire pit, secluded from other sites, river view, far from bathroom
   -
     site: 47
@@ -451,20 +451,20 @@ sites:
     category: good
     type: OUTER
     size: XL
-    tents: 0
-    table: ?
+    tents:
+    table:
     comment: one-week reservations only
   -
     site: 51
     category: good
     type: OUTER
     size: XL
-    tents: 0
-    table: ?
+    tents:
+    table:
     comment: one-week reservations only
   -
     site: 52
-    category: ?
+    category:
     type: OUTER
     size: S
     tents: 2
@@ -472,7 +472,7 @@ sites:
     comment: river site, lots of afternoon sun, secluded by distance from other sites but adjacent to group site on north
   -
     site: 53
-    category: ?
+    category:
     type: OUTER
     size: S
     tents: 3
@@ -480,7 +480,7 @@ sites:
     comment: river site, decent tree cover, fire pit close to bear box, far from visible adjacent sites 52 & 54, adjacent to trail on west edge of forest
   -
     site: 54
-    category: ?
+    category:
     type: OUTER
     size: L
     tents: 3
@@ -488,7 +488,7 @@ sites:
     comment: river site, trees frame site on river side, exposed to sites 55 & 56, separated from 53 by distance
   -
     site: 55
-    category: ?
+    category:
     type: OUTER
     size: S
     tents: 3
@@ -504,7 +504,7 @@ sites:
     comment: river site, 54,55,56 all run together, trees frame site on river side, would be great if not for presence of 55
   -
     site: 57
-    category: ?
+    category:
     type: OUTER
     size: S
     tents: 3
@@ -664,7 +664,7 @@ sites:
     comment: close to and somewhat exposed to major east-west campground and maintenance facility roads, otherwise secluded, far from bathroom
   -
     site: 92
-    category: ?
+    category:
     type: MAIN
     size: S
     tents: 2
@@ -672,7 +672,7 @@ sites:
     comment: rocks/trees on one side of fire pit, pretty secluded despite major east-west campground road on south, far from bathroom
   -
     site: 93
-    category: ?
+    category:
     type: MAIN
     size: M
     tents: 3
@@ -680,7 +680,7 @@ sites:
     comment: fairly secluded, far from bathroom
   -
     site: 94
-    category: ?
+    category:
     type: MAIN
     size: M
     tents: 4
@@ -688,7 +688,7 @@ sites:
     comment: adjacent to main north-south campground road on east, parking for 3 vehicles, relatively secluded, far from bathroom
   -
     site: 95
-    category: ?
+    category:
     type: MAIN
     size: S
     tents: 2
@@ -696,7 +696,7 @@ sites:
     comment: some exposure to 97, trees and shrubs around part of fire pit, far from bathroom
   -
     site: 96
-    category: ?
+    category:
     type: MAIN
     size: S
     tents: 2
@@ -704,7 +704,7 @@ sites:
     comment: secluded but adjacent to main north-south campground road on east, far from bathroom
   -
     site: 97
-    category: ?
+    category:
     type: MAIN
     size: S
     tents: 2
@@ -736,7 +736,7 @@ sites:
     comment: room for 3 vehicles, pretty well secluded despite bathroom on north side and pathway on south side
   -
     site: 101
-    category: ?
+    category:
     type: MAIN
     size: S
     tents: 2
@@ -752,7 +752,7 @@ sites:
     comment: high fire pit, campsite is dark along the rear (dense tree cover), very secluded, bathroom across road but largely hidden from view due to shrubs
   -
     site: 103
-    category: ?
+    category:
     type: MAIN
     size: L
     tents: 4
@@ -760,7 +760,7 @@ sites:
     comment: 2004 bedroom site; bear box is taller and shallower than standard box and is harder to open, tall fire pit is close to bear box and large tree, some exposure to bathroom on south, 105 on north, 31 on west, open to southeast (not much tree cover on that side)
   -
     site: 104
-    category: ?
+    category:
     type: MAIN
     size: L
     tents: 3

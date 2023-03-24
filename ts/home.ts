@@ -9,12 +9,12 @@ export function render() {
 		// 	const selectedFile = inputFiles.files[0];
 		// }
 
-		appendLines(body, '<input id="fileItem" type="file" />');
-		let inputElement = document.getElementById("fileItem") as HTMLInputElement;
-		if (inputElement && inputElement.files && inputElement.files.length) {
-			const file = inputElement.files[0];
-			console.log(file);
-		}
+		// appendLines(body, '<input id="fileItem" type="file" />');
+		// let inputElement = document.getElementById("fileItem") as HTMLInputElement;
+		// if (inputElement && inputElement.files && inputElement.files.length) {
+		// 	const file = inputElement.files[0];
+		// 	console.log(file);
+		// }
 		
 		let lyrics: string[] = [
 			'There’s nothing you can know that isn’t known',
@@ -24,7 +24,7 @@ export function render() {
 		appendLines(body, lyrics);
 
 		body.append(smugImage('i-SDpf2qV', 'S'));
-		body.append(smugImage('i-bT23PBf', 'L', 'png'));
+		// body.append(smugImage('i-bT23PBf', 'L', 'png'));
 
 		// SVG.appendSVG(body, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
 		

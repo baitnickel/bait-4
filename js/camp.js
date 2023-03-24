@@ -9,7 +9,7 @@ import * as Reservations from './lib/reservations.js';
 // export function render(page: Page) {
 export function render() {
     const ThisYear = new Date().getFullYear();
-    const ParkFilePath = 'data/park.md';
+    const ParkFilePath = './data/park.md';
     const page = new Page();
     page.setTitle('Campsites', 2);
     let mapDiv = document.createElement('div');
@@ -19,7 +19,7 @@ export function render() {
         if (obsidian.metadata) {
             if ('map' in obsidian.metadata) {
                 let mapElement = document.createElement('img');
-                mapElement.setAttribute('src', `data/${obsidian.metadata['map']}`);
+                mapElement.setAttribute('src', `./data/${obsidian.metadata['map']}`);
                 mapElement.width = 666;
                 mapDiv.append(mapElement);
             }

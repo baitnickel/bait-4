@@ -44,6 +44,7 @@ export function render() {
 		DB.fetchData('data/park.txt').then((parkText: string) => {
 			let obsidian = new Document(parkText);
 			if (obsidian.metadata) {
+				console.log('metadata loaded');
 				if ('map' in obsidian.metadata) {
 					let mapElement = document.createElement('img');
 					// mapElement.setAttribute('src', `./data/${obsidian.metadata['map']}`);

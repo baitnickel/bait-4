@@ -1,4 +1,7 @@
 import * as DB from './lib/fetch.js'
+import { Document } from './lib/document.js';
+import * as Reservations from './lib/reservations.js';
+
 export function render() {
 
 	let body = document.querySelector('body');
@@ -34,6 +37,23 @@ export function render() {
 		DB.fetchData('data/tree.txt').then((text: string) => {
 			if (body) appendLines(body, text);
 		});
+	
+		let mapDiv = document.createElement('div');
+		body.append(mapDiv);
+	
+		DB.fetchData('data/park.md').then((parkText: string) => {
+			let obsidian = new Document(parkText);
+			if (obsidian.metadata) {
+				if ('map' in obsidian.metadata) {
+					let mapElement = document.createElement('img');
+					// mapElement.setAttribute('src', `./data/${obsidian.metadata['map']}`);
+					mapElement.setAttribute('src', `data/${obsidian.metadata['map']}`);
+					mapElement.width=555;
+					mapDiv.append(mapElement);
+				}
+			}
+		});
+	
 	
 	}
 

@@ -11,7 +11,8 @@ export function render() {
     const ThisYear = new Date().getFullYear();
     // const ParkFilePath = './data/park.md';
     const page = new Page();
-    const ParkFilePath = `${page.origin}/bait-4/data/park.md`;
+    // const ParkFilePath = `${page.origin}/bait-4/data/park.md`;
+    const ParkFilePath = `data/park.md`;
     console.log(`origin: ${page.origin}`);
     console.log(`url: ${page.url}`);
     console.log(`parameters: ${page.parameters}`);
@@ -24,7 +25,8 @@ export function render() {
         if (obsidian.metadata) {
             if ('map' in obsidian.metadata) {
                 let mapElement = document.createElement('img');
-                mapElement.setAttribute('src', `./data/${obsidian.metadata['map']}`);
+                // mapElement.setAttribute('src', `./data/${obsidian.metadata['map']}`);
+                mapElement.setAttribute('src', `data/${obsidian.metadata['map']}`);
                 mapElement.width = 666;
                 mapDiv.append(mapElement);
             }

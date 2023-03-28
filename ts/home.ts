@@ -31,8 +31,8 @@ export function render() {
 		
 		// appendLines(body, youTubePlayer('5FQpeqFmwVk', 560, 315));
 		
-		DB.fetchData('tree.txt').then((text: string) => {
-			if (body) body.append(text);
+		DB.fetchData('data/tree.txt').then((text: string) => {
+			if (body) appendLines(body, text);
 		});
 	
 	}

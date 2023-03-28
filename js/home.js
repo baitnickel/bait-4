@@ -23,9 +23,9 @@ export function render() {
         // body.append(smugImage('i-bT23PBf', 'L', 'png'));
         // SVG.appendSVG(body, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
         // appendLines(body, youTubePlayer('5FQpeqFmwVk', 560, 315));
-        DB.fetchData('tree.txt').then((text) => {
+        DB.fetchData('data/tree.txt').then((text) => {
             if (body)
-                body.append(text);
+                appendLines(body, text);
         });
     }
     function appendLines(body, lines) {

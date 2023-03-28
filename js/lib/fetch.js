@@ -1,7 +1,7 @@
 export async function fetchData(path, type = 'text') {
     try {
         const uri = new Request(path);
-        const response = await fetch(uri, { mode: 'same-origin' });
+        const response = await fetch(uri);
         var data;
         if (type == 'json' || path.endsWith('.json'))
             data = await response.json();

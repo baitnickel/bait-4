@@ -1,3 +1,4 @@
+import * as DB from './lib/fetch.js'
 export function render() {
 
 	let body = document.querySelector('body');
@@ -30,6 +31,10 @@ export function render() {
 		
 		// appendLines(body, youTubePlayer('5FQpeqFmwVk', 560, 315));
 		
+		DB.fetchData('tree.txt').then((text: string) => {
+			if (body) body.append(text);
+		});
+	
 	}
 
 	function appendLines(body: HTMLElement, lines: string|string[]) {

@@ -41,7 +41,7 @@ export function render() {
 		let mapDiv = document.createElement('div');
 		body.append(mapDiv);
 	
-		DB.fetchData('data/park.md').then((parkText: string) => {
+		DB.fetchData('data/park.txt').then((parkText: string) => {
 			let obsidian = new Document(parkText);
 			if (obsidian.metadata) {
 				if ('map' in obsidian.metadata) {

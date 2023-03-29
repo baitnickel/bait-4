@@ -13,11 +13,19 @@ export class Page {
         this.content.id = 'page-content';
         this.footer = document.createElement('div');
         this.footer.id = 'footer';
+        /** 'body' must be defined in index.html */
         let body = document.querySelector('body');
-        if (body) {
-            body.append(this.header);
-            body.append(this.content);
-            body.append(this.footer);
+        body.append(this.header);
+        body.append(this.content);
+        body.append(this.footer);
+        /** We need a special origin when fetching raw files on GitHub Pages */
+        const repository = 'bait-4';
+        this.fetchOrigin = `${this.origin}/${repository}`;
+        if (!this.local) {
+            const rawServer = 'https://raw.githubusercontent.com';
+            const username = 'baitnickel';
+            const branch = 'main';
+            this.fetchOrigin = `${rawServer}/${username}/${repository}/${branch}`;
         }
     }
     setTitle(title, asHeadingLevel = 0) {

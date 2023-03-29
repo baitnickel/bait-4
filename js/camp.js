@@ -11,8 +11,8 @@ export function render() {
     const ThisYear = new Date().getFullYear();
     // const ParkFilePath = './data/park.md';
     const page = new Page();
-    // const ParkFilePath = `${page.origin}/bait-4/data/park.md`;
-    const ParkFilePath = `data/park.md`;
+    const ParkFilePath = `${page.fetchOrigin}/data/park.md`;
+    // const ParkFilePath = `data/park.md`;
     console.log(`origin: ${page.origin}`);
     console.log(`url: ${page.url}`);
     console.log(`parameters: ${page.parameters}`);

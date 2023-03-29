@@ -7,6 +7,7 @@ export class Page {
 	parameters: URLSearchParams;        /** URL query parameters */
 	options: {[key: string]: string};   /** associative array of options */
 	local: boolean;                     /** is the server 'localhost'? */
+	fetchOrigin: string;                /** root URL for fetch operations */
 	header: HTMLDivElement;
 	content: HTMLDivElement;
 	footer: HTMLDivElement;
@@ -24,11 +25,19 @@ export class Page {
 		this.content.id = 'page-content';
 		this.footer = document.createElement('div');
 		this.footer.id = 'footer';
-		let body = document.querySelector('body');
-		if (body) {
-			body.append(this.header);
-			body.append(this.content);
-			body.append(this.footer);
+		/** 'body' must be defined in index.html */
+		let body = document.querySelector('body')!;
+		body.append(this.header);
+		body.append(this.content);
+		body.append(this.footer);
+		/** We need a special origin when fetching raw files on GitHub Pages */
+		const repository = 'bait-4';
+		this.fetchOrigin = `${this.origin}/${repository}`;
+		if (!this.local) {
+			const rawServer = 'https://raw.githubusercontent.com';
+			const username = 'baitnickel';
+			const branch = 'main';
+			this.fetchOrigin = `${rawServer}/${username}/${repository}/${branch}`;
 		}
 	}
 

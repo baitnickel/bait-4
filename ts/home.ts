@@ -1,68 +1,65 @@
+import { Page } from './lib/page.js';
 import * as DB from './lib/fetch.js'
 import { Document } from './lib/document.js';
-import * as Reservations from './lib/reservations.js';
 
 export function render() {
+	const page = new Page();
 
-	let body = document.querySelector('body');
-	if (body) {
+	// appendLines(page.content, '<input type="file" id="input" multiple />');
+	// let inputFiles = document.getElementById("input") as FileList;
+	// if (inputFiles) {
+	// 	const selectedFile = inputFiles.files[0];
+	// }
 
-		// appendLines(body, '<input type="file" id="input" multiple />');
-		// let inputFiles = document.getElementById("input") as FileList;
-		// if (inputFiles) {
-		// 	const selectedFile = inputFiles.files[0];
-		// }
-
-		// appendLines(body, '<input id="fileItem" type="file" />');
-		// let inputElement = document.getElementById("fileItem") as HTMLInputElement;
-		// if (inputElement && inputElement.files && inputElement.files.length) {
-		// 	const file = inputElement.files[0];
-		// 	console.log(file);
-		// }
-		
-		let lyrics: string[] = [
-			'There’s nothing you can know that isn’t known',
-			'Nothing you can see that isn’t shown',
-			'Nowhere you can be that isn’t where you’re meant to be',
-		];
-		appendLines(body, lyrics);
-
-		body.append(smugImage('i-SDpf2qV', 'S'));
-		// body.append(smugImage('i-bT23PBf', 'L', 'png'));
-
-		// SVG.appendSVG(body, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
-		
-		// appendLines(body, youTubePlayer('5FQpeqFmwVk', 560, 315));
-		
-		DB.fetchData('data/tree.txt').then((text: string) => {
-			if (body) appendLines(body, text);
-		});
+	// appendLines(page.content, '<input id="fileItem" type="file" />');
+	// let inputElement = document.getElementById("fileItem") as HTMLInputElement;
+	// if (inputElement && inputElement.files && inputElement.files.length) {
+	// 	const file = inputElement.files[0];
+	// 	console.log(file);
+	// }
 	
-		let mapDiv = document.createElement('div');
-		body.append(mapDiv);
+	let lyrics: string[] = [
+		'There’s nothing you can know that isn’t known',
+		'Nothing you can see that isn’t shown',
+		'Nowhere you can be that isn’t where you’re meant to be',
+	];
+	appendLines(page.content, lyrics);
+
+	page.content.append(smugImage('i-SDpf2qV', 'S'));
+	// page.content.append(smugImage('i-bT23PBf', 'L', 'png'));
+
+	// SVG.appendSVG(page.content, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
 	
-		DB.fetchData('data/park.txt').then((parkText: string) => {
-			let obsidian = new Document(parkText);
-			if (obsidian.metadata) {
-				console.log('metadata loaded');
-				if ('map' in obsidian.metadata) {
-					let mapElement = document.createElement('img');
-					// mapElement.setAttribute('src', `./data/${obsidian.metadata['map']}`);
-					mapElement.setAttribute('src', `data/${obsidian.metadata['map']}`);
-					mapElement.width=555;
-					mapDiv.append(mapElement);
-				}
+	// appendLines(page.content, youTubePlayer('5FQpeqFmwVk', 560, 315));
+	
+	console.log(`${page.fetchOrigin}/data/tree.txt`);
+	
+	DB.fetchData(`${page.fetchOrigin}/data/tree.txt`).then((text: string) => {
+		appendLines(page.content, text);
+	});
+
+	let mapDiv = document.createElement('div');
+	page.content.append(mapDiv);
+
+	DB.fetchData(`${page.fetchOrigin}/data/park.txt`).then((parkText: string) => {
+		let obsidian = new Document(parkText);
+		if (obsidian.metadata) {
+			console.log('metadata loaded');
+			if ('map' in obsidian.metadata) {
+				let mapElement = document.createElement('img');
+				// mapElement.setAttribute('src', `./data/${obsidian.metadata['map']}`);
+				mapElement.setAttribute('src', `data/${obsidian.metadata['map']}`);
+				mapElement.width=555;
+				mapDiv.append(mapElement);
 			}
-		});
-	
-	
-	}
+		}
+	});
 
-	function appendLines(body: HTMLElement, lines: string|string[]) {
+	function appendLines(element: HTMLElement, lines: string|string[]) {
 		let paragraph = document.createElement('p');
 		if (typeof lines == 'object') lines = lines.join('<br>');
 		paragraph.innerHTML = lines;
-		body.append(paragraph);
+		element.append(paragraph);
 	}
 
 	function smugImage(id: string, size: string, type: string = 'jpg') {

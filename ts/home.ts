@@ -35,20 +35,6 @@ export function render() {
 	let mapDiv = document.createElement('div');
 	page.content.append(mapDiv);
 
-	DB.fetchData(`${page.fetchOrigin}/data/park.txt`).then((parkText: string) => {
-		let obsidian = new Document(parkText);
-		if (obsidian.metadata) {
-			console.log('metadata loaded');
-			if ('map' in obsidian.metadata) {
-				let mapElement = document.createElement('img');
-				// mapElement.setAttribute('src', `./data/${obsidian.metadata['map']}`);
-				mapElement.setAttribute('src', `data/${obsidian.metadata['map']}`);
-				mapElement.width=555;
-				mapDiv.append(mapElement);
-			}
-		}
-	});
-
 	function appendLines(element: HTMLElement, lines: string|string[]) {
 		let paragraph = document.createElement('p');
 		if (typeof lines == 'object') lines = lines.join('<br>');

@@ -1,6 +1,4 @@
 import { Page } from './lib/page.js';
-import * as DB from './lib/fetch.js';
-import { Document } from './lib/document.js';
 export function render() {
     const page = new Page();
     // appendLines(page.content, '<input type="file" id="input" multiple />');
@@ -26,19 +24,6 @@ export function render() {
     // appendLines(page.content, youTubePlayer('5FQpeqFmwVk', 560, 315));
     let mapDiv = document.createElement('div');
     page.content.append(mapDiv);
-    DB.fetchData(`${page.fetchOrigin}/data/park.txt`).then((parkText) => {
-        let obsidian = new Document(parkText);
-        if (obsidian.metadata) {
-            console.log('metadata loaded');
-            if ('map' in obsidian.metadata) {
-                let mapElement = document.createElement('img');
-                // mapElement.setAttribute('src', `./data/${obsidian.metadata['map']}`);
-                mapElement.setAttribute('src', `data/${obsidian.metadata['map']}`);
-                mapElement.width = 555;
-                mapDiv.append(mapElement);
-            }
-        }
-    });
     function appendLines(element, lines) {
         let paragraph = document.createElement('p');
         if (typeof lines == 'object')

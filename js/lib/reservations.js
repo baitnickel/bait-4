@@ -1,3 +1,6 @@
+/**
+ * Special module to support Campsite Reservation tables
+ */
 export function displayReservationTable(tableElement, thisYear, reservations, accountColors) {
     let siteReservations = {};
     let beginDate = null;

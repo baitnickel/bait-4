@@ -327,10 +327,10 @@ pre code { /* fenced code blocks */
 }
 
 /* camp page(s) */
-.alert {background-color: #f98989; color: black;}
-.good-campsite {background-color: #acf69b;}
-.bad-campsite {background-color: #eba5b1;}
-.limited-campsite {background-color: #c9c8c8;}
+.alert {background-color: red; color: black;}
+.campsite-good {background-color: lightgreen;}
+.campsite-bad {background-color: darksalmon;}
+.campsite-limited {background-color: silver;}
 table, th, td {border: 1px solid black; border-collapse: collapse;}
 th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 .campsite-comments {font-family: sans-serif; font-size: .75em;}

@@ -240,7 +240,7 @@ sites:
     comment: nice bedroom site with 24; on corner, very open and exposed, only OK with 21 & 24
   -
     site: J24
-    category: limited
+    category:
     type: CABIN
     size: L
     tents: 7
@@ -256,7 +256,7 @@ sites:
     comment: mostly paved/leveled, secluded, near bathroom
   -
     site: J26
-    category: limited
+    category:
     type: CABIN
     size: L
     tents: 3
@@ -288,7 +288,7 @@ sites:
     comment: open corner site, lots of exposure to road and site 26, fire pit close to bear box
   -
     site: J30
-    category: limited
+    category:
     type: CABIN
     size:
     tents: 2
@@ -768,7 +768,7 @@ sites:
     comment: 2004 main site; room for 3 vehicles, weird bear box placement at head of parking area, secluded, good community site
   -
     site: J105
-    category: limited
+    category:
     type: CABIN
     size: M
     tents: 4

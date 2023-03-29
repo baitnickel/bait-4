@@ -24,10 +24,6 @@ export function render() {
     // page.content.append(smugImage('i-bT23PBf', 'L', 'png'));
     // SVG.appendSVG(page.content, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
     // appendLines(page.content, youTubePlayer('5FQpeqFmwVk', 560, 315));
-    console.log(`${page.fetchOrigin}/data/tree.txt`);
-    DB.fetchData(`${page.fetchOrigin}/data/tree.txt`).then((text) => {
-        appendLines(page.content, text);
-    });
     let mapDiv = document.createElement('div');
     page.content.append(mapDiv);
     DB.fetchData(`${page.fetchOrigin}/data/park.txt`).then((parkText) => {

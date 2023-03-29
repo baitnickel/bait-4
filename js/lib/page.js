@@ -28,6 +28,8 @@ export class Page {
             this.fetchOrigin = `${rawServer}/${username}/${repository}/${branch}`;
         }
     }
+    /** displayMenu() */
+    /** displayFooter() */
     setTitle(title, asHeadingLevel = 0) {
         /**
          * (Re)set the title in the HTML head. Optionally, also use the title as

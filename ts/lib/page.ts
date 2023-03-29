@@ -41,6 +41,10 @@ export class Page {
 		}
 	}
 
+	/** displayMenu() */
+
+	/** displayFooter() */
+
 	setTitle(title: string, asHeadingLevel: number = 0) {
 		/**
 		 * (Re)set the title in the HTML head. Optionally, also use the title as
@@ -63,4 +67,5 @@ export class Page {
 			this.header.insertAdjacentElement('afterend', element);
 		}
 	}
+
 }

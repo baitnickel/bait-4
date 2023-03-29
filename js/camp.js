@@ -1,18 +1,12 @@
 import { Page } from './lib/page.js';
 import * as DB from './lib/fetch.js';
 import { Document } from './lib/document.js';
+import * as Table from './lib/table.js';
 import * as Reservations from './lib/reservations.js';
-// const ThisYear = new Date().getFullYear();
-// const ParkFilePath = 'data/park.md';
-// const page = new Page();
-// render(page);
-// export function render(page: Page) {
 export function render() {
     const ThisYear = new Date().getFullYear();
-    // const ParkFilePath = './data/park.md';
     const page = new Page();
     const ParkFilePath = `${page.fetchOrigin}/data/park.md`;
-    // const ParkFilePath = `data/park.md`;
     console.log(`origin: ${page.origin}`);
     console.log(`url: ${page.url}`);
     console.log(`parameters: ${page.parameters}`);
@@ -25,8 +19,7 @@ export function render() {
         if (obsidian.metadata) {
             if ('map' in obsidian.metadata) {
                 let mapElement = document.createElement('img');
-                // mapElement.setAttribute('src', `./data/${obsidian.metadata['map']}`);
-                mapElement.setAttribute('src', `data/${obsidian.metadata['map']}`);
+                mapElement.setAttribute('src', `images/camp/${obsidian.metadata['map']}`);
                 mapElement.width = 666;
                 mapDiv.append(mapElement);
             }
@@ -45,42 +38,21 @@ export function render() {
             }
             if ('sites' in obsidian.metadata) {
                 /** Generate sites table */
-                let tableRows = obsidian.metadata['sites'];
-                let tableHeadings = ['Site', 'Type', 'Size', 'Tents', 'Table', 'Comments'];
-                let tableElements = ['site', 'type', 'size', 'tents', 'table', 'comment'];
-                page.content.append(createTable(tableRows, tableHeadings, tableElements));
+                const tableRows = obsidian.metadata['sites'];
+                const tableHeadings = ['Site', 'Type', 'Size', 'Tents', 'Table', 'Comments'];
+                const tableElements = ['site', 'type', 'size', 'tents', 'table', 'comment'];
+                const tableOptions = {
+                    headingCells: ['site'],
+                    classPrefix: 'campsite-',
+                    classElement: 'category',
+                };
+                page.content.append(Table.createTable(tableRows, tableHeadings, tableElements, tableOptions));
             }
             if ('comments' in obsidian.metadata) {
                 page.content.append(createParagraphs(obsidian.metadata['comments']));
             }
         }
     });
-}
-function createTable(rows, headings, elements) {
-    // rows must be an array of key:value objects, key is a string, value is string, number, or null
-    let tableElement = document.createElement('table');
-    if (headings.length) {
-        let rowElement = document.createElement('tr');
-        for (let heading of headings) {
-            let rowItemElement = document.createElement('th');
-            rowItemElement.innerText = heading;
-            rowElement.appendChild(rowItemElement);
-        }
-        tableElement.appendChild(rowElement);
-    }
-    for (let row of rows) {
-        let rowElement = document.createElement('tr');
-        for (let element of elements) {
-            let rowItemElement = document.createElement('td');
-            let value = (element in row) ? row[element] : '';
-            if (value === null)
-                value = '';
-            rowItemElement.innerText = `${value}`;
-            rowElement.appendChild(rowItemElement);
-        }
-        tableElement.appendChild(rowElement);
-    }
-    return tableElement;
 }
 function createParagraphs(lines) {
     let divElement = document.createElement('div');

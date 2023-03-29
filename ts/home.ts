@@ -32,12 +32,6 @@ export function render() {
 	
 	// appendLines(page.content, youTubePlayer('5FQpeqFmwVk', 560, 315));
 	
-	console.log(`${page.fetchOrigin}/data/tree.txt`);
-	
-	DB.fetchData(`${page.fetchOrigin}/data/tree.txt`).then((text: string) => {
-		appendLines(page.content, text);
-	});
-
 	let mapDiv = document.createElement('div');
 	page.content.append(mapDiv);
 

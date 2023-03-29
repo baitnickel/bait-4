@@ -1,3 +1,7 @@
+/**
+ * Special module to support Campsite Reservation tables
+ */
+
 export type Reservation = {
 	site: string;
 	arrival: string;

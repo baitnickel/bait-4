@@ -41,7 +41,15 @@ export class Page {
 		}
 	}
 
-	/** displayMenu() */
+	displayMenu(){
+		const pages = ['home', 'camp'];
+		for (let page of pages) {
+			const link = document.createElement('a');
+			link.href = `${this.url}?page=${page}`;
+			link.textContent = `${page} `;
+			this.header.append(link);
+		}
+	}
 
 	/** displayFooter() */
 

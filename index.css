@@ -22,6 +22,8 @@ body {
 
 #header-menu, #footer {
 	background-color: #5480df;
+	/* background-color: lightyellow; */
+	color: yellow; /* why not working? */
 }
 
 h1, h2, h3, h4, h5 {

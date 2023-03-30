@@ -9,13 +9,15 @@ import { MarkupLine } from './lib/markup.js';
 export function render() {
 	const ThisYear = new Date().getFullYear();
 	const page = new Page();
+	page.displayMenu();
+	page.setTitle('Campsites', 2);
+
 	const ParkFilePath = `${page.fetchOrigin}/data/park.md`;
 	console.log(`origin: ${page.origin}`);
 	console.log(`url: ${page.url}`);
 	console.log(`parameters: ${page.parameters}`);
 	console.log(`path: ${ParkFilePath}`);
 
-	page.setTitle('Campsites', 2);
 	let mapDiv = document.createElement('div');
 	page.content.append(mapDiv);
 

@@ -25,26 +25,25 @@ export function youTubeFrame(embedID, width, height, options = []) {
     frame.allow = 'accelerometer,autoplay,clipboard-write,encrypted-media,gyroscope,picture-in-picture,web-share';
     return frame;
 }
-export function youTubePlayer(embedID, width, height, options = []) {
-    if (!options.length) {
-        let defaultOptions = [
-            'title="YouTube video player"',
-            'frameborder="0"',
-            'allow="accelerometer"',
-            'allow="autoplay"',
-            'allow="clipboard-write"',
-            'allow="encrypted-media"',
-            'allow="gyroscope"',
-            'allow="picture-in-picture"',
-            'allow="web-share"',
-            'allowfullscreen',
-        ];
-        options = defaultOptions;
-    }
-    const source = `https://www.youtube.com/embed/${embedID}`;
-    let iFrame = `<iframe width="${width}" height="${height}" src="${source}"`;
-    if (options.length)
-        iFrame += ` ${options.join(' ')}`;
-    iFrame += '></iframe>';
-    return iFrame;
-}
+// export function youTubePlayer(embedID: string, width: number, height:number, options: string[] = []) {
+// 	if (!options.length) {
+// 		let defaultOptions = [
+// 			'title="YouTube video player"',
+// 			'frameborder="0"',
+// 			'allow="accelerometer"',
+// 			'allow="autoplay"',
+// 			'allow="clipboard-write"',
+// 			'allow="encrypted-media"',
+// 			'allow="gyroscope"',
+// 			'allow="picture-in-picture"',
+// 			'allow="web-share"',
+// 			'allowfullscreen',
+// 		]
+// 		options = defaultOptions;
+// 	}
+// 	const source = `https://www.youtube.com/embed/${embedID}`;
+// 	let iFrame = `<iframe width="${width}" height="${height}" src="${source}"`;
+// 	if (options.length) iFrame += ` ${options.join(' ')}`;
+// 	iFrame += '></iframe>';
+// 	return iFrame;
+// }

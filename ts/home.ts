@@ -4,6 +4,8 @@ import * as Embed from './lib/embed.js';
 export function render() {
 	const page = new Page();
 	page.displayMenu();
+	page.displayFooter();
+	
 	let lyrics: string[] = [
 		'There’s nothing you can know that isn’t known',
 		'Nothing you can see that isn’t shown',

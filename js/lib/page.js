@@ -1,4 +1,10 @@
 import { MarkupLine } from './markup.js';
+const COPYRIGHT_YEAR = '2023';
+const COPYRIGHT_HOLDER = 'D.Dickinson';
+const MenuItems = [
+    { module: 'home', text: 'Home', icon: 'home.svg' },
+    { module: 'camp', text: 'Camping', icon: 'camp.svg' },
+];
 export class Page {
     constructor() {
         this.origin = window.location.origin;
@@ -29,15 +35,25 @@ export class Page {
         }
     }
     displayMenu() {
-        const pages = ['home', 'camp'];
-        for (let page of pages) {
-            const link = document.createElement('a');
-            link.href = `${this.url}?page=${page}`;
-            link.textContent = `${page} `;
-            this.header.append(link);
+        let uListElement = document.createElement('ul');
+        uListElement.id = 'menu';
+        this.header.append(uListElement);
+        for (let menuItem of MenuItems) {
+            let listElement = document.createElement('li');
+            uListElement.append(listElement);
+            let anchor = document.createElement('a');
+            anchor.href = `${this.url}?page=${menuItem.module}`;
+            anchor.innerText = menuItem.text;
+            listElement.append(anchor);
         }
     }
-    /** displayFooter() */
+    displayFooter() {
+        let footerLines = [];
+        let updateDate = new Date(document.lastModified).toDateString(); /** modification date of the HTML file */
+        footerLines.push(`Pages were last updated <span id=footer-date>${updateDate}</span>`);
+        footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
+        this.footer.innerHTML = footerLines.join('<br>');
+    }
     setTitle(title, asHeadingLevel = 0) {
         /**
          * (Re)set the title in the HTML head. Optionally, also use the title as

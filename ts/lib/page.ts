@@ -1,5 +1,19 @@
 import { MarkupLine } from './markup.js';
 
+const COPYRIGHT_YEAR = '2023';
+const COPYRIGHT_HOLDER = 'D.Dickinson';
+
+type MenuItem = {
+	module: string,
+	text: string,
+	icon: string,
+};
+
+const MenuItems: MenuItem[] = [
+	{module: 'home', text: 'Home', icon: 'home.svg'},
+	{module: 'camp', text: 'Camping', icon: 'camp.svg'},
+];
+
 export class Page {
 	name: string|null;                  /** name of requested page (via query 'page=<name>') */
 	origin: string;
@@ -42,16 +56,26 @@ export class Page {
 	}
 
 	displayMenu(){
-		const pages = ['home', 'camp'];
-		for (let page of pages) {
-			const link = document.createElement('a');
-			link.href = `${this.url}?page=${page}`;
-			link.textContent = `${page} `;
-			this.header.append(link);
+		let uListElement = document.createElement('ul');
+		uListElement.id = 'menu';
+		this.header.append(uListElement);
+		for (let menuItem of MenuItems) {
+			let listElement = document.createElement('li');
+			uListElement.append(listElement);
+			let anchor = document.createElement('a');
+			anchor.href = `${this.url}?page=${menuItem.module}`;
+			anchor.innerText = menuItem.text;
+			listElement.append(anchor);
 		}
 	}
 
-	/** displayFooter() */
+	displayFooter() {
+		let footerLines: string[] = [];
+		let updateDate = new Date(document.lastModified).toDateString(); /** modification date of the HTML file */
+		footerLines.push(`Pages were last updated <span id=footer-date>${updateDate}</span>`);
+		footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
+		this.footer.innerHTML = footerLines.join('<br>');
+	}
 
 	setTitle(title: string, asHeadingLevel: number = 0) {
 		/**
@@ -75,5 +99,4 @@ export class Page {
 			this.header.insertAdjacentElement('afterend', element);
 		}
 	}
-
 }

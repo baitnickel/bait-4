@@ -12,6 +12,7 @@ type MenuItem = {
 const MenuItems: MenuItem[] = [
 	{module: 'home', text: 'Home', icon: 'home.svg'},
 	{module: 'camp', text: 'Camping', icon: 'camp.svg'},
+	{module: 'songbook', text: 'Song Book', icon: 'songbook.svg'},
 ];
 
 export class Page {

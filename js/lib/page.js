@@ -4,6 +4,7 @@ const COPYRIGHT_HOLDER = 'D.Dickinson';
 const MenuItems = [
     { module: 'home', text: 'Home', icon: 'home.svg' },
     { module: 'camp', text: 'Camping', icon: 'camp.svg' },
+    { module: 'songbook', text: 'Song Book', icon: 'songbook.svg' },
 ];
 export class Page {
     constructor() {

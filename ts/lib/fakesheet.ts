@@ -44,7 +44,7 @@ export const FAKESHEET = {
 	tonicSeparator: '|', 
 	commentPattern: /\/\/.*/, /* comments begin with double-slashes (//) */
 	tokenCharacter: '.',
-	inlinePrefix: '_',
+	inlinePrefix: ['.', '_'],
 	chordPlaceholder: '^',
 	chordNotationSeparator: ':', /* separates chord name from chord notation */
 	chordSpacing: 2, /* minimum number of spaces between chords on chord line */
@@ -67,6 +67,7 @@ export class FakeSheet {
 	tempo: number;             /* beats per minute */
 	copyright: string;         /* copyright info, to be displayed following copyright symbol */
 	chords: Chord[];           /* used to display chord diagrams */
+	metadata: any;             /* metadata from source text */
 	lines: string[];           /* source text of fakesheet */
 	sections: Section[];       /* Section objects */
 	chordsUsed: string[];      /* unique list of chord names used, ordered by appearance */
@@ -88,7 +89,7 @@ export class FakeSheet {
 	 * 'b' and '#' and such).	
 	 */	
 
-	constructor(fakeSheetText: string, key: string = '') {
+	constructor(fakeSheetText: string, fakeSheetMetadata: any, key: string = '') {
 		this.title = '';
 		this.artist = '';
 		this.key = null;
@@ -98,11 +99,55 @@ export class FakeSheet {
 		this.tempo = 0;
 		this.copyright = '';
 		this.chords = [];
+		this.metadata = fakeSheetMetadata;
 		this.lines = fakeSheetText.split('\n');
 		this.sections = [];
 		this.chordsUsed = [];
 		this.instrument = new Instrument('guitar', 6, 22, ['E','A','D','G','B','E']);
 		this.errors = [];
+	}
+
+	parseMetadata() {
+		if (this.metadata !== null) {
+			const metaFields = ['title', 'artist', 'key', 'capo', 'tuning', 'tempo', 'copyright', 'chords'];
+			for (let metaField of metaFields) {
+				if (metaField in this.metadata && this.metadata[metaField] !== null) {
+					let metaFieldValues: string[] = [];
+					if (Array.isArray(this.metadata[metaField])) {
+						for (let metaFieldValue of this.metadata[metaField]) {
+							metaFieldValues.push(`${metaFieldValue}`)
+						}
+					}
+					else metaFieldValues.push(`${this.metadata[metaField]}`);
+					switch (metaField) {
+						case 'title':
+							this.setTitle(metaField, metaFieldValues, 0);
+							break;
+						case 'artist':
+							this.setArtist(metaField, metaFieldValues, 0);
+							break;
+						case 'key':
+							this.setKey(metaField, metaFieldValues, 0);
+							break;
+						case 'capo':
+							this.setCapo(metaField, metaFieldValues, 0);
+							break;
+						case 'tuning':
+							this.setTuning(metaField, metaFieldValues, 0);
+							break;
+						case 'tempo':
+							this.setTempo(metaField, metaFieldValues, 0);
+							break;
+						case 'copyright':
+							this.setCopyright(metaField, metaFieldValues, 0);
+							break;
+						case 'chords':
+							this.setChords(metaField, metaFieldValues, 0);
+							break;
+					}
+				}
+			}
+		}
 	}
 
 	parseSourceText() {
@@ -121,14 +166,17 @@ export class FakeSheet {
 				/* token line */
 				let parameters = trimmedLine.split(/\s+/);
 				let token = parameters.shift()!.toLowerCase().slice(1);
-				if (token == 'title') this.setTitle(token, parameters, lineNo);
-				else if (token == 'artist') this.setArtist(token, parameters, lineNo);
-				else if (token == 'key') this.setKey(token, parameters, lineNo);
-				else if (token == 'capo') this.setCapo(token, parameters, lineNo);
-				else if (token == 'tuning') this.setTuning(token, parameters, lineNo);
-				else if (token == 'tempo') this.setTempo(token, parameters, lineNo);
-				else if (token == 'copyright') this.setCopyright(token, parameters, lineNo);
-				else if (token == 'chords') this.setChords(token, parameters, lineNo);
+				if (this.metadata === null) {
+					if (token == 'title') this.setTitle(token, parameters, lineNo);
+					else if (token == 'artist') this.setArtist(token, parameters, lineNo);
+					else if (token == 'key') this.setKey(token, parameters, lineNo);
+					else if (token == 'capo') this.setCapo(token, parameters, lineNo);
+					else if (token == 'tuning') this.setTuning(token, parameters, lineNo);
+					else if (token == 'tempo') this.setTempo(token, parameters, lineNo);
+					else if (token == 'copyright') this.setCopyright(token, parameters, lineNo);
+					else if (token == 'chords') this.setChords(token, parameters, lineNo);
+					else if (token) currentSection = this.newSection(currentSection, token, parameters, lineNo);
+				}
 				else if (token) currentSection = this.newSection(currentSection, token, parameters, lineNo);
 				else this.addError(lineNo, 'Ignoring null token name');
 			} else {
@@ -413,7 +461,8 @@ class Section {
 		this.name = name;
 		this.chords = chords;
 		this.lines = [];
-		this.inline = (name.charAt(0) === FAKESHEET.inlinePrefix) ? true : false;
+		// this.inline = (name.charAt(0) === FAKESHEET.inlinePrefix) ? true : false;
+		this.inline = (FAKESHEET.inlinePrefix.includes(name[0]));
 	}
 
 	addLine(line:string) {

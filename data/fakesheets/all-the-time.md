@@ -1,20 +1,20 @@
 ---
 title: All the Time
-artist:
+artist: The Baitnickels
 composers: [dwd]
 key: G
-capo: 0
+capo:
 tuning: EADGBE
 tempo: 
 copyright: 
 chords: # list chord-name and notation separated by whitespace
-  - D4/9 554030
-  - G 320003
-  - D6/F# 20020x
-  - Em 022000
-  - C 332010
-  - B x2444xx
-  - Am 002210
+  - D4/9:554030
+  - G:320003
+  - D6/F#:20020x
+  - Em:022000
+  - C:332010
+  - B:x2444x
+  - Am:002210
 ---
 
 .v D4/9 G D6/F# Em D4/9 G D6/F# Em D4/9 G D6/F# Em D4/9 C D4/9
@@ -37,5 +37,5 @@ this moment shapes the colors in the very light
 
 (repeat 1 or 2?)
 
-.coda C D4/9 Em
-| ^ | ^ | ^
+..coda C D4/9 Em
+coda: | ^ | ^ | ^

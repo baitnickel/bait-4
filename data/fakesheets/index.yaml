@@ -1,0 +1,11 @@
+one-is-fine.txt: { title: One Is Fine, artist: The Baitnickels }
+promises-we-make.txt: { title: Promises We Make, artist: The Baitnickels }
+rabbit-and-the-white-fish.txt: { title: Rabbit and the White Fish, artist: The Baitnickels }
+melon-seller.txt: { title: Melon Seller, artist: The Volumes }
+miracles.txt: { title: Miracles, artist: The Baitnickels }
+mitchell.txt: { title: Mitchell, artist: The Baitnickels }
+i-knew-the-moment.txt: { title: I Knew the Moment, artist: The Baitnickels }
+a-meeting-of-the-minds.txt: { title: A Meeting of the Minds, artist: The Baitnickels }
+a-wake-in-time.txt: { title: A Wake In Time, artist: The Baitnickels }
+all-i-know.txt: { title: All I Know, artist: The Baitnickels }
+all-the-time.md: { title: All the Time, artist: The Baitnickels }

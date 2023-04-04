@@ -20,8 +20,14 @@ const CSS_ID = {
     tempo: 'tempo',
     copyright: 'copyright'
 };
-const song = 'all-the-time';
+var SortOrder;
+(function (SortOrder) {
+    SortOrder[SortOrder["Artist"] = 0] = "Artist";
+    SortOrder[SortOrder["Song"] = 1] = "Song";
+})(SortOrder || (SortOrder = {}));
+;
 const page = new Page();
+const dataPath = `${page.fetchOrigin}/data/fakesheets`;
 const errorBlock = document.createElement('div');
 errorBlock.id = CSS_ID.errorBlock;
 const metadataBlock = document.createElement('div');
@@ -30,22 +36,91 @@ const sheetBlock = document.createElement('pre');
 sheetBlock.id = CSS_ID.sheetBlock;
 const diagramBlock = document.createElement('div');
 diagramBlock.id = CSS_ID.diagramBlock;
-// const sortOrder = SortOrder.Artist;
+const sortOrder = SortOrder.Artist;
 export function render() {
     page.displayMenu();
     page.displayFooter();
-    const FakeSheetFilePath = `${page.fetchOrigin}/data/fakesheets/${song}.md`;
-    DB.fetchData(FakeSheetFilePath).then((fakeSheetText) => {
-        let obsidian = new Document(fakeSheetText);
-        if (obsidian.errors)
-            obsidian.reportErrors();
-        else {
-            let fakeSheet = new FakeSheet(obsidian.markdown, obsidian.metadata);
-            fakeSheet.parseMetadata();
-            fakeSheet.parseSourceText();
-            displaySheet(fakeSheet);
-        }
-    });
+    let song = page.parameters.get('song');
+    if (song) {
+        /** Display the song's fakesheet */
+        const fakeSheetFilePath = `${dataPath}/${song}`;
+        DB.fetchData(fakeSheetFilePath).then((fakeSheetText) => {
+            let obsidian = new Document(fakeSheetText);
+            if (obsidian.errors)
+                obsidian.reportErrors();
+            else {
+                let fakeSheet = new FakeSheet(obsidian.markdown, obsidian.metadata);
+                fakeSheet.parseMetadata();
+                fakeSheet.parseSourceText();
+                displaySheet(fakeSheet);
+            }
+        });
+    }
+    else {
+        /** Display a list of songs having fakesheets */
+        page.setTitle('Song Book');
+        page.addHeading('List of Songs', 2);
+        const fakeSheetIndexPath = `${dataPath}/index.yaml`;
+        DB.fetchData(fakeSheetIndexPath).then((indexText) => {
+            let yaml = new Document(indexText, true);
+            if (yaml.errors)
+                yaml.reportErrors();
+            else {
+                const fakeSheetIndex = yaml.metadata;
+                let songKeys = Object.keys(fakeSheetIndex);
+                sortSongKeys(fakeSheetIndex, songKeys);
+                let pElement = document.createElement('p');
+                let artistDiv = null; /** <div> to contain an artist's items */
+                let detailsElement = null;
+                let previousArtist = '';
+                for (let songKey of songKeys) {
+                    /** 'songKey' is the fakesheet file name */
+                    if (sortOrder == SortOrder.Artist) {
+                        let songBookItem = fakeSheetIndex[songKey].title;
+                        if (previousArtist != fakeSheetIndex[songKey].artist) {
+                            if (previousArtist) { /** this is not the first song */
+                                // close the current <details> block and start a new one
+                                if (artistDiv && detailsElement) {
+                                    detailsElement.append(artistDiv);
+                                    page.content.append(detailsElement);
+                                }
+                            }
+                            detailsElement = document.createElement('details');
+                            let summaryElement = document.createElement('summary');
+                            summaryElement.innerHTML = MarkupLine(fakeSheetIndex[songKey].artist, 'et');
+                            detailsElement.append(summaryElement);
+                            artistDiv = document.createElement('div');
+                            artistDiv.classList.add(CSS_CLASS.songTitleLink);
+                        }
+                        if (artistDiv && detailsElement) {
+                            let anchorElement = document.createElement('a');
+                            anchorElement.href = page.url + `?page=songbook&song=${songKey}`;
+                            anchorElement.innerHTML = MarkupLine(songBookItem, 'et');
+                            artistDiv.appendChild(anchorElement);
+                            let breakElement = document.createElement('br');
+                            artistDiv.appendChild(breakElement);
+                            detailsElement.append(pElement);
+                        }
+                    }
+                    else { /** SortOrder.Song */
+                        let songBookItem = `${fakeSheetIndex[songKey].title} - ${fakeSheetIndex[songKey].artist}`;
+                        let anchorElement = document.createElement('a');
+                        anchorElement.href = page.url + `?page=songbook&song=${songKey}`;
+                        anchorElement.innerHTML = MarkupLine(songBookItem, 'et');
+                        pElement.appendChild(anchorElement);
+                        let breakElement = document.createElement('br');
+                        pElement.appendChild(breakElement);
+                        page.content.append(pElement);
+                    }
+                    previousArtist = fakeSheetIndex[songKey].artist;
+                }
+                if (artistDiv && detailsElement) {
+                    detailsElement.append(artistDiv);
+                    page.content.append(detailsElement);
+                }
+            }
+        });
+    }
 }
 function displaySheet(fakesheet) {
     /** Display song title in both HTML title and Heading */
@@ -188,4 +263,39 @@ function changeKey(fakesheet, newKey) {
     fillMetadataBlock(fakesheet);
     fillSheetBlock(fakesheet);
     fillDiagramBlock(fakesheet);
+}
+function sortSongKeys(songs, songKeys) {
+    songKeys.sort((a, b) => {
+        let artistA = sortableTitle(songs[a].artist);
+        let artistB = sortableTitle(songs[b].artist);
+        let titleA = sortableTitle(songs[a].title);
+        let titleB = sortableTitle(songs[b].title);
+        let sortValue = 0;
+        if (sortOrder != SortOrder.Artist || artistA == artistB) {
+            sortValue = (titleA > titleB) ? 1 : -1;
+        }
+        else
+            sortValue = (artistA > artistB) ? 1 : -1;
+        return sortValue;
+    });
+}
+function sortableTitle(rawTitle) {
+    /**
+     * Given a string containing a title (such as a song title or a band
+     * name), return a string that may be used in sorting, where all
+     * characters are converted to lower case, and leading articles ('a',
+     * 'an', and 'the') are moved to the title's end.
+     */
+    let adjustedTitle = rawTitle.toLowerCase();
+    let words = adjustedTitle.split(/\s+/);
+    if (!words[0])
+        words.shift(); /** remove leading whitespace */
+    /** remove leading article */
+    if (['a', 'an', 'the'].includes(words[0])) {
+        let newLastWord = words.shift();
+        if (newLastWord)
+            words.push(newLastWord);
+    }
+    adjustedTitle = words.join(' ');
+    return adjustedTitle;
 }

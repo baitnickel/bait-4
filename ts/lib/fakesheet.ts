@@ -24,17 +24,21 @@ import { MarkupLine } from './markup.js';
  * - Support a library of chord diagrams, particularly for newKeys
  */
 
-export type FakeSheetMetadata = {
-	title: string,
-	artist: string,
-	composers: string[],
-	key: string,
-	capo: number,
-	tuning: string,
-	tempo: string,
-	copyright: string,
-	chords: string[],
-};
+// export type FakeSheetMetadata = {
+// 	title: string,
+// 	artist: string,
+// 	composers: string[],
+// 	key: string,
+// 	capo: number,
+// 	tuning: string,
+// 	tempo: string,
+// 	copyright: string,
+// 	chords: string[],
+// };
+
+export type FakeSheetIndex = {
+	[file: string]: {title: string, artist: string};
+}
 
 export const FAKESHEET = {
 	version: '2022.01.19',

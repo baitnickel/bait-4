@@ -45,14 +45,20 @@ export function render() {
         /** Display the song's fakesheet */
         const fakeSheetFilePath = `${dataPath}/${song}`;
         DB.fetchData(fakeSheetFilePath).then((fakeSheetText) => {
-            let obsidian = new Document(fakeSheetText);
-            if (obsidian.errors)
-                obsidian.reportErrors();
+            if (!fakeSheetText) {
+                const errorMessage = `The URL contains an invalid song file name: \`${song}\``;
+                page.content.innerHTML = MarkupLine(errorMessage, 'etm');
+            }
             else {
-                let fakeSheet = new FakeSheet(obsidian.markdown, obsidian.metadata);
-                fakeSheet.parseMetadata();
-                fakeSheet.parseSourceText();
-                displaySheet(fakeSheet);
+                let obsidian = new Document(fakeSheetText);
+                if (obsidian.errors)
+                    obsidian.reportErrors();
+                else {
+                    let fakeSheet = new FakeSheet(obsidian.markdown, obsidian.metadata);
+                    fakeSheet.parseMetadata();
+                    fakeSheet.parseSourceText();
+                    displaySheet(fakeSheet);
+                }
             }
         });
     }

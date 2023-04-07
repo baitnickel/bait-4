@@ -36,6 +36,9 @@ export class Page {
         }
         /** Client notifications */
         if (this.local) {
+            /** assume Notification permission granted */
+        }
+        else {
             console.log(Notification.permission); /** default, granted, denied */
             if (Notification.permission == 'granted') {
                 alert('we have Notification permission');

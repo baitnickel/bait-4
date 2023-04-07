@@ -54,21 +54,6 @@ export class Page {
 			const branch = 'main';
 			this.fetchOrigin = `${rawServer}/${username}/${repository}/${branch}`;
 		}
-		/** Client notifications */
-		if (this.local) {
-			/** assume Notification permission granted */
-		}
-		else {
-			console.log(Notification.permission); /** default, granted, denied */
-			if (Notification.permission == 'granted') {
-				alert('we have Notification permission');
-			}
-			else if (Notification.permission != 'denied') {
-				Notification.requestPermission().then(permission => {
-					console.log(permission);
-				});
-			}
-		}
 	}
 
 	displayMenu(){
@@ -87,8 +72,11 @@ export class Page {
 
 	displayFooter() {
 		let footerLines: string[] = [];
-		let updateDate = new Date(document.lastModified).toDateString(); /** modification date of the HTML file */
-		footerLines.push(`Pages were last updated <span id=footer-date>${updateDate}</span>`);
+		let updateDate = new Date(document.lastModified).toDateString(); /** HTML file modification date */
+		if (window.location.protocol == 'https:') {
+			footerLines.push('<button onclick="this.requestNotificationPermission()">Notify me!</button>');
+		}
+		footerLines.push(`Last updated <span id=footer-date>${updateDate}</span>`);
 		footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
 		this.footer.innerHTML = footerLines.join('<br>');
 	}
@@ -114,5 +102,26 @@ export class Page {
 			element.innerText = heading;
 			this.header.insertAdjacentElement('afterend', element);
 		}
+	}
+	
+	requestNotificationPermission() {
+		/** Client-side notifications */
+		if (window.location.protocol == 'https:') {
+			console.log(Notification.permission); /** default, granted, denied */
+			if (Notification.permission == 'granted') {
+				this.showNotification('my granted title', 'we have Notification permission');
+			}
+			else if (Notification.permission != 'denied') {
+				Notification.requestPermission().then(permission => {
+					if (permission == 'granted') {
+						this.showNotification('my granted title', 'Notification permission granted');
+					}
+				});
+			}
+		}
+	}
+
+	showNotification(title: string, body: string) {
+		const notification = new Notification(title, {body: 'test notification'});
 	}
 }

@@ -76,30 +76,17 @@ export class Page {
 		let updateDate = new Date(document.lastModified).toDateString(); /** HTML file modification date */
 		footerLines.push(`Last updated <span id=footer-date>${updateDate}</span>`);
 		footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
-		if (window.location.protocol == 'https:') {
-			footerLines.push('<button id=notify-button onclick="requestNotificationPermission()">Allow Notifications</button>');
-		}
-		this.footer.innerHTML = footerLines.join('<br>');
-
 		// if (window.location.protocol == 'https:') {
-		// 	console.log(Notification.permission); /** default, granted, denied */
-		// 	if (Notification.permission == 'granted') {
-		// 		this.showNotification('my granted title', 'we have Notification permission');
-		// 	}
-		// 	else if (Notification.permission != 'denied') {
-		// 		Notification.requestPermission().then(permission => {
-		// 			if (permission == 'granted') {
-		// 				this.showNotification('my granted title', 'Notification permission granted');
-		// 			}
-		// 		});
-		// 	}
+		// 	footerLines.push('<button id=notify-button onclick="requestNotificationPermission()">Allow Notifications</button>');
 		// }
+		this.footer.innerHTML = footerLines.join('<br>');
 
 		if (window.location.protocol == 'https:'
 			&& Notification.permission != 'denied'
 			&& Notification.permission != 'granted'
 		) {
 			let notifyElement = document.createElement('button');
+			notifyElement.innerText = 'Permit Notifications';
 			notifyElement.addEventListener('click', (e: Event) => {
 				/** 
 				 * e.target is the element listened to (selectElement)
@@ -117,6 +104,10 @@ export class Page {
 			});
 			this.footer.append(notifyElement);
 		}
+	}
+
+	showNotification(title: string, body: string) {
+		const notification = new Notification(title, {body: 'test notification'});
 	}
 
 	setTitle(title: string, asHeadingLevel: number = 0) {
@@ -142,24 +133,20 @@ export class Page {
 		}
 	}
 	
-	requestNotificationPermission() {
-		/** Client-side notifications */
-		if (window.location.protocol == 'https:') {
-			console.log(Notification.permission); /** default, granted, denied */
-			if (Notification.permission == 'granted') {
-				this.showNotification('my granted title', 'we have Notification permission');
-			}
-			else if (Notification.permission != 'denied') {
-				Notification.requestPermission().then(permission => {
-					if (permission == 'granted') {
-						this.showNotification('my granted title', 'Notification permission granted');
-					}
-				});
-			}
-		}
-	}
-
-	showNotification(title: string, body: string) {
-		const notification = new Notification(title, {body: 'test notification'});
-	}
+	// requestNotificationPermission() {
+	// 	/** Client-side notifications */
+	// 	if (window.location.protocol == 'https:') {
+	// 		console.log(Notification.permission); /** default, granted, denied */
+	// 		if (Notification.permission == 'granted') {
+	// 			this.showNotification('my granted title', 'we have Notification permission');
+	// 		}
+	// 		else if (Notification.permission != 'denied') {
+	// 			Notification.requestPermission().then(permission => {
+	// 				if (permission == 'granted') {
+	// 					this.showNotification('my granted title', 'Notification permission granted');
+	// 				}
+	// 			});
+	// 		}
+	// 	}
+	// }
 }

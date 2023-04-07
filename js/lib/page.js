@@ -51,11 +51,11 @@ export class Page {
     displayFooter() {
         let footerLines = [];
         let updateDate = new Date(document.lastModified).toDateString(); /** HTML file modification date */
-        if (window.location.protocol == 'https:') {
-            footerLines.push('<button onclick="this.requestNotificationPermission()">Notify me!</button>');
-        }
         footerLines.push(`Last updated <span id=footer-date>${updateDate}</span>`);
         footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
+        if (window.location.protocol == 'https:') {
+            footerLines.push('<button onclick="requestNotificationPermission()">Notify me!</button>');
+        }
         this.footer.innerHTML = footerLines.join('<br>');
     }
     setTitle(title, asHeadingLevel = 0) {

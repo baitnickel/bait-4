@@ -1,6 +1,7 @@
 import { MarkupLine } from './markup.js';
 
-const COPYRIGHT_YEAR = '2023';
+const NOW = new Date();
+const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
 
 type MenuItem = {
@@ -76,9 +77,44 @@ export class Page {
 		footerLines.push(`Last updated <span id=footer-date>${updateDate}</span>`);
 		footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
 		if (window.location.protocol == 'https:') {
-			footerLines.push('<button onclick="requestNotificationPermission()">Notify me!</button>');
+			footerLines.push('<button id=notify-button onclick="requestNotificationPermission()">Allow Notifications</button>');
 		}
 		this.footer.innerHTML = footerLines.join('<br>');
+
+		// if (window.location.protocol == 'https:') {
+		// 	console.log(Notification.permission); /** default, granted, denied */
+		// 	if (Notification.permission == 'granted') {
+		// 		this.showNotification('my granted title', 'we have Notification permission');
+		// 	}
+		// 	else if (Notification.permission != 'denied') {
+		// 		Notification.requestPermission().then(permission => {
+		// 			if (permission == 'granted') {
+		// 				this.showNotification('my granted title', 'Notification permission granted');
+		// 			}
+		// 		});
+		// 	}
+		// }
+
+		if (window.location.protocol == 'https:') {
+			let notifyElement = document.createElement('button');
+
+			notifyElement.addEventListener('click', (e: Event) => {
+				/** 
+				 * e.target is the element listened to (selectElement)
+				 * e.target.value holds the new value of the element after it's changed (e.g., "Bm")
+				 */
+				// let element = e.target as HTMLButtonElement; /** "as" type casting required for TypeScript */
+				// changeKey(fakesheet, element.value);
+				if (Notification.permission != 'denied') {
+					Notification.requestPermission().then(permission => {
+						if (permission == 'granted') {
+							this.showNotification('my granted title', 'Notification permission granted');
+						}
+					});
+				}
+			});
+			this.footer.append(notifyElement);
+		}
 	}
 
 	setTitle(title: string, asHeadingLevel: number = 0) {

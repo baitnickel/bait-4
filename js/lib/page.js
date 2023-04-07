@@ -34,6 +34,18 @@ export class Page {
             const branch = 'main';
             this.fetchOrigin = `${rawServer}/${username}/${repository}/${branch}`;
         }
+        /** Client notifications */
+        if (this.local) {
+            console.log(Notification.permission); /** default, granted, denied */
+            if (Notification.permission == 'granted') {
+                alert('we have Notification permission');
+            }
+            else if (Notification.permission != 'denied') {
+                Notification.requestPermission().then(permission => {
+                    console.log(permission);
+                });
+            }
+        }
     }
     displayMenu() {
         let uListElement = document.createElement('ul');

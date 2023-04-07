@@ -71,7 +71,9 @@ export class Page {
         // 		});
         // 	}
         // }
-        if (window.location.protocol == 'https:') {
+        if (window.location.protocol == 'https:'
+            && Notification.permission != 'denied'
+            && Notification.permission != 'granted') {
             let notifyElement = document.createElement('button');
             notifyElement.addEventListener('click', (e) => {
                 /**
@@ -80,13 +82,13 @@ export class Page {
                  */
                 // let element = e.target as HTMLButtonElement; /** "as" type casting required for TypeScript */
                 // changeKey(fakesheet, element.value);
-                if (Notification.permission != 'denied') {
-                    Notification.requestPermission().then(permission => {
-                        if (permission == 'granted') {
-                            this.showNotification('my granted title', 'Notification permission granted');
-                        }
-                    });
-                }
+                // if (Notification.permission != 'denied' && Notification.permission != 'granted') {
+                Notification.requestPermission().then(permission => {
+                    if (permission == 'granted') {
+                        this.showNotification('my granted title', 'Notification permission granted');
+                    }
+                });
+                // }
             });
             this.footer.append(notifyElement);
         }

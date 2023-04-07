@@ -81,34 +81,34 @@ export class Page {
 		// }
 		this.footer.innerHTML = footerLines.join('<br>');
 
-		if (window.location.protocol == 'https:'
-			&& Notification.permission != 'denied'
-			&& Notification.permission != 'granted'
-		) {
-			let notifyElement = document.createElement('button');
-			notifyElement.innerText = 'Permit Notifications';
-			notifyElement.addEventListener('click', (e: Event) => {
-				/** 
-				 * e.target is the element listened to (selectElement)
-				 * e.target.value holds the new value of the element after it's changed (e.g., "Bm")
-				 */
-				// let element = e.target as HTMLButtonElement; /** "as" type casting required for TypeScript */
-				// changeKey(fakesheet, element.value);
-				// if (Notification.permission != 'denied' && Notification.permission != 'granted') {
-					Notification.requestPermission().then(permission => {
-						if (permission == 'granted') {
-							this.showNotification('my granted title', 'Notification permission granted');
-						}
-					});
-				// }
-			});
-			this.footer.append(notifyElement);
-		}
+		// if (window.location.protocol == 'https:'
+		// 	&& Notification.permission != 'denied'
+		// 	&& Notification.permission != 'granted'
+		// ) {
+		// 	let notifyElement = document.createElement('button');
+		// 	notifyElement.innerText = 'Permit Notifications';
+		// 	notifyElement.addEventListener('click', (e: Event) => {
+		// 		/** 
+		// 		 * e.target is the element listened to (selectElement)
+		// 		 * e.target.value holds the new value of the element after it's changed (e.g., "Bm")
+		// 		 */
+		// 		// let element = e.target as HTMLButtonElement; /** "as" type casting required for TypeScript */
+		// 		// changeKey(fakesheet, element.value);
+		// 		// if (Notification.permission != 'denied' && Notification.permission != 'granted') {
+		// 			Notification.requestPermission().then(permission => {
+		// 				if (permission == 'granted') {
+		// 					this.showNotification('my granted title', 'Notification permission granted');
+		// 				}
+		// 			});
+		// 		// }
+		// 	});
+		// 	this.footer.append(notifyElement);
+		// }
 	}
 
-	showNotification(title: string, body: string) {
-		const notification = new Notification(title, {body: 'test notification'});
-	}
+	// showNotification(title: string, body: string) {
+	// 	const notification = new Notification(title, {body: 'test notification'});
+	// }
 
 	setTitle(title: string, asHeadingLevel: number = 0) {
 		/**

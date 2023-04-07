@@ -58,32 +58,33 @@ export class Page {
         // 	footerLines.push('<button id=notify-button onclick="requestNotificationPermission()">Allow Notifications</button>');
         // }
         this.footer.innerHTML = footerLines.join('<br>');
-        if (window.location.protocol == 'https:'
-            && Notification.permission != 'denied'
-            && Notification.permission != 'granted') {
-            let notifyElement = document.createElement('button');
-            notifyElement.innerText = 'Permit Notifications';
-            notifyElement.addEventListener('click', (e) => {
-                /**
-                 * e.target is the element listened to (selectElement)
-                 * e.target.value holds the new value of the element after it's changed (e.g., "Bm")
-                 */
-                // let element = e.target as HTMLButtonElement; /** "as" type casting required for TypeScript */
-                // changeKey(fakesheet, element.value);
-                // if (Notification.permission != 'denied' && Notification.permission != 'granted') {
-                Notification.requestPermission().then(permission => {
-                    if (permission == 'granted') {
-                        this.showNotification('my granted title', 'Notification permission granted');
-                    }
-                });
-                // }
-            });
-            this.footer.append(notifyElement);
-        }
+        // if (window.location.protocol == 'https:'
+        // 	&& Notification.permission != 'denied'
+        // 	&& Notification.permission != 'granted'
+        // ) {
+        // 	let notifyElement = document.createElement('button');
+        // 	notifyElement.innerText = 'Permit Notifications';
+        // 	notifyElement.addEventListener('click', (e: Event) => {
+        // 		/** 
+        // 		 * e.target is the element listened to (selectElement)
+        // 		 * e.target.value holds the new value of the element after it's changed (e.g., "Bm")
+        // 		 */
+        // 		// let element = e.target as HTMLButtonElement; /** "as" type casting required for TypeScript */
+        // 		// changeKey(fakesheet, element.value);
+        // 		// if (Notification.permission != 'denied' && Notification.permission != 'granted') {
+        // 			Notification.requestPermission().then(permission => {
+        // 				if (permission == 'granted') {
+        // 					this.showNotification('my granted title', 'Notification permission granted');
+        // 				}
+        // 			});
+        // 		// }
+        // 	});
+        // 	this.footer.append(notifyElement);
+        // }
     }
-    showNotification(title, body) {
-        const notification = new Notification(title, { body: 'test notification' });
-    }
+    // showNotification(title: string, body: string) {
+    // 	const notification = new Notification(title, {body: 'test notification'});
+    // }
     setTitle(title, asHeadingLevel = 0) {
         /**
          * (Re)set the title in the HTML head. Optionally, also use the title as

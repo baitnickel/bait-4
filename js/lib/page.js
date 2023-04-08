@@ -54,9 +54,6 @@ export class Page {
         let updateDate = new Date(document.lastModified).toDateString(); /** HTML file modification date */
         footerLines.push(`Last updated <span id=footer-date>${updateDate}</span>`);
         footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
-        // if (window.location.protocol == 'https:') {
-        // 	footerLines.push('<button id=notify-button onclick="requestNotificationPermission()">Allow Notifications</button>');
-        // }
         this.footer.innerHTML = footerLines.join('<br>');
         // if (window.location.protocol == 'https:'
         // 	&& Notification.permission != 'denied'

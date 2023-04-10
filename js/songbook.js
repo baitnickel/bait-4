@@ -18,7 +18,8 @@ const CSS_ID = {
     capo: 'capo',
     tuning: 'tuning',
     tempo: 'tempo',
-    copyright: 'copyright'
+    composers: 'composers',
+    copyright: 'copyright',
 };
 var SortOrder;
 (function (SortOrder) {
@@ -195,6 +196,9 @@ function fillMetadataBlock(fakesheet) {
     }
     if (fakesheet.tempo) {
         metadataBlock.appendChild(metadataItem(CSS_ID.tempo, 'Tempo:', fakesheet.tempo.toString()));
+    }
+    if (fakesheet.composers) {
+        metadataBlock.appendChild(metadataItem(CSS_ID.composers, 'Composed By:', MarkupLine(fakesheet.composers, 'T')));
     }
     if (fakesheet.copyright) {
         metadataBlock.appendChild(metadataItem(CSS_ID.copyright, '©', MarkupLine(fakesheet.copyright, 'T')));

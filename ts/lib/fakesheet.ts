@@ -7,6 +7,7 @@ import { MarkupLine } from './markup.js';
  * Reserved token names (minus the FAKESHEET.tokenCharacter) are:
  * - title
  * - artist
+ * - composers
  * - key
  * - capo
  * - tuning
@@ -64,6 +65,7 @@ export const FAKESHEET = {
 export class FakeSheet {
 	title: string;             /* song title */
 	artist: string;            /* performing/composing artist name(s) */
+	composers: string;         /* list of song composers */
 	key: Chord|null;           /* song's (initial) key (e.g., FAKESHEET.chordLine, 'Bb', 'Am') */
 	newKey: Chord|null;        /* new key for transposition */
 	capo: number;              /* capo position (or 0 for none) */
@@ -96,6 +98,7 @@ export class FakeSheet {
 	constructor(fakeSheetText: string, fakeSheetMetadata: any, key: string = '') {
 		this.title = '';
 		this.artist = '';
+		this.composers = '';
 		this.key = null;
 		this.newKey = (key) ? new Chord(key) : null;
 		this.capo = 0;
@@ -112,46 +115,27 @@ export class FakeSheet {
 	}
 
 	parseMetadata() {
-		if (this.metadata !== null) {
-			const metaFields = ['title', 'artist', 'key', 'capo', 'tuning', 'tempo', 'copyright', 'chords'];
-			for (let metaField of metaFields) {
-				if (metaField in this.metadata && this.metadata[metaField] !== null) {
-					let metaFieldValues: string[] = [];
-					if (Array.isArray(this.metadata[metaField])) {
-						for (let metaFieldValue of this.metadata[metaField]) {
-							metaFieldValues.push(`${metaFieldValue}`)
-						}
-					}
-					else metaFieldValues.push(`${this.metadata[metaField]}`);
-					switch (metaField) {
-						case 'title':
-							this.setTitle(metaField, metaFieldValues, 0);
-							break;
-						case 'artist':
-							this.setArtist(metaField, metaFieldValues, 0);
-							break;
-						case 'key':
-							this.setKey(metaField, metaFieldValues, 0);
-							break;
-						case 'capo':
-							this.setCapo(metaField, metaFieldValues, 0);
-							break;
-						case 'tuning':
-							this.setTuning(metaField, metaFieldValues, 0);
-							break;
-						case 'tempo':
-							this.setTempo(metaField, metaFieldValues, 0);
-							break;
-						case 'copyright':
-							this.setCopyright(metaField, metaFieldValues, 0);
-							break;
-						case 'chords':
-							this.setChords(metaField, metaFieldValues, 0);
-							break;
-					}
+		if (this.metadata === null) return;
+		const metaMap = new Map<string, Function>();
+		metaMap.set('title', this.setTitle);
+		metaMap.set('artist', this.setArtist);
+		metaMap.set('composers', this.setComposers);
+		metaMap.set('key', this.setKey);
+		metaMap.set('capo', this.setCapo);
+		metaMap.set('tuning', this.setTuning);
+		metaMap.set('tempo', this.setTempo);
+		metaMap.set('copyright', this.setCopyright);
+		metaMap.set('chords', this.setChords);
+		metaMap.forEach((method, keyword) => {
+			if (keyword in this.metadata && this.metadata[keyword] !== null) {
+				let values: string[] = [];
+				if (Array.isArray(this.metadata[keyword])) {
+					for (let value of this.metadata[keyword]) values.push(`${value}`);
 				}
+				else values.push(`${this.metadata[keyword]}`);
+				method.call(this, keyword, values);
 			}
-		}
+		});
 	}
 
 	parseSourceText() {
@@ -173,6 +157,7 @@ export class FakeSheet {
 				if (this.metadata === null) {
 					if (token == 'title') this.setTitle(token, parameters, lineNo);
 					else if (token == 'artist') this.setArtist(token, parameters, lineNo);
+					else if (token == 'composers') this.setComposers(token, parameters, lineNo);
 					else if (token == 'key') this.setKey(token, parameters, lineNo);
 					else if (token == 'capo') this.setCapo(token, parameters, lineNo);
 					else if (token == 'tuning') this.setTuning(token, parameters, lineNo);
@@ -222,19 +207,36 @@ export class FakeSheet {
 		return valid;
 	}
 
-	setTitle(token: string, parameters: string[], lineNo: number) {
+	setTitle(token: string, parameters: string[], lineNo: number = 0) {
 		if (this.validTokenLine(this.title, token, parameters, lineNo)) {
 			this.title = parameters.join(' ');
 		}
 	}
 
-	setArtist(token: string, parameters: string[], lineNo: number) {
+	setArtist(token: string, parameters: string[], lineNo: number = 0) {
 		if (this.validTokenLine(this.artist, token, parameters, lineNo)) {
 			this.artist = parameters.join(' ');
 		}
 	}
 
-	setKey(token: string, parameters: string[], lineNo: number) {
+	setComposers(token: string, parameters: string[], lineNo: number = 0) {
+		if (this.validTokenLine(this.composers, token, parameters, lineNo)) {
+			// this.composers = parameters.join(' ');
+			const conjunction = 'and';
+			let joinedList = '';
+			if (parameters.length) {
+				let separator = (parameters.length == 2) ? ` ${conjunction} ` : ', ';
+				joinedList = parameters.join(separator);
+				if (parameters.length > 2) {
+					let lastComma = joinedList.lastIndexOf(', ');
+					joinedList = `${joinedList.slice(0, lastComma + 1)} ${conjunction} ${joinedList.slice(lastComma + 2)}`;
+				}
+			}
+			this.composers = joinedList;
+		}
+	}
+
+	setKey(token: string, parameters: string[], lineNo: number = 0) {
 		if (this.validTokenLine(this.key, token, parameters, lineNo)) {
 			let lookupKey = parameters[0];
 			if (lookupKey.length > 1 && lookupKey.endsWith('m')) {
@@ -262,7 +264,7 @@ export class FakeSheet {
 		if (chord.base) this.key = new Chord(chord.base);
 	}
 
-	setCapo(token: string, parameters: string[], lineNo: number) {
+	setCapo(token: string, parameters: string[], lineNo: number = 0) {
 		if (this.validTokenLine(this.capo, token, parameters, lineNo)) {
 			let capo = Number(parameters[0]);
 			if (isNaN(capo) || capo < 0 || capo > 24) {
@@ -272,7 +274,7 @@ export class FakeSheet {
 		}
 	}
 
-	setTuning(token: string, parameters: string[], lineNo: number) {
+	setTuning(token: string, parameters: string[], lineNo: number = 0) {
 		if (this.validTokenLine(this.tuning.length, token, parameters, lineNo)) {
 			/* tuning must be defined before chords */
 			if (this.chords.length) {
@@ -316,7 +318,7 @@ export class FakeSheet {
 		}
 	}
 
-	setTempo(token: string, parameters: string[], lineNo: number) {
+	setTempo(token: string, parameters: string[], lineNo: number = 0) {
 		if (this.validTokenLine(this.tempo, token, parameters, lineNo)) {
 			let tempo = Number(parameters[0]);
 			if (isNaN(tempo) || tempo < 20 || tempo > 400) {
@@ -326,11 +328,11 @@ export class FakeSheet {
 		}
 	}
 
-	setCopyright(token: string, parameters: string[], lineNo: number) {
+	setCopyright(token: string, parameters: string[], lineNo: number = 0) {
 		if (this.validTokenLine(this.copyright, token, parameters, lineNo)) this.copyright = parameters.join(' ');
 	}
 
-	setChords(token: string, parameters: string[], lineNo: number) {
+	setChords(token: string, parameters: string[], lineNo: number = 0) {
 		/**
 		 * Here we encounter parameters indicating chord name and notation,
 		 * separated by FAKESHEET.chordNotationSeparator (e.g. "C:x32010").
@@ -451,7 +453,8 @@ export class FakeSheet {
 	}
 
 	addError(lineNo: number, text: string) {
-		this.errors.push(`Line ${lineNo}: ${text}`);
+		if (lineNo) this.errors.push(`Line ${lineNo}: ${text}`);
+		else this.errors.push(`metadata: ${text}`);
 	}
 }	
 

@@ -37,10 +37,6 @@ import { MarkupLine } from './markup.js';
 // 	chords: string[],
 // };
 
-export type FakeSheetIndex = {
-	[file: string]: {title: string, artist: string};
-}
-
 export const FAKESHEET = {
 	version: '2022.01.19',
 

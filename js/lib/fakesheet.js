@@ -1,4 +1,39 @@
 import { MarkupLine } from './markup.js';
+/**
+ * Comments (inline or whole line) begin with FAKESHEET.commentPattern.
+ * Token names begin with a FAKESHEET.tokenCharacter and contain one or more non-whitespace characters.
+ * All token names are case-insensitive.
+ * Reserved token names (minus the FAKESHEET.tokenCharacter) are:
+ * - title
+ * - artist
+ * - composers
+ * - key
+ * - capo
+ * - tuning
+ * - copyright
+ * - chords
+ * All other token names define a chord sequence and/or make a chord sequence current:
+ * - token chord chord chord (defines a sequence and makes it current)
+ * - token (makes an already defined sequence current)
+ * When a token name begins with FAKESHEET.tokenCharacter + FAKESHEET.inlinePrefix,
+ * it's an inline sequence (chords are placed on same line as text).
+ * FAKESHEET.chordPlaceholder in normal line is replaced by next chord in sequence.
+ * To-do:
+ * - Replace 'b' and '#' in note and chord names with unicode: '♭' and '♯'.
+ * - Not only capo, but tuning and .chords declarations should vanish on newKey
+ * - Support a library of chord diagrams, particularly for newKeys
+ */
+// export type FakeSheetMetadata = {
+// 	title: string,
+// 	artist: string,
+// 	composers: string[],
+// 	key: string,
+// 	capo: number,
+// 	tuning: string,
+// 	tempo: string,
+// 	copyright: string,
+// 	chords: string[],
+// };
 export const FAKESHEET = {
     version: '2022.01.19',
     notes: /(Ab|A#|Bb|C#|Db|D#|Eb|F#|Gb|G#|A|B|C|D|E|F|G)/,

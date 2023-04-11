@@ -21,7 +21,7 @@ export class Page {
 	origin: string;
 	url: string;                        /** URL origin + pathname (full URL without '?query') */
 	parameters: URLSearchParams;        /** URL query parameters */
-	options: {[key: string]: string};   /** associative array of options */
+	options: Map<string, string>;       /** Map of options */
 	local: boolean;                     /** is the server 'localhost'? */
 	fetchOrigin: string;                /** root URL for fetch operations */
 	header: HTMLDivElement;
@@ -33,7 +33,7 @@ export class Page {
 		this.url = window.location.origin + window.location.pathname;
 		this.parameters = new URLSearchParams(window.location.search);
 		this.name = this.parameters.get('page');
-		this.options = {};
+		this.options = new Map<string, string>();
 		this.local = (window.location.hostname == 'localhost');
 		this.header = document.createElement('div');
 		this.header.id = 'header-menu';

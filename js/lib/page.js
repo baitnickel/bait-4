@@ -13,7 +13,7 @@ export class Page {
         this.url = window.location.origin + window.location.pathname;
         this.parameters = new URLSearchParams(window.location.search);
         this.name = this.parameters.get('page');
-        this.options = {};
+        this.options = new Map();
         this.local = (window.location.hostname == 'localhost');
         this.header = document.createElement('div');
         this.header.id = 'header-menu';

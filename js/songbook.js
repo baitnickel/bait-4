@@ -37,17 +37,16 @@ const sheetBlock = document.createElement('pre');
 sheetBlock.id = CSS_ID.sheetBlock;
 const diagramBlock = document.createElement('div');
 diagramBlock.id = CSS_ID.diagramBlock;
-const sortOrder = SortOrder.Artist;
 export function render() {
     page.displayMenu();
     page.displayFooter();
-    let song = page.parameters.get('song');
-    if (song) {
+    let songQuery = page.parameters.get('song');
+    if (songQuery) {
         /** Display the song's fakesheet */
-        const fakeSheetFilePath = `${dataPath}/${song}`;
+        const fakeSheetFilePath = `${dataPath}/${songQuery}`;
         DB.fetchData(fakeSheetFilePath).then((fakeSheetText) => {
             if (!fakeSheetText) {
-                const errorMessage = `The URL contains an invalid song file name: \`${song}\``;
+                const errorMessage = `The URL contains an invalid song file name: \`${songQuery}\``;
                 page.content.innerHTML = MarkupLine(errorMessage, 'etm');
             }
             else {
@@ -73,20 +72,20 @@ export function render() {
             if (yaml.errors)
                 yaml.reportErrors();
             else {
-                const fakeSheetIndex = yaml.metadata;
-                let songKeys = Object.keys(fakeSheetIndex);
-                sortSongKeys(fakeSheetIndex, songKeys);
+                const songMap = new Map(Object.entries(yaml.metadata));
+                const sortOrder = SortOrder.Artist;
+                const songKeys = sortedSongKeys(songMap, sortOrder); /** 'songKeys' are the fakesheet file names */
                 let pElement = document.createElement('p');
                 let artistDiv = null; /** <div> to contain an artist's items */
                 let detailsElement = null;
                 let previousArtist = '';
                 for (let songKey of songKeys) {
-                    /** 'songKey' is the fakesheet file name */
+                    let song = songMap.get(songKey);
                     if (sortOrder == SortOrder.Artist) {
-                        let songBookItem = fakeSheetIndex[songKey].title;
-                        if (previousArtist != fakeSheetIndex[songKey].artist) {
+                        let songBookItem = song.title;
+                        if (previousArtist != song.artist) {
                             if (previousArtist) { /** this is not the first song */
-                                // close the current <details> block and start a new one
+                                /** close the current <details> block and start a new one */
                                 if (artistDiv && detailsElement) {
                                     detailsElement.append(artistDiv);
                                     page.content.append(detailsElement);
@@ -94,7 +93,7 @@ export function render() {
                             }
                             detailsElement = document.createElement('details');
                             let summaryElement = document.createElement('summary');
-                            summaryElement.innerHTML = MarkupLine(fakeSheetIndex[songKey].artist, 'et');
+                            summaryElement.innerHTML = MarkupLine(song.artist, 'et');
                             detailsElement.append(summaryElement);
                             artistDiv = document.createElement('div');
                             artistDiv.classList.add(CSS_CLASS.songTitleLink);
@@ -110,7 +109,7 @@ export function render() {
                         }
                     }
                     else { /** SortOrder.Song */
-                        let songBookItem = `${fakeSheetIndex[songKey].title} - ${fakeSheetIndex[songKey].artist}`;
+                        let songBookItem = `${song.title} - ${song.artist}`;
                         let anchorElement = document.createElement('a');
                         anchorElement.href = page.url + `?page=songbook&song=${songKey}`;
                         anchorElement.innerHTML = MarkupLine(songBookItem, 'et');
@@ -119,7 +118,7 @@ export function render() {
                         pElement.appendChild(breakElement);
                         page.content.append(pElement);
                     }
-                    previousArtist = fakeSheetIndex[songKey].artist;
+                    previousArtist = song.artist;
                 }
                 if (artistDiv && detailsElement) {
                     detailsElement.append(artistDiv);
@@ -198,7 +197,7 @@ function fillMetadataBlock(fakesheet) {
         metadataBlock.appendChild(metadataItem(CSS_ID.tempo, 'Tempo:', fakesheet.tempo.toString()));
     }
     if (fakesheet.composers) {
-        metadataBlock.appendChild(metadataItem(CSS_ID.composers, 'Composed By:', MarkupLine(fakesheet.composers, 'T')));
+        metadataBlock.appendChild(metadataItem(CSS_ID.composers, 'Written By:', MarkupLine(fakesheet.composers, 'T')));
     }
     if (fakesheet.copyright) {
         metadataBlock.appendChild(metadataItem(CSS_ID.copyright, '©', MarkupLine(fakesheet.copyright, 'T')));
@@ -274,12 +273,15 @@ function changeKey(fakesheet, newKey) {
     fillSheetBlock(fakesheet);
     fillDiagramBlock(fakesheet);
 }
-function sortSongKeys(songs, songKeys) {
-    songKeys.sort((a, b) => {
-        let artistA = sortableTitle(songs[a].artist);
-        let artistB = sortableTitle(songs[b].artist);
-        let titleA = sortableTitle(songs[a].title);
-        let titleB = sortableTitle(songs[b].title);
+function sortedSongKeys(songMap, sortOrder) {
+    let keys = Array.from(songMap.keys());
+    keys.sort((a, b) => {
+        let songA = songMap.get(a);
+        let songB = songMap.get(b);
+        let artistA = sortableTitle(songA.artist);
+        let artistB = sortableTitle(songB.artist);
+        let titleA = sortableTitle(songA.title);
+        let titleB = sortableTitle(songB.title);
         let sortValue = 0;
         if (sortOrder != SortOrder.Artist || artistA == artistB) {
             sortValue = (titleA > titleB) ? 1 : -1;
@@ -288,6 +290,7 @@ function sortSongKeys(songs, songKeys) {
             sortValue = (artistA > artistB) ? 1 : -1;
         return sortValue;
     });
+    return keys;
 }
 function sortableTitle(rawTitle) {
     /**

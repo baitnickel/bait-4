@@ -39,16 +39,22 @@ export function render() {
                 Reservations.displayReservationTable(reservationsTableElement, ThisYear, obsidian.metadata['reservations'], obsidian.metadata['accountColors']);
             }
             if ('sites' in obsidian.metadata) {
-                /** Generate sites table */
-                const tableRows = obsidian.metadata['sites'];
-                const tableHeadings = ['Site', 'Type', 'Size', 'Tents', 'Table', 'Comments'];
+                /**
+                 * Generate sites table
+                 * 'sites' is an array of fieldName:fieldValue maps
+                 */
+                const tableRows = [];
+                for (let site of obsidian.metadata.sites) {
+                    let map = new Map(Object.entries(site));
+                    tableRows.push(map);
+                }
                 const tableElements = ['site', 'type', 'size', 'tents', 'table', 'comment'];
                 const tableOptions = {
-                    headingCells: ['site'],
+                    headingColumns: ['site'],
                     classPrefix: 'campsite-',
                     classElement: 'category',
                 };
-                page.content.append(Table.createTable(tableRows, tableHeadings, tableElements, tableOptions));
+                page.content.append(Table.createTable(tableRows, tableElements, tableOptions));
             }
             if ('comments' in obsidian.metadata) {
                 page.content.append(createParagraphs(obsidian.metadata['comments']));

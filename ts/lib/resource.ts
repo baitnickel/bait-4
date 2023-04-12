@@ -1,10 +1,10 @@
-// import { DIRECTORY } from './directories.js';
-const DIRECTORY: {[key: string]: string} = {
-	db: 'db.2210',
-	icons: 'icons.2210',
-	images: 'images.2210',
-	modules: 'modules.2210',
-}
+const DIRECTORY = new Map([
+	['db', 'db.2210'],
+	['icons', 'icons.2210'],
+	['images', 'images.2210'],
+	['modules', 'modules.2210']
+]);
+  
 // import * as Site from './index.js'
 const Site = {
 	BASE_URL: '',
@@ -102,17 +102,17 @@ export class Resource {
 							let urlComponents = this.url.split('/');
 							/**
 							 * if the first component of the URL is a key in the
-							 * DIRECTORY object, substitute the DIRECTORY object
+							 * DIRECTORY map, substitute the DIRECTORY map
 							 * value - e.g., "images" might become
 							 * "images.2206". This allows references to use
 							 * generic local directory names such as "images",
 							 * which are automatically redirected here.
 							 */
-							if (DIRECTORY[urlComponents[0]]) {
-								urlComponents[0] = DIRECTORY[urlComponents[0]];
+							if (DIRECTORY.has(urlComponents[0])) {
+								urlComponents[0] = DIRECTORY.get(urlComponents[0])!;
 								this.url = urlComponents.join('/');
 							}
-						}
+													}
 					}
 					else if (word.startsWith('#')) {
 						if (!this.id) this.id = word.slice(1);

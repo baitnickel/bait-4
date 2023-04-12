@@ -53,16 +53,22 @@ export function render() {
 			}
 
 			if ('sites' in obsidian.metadata) {
-				/** Generate sites table */
-				const tableRows: Table.RowData[] = obsidian.metadata['sites'];
-				const tableHeadings = ['Site', 'Type', 'Size', 'Tents', 'Table', 'Comments'];
+				/**
+				 * Generate sites table
+				 * 'sites' is an array of fieldName:fieldValue maps
+				 */
+				const tableRows: Table.RowData[] = [];
+				for (let site of obsidian.metadata.sites) {
+					let map: Table.RowData = new Map(Object.entries(site));
+					tableRows.push(map);
+				}
 				const tableElements = ['site', 'type', 'size', 'tents', 'table', 'comment'];
-				const tableOptions: Table.TableOptions = {
-					headingCells: ['site'],
+				const tableOptions: Table.Options = {
+					headingColumns: ['site'],
 					classPrefix: 'campsite-',
 					classElement: 'category',
 				};
-				page.content.append(Table.createTable(tableRows, tableHeadings, tableElements, tableOptions));
+				page.content.append(Table.createTable(tableRows, tableElements, tableOptions));
 			}
 			if ('comments' in obsidian.metadata) {
 				page.content.append(createParagraphs(obsidian.metadata['comments']));

@@ -1,7 +1,7 @@
 /**
- * RowData is an object containing key:values, representing field names and
- * field values for a single table row. The 'createTable' function expects a
- * RowData array, typically read from JSON or YAML. In the YAML example below,
+ * RowData is a map containing fieldName:fieldValue, representing field names and
+ * field values for a single table row. The 'createTable' function expects an
+ * array of RowData maps, typically read from JSON or YAML. In the YAML example below,
  * 'pets' is of type: RowData[].
  *
    pets:
@@ -15,44 +15,54 @@
        born: 1990
  */
 
-export type RowData = { [key: string]: string|number|boolean|null };
+export type RowData = Map<string, string|number|boolean|null>;
 
-export type TableOptions = {
-	headingCells: string[],
+export type Options = {
+	headingColumns: string[],
 	classPrefix: string,
 	classElement: string,
 };
 
-export function createTable(
-	rows: RowData[],
-	headings: string[],
-	elements: string[],
-	tableOptions: TableOptions|null = null,
-) {
+export function createTable(rows: RowData[], columns: string[], options: Options|null = null) {
 	let tableElement = document.createElement('table');
-	if (headings.length) {
+	if (columns.length) {
 		let rowElement = document.createElement('tr');
-		for (let heading of headings) {
+		for (let column of columns) {
 			let rowItemElement = document.createElement('th');
-			rowItemElement.innerText = heading;
+			rowItemElement.innerText = prettyHeading(column);
 			rowElement.appendChild(rowItemElement);
 		}
 		tableElement.appendChild(rowElement);
-	}
-	for (let row of rows) {
-		let rowElement = document.createElement('tr');
-		if (tableOptions && tableOptions.classElement in row && row[tableOptions.classElement]) {
-			rowElement.classList.add(`${tableOptions.classPrefix}${row[tableOptions.classElement]}`);
+
+		for (let row of rows) {
+			let rowElement = document.createElement('tr');
+			if (options && row.has(options.classElement)) {
+				rowElement.classList.add(`${options.classPrefix}${row.get(options.classElement)}`);
+			}
+			for (let column of columns) {
+				let cellType = (options && options.headingColumns.includes(column)) ? 'th' : 'td';
+				let rowItemElement = document.createElement(cellType);
+				let value = (row.has(column)) ? row.get(column) : '';
+				if (value === null) value = '';
+				rowItemElement.innerText = `${value}`;
+				rowElement.appendChild(rowItemElement);
+			}
+			tableElement.appendChild(rowElement);
 		}
-		for (let element of elements) {
-			let cellType = (tableOptions && tableOptions.headingCells.includes(element)) ? 'th' : 'td';
-			let rowItemElement = document.createElement(cellType);
-			let value = (element in row) ? row[element] : '';
-			if (value === null) value = '';
-			rowItemElement.innerText = `${value}`;
-			rowElement.appendChild(rowItemElement);
-		}
-		tableElement.appendChild(rowElement);
 	}
 	return tableElement;
+}
+
+function prettyHeading(heading: string) {
+	/**
+	 * Split heading into multiple words on hyphens or underscores, and
+	 * capitalize each word.
+	 */
+    let prettyWords: string[] = [];
+    let words = heading.split(/[-_]+/g);
+    for (let word of words) {
+        word = word.charAt(0).toUpperCase() + word.slice(1);
+        prettyWords.push(word)
+    }
+    return prettyWords.join(' ');
 }

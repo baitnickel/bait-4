@@ -47,8 +47,8 @@ export function render() {
 				Reservations.displayReservationTable(
 					reservationsTableElement,
 					ThisYear,
-					obsidian.metadata['reservations'],
-					obsidian.metadata['accountColors'],
+					obsidian.metadata.reservations,
+					obsidian.metadata.accountColors
 				);
 			}
 
@@ -71,7 +71,7 @@ export function render() {
 				page.content.append(Table.createTable(tableRows, tableElements, tableOptions));
 			}
 			if ('comments' in obsidian.metadata) {
-				page.content.append(createParagraphs(obsidian.metadata['comments']));
+				page.content.append(createParagraphs(obsidian.metadata.comments));
 			}
 		}
 	});

@@ -1,6 +1,18 @@
 /**
  * Special module to support Campsite Reservation tables
  */
+export function table(thisYear, reservations, accountColors) {
+    let tableElement = document.createElement('table');
+    const accountColorsMap = new Map(Object.entries(accountColors));
+    return tableElement;
+}
+function writeRows(tableElement, siteReservations, accountColorsMap) {
+    const reservations = [];
+    for (let reservation of siteReservations) {
+        let map = new Map(Object.entries(reservation));
+        reservations.push(map);
+    }
+}
 export function displayReservationTable(tableElement, thisYear, reservations, accountColors) {
     let siteReservations = {};
     let beginDate = null;

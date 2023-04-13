@@ -25,6 +25,20 @@ type SiteReservations = {
 	[site: string]: ExpandedReservation[];
 };	
 
+export function table(thisYear: number, reservations: Reservation[], accountColors: any ) {
+	let tableElement = document.createElement('table');
+	const accountColorsMap = new Map<string,string>(Object.entries(accountColors));
+	return tableElement;
+}
+
+function writeRows(tableElement: HTMLTableElement, siteReservations: any, accountColorsMap: Map<string,string>) {
+	const reservations: Map<string, string>[] = [];
+	for (let reservation of siteReservations) {
+		let map = new Map<string, string>(Object.entries(reservation));
+		reservations.push(map);
+	}
+}
+
 export function displayReservationTable(
 	tableElement: HTMLTableElement,
 	thisYear: number,

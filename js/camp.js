@@ -36,7 +36,7 @@ export function render() {
                 detailsElement.append(reservationsTableElement);
                 reservationParagraph.append(detailsElement);
                 page.content.append(reservationParagraph);
-                Reservations.displayReservationTable(reservationsTableElement, ThisYear, obsidian.metadata['reservations'], obsidian.metadata['accountColors']);
+                Reservations.displayReservationTable(reservationsTableElement, ThisYear, obsidian.metadata.reservations, obsidian.metadata.accountColors);
             }
             if ('sites' in obsidian.metadata) {
                 /**
@@ -57,7 +57,7 @@ export function render() {
                 page.content.append(Table.createTable(tableRows, tableElements, tableOptions));
             }
             if ('comments' in obsidian.metadata) {
-                page.content.append(createParagraphs(obsidian.metadata['comments']));
+                page.content.append(createParagraphs(obsidian.metadata.comments));
             }
         }
     });

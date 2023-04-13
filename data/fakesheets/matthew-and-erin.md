@@ -1,6 +1,6 @@
 ---
 title: Matthew and Erin
-artist: The Bainickels
+artist: The Baitnickels
 key: D
 chords:
   - Bm(add4):x24430

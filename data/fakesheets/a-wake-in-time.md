@@ -1,12 +1,19 @@
-.title A Wake In Time
-.artist The Baitnickels
-.key A
-.capo 3
-.tempo 74
-.chords Amaj7*:006650 E9sus4:004430 A:00222(5,2)|2
-.chords Amaj7:00222(4,2)|2 D:200232 Dmaj7:200222 E(sus4):022(1,2)00
-
-.v Amaj7* E9sus4 Amaj7* E9sus4 Amaj7* E9sus4 A
+---
+title: A Wake In Time
+artist: The Baitnickels
+key: A
+capo: 3
+tempo: 74
+chords:
+  - Amaj7!:006650
+  - E9sus4:004430
+  - A:00222(5,2)|2
+  - Amaj7:00222(4,2)|2
+  - D:200232
+  - Dmaj7:200222
+  - E(sus4):022(1,2)00
+---
+.v Amaj7! E9sus4 Amaj7! E9sus4 Amaj7! E9sus4 A
 ^Everything’s changing, ^try as we may
 ^Nothing can keep this moment here from ^slipping away
 ^Caught in the spin we spin we are just ^tryin’ to stay ^(still)
@@ -34,9 +41,3 @@
 // wave with me today, // waving today,
 // and I'll wave with you in the bye and bye //
 // along the way    ^
-
-
-
-
-
-

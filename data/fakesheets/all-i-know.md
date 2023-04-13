@@ -1,14 +1,14 @@
-.title All I Know
-.artist The Baitnickels
-.key Am
-.capo 3
-//.tuning EADGBE
-.tempo 120
-//.copyright 
-//.chords Dsus2:x00230 Bb(b5):x12330
-.chords Asus2:x02200 Fmaj7b5:123200
-
-._intro Asus2
+---
+title: All I Know
+artist: The Baitnickels
+key: Am
+capo: 3
+tempo: 120
+chords:
+  - Asus2:x02200
+  - Fmaj7b5:123200
+---
+..intro Asus2
 ^ ...
 
 .v1 Am E Dm Am
@@ -34,7 +34,7 @@ one ^moment, sus^pended.  ^
 	^I was a ^fool in ^many ways
 	that’s ^all I ^know now
 
-	._break Am E Dm Am
+	..break Am E Dm Am
 	(after first chorus:) | ^ | ... | ^ | ^ | ^   ... (repeat chorus) 
 
 .v1

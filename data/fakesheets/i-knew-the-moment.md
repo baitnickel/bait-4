@@ -1,11 +1,18 @@
-.title I Knew the Moment
-.artist The Baitnickels
-.key D
-.capo 3
-.tempo 110
-.chords D(sus2):x0023(2,0) G6:320030 Em:022003 A7:x02223 A:x02220
-.chords Bmadd4:x24430 Bmadd4/A:x04430
-
+---
+title: I Knew the Moment
+artist: The Baitnickels
+key: D
+capo: 3
+tempo: 110
+chords:
+  - D(sus2):x0023(2,0)
+  - G6:320030
+  - Em:022003
+  - A7:x02223
+  - A:x02220
+  - Bmadd4:x24430
+  - Bmadd4/A:x04430
+---
 .v1 D(sus2) G6
 ^ I knew the moment, the moment I looked at you
 There was a path awaitin' just us two

@@ -1,20 +1,9 @@
-.title Miracles
-.artist The Baitnickels
-.key C
-.capo 5
-//.tuning EADGBE
-//.tempo 
-//.copyright 
-//.chords C:x32010
-// We will use three special characters: '//', '.', and '^'
-// '//' as the first non-whitespace character introduces a comment (ignored line)
-// '.<token>' followed by chord names defines (or redefines?) a pattern
-// '.<token>' alone references a pattern, making it current
-// '^' is a placeholder for a chord, replaced by each chord of the pattern in sequence
-// token names contain A-Za-z0-9_
-// A token name that begins with underscore defines/references an inline pattern
-
-//chord pattern called 'v'                      
+---
+title: Miracles
+artist: The Baitnickels
+key: C
+capo: 5
+---
 .v C Am F G(7)                                     
 ^Danny was up at Eight. He had a ^meeting with destiny.
 He ^threw in a pear and a plum--a little ^psyche odyssey.

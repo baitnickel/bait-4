@@ -1,14 +1,23 @@
-.title Promises We Make
-.artist The Baitnickels
-.Key Bm
-.Capo 2
-.chords D:x00232 G:320003 Bm:x24432|2 A/C#:x42220|2
-.chords A/E:007650 Asus4/E:007(6,7)50 Gsus2:xx5035 D*:x007(7,5)5|5 G6:x55400
-
-._in Bm A/C#
+---
+title: Promises We Make
+artist: The Baitnickels
+Key: Bm
+Capo: 2
+chords:
+  - D:x00232
+  - G:320003
+  - Bm:x24432|2
+  - A/C#:x42220|2
+  - A/E:007650
+  - Asus4/E:007(6,7)50
+  - Gsus2:xx5035
+  - D!:x007(7,5)5|5
+  - G6:x55400
+---
+..in Bm A/C#
 ^......... ^.
 
-.v D G D D G A/E Bm A/C# D Gsus2 D* Asus4/E G6 D A/E Bm A/C#
+.v D G D D G A/E Bm A/C# D Gsus2 D! Asus4/E G6 D A/E Bm A/C#
 ^Went on a journey, took a ride today, a^long with a friend o’ ^mine
 ^Crossed a bridge into the light o’ day, ^rollin’ thru the summer^time.
 ^Seeking ^something at the ^end of the ^way... Un^winding a tangled up ^mind......
@@ -39,5 +48,5 @@ The ^clouds are parting and the sky is grey, the ^blue has lost its ^shine
 
     (chorus)
 
-._out Bm
+..out Bm
 ^.........

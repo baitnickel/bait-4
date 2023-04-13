@@ -1,12 +1,9 @@
-.title Mitchell
-.artist The Baitnickels
-.key Em
-//.capo
-//.tuning EADGBE
-//.tempo 
-//.copyright 
-.chords C7:x32303
-
+---
+title: Mitchell
+artist: The Baitnickels
+key: Em
+chords: C7:x32303
+---
 .v Em B7 Em B7   Em G D/F# Em B7   C7 B7 Em
 
 ^ We drove down to ^Mitchell, the sky was all ^clouds
@@ -20,7 +17,7 @@ You set me in ^motion, goodbye what has ^been
 ^ You made my ma^sk, and opened its ^eye
 
 
-._br G D/F# Em B7   C7 B7 Em
+..br G D/F# Em B7   C7 B7 Em
 | ^ | ^ | ^ | ^ | ^ | ^ | ^ ...
 
 .v

@@ -1,9 +1,15 @@
-.title One Is Fine
-.artist The Baitnickels
-.key Am
-.chords E7*:0x043(4,5) Am*:007555|5 Am7/G*:x05555|5 D9*:x04555|5 F*:x03555|5
-
-.v Am E7* Am* Am7/G* D9* F* Am E7 Am
+---
+title: One Is Fine
+artist: The Baitnickels
+key: Am
+chords:
+  - E7!:0x043(4,5)
+  - Am!:007555|5
+  - Am7/G!:x05555|5
+  - D9!:x04555|5
+  - F!:x03555|5
+---
+.v Am E7! Am! Am7/G! D9! F! Am E7 Am
 One is ^fine, they told me, one is fine
 Two is too, too, many, too much of the ^time
 //When you ^lose your bal^ance, when you ^start to fall^

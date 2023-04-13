@@ -1,17 +1,18 @@
-.title Melon Seller
-.artist The Volumes
-.key C
-.capo 3
-.tuning EADGBE
-
-._intro C
+---
+title: Melon Seller
+artist: The Volumes
+key: C
+capo: 3
+tuning: EADGBE
+---
+..intro C
 | ^ | ...
 
 .v C G F C D G
 ^Melon seller, ^could I buy ^one piece of water^mellon from you to^day?  ^
 ^Melon seller, ^days went by ^finally I gained the ^courage to come by your ^way  ^
 
-._v C G F C D G
+..v C G F C D G
 | ^ | ^ | ^ | ^ | ^ | ^ | ^ | ^ | ^ | ^ | ^ | ^ |
 
 .v
@@ -32,5 +33,5 @@
 .ch
 ^  Mellon ^seller, ^  Mellon ^seller  ^  Mellon ^seller
 
-._out C
+..out C
 | ^ | ...

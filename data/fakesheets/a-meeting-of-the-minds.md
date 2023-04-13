@@ -1,20 +1,23 @@
-.title A Meeting of the Minds
-.artist The Baitnickels
-
-.chords C/F:133010 G:320003 C*:x3(0,2)0(0,1)0
-
+---
+title: A Meeting of the Minds
+artist: The Baitnickels
+chords:
+  - C/F:133010
+  - G:320003
+  - C!:x3(0,2)0(0,1)0
+---
 //  (Cycle over guitar (and bass?)
 //  Introduce cycle over same plus piano
 //  Sing a verse, or a few verses
 //  Back your way out of the arrangement
 //  (A B C B A)
 
-.v C/F G C* C/F G C* C/F G C* G
+.v C/F G C! C/F G C! C/F G C! G
 ^ ^ She curls ^her face up in the pillow so,
 ^ ^ Then turns ^her body to a plaintive cry.
 ^ ^ “Open ^the door and let me in”, is what her little Toonie ^begs.
 
-.v2 C/F G C* C/F G C* C/F G C* G C/F
+.v2 C/F G C! C/F G C! C/F G C! G C/F
 ^ ^ “I get ^the shudders from infinity,        // shivers?
 ^ ^ I wan^na feel all of your warmth inside,
 ^ ^ I wan^na turn into a puddle in the curl of your ^legs,” ... so she ^says.

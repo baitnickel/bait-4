@@ -1,5 +1,13 @@
 import { Page } from './lib/page.js';
 import * as Embed from './lib/embed.js';
+import * as YAML from './lib/yaml.js'
+
+type Campsite = {
+	site: number;
+	table: boolean;
+	comment: string;
+	whatever: string;
+};
 
 export function render() {
 	const page = new Page();
@@ -16,4 +24,46 @@ export function render() {
 	// SVG.appendSVG(page.content, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
 	// page.content.append(Embed.youTubeFrame('5FQpeqFmwVk', 560, 315));
 
+	const yamlText = `
+foo: 44
+bar: true
+baz: enough
+sites:
+  -
+    site: 1
+    table: 
+    comment: open, on corner, exposed and near entrance & highway
+  -
+    site: 2
+    table: true
+    comment: lots of tent space, could be OK in combination with 4, but near entrance & highway
+	`;
+
+	const yaml = new YAML.YAML(yamlText);
+	// yaml.options.convertNumbers = false;
+	// yaml.options.convertNulls = false;
+	// yaml.options.convertBooleans = false;
+	const data = yaml.parse();
+	yaml.reportExceptions()
+	console.log(data);
+	console.log(Object.keys(data));
+	console.log(Object.values(data));
+	const dataEntries = Object.entries(data);
+	for (let dataEntry of dataEntries) {
+		console.log(dataEntry);
+	}
+	if ('sites' in data) {
+		let siteData = transform<Campsite[]>(data.sites);
+		for (let siteDatum of siteData) {
+			console.log(siteDatum.site, siteDatum.table, siteDatum.comment, siteDatum.whatever)
+		}
+	}
+	if ('foo' in data) {
+		let fooData = transform<number>(data.foo);
+		console.log(fooData);
+	}
+}
+
+function transform<Type>(arg: any): Type {
+	return arg;
 }

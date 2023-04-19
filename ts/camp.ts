@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as DB from './lib/fetch.js'
-import { Document } from './lib/document.js';
+import { Markdown } from './lib/markdown.js';
 import * as Table from './lib/table.js';
 import * as Reservations from './lib/reservations.js';
 import * as SVG from './lib/svg.js';
@@ -23,16 +23,16 @@ export function render() {
 	page.content.append(mapDiv);
 
 	DB.fetchData(ParkFilePath, 'md').then((parkText: string) => {
-		let obsidian = new Document(parkText);
-		if (obsidian.metadata) {
-			if ('map' in obsidian.metadata) {
+		let markdownDocument = new Markdown(parkText);
+		if (markdownDocument.metadata) {
+			if ('map' in markdownDocument.metadata) {
 				let mapElement = document.createElement('img');
-				mapElement.setAttribute('src', `images/camp/${obsidian.metadata['map']}`);
+				mapElement.setAttribute('src', `images/camp/${markdownDocument.metadata['map']}`);
 				mapElement.width=666;
 				mapDiv.append(mapElement);
 			}
 
-			if ('accountColors' in obsidian.metadata && 'reservations' in obsidian.metadata) {
+			if ('accountColors' in markdownDocument.metadata && 'reservations' in markdownDocument.metadata) {
 				/** Display this year's campsite reservations */
 				let reservationParagraph = document.createElement('p');
 				let detailsElement = document.createElement('details');
@@ -47,18 +47,18 @@ export function render() {
 				Reservations.displayReservationTable(
 					reservationsTableElement,
 					ThisYear,
-					obsidian.metadata.reservations,
-					obsidian.metadata.accountColors
+					markdownDocument.metadata.reservations,
+					markdownDocument.metadata.accountColors
 				);
 			}
 
-			if ('sites' in obsidian.metadata) {
+			if ('sites' in markdownDocument.metadata) {
 				/**
 				 * Generate sites table
 				 * 'sites' is an array of fieldName:fieldValue maps
 				 */
 				const tableRows: Table.RowData[] = [];
-				for (let site of obsidian.metadata.sites) {
+				for (let site of markdownDocument.metadata.sites) {
 					let map: Table.RowData = new Map(Object.entries(site));
 					tableRows.push(map);
 				}
@@ -70,8 +70,8 @@ export function render() {
 				};
 				page.content.append(Table.createTable(tableRows, tableElements, tableOptions));
 			}
-			if ('comments' in obsidian.metadata) {
-				page.content.append(createParagraphs(obsidian.metadata.comments));
+			if ('comments' in markdownDocument.metadata) {
+				page.content.append(createParagraphs(markdownDocument.metadata.comments));
 			}
 		}
 	});

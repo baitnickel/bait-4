@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as DB from './lib/fetch.js'
-import { Document } from './lib/document.js';
+import { Markdown } from './lib/markdown.js';
 import { FAKESHEET, FakeSheet } from './lib/fakesheet.js'
 import { MarkupLine } from './lib/markup.js';
 
@@ -62,10 +62,12 @@ export function render() {
 				page.content.innerHTML = MarkupLine(errorMessage, 'etm');
 			}
 			else {
-				let obsidian = new Document(fakeSheetText);
-				if (obsidian.errors) obsidian.reportErrors();
+				let markdownDocument = new Markdown(fakeSheetText);
+				if (markdownDocument.errors) {
+					page.content.innerHTML = metadataErrors(markdownDocument.metadataErrors, '<br>');
+				}
 				else {
-					let fakeSheet = new FakeSheet(obsidian.markdown, obsidian.metadata);
+					let fakeSheet = new FakeSheet(markdownDocument.text, markdownDocument.metadata);
 					fakeSheet.parseMetadata();
 					fakeSheet.parseSourceText();
 					displaySheet(fakeSheet);
@@ -79,8 +81,10 @@ export function render() {
 		page.addHeading('List of Songs', 2);
 		const fakeSheetIndexPath = `${dataPath}/index.yaml`;
 		DB.fetchData(fakeSheetIndexPath).then ((indexText: string) => {
-			let yaml = new Document(indexText, true);
-			if (yaml.errors) yaml.reportErrors();
+			let yaml = new Markdown(indexText, true);
+			if (yaml.errors) {
+				page.content.innerHTML = metadataErrors(yaml.metadataErrors, '<br>');
+			}
 			else {
 				const songMap = new Map<string, SongData>(Object.entries(yaml.metadata));
 				const sortOrder = SortOrder.Artist;
@@ -331,4 +335,11 @@ function sortableTitle(rawTitle: string) {
 	} 
 	adjustedTitle = words.join(' ');
 	return adjustedTitle;
+}
+
+function metadataErrors(errorMessages: string[], separator: string) {
+	let message = '';
+	errorMessages.unshift('Metadata Errors:');
+	message = errorMessages.join(separator);
+	return message;
 }

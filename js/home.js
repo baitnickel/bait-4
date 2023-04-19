@@ -18,6 +18,7 @@ export function render() {
 foo: 44
 bar: true
 baz: enough
+publish: [family, friends]
 sites:
   -
     site: 1
@@ -35,12 +36,12 @@ sites:
     const data = yaml.parse();
     yaml.reportExceptions();
     console.log(data);
-    console.log(Object.keys(data));
-    console.log(Object.values(data));
-    const dataEntries = Object.entries(data);
-    for (let dataEntry of dataEntries) {
-        console.log(dataEntry);
-    }
+    // console.log(Object.keys(data));
+    // console.log(Object.values(data));
+    // const dataEntries = Object.entries(data);
+    // for (let dataEntry of dataEntries) {
+    // 	console.log(dataEntry);
+    // }
     if ('sites' in data) {
         let siteData = transform(data.sites);
         for (let siteDatum of siteData) {
@@ -50,6 +51,11 @@ sites:
     if ('foo' in data) {
         let fooData = transform(data.foo);
         console.log(fooData);
+    }
+    if ('publish' in data) {
+        let targets = transform(data.publish);
+        for (let target of targets)
+            console.log(`publish to: ${target}`);
     }
 }
 function transform(arg) {

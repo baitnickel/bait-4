@@ -21,12 +21,8 @@ const CSS_ID = {
     composers: 'composers',
     copyright: 'copyright',
 };
-var SortOrder;
-(function (SortOrder) {
-    SortOrder[SortOrder["Artist"] = 0] = "Artist";
-    SortOrder[SortOrder["Song"] = 1] = "Song";
-})(SortOrder || (SortOrder = {}));
-;
+const ARTIST_SORT = 'a';
+const SONG_SORT = 's';
 const page = new Page();
 const dataPath = `${page.fetchOrigin}/data/fakesheets`;
 const errorBlock = document.createElement('div');
@@ -41,6 +37,7 @@ export function render() {
     page.displayMenu();
     page.displayFooter();
     let songQuery = page.parameters.get('song');
+    let sortQuery = page.parameters.get('sort');
     if (songQuery) {
         /** Display the song's fakesheet */
         const fakeSheetFilePath = `${dataPath}/${songQuery}`;
@@ -51,9 +48,8 @@ export function render() {
             }
             else {
                 let markdownDocument = new Markdown(fakeSheetText);
-                if (markdownDocument.errors) {
-                    page.content.innerHTML = metadataErrors(markdownDocument.metadataErrors, '<br>');
-                }
+                if (markdownDocument.errors)
+                    page.content.innerHTML = markdownDocument.errorMessages();
                 else {
                     let fakeSheet = new FakeSheet(markdownDocument.text, markdownDocument.metadata);
                     fakeSheet.parseMetadata();
@@ -70,12 +66,18 @@ export function render() {
         const fakeSheetIndexPath = `${dataPath}/index.yaml`;
         DB.fetchData(fakeSheetIndexPath).then((indexText) => {
             let yaml = new Markdown(indexText, true);
-            if (yaml.errors) {
-                page.content.innerHTML = metadataErrors(yaml.metadataErrors, '<br>');
-            }
+            if (yaml.errors)
+                page.content.innerHTML = yaml.errorMessages();
             else {
+                let sortOrder = ARTIST_SORT; /**### should be widget option */
+                if (sortQuery) {
+                    sortQuery = sortQuery.toLowerCase();
+                    if (sortQuery[0] == ARTIST_SORT)
+                        sortOrder = ARTIST_SORT;
+                    else if (sortQuery[0] == SONG_SORT)
+                        sortOrder = SONG_SORT;
+                }
                 const songMap = new Map(Object.entries(yaml.metadata));
-                const sortOrder = SortOrder.Artist;
                 const songKeys = sortedSongKeys(songMap, sortOrder); /** 'songKeys' are the fakesheet file names */
                 let pElement = document.createElement('p');
                 let artistDiv = null; /** <div> to contain an artist's items */
@@ -83,7 +85,7 @@ export function render() {
                 let previousArtist = '';
                 for (let songKey of songKeys) {
                     let song = songMap.get(songKey);
-                    if (sortOrder == SortOrder.Artist) {
+                    if (sortOrder == ARTIST_SORT) {
                         let songBookItem = song.title;
                         if (previousArtist != song.artist) {
                             if (previousArtist) { /** this is not the first song */
@@ -110,7 +112,7 @@ export function render() {
                             detailsElement.append(pElement);
                         }
                     }
-                    else { /** SortOrder.Song */
+                    else { /** sortOrder == SONG_SORT */
                         let songBookItem = `${song.title} - ${song.artist}`;
                         let anchorElement = document.createElement('a');
                         anchorElement.href = page.url + `?page=songbook&song=${songKey}`;
@@ -285,7 +287,7 @@ function sortedSongKeys(songMap, sortOrder) {
         let titleA = sortableTitle(songA.title);
         let titleB = sortableTitle(songB.title);
         let sortValue = 0;
-        if (sortOrder != SortOrder.Artist || artistA == artistB) {
+        if (sortOrder != ARTIST_SORT || artistA == artistB) {
             sortValue = (titleA > titleB) ? 1 : -1;
         }
         else
@@ -313,10 +315,4 @@ function sortableTitle(rawTitle) {
     }
     adjustedTitle = words.join(' ');
     return adjustedTitle;
-}
-function metadataErrors(errorMessages, separator) {
-    let message = '';
-    errorMessages.unshift('Metadata Errors:');
-    message = errorMessages.join(separator);
-    return message;
 }

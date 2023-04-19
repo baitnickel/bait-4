@@ -130,3 +130,15 @@ export class Page {
 		}
 	}
 }
+
+/**
+ * General function to coerce data, provided in the argument, to another type.
+ * Typically the data is a node in a complex structure, such as an object
+ * structure or array of object structures. For example:
+ *
+ * let personObject = Coerce<Person>(data.person);
+ * let personObjects = Coerce<Person[]>(data.persons);
+ */
+export function Coerce<Type>(data: any): Type {
+	return data;
+}

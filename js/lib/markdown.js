@@ -49,9 +49,25 @@ export class Markdown {
             this.text = textLines.join('\n').trim();
     }
     /**
-     * This is a convenience method which writes to the console; web pages which
-     * need to display these errors should loop over this.metadataErrors
-     * themselves and display the errors on their page.
+     * This is a convenience method which returns lines of error messages as
+     * HTML (the default) or plain text.
+     */
+    errorMessages(html = true) {
+        let messages = '';
+        if (this.metadataErrors.length) {
+            let heading = (html) ? '<h6>Metadata Errors:</h6>' : 'Metadata Errors:\n';
+            let separator = (html) ? '<br>' : '\n';
+            let errors = this.metadataErrors.join(separator);
+            errors = heading + errors;
+            for (let error of this.metadataErrors) {
+                console.log(`  ${error}`);
+            }
+            messages = heading + errors;
+        }
+        return messages;
+    }
+    /**
+     * This is a convenience method which writes error messages to the console.
      */
     reportErrors() {
         if (this.metadataErrors.length) {

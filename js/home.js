@@ -30,7 +30,7 @@ sites:
     comment: lots of tent space, could be OK in combination with 4, but near entrance & highway
 	`;
     const yaml = new YAML.YAML(yamlText);
-    // yaml.options.convertNumbers = false;
+    yaml.options.convertNumbers = false;
     // yaml.options.convertNulls = false;
     // yaml.options.convertBooleans = false;
     const data = yaml.parse();
@@ -43,21 +43,21 @@ sites:
     // 	console.log(dataEntry);
     // }
     if ('sites' in data) {
-        let siteData = transform(data.sites);
+        // let siteData = transform<Campsite[]>(data.sites);
+        let siteData = (data.sites);
         for (let siteDatum of siteData) {
             console.log(siteDatum.site, siteDatum.table, siteDatum.comment, siteDatum.whatever);
         }
     }
     if ('foo' in data) {
-        let fooData = transform(data.foo);
+        // let fooData = transform<number>(data.foo);
+        let fooData = (data.foo);
         console.log(fooData);
     }
     if ('publish' in data) {
-        let targets = transform(data.publish);
+        // let targets = Coerce<string[]>(data.publish);
+        let targets = (data.publish);
         for (let target of targets)
             console.log(`publish to: ${target}`);
     }
-}
-function transform(arg) {
-    return arg;
 }

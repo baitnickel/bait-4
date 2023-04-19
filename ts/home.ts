@@ -41,7 +41,7 @@ sites:
 	`;
 
 	const yaml = new YAML.YAML(yamlText);
-	// yaml.options.convertNumbers = false;
+	yaml.options.convertNumbers = false;
 	// yaml.options.convertNulls = false;
 	// yaml.options.convertBooleans = false;
 	const data = yaml.parse();
@@ -54,21 +54,20 @@ sites:
 	// 	console.log(dataEntry);
 	// }
 	if ('sites' in data) {
-		let siteData = transform<Campsite[]>(data.sites);
+		// let siteData = transform<Campsite[]>(data.sites);
+		let siteData = <Campsite[]>(data.sites);
 		for (let siteDatum of siteData) {
 			console.log(siteDatum.site, siteDatum.table, siteDatum.comment, siteDatum.whatever)
 		}
 	}
 	if ('foo' in data) {
-		let fooData = transform<number>(data.foo);
+		// let fooData = transform<number>(data.foo);
+		let fooData = <number>(data.foo);
 		console.log(fooData);
 	}
 	if ('publish' in data) {
-		let targets = transform<string[]>(data.publish);
+		// let targets = Coerce<string[]>(data.publish);
+		let targets = <string[]>(data.publish);
 		for (let target of targets) console.log(`publish to: ${target}`);
 	}
-}
-
-function transform<Type>(arg: any): Type {
-	return arg;
 }

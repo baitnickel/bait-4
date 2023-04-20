@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as Embed from './lib/embed.js';
-import * as YAML from './lib/yaml.js';
+import { YAML } from './lib/yaml.js';
 export function render() {
     const page = new Page();
     page.displayMenu();
@@ -29,7 +29,7 @@ sites:
     table: true
     comment: lots of tent space, could be OK in combination with 4, but near entrance & highway
 	`;
-    const yaml = new YAML.YAML(yamlText);
+    const yaml = new YAML(yamlText);
     yaml.options.convertNumbers = false;
     // yaml.options.convertNulls = false;
     // yaml.options.convertBooleans = false;
@@ -42,11 +42,17 @@ sites:
     // for (let dataEntry of dataEntries) {
     // 	console.log(dataEntry);
     // }
+    // if ('sites' in data) {
+    // 	// let siteData = transform<Campsite[]>(data.sites);
+    // 	let siteData = <Campsite[]>(data.sites);
+    // 	for (let siteDatum of siteData) {
+    // 		console.log(siteDatum.site, siteDatum.category, siteDatum.table, siteDatum.comment)
+    // 	}
+    // }
     if ('sites' in data) {
-        // let siteData = transform<Campsite[]>(data.sites);
         let siteData = (data.sites);
         for (let siteDatum of siteData) {
-            console.log(siteDatum.site, siteDatum.table, siteDatum.comment, siteDatum.whatever);
+            console.log(siteDatum.site, siteDatum.category);
         }
     }
     if ('foo' in data) {

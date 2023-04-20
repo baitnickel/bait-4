@@ -47,11 +47,11 @@ export function render() {
                 page.content.innerHTML = MarkupLine(errorMessage, 'etm');
             }
             else {
-                let markdownDocument = new Markdown(fakeSheetText);
-                if (markdownDocument.errors)
-                    page.content.innerHTML = markdownDocument.errorMessages();
+                let markdown = new Markdown(fakeSheetText);
+                if (markdown.errors)
+                    page.content.innerHTML = markdown.errorMessages();
                 else {
-                    let fakeSheet = new FakeSheet(markdownDocument.text, markdownDocument.metadata);
+                    let fakeSheet = new FakeSheet(markdown.text, markdown.metadata);
                     fakeSheet.parseMetadata();
                     fakeSheet.parseSourceText();
                     displaySheet(fakeSheet);

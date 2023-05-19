@@ -14,6 +14,27 @@ export function render() {
     page.content.append(Embed.smugImage('i-SDpf2qV', 'S'));
     // SVG.appendSVG(page.content, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
     // page.content.append(Embed.youTubeFrame('5FQpeqFmwVk', 560, 315));
+    /** test File API (local file access) */
+    let newParagraph = document.createElement('p');
+    let inputElement = document.createElement('input');
+    inputElement.id = 'ie';
+    inputElement.type = 'file';
+    let outputDivElement = document.createElement('div');
+    outputDivElement.id = 'output';
+    outputDivElement.classList.add('scroll-text');
+    inputElement.addEventListener("change", () => {
+        const [file] = inputElement.files;
+        if (file) {
+            const reader = new FileReader();
+            reader.addEventListener("load", () => {
+                outputDivElement.innerText = reader.result;
+            });
+            reader.readAsText(file);
+        }
+    });
+    newParagraph.append(inputElement);
+    newParagraph.append(outputDivElement);
+    page.content.append(newParagraph);
     const yamlText = `
 foo: 44
 bar: true

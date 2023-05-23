@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as DB from './lib/fetch.js'
-import { Markdown } from './lib/markdown.js';
+import { Article } from './lib/article.js';
 import * as Table from './lib/table.js';
 import * as Reservations from './lib/reservations.js';
 import * as SVG from './lib/svg.js';
@@ -23,7 +23,7 @@ export function render() {
 	page.content.append(mapDiv);
 
 	DB.fetchData(ParkFilePath, 'md').then((parkText: string) => {
-		let markdownDocument = new Markdown(parkText);
+		let markdownDocument = new Article(parkText);
 		if (markdownDocument.metadata) {
 			if ('map' in markdownDocument.metadata) {
 				let mapElement = document.createElement('img');

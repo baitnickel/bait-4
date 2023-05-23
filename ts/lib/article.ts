@@ -1,20 +1,20 @@
 import * as YAML from './yaml.js';
 
 /**
- * A Markdown object represents a markdown document, which may contain YAML
+ * An Article object represents a markdown document which may contain YAML
  * Front Matter (metadata).
  */
 
-export class Markdown {
-	text: string;
+export class Article {
 	metadata: any;
+	markdown: string;
 	options: YAML.Options;
 	errors: boolean;
 	metadataErrors: string[];
 
-	constructor(document: string, yamlOnly: boolean = false) {
-		this.text = '';
+	constructor(article: string, yamlOnly: boolean = false) {
 		this.metadata = null;
+		this.markdown = '';
 		this.options = { // ### set using parameter(s)
 			convertNulls: true,
 			convertNumbers: true,
@@ -23,9 +23,9 @@ export class Markdown {
 		this.errors = false;
 		this.metadataErrors = [];
 		const metadataLines: string[] = [];
-		const textLines: string[] = [];
+		const markdownLines: string[] = [];
 
-		const lines = document.trim().split('\n');
+		const lines = article.trim().split('\n');
 		let inMetadata = (yamlOnly) ? true : false;
 		let firstLine = true;
 		for (let line of lines) {
@@ -38,7 +38,7 @@ export class Markdown {
 				inMetadata = false;
 			}
 			else if (inMetadata) metadataLines.push(line);
-			else textLines.push(line);
+			else markdownLines.push(line);
 			firstLine = false;
 		}
 		if (metadataLines.length) {
@@ -52,7 +52,7 @@ export class Markdown {
 				this.metadataErrors = yaml.exceptions;
 			}
 		}
-		if (textLines.length) this.text = textLines.join('\n').trim();
+		if (markdownLines.length) this.markdown = markdownLines.join('\n').trim();
 	}
 
 	/**

@@ -1,12 +1,12 @@
 import * as YAML from './yaml.js';
 /**
- * A Markdown object represents a markdown document, which may contain YAML
+ * An Article object represents a markdown document which may contain YAML
  * Front Matter (metadata).
  */
-export class Markdown {
-    constructor(document, yamlOnly = false) {
-        this.text = '';
+export class Article {
+    constructor(article, yamlOnly = false) {
         this.metadata = null;
+        this.markdown = '';
         this.options = {
             convertNulls: true,
             convertNumbers: true,
@@ -15,8 +15,8 @@ export class Markdown {
         this.errors = false;
         this.metadataErrors = [];
         const metadataLines = [];
-        const textLines = [];
-        const lines = document.trim().split('\n');
+        const markdownLines = [];
+        const lines = article.trim().split('\n');
         let inMetadata = (yamlOnly) ? true : false;
         let firstLine = true;
         for (let line of lines) {
@@ -31,7 +31,7 @@ export class Markdown {
             else if (inMetadata)
                 metadataLines.push(line);
             else
-                textLines.push(line);
+                markdownLines.push(line);
             firstLine = false;
         }
         if (metadataLines.length) {
@@ -45,8 +45,8 @@ export class Markdown {
                 this.metadataErrors = yaml.exceptions;
             }
         }
-        if (textLines.length)
-            this.text = textLines.join('\n').trim();
+        if (markdownLines.length)
+            this.markdown = markdownLines.join('\n').trim();
     }
     /**
      * This is a convenience method which returns lines of error messages as

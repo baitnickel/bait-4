@@ -15,7 +15,7 @@ export function render() {
     // SVG.appendSVG(page.content, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
     // page.content.append(Embed.youTubeFrame('5FQpeqFmwVk', 560, 315));
     const yamlText = `
-foo: 44
+foo: 44A
 bar: true
 baz: enough
 publish: [family, friends]
@@ -35,7 +35,7 @@ sites:
     // yaml.options.convertBooleans = false;
     const data = yaml.parse();
     yaml.reportExceptions();
-    console.log(data);
+    console.log('data:', data);
     // console.log(Object.keys(data));
     // console.log(Object.values(data));
     // const dataEntries = Object.entries(data);
@@ -52,18 +52,18 @@ sites:
     if ('sites' in data) {
         let siteData = (data.sites);
         for (let siteDatum of siteData) {
-            console.log(siteDatum.site, siteDatum.category);
+            console.log('siteDatum .site and .category', siteDatum.site, siteDatum.category);
         }
     }
     if ('foo' in data) {
         // let fooData = transform<number>(data.foo);
         let fooData = (data.foo);
-        console.log(fooData);
+        console.log('data.foo coerced to number?', fooData);
     }
     if ('publish' in data) {
         // let targets = Coerce<string[]>(data.publish);
         let targets = (data.publish);
         for (let target of targets)
-            console.log(`publish to: ${target}`);
+            console.log(`publish to string array: ${target}`);
     }
 }

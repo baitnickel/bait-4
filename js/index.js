@@ -1,10 +1,7 @@
 "use strict";
-const pageParameter = 'page';
-let params = new URLSearchParams(document.location.search);
-let moduleSpecifier = params.get(pageParameter);
-if (!moduleSpecifier)
-    moduleSpecifier = 'home';
+const parameters = new URLSearchParams(document.location.search);
+const page = (parameters.get('page')) ? parameters.get('page') : 'home';
 (async () => {
-    const module = await import(`./${moduleSpecifier}.js`);
+    const module = await import(`./${page}.js`);
     module.render();
 })();

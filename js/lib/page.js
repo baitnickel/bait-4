@@ -22,7 +22,7 @@ export class Page {
         this.footer = document.createElement('div');
         this.footer.id = 'footer';
         /** 'body' must be defined in index.html */
-        let body = document.querySelector('body');
+        const body = document.querySelector('body');
         body.append(this.header);
         body.append(this.content);
         body.append(this.footer);
@@ -37,21 +37,21 @@ export class Page {
         }
     }
     displayMenu() {
-        let uListElement = document.createElement('ul');
-        uListElement.id = 'menu';
-        this.header.append(uListElement);
+        const unorderedList = document.createElement('ul');
+        unorderedList.id = 'menu';
+        this.header.append(unorderedList);
         for (let menuItem of MenuItems) {
-            let listElement = document.createElement('li');
-            uListElement.append(listElement);
-            let anchor = document.createElement('a');
+            const listElement = document.createElement('li');
+            unorderedList.append(listElement);
+            const anchor = document.createElement('a');
             anchor.href = `${this.url}?page=${menuItem.module}`;
             anchor.innerText = menuItem.text;
             listElement.append(anchor);
         }
     }
     displayFooter() {
-        let footerLines = [];
-        let updateDate = new Date(document.lastModified).toDateString(); /** HTML file modification date */
+        const footerLines = [];
+        const updateDate = new Date(document.lastModified).toDateString(); /** HTML file modification date */
         footerLines.push(`Last updated <span id=footer-date>${updateDate}</span>`);
         footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
         this.footer.innerHTML = footerLines.join('<br>');
@@ -86,7 +86,7 @@ export class Page {
         /**
          * (Re)set the title in the HTML head. Optionally, also use the title as
          * a heading line with the specified level.
-        */
+         */
         document.title = MarkupLine(title, 'et');
         if (asHeadingLevel >= 1 && asHeadingLevel <= 6)
             this.addHeading(document.title, asHeadingLevel);
@@ -98,8 +98,8 @@ export class Page {
          * directly below <header>, using tag <h1>...<h6> (based on 'level').
          */
         if (this.header) {
-            let tag = (level >= 1 && level <= 6) ? 'h' + level : 'h1';
-            let element = document.createElement(tag);
+            const tag = (level >= 1 && level <= 6) ? 'h' + level : 'h1';
+            const element = document.createElement(tag);
             element.innerText = heading;
             this.header.insertAdjacentElement('afterend', element);
         }

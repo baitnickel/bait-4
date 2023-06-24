@@ -25,6 +25,8 @@ export function render() {
 	// page.content.append(Embed.youTubeFrame('5FQpeqFmwVk', 560, 315));
 
 	/** test File API (local file access) */
+	// https://stackoverflow.com/questions/13975031/reading-multiple-files-with-javascript-filereader-api-one-at-a-time
+	// https://developer.mozilla.org/en-US/docs/Web/API/File_API/Using_files_from_web_applications
 	let newParagraph = document.createElement('p');
 	let inputElement = document.createElement('input');
 	inputElement.id = 'ie';

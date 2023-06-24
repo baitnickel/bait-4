@@ -19,18 +19,30 @@ export function render() {
     let inputElement = document.createElement('input');
     inputElement.id = 'ie';
     inputElement.type = 'file';
+    inputElement.multiple = true;
     let outputDivElement = document.createElement('div');
     outputDivElement.id = 'output';
     outputDivElement.classList.add('scroll-text');
     inputElement.addEventListener("change", () => {
-        const [file] = inputElement.files;
-        if (file) {
-            const reader = new FileReader();
-            reader.addEventListener("load", () => {
+        if (inputElement.files) {
+            for (const file of inputElement.files) {
+                const reader = new FileReader();
                 outputDivElement.innerText = reader.result;
-            });
-            reader.readAsText(file);
+                reader.addEventListener("load", () => {
+                    outputDivElement.innerText = reader.result;
+                });
+                reader.readAsText(file);
+                // outputDivElement.innerText += `\n${file.name}`;
+            }
         }
+        // const [file] = inputElement.files as FileList;
+        // if (file) {
+        // 	const reader = new FileReader();
+        // 	reader.addEventListener("load", () => {
+        // 		outputDivElement.innerText = reader.result as string;
+        // 	});
+        // 	reader.readAsText(file);
+        // }
     });
     newParagraph.append(inputElement);
     newParagraph.append(outputDivElement);

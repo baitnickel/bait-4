@@ -29,12 +29,10 @@ export function render() {
         if (inputElement.files) {
             for (const file of inputElement.files) {
                 const reader = new FileReader();
-                outputDivElement.innerText = reader.result;
                 reader.addEventListener("load", () => {
-                    outputDivElement.innerText = reader.result;
+                    outputDivElement.innerText += reader.result;
                 });
                 reader.readAsText(file);
-                // outputDivElement.innerText += `\n${file.name}`;
             }
         }
         // const [file] = inputElement.files as FileList;

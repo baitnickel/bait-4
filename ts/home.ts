@@ -2,7 +2,7 @@ import { Page } from './lib/page.js';
 import * as Embed from './lib/embed.js';
 
 export function render() {
-	const page = new Page();	
+	const page = new Page();
 	const lyrics: string[] = [
 		'There’s nothing you can know that isn’t known',
 		'Nothing you can see that isn’t shown',

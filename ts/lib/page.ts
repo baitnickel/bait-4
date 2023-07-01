@@ -55,6 +55,13 @@ export class Page {
 			const branch = 'main';
 			this.fetchOrigin = `${rawServer}/${username}/${repository}/${branch}`;
 		}
+		/** Add test pages */
+		if (this.local) {
+			MenuItems.push({module: 'test-cookies', text: 'Cookies', icon: ''});
+			MenuItems.push({module: 'test-file-api', text: 'File API', icon: ''});
+			MenuItems.push({module: 'test-svg', text: 'SVG', icon: ''});
+			MenuItems.push({module: 'test-yaml', text: 'YAML', icon: ''});
+		}
 		if (header) this.displayHeader();
 		if (footer) this.displayFooter();
 	}
@@ -85,7 +92,8 @@ export class Page {
 
 		/* Event Listener */
 		function processInputText() {
-			alert(`Text Entered: ${inputElement.value}`);
+			const cleanText = inputElement.value.replace(/[^\w]/gi, '').toUpperCase();
+			alert(`Clean Text: ${cleanText}`);
 			/**
 			 * Rather than simply display an alert, what we need to do here is
 			 * write cookies containing the encrypted version of the text
@@ -138,3 +146,19 @@ export class Page {
 export function Coerce<Type>(data: any): Type {
 	return data;
 }
+
+// async function sha256(message: string) {
+// 	// encode as UTF-8
+// 	const msgBuffer = new TextEncoder().encode(message);
+
+// 	// hash the message
+// 	const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+
+// 	// convert ArrayBuffer to Array
+// 	const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+// 	// convert bytes to hex string
+// 	const hashHex = hashArray.map(b => ('00' + b.toString(16)).slice(-2)).join('');
+// 	console.log(hashHex);
+// 	return hashHex;
+// }

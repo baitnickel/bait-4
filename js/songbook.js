@@ -34,8 +34,6 @@ sheetBlock.id = CSS_ID.sheetBlock;
 const diagramBlock = document.createElement('div');
 diagramBlock.id = CSS_ID.diagramBlock;
 export function render() {
-    page.displayMenu();
-    page.displayFooter();
     let songQuery = page.parameters.get('song');
     let sortQuery = page.parameters.get('sort');
     if (songQuery) {

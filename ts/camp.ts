@@ -9,8 +9,6 @@ import { MarkupLine } from './lib/markup.js';
 export function render() {
 	const ThisYear = new Date().getFullYear();
 	const page = new Page();
-	page.displayMenu();
-	page.displayFooter();
 	page.setTitle('Campsites', 2);
 
 	const ParkFilePath = `${page.fetchOrigin}/data/park.md`;

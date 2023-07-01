@@ -8,7 +8,7 @@ const MenuItems = [
     { module: 'songbook', text: 'Song Book', icon: 'songbook.svg' },
 ];
 export class Page {
-    constructor() {
+    constructor(header = true, footer = true) {
         this.origin = window.location.origin;
         this.url = window.location.origin + window.location.pathname;
         this.parameters = new URLSearchParams(window.location.search);
@@ -35,8 +35,12 @@ export class Page {
             const branch = 'main';
             this.fetchOrigin = `${rawServer}/${username}/${repository}/${branch}`;
         }
+        if (header)
+            this.displayHeader();
+        if (footer)
+            this.displayFooter();
     }
-    displayMenu() {
+    displayHeader() {
         /**
          * Retrieve cookies, if any, and display special menus (append them to
          * the MenuItems array) when cookies associated with special privileges

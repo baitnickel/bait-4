@@ -11,7 +11,7 @@ const Site = {
 };
 
 /**
-Resource is the superclass, Article, Footnote, Audio, Video, &c are subclasses.
+Resource is the superclass, Note, Footnote, Audio, Video, &c are subclasses.
 
 The Markup module will handle references to resources, e.g.:
 	[photo1]: images/banners/DSC_0288.jpeg "alt info" width="200" height="50" #img44 .right-side .bold
@@ -38,7 +38,7 @@ Articles should be full of links, so they become a big tangle of writing and
 music and video and art work &c. 
 
 Link:Resource Footnotes: the content of a “footnote” may be a brief statement
-   (this is the traditional meaning), or another article, another page (internal
+   (this is the traditional meaning), or another note, another page (internal
    or external), an image, an audio recording...
 
 We only need one form of Link markdown.
@@ -47,7 +47,7 @@ Expanding the notion of Resource objects beyond things that appear within markdo
 	Session
 	Page
 	Panel
-	Markdown Document (Article?)
+	Markdown Document (Note)
 	CSV Document (Record?)
 	Fakesheet
 

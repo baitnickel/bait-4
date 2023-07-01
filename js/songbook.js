@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as DB from './lib/fetch.js';
-import { Article } from './lib/article.js';
+import { Note } from './lib/note.js';
 import { FAKESHEET, FakeSheet } from './lib/fakesheet.js';
 import { MarkupLine } from './lib/markup.js';
 const CSS_CLASS = {
@@ -45,11 +45,11 @@ export function render() {
                 page.content.innerHTML = MarkupLine(errorMessage, 'etm');
             }
             else {
-                let article = new Article(fakeSheetText);
-                if (article.errors)
-                    page.content.innerHTML = article.errorMessages();
+                let note = new Note(fakeSheetText);
+                if (note.errors)
+                    page.content.innerHTML = note.errorMessages();
                 else {
-                    let fakeSheet = new FakeSheet(article.markdown, article.metadata);
+                    let fakeSheet = new FakeSheet(note.markdown, note.metadata);
                     fakeSheet.parseMetadata();
                     fakeSheet.parseSourceText();
                     displaySheet(fakeSheet);
@@ -63,7 +63,7 @@ export function render() {
         page.addHeading('List of Songs', 2);
         const fakeSheetIndexPath = `${dataPath}/index.yaml`;
         DB.fetchData(fakeSheetIndexPath).then((indexText) => {
-            let yaml = new Article(indexText, true);
+            let yaml = new Note(indexText, true);
             if (yaml.errors)
                 page.content.innerHTML = yaml.errorMessages();
             else {

@@ -1,18 +1,18 @@
 import * as YAML from './yaml.js';
 
 /**
- * An Article object represents a markdown document which may contain YAML
+ * A Note object represents a markdown document which may contain YAML
  * Front Matter (metadata).
  */
 
-export class Article {
+export class Note {
 	metadata: any;
 	markdown: string;
 	options: YAML.Options;
 	errors: boolean;
 	metadataErrors: string[];
 
-	constructor(article: string, yamlOnly: boolean = false) {
+	constructor(note: string, yamlOnly: boolean = false) {
 		this.metadata = null;
 		this.markdown = '';
 		this.options = { // ### set using parameter(s)
@@ -25,7 +25,7 @@ export class Article {
 		const metadataLines: string[] = [];
 		const markdownLines: string[] = [];
 
-		const lines = article.trim().split('\n');
+		const lines = note.trim().split('\n');
 		let inMetadata = (yamlOnly) ? true : false;
 		let firstLine = true;
 		for (let line of lines) {

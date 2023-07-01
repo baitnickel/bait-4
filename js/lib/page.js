@@ -37,6 +37,11 @@ export class Page {
         }
     }
     displayMenu() {
+        /**
+         * Retrieve cookies, if any, and display special menus (append them to
+         * the MenuItems array) when cookies associated with special privileges
+         * are present.
+         */
         const unorderedList = document.createElement('ul');
         unorderedList.id = 'menu';
         this.header.append(unorderedList);
@@ -47,6 +52,22 @@ export class Page {
             anchor.href = `${this.url}?page=${menuItem.module}`;
             anchor.innerText = menuItem.text;
             listElement.append(anchor);
+        }
+        const inputElement = document.createElement('input');
+        inputElement.id = 'header-input';
+        inputElement.size = 30;
+        /* Event listener */
+        inputElement.addEventListener('change', processInputText);
+        this.header.append(inputElement);
+        /* Event Listener */
+        function processInputText() {
+            alert(`Text Entered: ${inputElement.value}`);
+            /**
+             * Rather than simply display an alert, what we need to do here is
+             * write cookies containing the encrypted version of the text
+             * entered, and update the available menus accordingly.
+             */
+            inputElement.value = '';
         }
     }
     displayFooter() {

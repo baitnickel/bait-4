@@ -10,20 +10,80 @@
 
 body { background-color: var(--blue); }
 
-
-#header-menu, #footer, nav, article, main, body {
-	display:block;
-}
-
 body {
 	background-color: var(--background-color);
 	max-width: var(--content-width);
 }	
 
+
+/* #header-menu, #footer, nav, article, main, body { */
+nav, article, main, body {
+	display:block;
+}	
+
 #header-menu, #footer {
 	background-color: #5480df;
-	/* background-color: lightyellow; */
-	color: yellow; /* why not working? */
+}
+
+#header-menu {
+	/* new - trying to horizontally align text input after menu items */
+	display: flex;
+	text-align: center;
+	align-items:center;
+
+	border-radius: .5em;
+	padding: 0 1em 0 1em; /* top, right, bottom, left */
+}
+
+#header-input {
+	font-family: sans-serif;
+	padding: 0 .5em 0 .5em; /* padding inside the input box */
+	margin-left: 2em;
+}
+
+#menu {
+	padding: 0; /* .5em .2em .25em 0; */
+	border-radius: .5em;
+	font-size: small;
+	display: flex; /* works with align-items, below */
+	align-items: center; /* aligns items vertically */
+}
+#menu li {
+	display: inline;
+	font-family: sans-serif;
+}
+#menu li a {
+	text-decoration: none;
+	text-align: center;
+	padding: .5em .5em .5em .5em;
+	color: #eef;
+}
+#menu li a:hover {
+	color: #ffff00;
+}
+
+/* I don't think these are doing anything - classes aren't being used?
+#menu-list {
+	color: #eef;
+}
+#menu-list:hover {
+	color: #acf69b
+}
+.menu-icon {
+	fill: #eef;
+}
+.menu-icon:hover{
+	fill: orange;
+}
+*/
+
+#footer {
+	display: block;
+	border-radius: .5em;
+	font-family: sans-serif;
+	font-size: 75%;
+	padding: .4em 1em .4em 1.5em; /* top, right, bottom, left */
+	color: #eef;
 }
 
 h1, h2, h3, h4, h5 {
@@ -78,24 +138,11 @@ p {
 /* old global */
 
 
-#header-menu {
-	border-radius: .5em;
-	padding: 0 1em 0 1em; /* top, right, bottom, left */
-}
-
 #page-content {
 	margin-top: 1em;
 	margin-bottom: 1em;
 	margin-left: 1em;
 	margin-right: 1em;
-}
-
-#footer {
-	border-radius: .5em;
-	font-family: sans-serif;
-	font-size: 75%;
-	padding: .4em 1em .4em 1.5em; /* top, right, bottom, left */
-	color: #eef;
 }
 
 nav {
@@ -104,42 +151,6 @@ nav {
 	/* right: 10px; */
 	/* left: 10px; */
 	/* position: relative; */
-}
-
-#menu {
-	padding: .5em .2em .25em 0;
-	border-radius: .5em;
-	font-size: small;
-	display: flex; /* works with align-items, below */
-	align-items: center; /* aligns items vertically */
-}
-
-#menu li {
-	display: inline;
-	font-family: sans-serif;
-}
-
-#menu li a {
-	text-decoration: none;
-	text-align: center;
-	padding: .5em .5em .5em .5em;
-	color: #eef;
-}
-
-#menu li a:hover {
-	color: #ffff00;
-}
-#menu-list {
-	color: #eef;
-}
-#menu-list:hover {
-	color: #acf69b
-}
-.menu-icon {
-	fill: #eef;
-}
-.menu-icon:hover{
-	fill: orange;
 }
 
 /* .xblockquote { */

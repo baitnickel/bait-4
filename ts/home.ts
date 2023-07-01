@@ -2,13 +2,6 @@ import { Page } from './lib/page.js';
 import * as Embed from './lib/embed.js';
 import { YAML } from './lib/yaml.js'
 
-type Campsite = {
-	site: number;
-	category: string;
-	table: boolean;
-	comment: string;
-};
-
 export function render() {
 	const page = new Page();
 	page.displayMenu();
@@ -21,12 +14,16 @@ export function render() {
 	];
 	page.content.append(Embed.paragraph(lyrics));
 	page.content.append(Embed.smugImage('i-SDpf2qV', 'S'));
+
+
 	// SVG.appendSVG(page.content, 'data/jmap7.svg', ['93', '95', '97', '99', '103', '104', 'J105']);
 	// page.content.append(Embed.youTubeFrame('5FQpeqFmwVk', 560, 315));
 
 	/** test File API (local file access) */
 	// https://stackoverflow.com/questions/13975031/reading-multiple-files-with-javascript-filereader-api-one-at-a-time
 	// https://developer.mozilla.org/en-US/docs/Web/API/File_API/Using_files_from_web_applications
+	// https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/webkitdirectory
+	/*
 	let newParagraph = document.createElement('p');
 	let inputElement = document.createElement('input');
 	inputElement.id = 'ie';
@@ -57,6 +54,15 @@ export function render() {
 	newParagraph.append(inputElement);
 	newParagraph.append(outputDivElement);
 	page.content.append(newParagraph);
+	*/
+
+	/*
+	type Campsite = {
+		site: number;
+		category: string;
+		table: boolean;
+		comment: string;
+	};
 
 	const yamlText = `
 foo: 44A
@@ -112,4 +118,5 @@ sites:
 		let targets = <string[]>(data.publish);
 		for (let target of targets) console.log(`publish to string array: ${target}`);
 	}
+	*/
 }

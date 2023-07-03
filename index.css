@@ -28,17 +28,19 @@ nav, article, main, body {
 #header-menu {
 	/* new - trying to horizontally align text input after menu items */
 	display: flex;
-	text-align: center;
-	align-items:center;
-
+	justify-content: space-between;
 	border-radius: .5em;
-	padding: 0 1em 0 1em; /* top, right, bottom, left */
+	padding: 0 1em;
 }
 
 #header-input {
 	font-family: sans-serif;
-	padding: 0 .5em 0 .5em; /* padding inside the input box */
-	margin-left: 2em;
+	font-size: 11pt;
+	padding: 0 .3em; /* padding inside the input box */
+	/* these control the size and position of the text input box */
+	height: 1.2em;
+	position: relative;
+	top: .7em;
 }
 
 #menu {
@@ -59,7 +61,8 @@ nav, article, main, body {
 	color: #eef;
 }
 #menu li a:hover {
-	color: #ffff00;
+	color: orange;
+	/* color: #ffff00; */
 }
 
 /* I don't think these are doing anything - classes aren't being used?

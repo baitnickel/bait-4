@@ -67,19 +67,30 @@ export class Page {
         const inputElement = document.createElement('input');
         inputElement.id = 'header-input';
         inputElement.size = 30;
+        // inputElement.height = 15;
         /* Event listener */
         inputElement.addEventListener('change', processInputText);
         this.header.append(inputElement);
         /* Event Listener */
         function processInputText() {
-            const cleanText = inputElement.value.replace(/[^\w]/gi, '').toUpperCase();
+            /**
+             * Remove non-word and non-whitespace characters, trim both ends,
+             * and replace all whitespace strings with a single space.
+             */
+            let cleanText = inputElement.value.replace(/[^\w\s]/gi, '');
+            cleanText = cleanText.trim();
+            cleanText = cleanText.replace(/\s+/gi, ' ');
             alert(`Clean Text: ${cleanText}`);
             /**
              * Rather than simply display an alert, what we need to do here is
              * write cookies containing the encrypted version of the text
              * entered, and update the available menus accordingly.
              */
-            inputElement.value = '';
+            // if (cleanText == 'Jed') {
+            // 	MenuItems.push({module: 'camp', text: 'Camping', icon: 'camp.svg'});
+            // 	window.location.reload();
+            // 	// inputElement.value = '';
+            // }
         }
     }
     displayFooter() {

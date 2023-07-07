@@ -1,3 +1,4 @@
+import { Session } from './settings.js';
 import { MarkupLine } from './markup.js';
 
 const NOW = new Date();
@@ -18,6 +19,8 @@ const MenuItems: MenuItem[] = [
 
 export class Page {
 	name: string|null;                  /** name of requested page (via query 'page=<name>') */
+	encryption: number;
+	encryptPrefix: number;
 	origin: string;
 	url: string;                        /** URL origin + pathname (full URL without '?query') */
 	parameters: URLSearchParams;        /** URL query parameters */
@@ -33,6 +36,8 @@ export class Page {
 		this.url = window.location.origin + window.location.pathname;
 		this.parameters = new URLSearchParams(window.location.search);
 		this.name = this.parameters.get('page');
+		this.encryption= Session.encryption;
+		this.encryptPrefix = Session.encryptPrefix;
 		this.options = new Map<string, string>();
 		this.local = (window.location.hostname == 'localhost');
 		this.header = document.createElement('div');

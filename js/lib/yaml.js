@@ -19,6 +19,7 @@
  *   a set of block expressions may only be introduced by a node without a value
  *   expressions may be object literals, array literals, or string literals
  */
+/* ### must also catch duplicate mapping keys */
 const ERRORS = {
     noKey: 'plain text without key',
     wrongKeyType: 'key-type/block-type mismatch',

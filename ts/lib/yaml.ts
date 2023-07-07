@@ -40,6 +40,7 @@ export type Options = {
 	convertBooleans: boolean,
 };
 
+/* ### must also catch duplicate mapping keys */
 const ERRORS = {
 	noKey: 'plain text without key',
 	wrongKeyType: 'key-type/block-type mismatch',

@@ -1,3 +1,4 @@
+import { Session } from './settings.js';
 import { MarkupLine } from './markup.js';
 const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
@@ -13,6 +14,8 @@ export class Page {
         this.url = window.location.origin + window.location.pathname;
         this.parameters = new URLSearchParams(window.location.search);
         this.name = this.parameters.get('page');
+        this.encryption = Session.encryption;
+        this.encryptPrefix = Session.encryptPrefix;
         this.options = new Map();
         this.local = (window.location.hostname == 'localhost');
         this.header = document.createElement('div');

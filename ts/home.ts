@@ -7,6 +7,7 @@ export function render() {
 		'There’s nothing you can know that isn’t known',
 		'Nothing you can see that isn’t shown',
 		'Nowhere you can be that isn’t where you’re meant to be',
+		`Session encryption value is ${page.encryption}`,
 	];
 	page.content.append(Embed.paragraph(lyrics));
 	page.content.append(Embed.smugImage('i-SDpf2qV', 'S'));

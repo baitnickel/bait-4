@@ -7,6 +7,7 @@ capo:
 tuning:
 tempo:
 copyright:
+placeholder: ^
 chords: # list chord-name and notation separated by whitespace
   - D4add9:554030
   - G:320003
@@ -36,7 +37,7 @@ so ^gently ^floating, ^dipping ^rising
 ^timely ^hoping ^hopes a^rising
 
 in every wave we meet the crest and trough alike
-this moment shapes the colors in the very light
+this moment shapes the colors in its very light
 
 (repeat 1 or 2?)
 

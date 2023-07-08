@@ -2,6 +2,7 @@
 title: Matthew and Erin
 artist: The Baitnickels
 key: D
+placeholder: ^
 chords:
   - Bm(add4):x24430
   - Bb5:x133xx

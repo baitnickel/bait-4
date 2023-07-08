@@ -4,6 +4,7 @@ artist: The Baitnickels
 key: Am
 capo: 3
 tempo: 120
+placeholder: ^
 chords:
   - Asus2:x02200
   - Fmaj7b5:123200
@@ -13,11 +14,6 @@ chords:
 
 .v1 Am E Dm Am
 ^taking the trail that winds high on the ridge o'er the riverbed
-//^taking the trail 'long the contours of cliff over riverbed
-//^taking the trail winding high on the cliff o're the creek bed
-//^taking the trail skirting the edge of the cliff o're the riverbed
-//^taking the trail that skims along the cliff of the riverbed // encroaches the slope
-//^taking the trail where we follow the cliff o'er the riverbed
 making our way in the quiet that opens an empty head
 ^passing the time as if all of our time isn’t ^up ahead
 just for the ^sake of it

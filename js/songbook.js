@@ -132,7 +132,8 @@ export function render() {
 }
 function displaySheet(fakesheet) {
     /** Display song title in both HTML title and Heading */
-    let title = (fakesheet.title) ? fakesheet.title : '(untitled)';
+    // let title = (fakesheet.title) ? fakesheet.title : '(untitled)';
+    let title = fakesheet.title;
     if (fakesheet.artist)
         title += ` - ${fakesheet.artist}`;
     document.title = MarkupLine(title, 'ET');
@@ -168,8 +169,8 @@ function metadataItem(id, label, value) {
 function fillErrorBlock(fakesheet) {
     errorBlock.innerHTML = '';
     if (fakesheet.errors.length) {
-        errorBlock.appendChild(document.createTextNode('Errors:'));
-        errorBlock.appendChild(document.createElement('br'));
+        // errorBlock.appendChild(document.createTextNode('Errors:'));
+        // errorBlock.appendChild(document.createElement('br'));
         for (let error of fakesheet.errors) {
             errorBlock.appendChild(document.createTextNode(error));
             errorBlock.appendChild(document.createElement('br'));

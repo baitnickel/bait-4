@@ -4,6 +4,7 @@ artist: The Baitnickels
 key: D
 capo: 3
 tempo: 110
+placeholder: ^
 chords:
   - D(sus2):x0023(2,0)
   - G6:320030

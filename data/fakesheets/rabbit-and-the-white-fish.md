@@ -3,6 +3,7 @@ title: Rabbit and the White Fish
 artist: The Baitnickels
 key: G
 capo: 7
+placeholder: ^
 chords:
   - G5:3200(3,0)x
   - C:x32010
@@ -20,8 +21,8 @@ chords:
 ---
 ..intro G
 (... vamp on ^)
-// ..intro Em D6/F# G C D
-//| ^ ^ | ^ ^ | ^ | ^ ^ | ^ ^ | ^ |
+    # ..intro Em D6/F# G C D
+    #| ^ ^ | ^ ^ | ^ | ^ ^ | ^ ^ | ^ |
 
 .v G5 C Em7/B Am7 Em* D6/F# G
 ^Rabbit and the White Fish ^rise ^each ^day ^at a ^quarter after ^2
@@ -33,7 +34,7 @@ A^scending from their hovels ^one ^and ^two ^they ^wonder what to ^do...
 .ch C Em7/B Am Em      Fmaj7 Em7/B G Am Cmaj7 D7/F#      G5 C Em7/B Am7 Em* D6/F# G
     
     ^Rabbit and the ^White Fish ^best of friends these ^two
-    //With ^paws and ^fins ^and ^feet in step, ^two ^true
+    #With ^paws and ^fins ^and ^feet in step, ^two ^true
     With ^nose to ^tail ^they ^sway in time, ^two ^true
     ^Rabbit and the White Fish ^make ^their ^way ^under ^skies of white and ^blue...
 
@@ -45,9 +46,9 @@ The ^granite with a face im^pro^ba^ble ^is ^one inside it ^all
 ^Moving at the pace of the ^stars ^a^bove ^its ^molten iron ^ball    (-> chorus)
 
 .v
-//^All the sleepy eyes a^cross ^this ^world ^  ^can no longer ^wait
-//will ^fade and then a^bate
-//^slowly fall a^way
+    #^All the sleepy eyes a^cross ^this ^world ^  ^can no longer ^wait
+    #will ^fade and then a^bate
+    #^slowly fall a^way
 ^All the sleepy eyes a^cross ^this ^world ^will ^know the hour's ^late
 When ^Rabbit and the White Fish ^turn ^to ^slumber ^at a ^quarter after ^8
 

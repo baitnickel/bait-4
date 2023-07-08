@@ -2,6 +2,7 @@
 title: Same Way Too
 artist: The Baitnickels
 key: B
+placeholder: ^
 chords:
   - F#7:x443(2,0)0
   - B/Bb:x1444x

@@ -4,6 +4,7 @@ artist: The Baitnickels
 key: A
 capo: 3
 tempo: 74
+placeholder: ^
 chords:
   - Amaj7!:006650
   - E9sus4:004430
@@ -21,9 +22,9 @@ chords:
 .ch A Amaj7 D Dmaj7 A Amaj7 D Dmaj7 E(sus4)
 	^Lost in your eyes, they’re all I can see, ^held in the shine they shine upon me
 	^Riding the waves, adrift are we, ^only (ah, just) a wake in time
-	// ^Floating, a wake in time
+	# ^Floating, a wake in time
 	^True are the hearts that beat in one time, ^true are the steps with hands entwined
-	^Two on a course as true as one mind, ^floating along are we   ^ // side by side are we
+	^Two on a course as true as one mind, ^floating along are we   ^ # side by side are we
 
 .v
 ^Tickle my fancy, ^take me away
@@ -33,11 +34,4 @@ chords:
 .v
 ^Let me go softly as ^night into day
 ^Parting is surely sorrow, sweet, do ^show me the way
-// ^You be the sea to this little breeze and ^let me go play    ^
-// ^You be the sea to this little breeze and ^I’ll wave to you    ^
-// ^You be the sea and I’ll be the breeze, ^go as we may    ^
 ^You be the sea to this little breeze, and ^I'll wave your way    ^
-// ^You be the sea and I’ll be the breeze, 
-// wave with me today, // waving today,
-// and I'll wave with you in the bye and bye //
-// along the way    ^

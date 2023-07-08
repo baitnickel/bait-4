@@ -3,6 +3,7 @@ title: Promises We Make
 artist: The Baitnickels
 Key: Bm
 Capo: 2
+placeholder: ^
 chords:
   - D:x00232
   - G:320003
@@ -27,20 +28,20 @@ chords:
 I ^hate to say it ‘cause it’s sad to say, we ^live in a very strange ^time.
 The ^clouds are parting and the sky is grey, the ^blue has lost its ^shine
 ^Every ^little ^cloud it ^seems... leaves ^nothing of itself be^hind......
-// ^Bound by tomorrow and ^yesterday, we ^live in a very strange ^time.
+    # ^Bound by tomorrow and ^yesterday, we ^live in a very strange ^time.
 ^Betwixt tomorrow and ^yesterday, we ^live in a very strange ^time.
 
 .ch G D A/E Bm G D Asus4/E Bm A/C#
-//     ^Oh, will/may the ^sorrows of the ^past fade a^way?
-//     ^Oh, will/may the ^promises we ^make (...) ever see the light of ^day? ........ ^
+    #     ^Oh, will/may the ^sorrows of the ^past fade a^way?
+    #     ^Oh, will/may the ^promises we ^make (...) ever see the light of ^day? ........ ^
     ^Oh, will the ^sorrows of the ^past fade a^way?
-//     ^Oh, will the ^promises we ^make (... ever) turn the night to ^day? ........ ^
+    #     ^Oh, will the ^promises we ^make (... ever) turn the night to ^day? ........ ^
     ^Oh, will the ^promises we ^make (... ever) see the light of ^day? ........ ^
 
     (verse instrumental)
 
 .v
-// ^Met on the river ‘cross/thru the rocks today, where ^windy trails un^wind.
+    # ^Met on the river ‘cross/thru the rocks today, where ^windy trails un^wind.
 ^Met on the river ‘long the rocks today, where ^windy trails un^wind.
 ^Held some people in my arms today, it’d ^been a mighty long ^time.
 ^Eye to ^eye nothin’ we ^had to ^say... the ^beating of our hearts was just ^fine......

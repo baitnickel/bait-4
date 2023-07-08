@@ -3,6 +3,7 @@ title: Mitchell
 artist: The Baitnickels
 key: Em
 chords: C7:x32303
+placeholder: ^
 ---
 .v Em B7 Em B7   Em G D/F# Em B7   C7 B7 Em
 

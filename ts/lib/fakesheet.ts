@@ -2,7 +2,8 @@ import { MarkupLine } from './markup.js';
 
 /**
  * Comments (inline or whole line) begin with FAKESHEET.commentPattern.
- * Token names begin with a FAKESHEET.tokenCharacter and contain one or more non-whitespace characters.
+ * Token names begin with a FAKESHEET.tokenCharacter and contain one or more
+ * non-whitespace characters.
  * All token names are case-insensitive.
  * Reserved token names (minus the FAKESHEET.tokenCharacter) are:
  * - title
@@ -16,37 +17,27 @@ import { MarkupLine } from './markup.js';
  * All other token names define a chord sequence and/or make a chord sequence current:
  * - token chord chord chord (defines a sequence and makes it current)
  * - token (makes an already defined sequence current)
- * When a token name begins with FAKESHEET.tokenCharacter + FAKESHEET.inlinePrefix,
- * it's an inline sequence (chords are placed on same line as text).
- * FAKESHEET.chordPlaceholder in normal line is replaced by next chord in sequence.
+ * When a token name begins with FAKESHEET.tokenCharacter + a member of
+ * FAKESHEET.inlinePrefixes, it's an inline sequence (chords are placed on same
+ * line as text). FakeSheet.placeholder in normal line is replaced by next
+ * chord in sequence.
  * To-do:
  * - Replace 'b' and '#' in note and chord names with unicode: '♭' and '♯'.
- * - Not only capo, but tuning and .chords declarations should vanish on newKey
+ * - Not only capo, but tuning and chords declarations should vanish on newKey
  * - Support a library of chord diagrams, particularly for newKeys
  */
-
-// export type FakeSheetMetadata = {
-// 	title: string,
-// 	artist: string,
-// 	composers: string[],
-// 	key: string,
-// 	capo: number,
-// 	tuning: string,
-// 	tempo: string,
-// 	copyright: string,
-// 	chords: string[],
-// };
 
 export const FAKESHEET = {
 	version: '2022.01.19',
 
 	notes: /(Ab|A#|Bb|C#|Db|D#|Eb|F#|Gb|G#|A|B|C|D|E|F|G)/,
 	tonics: ['A','A#|Bb','B','C','C#|Db','D','D#|Eb','E','F','F#|Gb','G','G#|Ab'],
-	tonicSeparator: '|', 
-	commentPattern: /\/\/.*/, /* comments begin with double-slashes (//) */
+	tonicSeparator: '|',
+	// commentPattern: /\/\/.*/, /* comments begin with double-slashes (//) */
+	commentPattern: /(^#|\s#).*/, /* comments begin with hash (at start of line or word) */
 	tokenCharacter: '.',
-	inlinePrefix: ['.', '_'],
-	chordPlaceholder: '^',
+	inlinePrefixes: ['.', '_'],
+	chordPlaceholders: ['^','~','@','$','%','_','+','=','/'], /* the first one is the default */
 	chordNotationSeparator: ':', /* separates chord name from chord notation */
 	chordSpacing: 2, /* minimum number of spaces between chords on chord line */
 	space: '\u{00a0}', /* unicode no-break space */
@@ -69,6 +60,7 @@ export class FakeSheet {
 	tempo: number;             /* beats per minute */
 	copyright: string;         /* copyright info, to be displayed following copyright symbol */
 	chords: Chord[];           /* used to display chord diagrams */
+	placeholder: string;       /* chord placeholder */
 	metadata: any;             /* metadata from source text */
 	lines: string[];           /* source text of fakesheet */
 	sections: Section[];       /* Section objects */
@@ -92,7 +84,7 @@ export class FakeSheet {
 	 */	
 
 	constructor(fakeSheetText: string, fakeSheetMetadata: any, key: string = '') {
-		this.title = '';
+		this.title = '(untitled)';
 		this.artist = '';
 		this.composers = '';
 		this.key = null;
@@ -102,6 +94,7 @@ export class FakeSheet {
 		this.tempo = 0;
 		this.copyright = '';
 		this.chords = [];
+		this.placeholder = FAKESHEET.chordPlaceholders[0];
 		this.metadata = fakeSheetMetadata;
 		this.lines = fakeSheetText.split('\n');
 		this.sections = [];
@@ -122,6 +115,11 @@ export class FakeSheet {
 		metaMap.set('tempo', this.setTempo);
 		metaMap.set('copyright', this.setCopyright);
 		metaMap.set('chords', this.setChords);
+		metaMap.set('placeholder', this.setPlaceholder);
+		/**
+		 * YAML parsing does not allow duplicate keywords, so the last entry is
+		 * the only one recorded. Keywords without a value will be ignored.
+		 */
 		metaMap.forEach((method, keyword) => {
 			if (keyword in this.metadata && this.metadata[keyword] !== null) {
 				let values: string[] = [];
@@ -151,6 +149,7 @@ export class FakeSheet {
 				let parameters = trimmedLine.split(/\s+/);
 				let token = parameters.shift()!.toLowerCase().slice(1);
 				if (this.metadata === null) {
+					/* old-style (pre-YAML) tokens */
 					if (token == 'title') this.setTitle(token, parameters, lineNo);
 					else if (token == 'artist') this.setArtist(token, parameters, lineNo);
 					else if (token == 'composers') this.setComposers(token, parameters, lineNo);
@@ -164,7 +163,8 @@ export class FakeSheet {
 				}
 				else if (token) currentSection = this.newSection(currentSection, token, parameters, lineNo);
 				else this.addError(lineNo, 'Ignoring null token name');
-			} else {
+			}
+			else {
 				/* lyric, chord, or blank line */
 				if (!currentSection) {
 					if (trimmedLine) this.addError(lineNo, 'Ignoring orphan line (not in a section)');
@@ -189,13 +189,21 @@ export class FakeSheet {
 	}
 
 	validTokenLine(property: string|number|Chord|null, name: string, parameters: string[], lineNo: number) {
+		/**
+		 * The value passed in the parameters is only valid if:
+		 * - the given value (parameter list) is not empty
+		 * - NO LONGER ENFORCED: the property has not already been set
+		 */
 		let valid = false;
 		let errorMessage = '';
-		if (property) {
-			errorMessage = `Ignoring attempt to redefine ${name}`;
-			if (parameters.length) errorMessage += `: ${parameters.join(' ')}`;
-		}
-		else if (!parameters.length) {
+		// if (property) {
+		// 	errorMessage = `Ignoring attempt to redefine ${name}`;
+		// 	if (parameters.length) errorMessage += `: ${parameters.join(' ')}`;
+		// }
+		// else if (!parameters.length) {
+		// 	errorMessage = `Ignoring ${name} with blank or invalid value`;
+		// }
+		if (!parameters.length || !parameters.join('').trim()) {
 			errorMessage = `Ignoring ${name} with blank or invalid value`;
 		}
 		else valid = true;
@@ -251,10 +259,10 @@ export class FakeSheet {
 
 	deriveKey(chordName: string) {
 		/**
-		 * Best practice is to explicitly name the song's key using the .key
-		 * token at the top of the fakesheet, but if this isn't done, this
-		 * method may be called to derive the key from the first chord
-		 * encountered (e.g., in a .chord declaration or section declaration).
+		 * Best practice is to explicitly name the song's key using the "key"
+		 * metadata token, but if this isn't done this method will be called to
+		 * derive the key from the first chord encountered (e.g., in a "chord"
+		 * declaration or section declaration).
 		 */
 		let chord = new Chord(chordName);
 		if (chord.base) this.key = new Chord(chord.base);
@@ -364,6 +372,17 @@ export class FakeSheet {
 		}
 	}
 
+	setPlaceholder(token: string, parameters: string[], lineNo: number = 0) {
+		if (this.validTokenLine(this.placeholder, token, parameters, lineNo)) {
+			let placeholder = parameters.join(' ');
+			if (!FAKESHEET.chordPlaceholders.includes(placeholder)) {
+				this.addError(lineNo, `Ignoring invalid placeholder value: ${placeholder}`);
+				this.placeholder = FAKESHEET.chordPlaceholders[0];
+			}
+			else this.placeholder = placeholder;
+		}
+	}
+
 	newSection(currentSection: Section|null, token: string, parameters: string[], lineNo: number) {
 		let sectionName = token;
 		let existingSection: Section|null = null;
@@ -385,7 +404,7 @@ export class FakeSheet {
 					chords.push(new Chord(chordName)); //### validate each chord, raise errors?
 				}
 			}
-			currentSection = new Section(sectionName, chords);
+			currentSection = new Section(sectionName, chords, this.placeholder);
 			this.sections.push(currentSection);
 
 			/* If the key hasn't already been established, set it from this chord */
@@ -459,13 +478,14 @@ class Section {
 	chords: Chord[];        /* a list of Chord objects */
 	lines: string[];        /* lyric/chord lines from fakesheet source text for this section */
 	inline: boolean;        /* true if inline section (text and chords merged into single lines) */
+	placeholder: string;    /* chord placeholder */
 
-	constructor(name: string, chords: Chord[]) {
+	constructor(name: string, chords: Chord[], placeholder: string) {
 		this.name = name;
 		this.chords = chords;
 		this.lines = [];
-		// this.inline = (name.charAt(0) === FAKESHEET.inlinePrefix) ? true : false;
-		this.inline = (FAKESHEET.inlinePrefix.includes(name[0]));
+		this.inline = (FAKESHEET.inlinePrefixes.includes(name[0]));
+		this.placeholder = placeholder;
 	}
 
 	addLine(line:string) {
@@ -476,7 +496,7 @@ class Section {
 			 */
 			line = line.trimEnd();
 			line = line.replace(/\^\^/g, '^ ^');
-			if (line.endsWith(FAKESHEET.chordPlaceholder)) line += FAKESHEET.space;
+			if (line.endsWith(this.placeholder)) line += FAKESHEET.space;
 		}
 		this.lines.push(line);
 	}
@@ -497,7 +517,7 @@ class Section {
 				if (this.inline) {
 					/* chords and text go on one line */
 					while (true) {
-						let pos = line.indexOf(FAKESHEET.chordPlaceholder);
+						let pos = line.indexOf(this.placeholder);
 						if (pos < 0) break;
 						let chord = this.chords[currentChord];
 						let chordName = chord.name;
@@ -505,7 +525,7 @@ class Section {
 							chord = chord.transpose(key, newKey);
 							chordName = chord.name;
 						}
-						line = line.replace(FAKESHEET.chordPlaceholder, chordName);
+						line = line.replace(this.placeholder, chordName);
 						currentChord = (currentChord + 1) % this.chords.length;
 					}
 					fakeLines.push(FAKESHEET.chordLine + line);
@@ -517,7 +537,7 @@ class Section {
 					/* produce two lines, one for chords and one for lyrics */
 					let addChord = false;
 					for (let character of line) {
-						if (character == FAKESHEET.chordPlaceholder) addChord = true;
+						if (character == this.placeholder) addChord = true;
 						else {
 							if (addChord) {
 								addChord = false;

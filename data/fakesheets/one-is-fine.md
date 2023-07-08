@@ -2,6 +2,7 @@
 title: One Is Fine
 artist: The Baitnickels
 key: Am
+placeholder: ^
 chords:
   - E7!:0x043(4,5)
   - Am!:007555|5

@@ -63,6 +63,7 @@ export class Page {
 		/** Add test pages */
 		if (this.local) {
 			MenuItems.push({module: 'test-cookies', text: 'Cookies', icon: ''});
+			MenuItems.push({module: 'test-lyrics', text: 'Lyrics', icon: ''});
 			MenuItems.push({module: 'test-file-api', text: 'File API', icon: ''});
 			MenuItems.push({module: 'test-svg', text: 'SVG', icon: ''});
 			MenuItems.push({module: 'test-yaml', text: 'YAML', icon: ''});

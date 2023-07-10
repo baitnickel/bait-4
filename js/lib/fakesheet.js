@@ -376,7 +376,8 @@ export class FakeSheet {
         if (this.validTokenLine(this.placeholder, token, parameters, lineNo)) {
             let placeholder = parameters.join(' ');
             if (!FAKESHEET.chordPlaceholders.includes(placeholder)) {
-                this.addError(lineNo, `Ignoring invalid placeholder value: ${placeholder}`);
+                this.addError(lineNo, `Ignoring invalid placeholder: ${placeholder}`);
+                this.addError(lineNo, `...valid placeholders are: ${FAKESHEET.chordPlaceholders.join(' ')}`);
                 this.placeholder = FAKESHEET.chordPlaceholders[0];
             }
             else
@@ -444,6 +445,32 @@ export class FakeSheet {
         }
         return lines;
     }
+    lyrics(includeTitle = false) {
+        /**
+         * Return lyrics as lines of text (with or without Title line).
+         * ### trim lines and condense internal spaces (need to indicate indentation!)
+         * ### replace hard spaces with regular spaces
+         */
+        const lines = [];
+        this.parseMetadata();
+        this.parseSourceText();
+        if (includeTitle) {
+            let title = this.title;
+            if (this.artist)
+                title += ` - ${this.artist}`;
+            lines.push(title);
+            lines.push('');
+        }
+        const fakeLines = this.fakeSheetLines();
+        for (let fakeLine of fakeLines) {
+            let lineType = fakeLine[0];
+            if (lineType == FAKESHEET.lyricLine) {
+                fakeLine = fakeLine.slice(1);
+                lines.push(fakeLine);
+            }
+        }
+        return lines;
+    }
     chordDiagrams() {
         let diagrams = [];
         if (!this.newKey) {
@@ -489,8 +516,15 @@ class Section {
              * Separate consecutive chord placeholders and ensure that line does
              * not end with a chord placeholder character.
              */
+            const joinedPlaceholders = this.placeholder.repeat(2);
+            const separatedPlaceholders = this.placeholder + ' ' + this.placeholder;
+            while (true) {
+                let alteredLine = line.replace(joinedPlaceholders, separatedPlaceholders);
+                if (line == alteredLine)
+                    break;
+                line = alteredLine;
+            }
             line = line.trimEnd();
-            line = line.replace(/\^\^/g, '^ ^');
             if (line.endsWith(this.placeholder))
                 line += FAKESHEET.space;
         }

@@ -64,8 +64,6 @@ export function render() {
 				if (note.errors) page.content.innerHTML = note.errorMessages();
 				else {
 					let fakeSheet = new FakeSheet(note.markdown, note.metadata);
-					fakeSheet.parseMetadata();
-					fakeSheet.parseSourceText();
 					displaySheet(fakeSheet);
 				}
 			}

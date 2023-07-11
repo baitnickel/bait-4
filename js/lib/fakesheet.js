@@ -1,10 +1,7 @@
 import { MarkupLine } from './markup.js';
 /**
- * Comments (inline or whole line) begin with FAKESHEET.commentPattern.
- * Token names begin with a FAKESHEET.tokenCharacter and contain one or more
- * non-whitespace characters.
- * All token names are case-insensitive.
- * Reserved token names (minus the FAKESHEET.tokenCharacter) are:
+ * Fakesheet files are markdown (.md) files, typically containing a YAML
+ * metadata header to set properties:
  * - title
  * - artist
  * - composers
@@ -12,29 +9,40 @@ import { MarkupLine } from './markup.js';
  * - capo
  * - tuning
  * - copyright
+ * - placeholder
  * - chords
- * All other token names define a chord sequence and/or make a chord sequence current:
+ *
+ * FakeSheet.placeholder in normal (lyric) line is replaced by the next
+ * chord in the section's chord sequence.
+ *
+ * Section names begin with FAKESHEET.tokenCharacter
+ * Section names contain non-whitespace characters.
+ * Section names are case-insensitive.
+ * Section declarations define a chord sequence and/or make a chord sequence current:
  * - token chord chord chord (defines a sequence and makes it current)
  * - token (makes an already defined sequence current)
- * When a token name begins with FAKESHEET.tokenCharacter + a member of
- * FAKESHEET.inlinePrefixes, it's an inline sequence (chords are placed on same
- * line as text). FakeSheet.placeholder in normal line is replaced by next
- * chord in sequence.
+ * When a Section name begins with FAKESHEET.tokenCharacter + FAKESHEET.inlinePrefix,
+ * it's an inline sequence (chords are placed on same line as text), e.g.,
+ *   ..intro C F G
+ *   | / | / | / |
+ *
+ * Fakesheet files may contain comments (inline or whole line);
+ * they begin with FAKESHEET.commentPattern.
+ *
  * To-do:
  * - Replace 'b' and '#' in note and chord names with unicode: '♭' and '♯'.
  * - Not only capo, but tuning and chords declarations should vanish on newKey
  * - Support a library of chord diagrams, particularly for newKeys
  */
 export const FAKESHEET = {
-    version: '2022.01.19',
+    version: '2023.07.11',
     notes: /(Ab|A#|Bb|C#|Db|D#|Eb|F#|Gb|G#|A|B|C|D|E|F|G)/,
     tonics: ['A', 'A#|Bb', 'B', 'C', 'C#|Db', 'D', 'D#|Eb', 'E', 'F', 'F#|Gb', 'G', 'G#|Ab'],
     tonicSeparator: '|',
-    // commentPattern: /\/\/.*/, /* comments begin with double-slashes (//) */
     commentPattern: /(^#|\s#).*/,
     tokenCharacter: '.',
-    inlinePrefixes: ['.', '_'],
-    chordPlaceholders: ['^', '~', '@', '$', '%', '_', '+', '=', '/'],
+    inlinePrefix: '.',
+    chordPlaceholders: ['/', '^', '~', '@', '$', '%', '_', '+', '='],
     chordNotationSeparator: ':',
     chordSpacing: 2,
     space: '\u{00a0}',
@@ -44,6 +52,8 @@ export const FAKESHEET = {
     lyricLine: 'L',
     removeLeadingBlanks: true,
     removeTrailingBlanks: true,
+    // condenseBlankLines: true,
+    // forceSectionBlankLine: true,
 };
 export class FakeSheet {
     /**
@@ -79,6 +89,8 @@ export class FakeSheet {
         this.chordsUsed = [];
         this.instrument = new Instrument('guitar', 6, 22, ['E', 'A', 'D', 'G', 'B', 'E']);
         this.errors = [];
+        this.parseMetadata();
+        this.parseSourceText();
     }
     parseMetadata() {
         if (this.metadata === null)
@@ -92,8 +104,8 @@ export class FakeSheet {
         metaMap.set('tuning', this.setTuning);
         metaMap.set('tempo', this.setTempo);
         metaMap.set('copyright', this.setCopyright);
-        metaMap.set('chords', this.setChords);
         metaMap.set('placeholder', this.setPlaceholder);
+        metaMap.set('chords', this.setChords);
         /**
          * YAML parsing does not allow duplicate keywords, so the last entry is
          * the only one recorded. Keywords without a value will be ignored.
@@ -126,30 +138,7 @@ export class FakeSheet {
                 /* token line */
                 let parameters = trimmedLine.split(/\s+/);
                 let token = parameters.shift().toLowerCase().slice(1);
-                if (this.metadata === null) {
-                    /* old-style (pre-YAML) tokens */
-                    if (token == 'title')
-                        this.setTitle(token, parameters, lineNo);
-                    else if (token == 'artist')
-                        this.setArtist(token, parameters, lineNo);
-                    else if (token == 'composers')
-                        this.setComposers(token, parameters, lineNo);
-                    else if (token == 'key')
-                        this.setKey(token, parameters, lineNo);
-                    else if (token == 'capo')
-                        this.setCapo(token, parameters, lineNo);
-                    else if (token == 'tuning')
-                        this.setTuning(token, parameters, lineNo);
-                    else if (token == 'tempo')
-                        this.setTempo(token, parameters, lineNo);
-                    else if (token == 'copyright')
-                        this.setCopyright(token, parameters, lineNo);
-                    else if (token == 'chords')
-                        this.setChords(token, parameters, lineNo);
-                    else if (token)
-                        currentSection = this.newSection(currentSection, token, parameters, lineNo);
-                }
-                else if (token)
+                if (token)
                     currentSection = this.newSection(currentSection, token, parameters, lineNo);
                 else
                     this.addError(lineNo, 'Ignoring null token name');
@@ -186,17 +175,9 @@ export class FakeSheet {
         /**
          * The value passed in the parameters is only valid if:
          * - the given value (parameter list) is not empty
-         * - NO LONGER ENFORCED: the property has not already been set
          */
         let valid = false;
         let errorMessage = '';
-        // if (property) {
-        // 	errorMessage = `Ignoring attempt to redefine ${name}`;
-        // 	if (parameters.length) errorMessage += `: ${parameters.join(' ')}`;
-        // }
-        // else if (!parameters.length) {
-        // 	errorMessage = `Ignoring ${name} with blank or invalid value`;
-        // }
         if (!parameters.length || !parameters.join('').trim()) {
             errorMessage = `Ignoring ${name} with blank or invalid value`;
         }
@@ -273,6 +254,7 @@ export class FakeSheet {
     setTuning(token, parameters, lineNo = 0) {
         if (this.validTokenLine(this.tuning.length, token, parameters, lineNo)) {
             /* tuning must be defined before chords */
+            /* ### we force tuning to be defined before chords in parseMetadata, right? */
             if (this.chords.length) {
                 this.addError(lineNo, `${token} must be defined before chords`);
             }
@@ -439,33 +421,37 @@ export class FakeSheet {
     fakeSheetLines() {
         let lines = [];
         for (let section of this.sections) {
+            /** ###
+             * A Section (e.g., ".chorus>") can indicate indentation via
+             * something like a ">" suffix. We can add this to the "indentation"
+             * property of the section's fakelines, assuming we have properties
+             * such as:
+             *
+             *   type: string
+             *   indentation: number
+             *   text: string
+             *
+             */
             for (let fakeLine of section.fakeLines(this.key, this.newKey)) {
                 lines.push(fakeLine);
             }
         }
         return lines;
     }
-    lyrics(includeTitle = false) {
+    lyrics() {
         /**
          * Return lyrics as lines of text (with or without Title line).
          * ### trim lines and condense internal spaces (need to indicate indentation!)
          * ### replace hard spaces with regular spaces
          */
         const lines = [];
-        this.parseMetadata();
-        this.parseSourceText();
-        if (includeTitle) {
-            let title = this.title;
-            if (this.artist)
-                title += ` - ${this.artist}`;
-            lines.push(title);
-            lines.push('');
-        }
         const fakeLines = this.fakeSheetLines();
         for (let fakeLine of fakeLines) {
             let lineType = fakeLine[0];
             if (lineType == FAKESHEET.lyricLine) {
                 fakeLine = fakeLine.slice(1);
+                fakeLine = fakeLine.trim();
+                fakeLine = fakeLine.replace(/\s{2,}/g, ' '); /* condense spaces */
                 lines.push(fakeLine);
             }
         }
@@ -507,7 +493,8 @@ class Section {
         this.name = name;
         this.chords = chords;
         this.lines = [];
-        this.inline = (FAKESHEET.inlinePrefixes.includes(name[0]));
+        // this.inline = (FAKESHEET.inlinePrefixes.includes(name[0]));
+        this.inline = name.startsWith(FAKESHEET.inlinePrefix);
         this.placeholder = placeholder;
     }
     addLine(line) {

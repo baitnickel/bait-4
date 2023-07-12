@@ -1,39 +1,4 @@
 import { MarkupLine } from './markup.js';
-/**
- * Fakesheet files are markdown (.md) files, typically containing a YAML
- * metadata header to set properties:
- * - title
- * - artist
- * - composers
- * - key
- * - capo
- * - tuning
- * - copyright
- * - placeholder
- * - chords
- *
- * FakeSheet.placeholder in normal (lyric) line is replaced by the next
- * chord in the section's chord sequence.
- *
- * Section names begin with FAKESHEET.tokenCharacter
- * Section names contain non-whitespace characters.
- * Section names are case-insensitive.
- * Section declarations define a chord sequence and/or make a chord sequence current:
- * - token chord chord chord (defines a sequence and makes it current)
- * - token (makes an already defined sequence current)
- * When a Section name begins with FAKESHEET.tokenCharacter + FAKESHEET.inlinePrefix,
- * it's an inline sequence (chords are placed on same line as text), e.g.,
- *   ..intro C F G
- *   | / | / | / |
- *
- * Fakesheet files may contain comments (inline or whole line);
- * they begin with FAKESHEET.commentPattern.
- *
- * To-do:
- * - Replace 'b' and '#' in note and chord names with unicode: '♭' and '♯'.
- * - Not only capo, but tuning and chords declarations should vanish on newKey
- * - Support a library of chord diagrams, particularly for newKeys
- */
 export const FAKESHEET = {
     version: '2023.07.11',
     notes: /(Ab|A#|Bb|C#|Db|D#|Eb|F#|Gb|G#|A|B|C|D|E|F|G)/,
@@ -187,6 +152,7 @@ export class FakeSheet {
             this.addError(lineNo, errorMessage);
         return valid;
     }
+    /**### instead of "token": "property"; instead of "parameters": "values" */
     setTitle(token, parameters, lineNo = 0) {
         if (this.validTokenLine(this.title, token, parameters, lineNo)) {
             this.title = parameters.join(' ');
@@ -244,7 +210,7 @@ export class FakeSheet {
     setCapo(token, parameters, lineNo = 0) {
         if (this.validTokenLine(this.capo, token, parameters, lineNo)) {
             let capo = Number(parameters[0]);
-            if (isNaN(capo) || capo < 0 || capo > 24) {
+            if (isNaN(capo) || capo < 0 || capo > 24) { /**### hardcoded 24? can we get from Instrument? */
                 this.addError(lineNo, `Ignoring invalid capo position: ${parameters[0]}`);
             }
             else
@@ -255,6 +221,7 @@ export class FakeSheet {
         if (this.validTokenLine(this.tuning.length, token, parameters, lineNo)) {
             /* tuning must be defined before chords */
             /* ### we force tuning to be defined before chords in parseMetadata, right? */
+            /* ### default tuning should be derived from Instrument */
             if (this.chords.length) {
                 this.addError(lineNo, `${token} must be defined before chords`);
             }
@@ -366,6 +333,7 @@ export class FakeSheet {
                 this.placeholder = placeholder;
         }
     }
+    /**### instead of "token": "sectionName"; instead of "parameters": "chordNames" */
     newSection(currentSection, token, parameters, lineNo) {
         let sectionName = token;
         let existingSection = null;

@@ -1,7 +1,7 @@
 import { Page } from './lib/page.js';
 import * as DB from './lib/fetch.js'
 import { Note } from './lib/note.js';
-import { FAKESHEET, FakeSheet } from './lib/fakesheet.js'
+import { FAKESHEET, FakeSheet, FakeLine } from './lib/fakesheet.js'
 import { MarkupLine } from './lib/markup.js';
 
 const CSS_CLASS = {

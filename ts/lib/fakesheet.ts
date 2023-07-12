@@ -36,6 +36,12 @@ import { MarkupLine } from './markup.js';
  * - Support a library of chord diagrams, particularly for newKeys
  */
 
+export type FakeLine = {
+	type: string; /** FAKESHEET.chordLine or FAKESHEET.lyricLine */
+	indentation: number;
+	text: string;
+};
+
 export const FAKESHEET = {
 	version: '2023.07.11',
 	notes: /(Ab|A#|Bb|C#|Db|D#|Eb|F#|Gb|G#|A|B|C|D|E|F|G)/,
@@ -202,6 +208,8 @@ export class FakeSheet {
 		return valid;
 	}
 
+	/**### instead of "token": "property"; instead of "parameters": "values" */
+
 	setTitle(token: string, parameters: string[], lineNo: number = 0) {
 		if (this.validTokenLine(this.title, token, parameters, lineNo)) {
 			this.title = parameters.join(' ');
@@ -262,7 +270,7 @@ export class FakeSheet {
 	setCapo(token: string, parameters: string[], lineNo: number = 0) {
 		if (this.validTokenLine(this.capo, token, parameters, lineNo)) {
 			let capo = Number(parameters[0]);
-			if (isNaN(capo) || capo < 0 || capo > 24) {
+			if (isNaN(capo) || capo < 0 || capo > 24) { /**### hardcoded 24? can we get from Instrument? */
 				this.addError(lineNo, `Ignoring invalid capo position: ${parameters[0]}`);
 			}
 			else this.capo = capo;
@@ -273,6 +281,7 @@ export class FakeSheet {
 		if (this.validTokenLine(this.tuning.length, token, parameters, lineNo)) {
 			/* tuning must be defined before chords */
 			/* ### we force tuning to be defined before chords in parseMetadata, right? */
+			/* ### default tuning should be derived from Instrument */
 			if (this.chords.length) {
 				this.addError(lineNo, `${token} must be defined before chords`);
 			}
@@ -375,6 +384,8 @@ export class FakeSheet {
 			else this.placeholder = placeholder;
 		}
 	}
+
+	/**### instead of "token": "sectionName"; instead of "parameters": "chordNames" */
 
 	newSection(currentSection: Section|null, token: string, parameters: string[], lineNo: number) {
 		let sectionName = token;

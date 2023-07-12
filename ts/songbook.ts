@@ -227,10 +227,11 @@ function fillSheetBlock(fakesheet: FakeSheet) {
 	sheetBlock.innerHTML = '';
 	let fakeSheetLines = fakesheet.fakeSheetLines();
 	for (let fakeSheetLine of fakeSheetLines) {
-		let lineType = fakeSheetLine[0];
-		fakeSheetLine = fakeSheetLine.slice(1) + '\n'; /** remove character 0 and add a newline for <pre> */
-		let lineText = document.createTextNode(MarkupLine(fakeSheetLine, 'F'));
-		if (lineType == FAKESHEET.chordLine) {
+		// let lineType = fakeSheetLine[0];
+		// fakeSheetLine = fakeSheetLine.slice(1) + '\n'; /** remove character 0 and add a newline for <pre> */
+		fakeSheetLine.text += '\n'; /** add a newline for <pre> */
+		let lineText = document.createTextNode(MarkupLine(fakeSheetLine.text, 'F'));
+		if (fakeSheetLine.type == FAKESHEET.chordLine) {
 			let spanElement = document.createElement('span');
 			spanElement.classList.add(CSS_CLASS.chords);
 			spanElement.appendChild(lineText);

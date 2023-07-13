@@ -406,20 +406,17 @@ export class FakeSheet {
         }
         return fakeLines;
     }
-    lyrics() {
-        /**
-         * Return lyrics as lines of text.
-         * ### trim lines and condense internal spaces (need to indicate indentation!)
-         * ### replace hard spaces with regular spaces
-         */
+    lyrics(indent = true) {
+        /** Return lyrics as lines of text */
         const lines = [];
         const fakeLines = this.fakeSheetLines();
         for (let fakeLine of fakeLines) {
-            // let lineType = fakeLine[0];
             if (fakeLine.type == FAKESHEET.lyricLine) {
-                // fakeLine = fakeLine.slice(1);
                 fakeLine.text = fakeLine.text.trim();
                 fakeLine.text = fakeLine.text.replace(/\s{2,}/g, ' '); /* condense spaces */
+                if (indent) {
+                    fakeLine.text = FAKESHEET.space.repeat(fakeLine.indentation) + fakeLine.text;
+                }
                 lines.push(fakeLine.text);
             }
         }
@@ -494,10 +491,15 @@ class Section {
                 let previousChordName = ''; /* will prevent repeating same chord */
                 let chordsLine = '';
                 let lyricsLine = '';
+                let indentation = 0;
                 /* replace ordinary spaces with non-breaking spaces */
                 line = line.replace(/ /g, FAKESHEET.space);
                 /* replace tabs with non-breaking spaces */
                 line = line.replace(/\t/g, FAKESHEET.space.repeat(FAKESHEET.tabSize));
+                /** determine how many spaces of indentation in the line */
+                const indented = line.match(/^(\s*)/);
+                if (indented)
+                    indentation = indented[1].length;
                 if (this.inline) {
                     /* chords and text go on one line */
                     while (true) {
@@ -514,13 +516,13 @@ class Section {
                         currentChord = (currentChord + 1) % this.chords.length;
                     }
                     // fakeLines.push(FAKESHEET.chordLine + line);
-                    let fakeLine = { type: FAKESHEET.chordLine, indentation: 0, text: line };
+                    let fakeLine = { type: FAKESHEET.chordLine, indentation: indentation, text: line };
                     fakeLines.push(fakeLine);
                 }
                 else if (line.trim() == '') {
                     /* treat a blank line as an empty lyrics line */
                     // fakeLines.push(FAKESHEET.lyricLine + line);
-                    let fakeLine = { type: FAKESHEET.lyricLine, indentation: 0, text: line };
+                    let fakeLine = { type: FAKESHEET.lyricLine, indentation: indentation, text: line };
                     fakeLines.push(fakeLine);
                 }
                 else {
@@ -565,12 +567,12 @@ class Section {
                     }
                     if (chordsLine) {
                         // fakeLines.push(FAKESHEET.chordLine + chordsLine);
-                        let fakeLine = { type: FAKESHEET.chordLine, indentation: 0, text: chordsLine };
+                        let fakeLine = { type: FAKESHEET.chordLine, indentation: indentation, text: chordsLine };
                         fakeLines.push(fakeLine);
                     }
                     if (lyricsLine) {
                         // fakeLines.push(FAKESHEET.lyricLine + lyricsLine);
-                        let fakeLine = { type: FAKESHEET.lyricLine, indentation: 0, text: lyricsLine };
+                        let fakeLine = { type: FAKESHEET.lyricLine, indentation: indentation, text: lyricsLine };
                         fakeLines.push(fakeLine);
                     }
                 }

@@ -8,13 +8,16 @@ export const FAKESHEET = {
     tokenCharacter: '.',
     inlinePrefix: '.',
     chordPlaceholders: ['/', '^', '~', '@', '$', '%', '_', '+', '='],
-    /**###
-     * We should be separating chord from notation with whitespace: /\s+/. A
-     * colon separator will likely lead to YAML errors where the user accidentally
-     * adds whitespace after the colon ("C: x32010"). Also, whitespace allows the
-     * chord list to be prettified.
+    /**
+     * The whitespace chord-notation separator allows the chord list to be
+     * prettified. For example:
+     *
+     * chords:
+     *   - C        x32010
+     *   - C7       x32310
+     *   - C(sus4)  x3(2,3)010
      */
-    chordNotationSeparator: ':',
+    chordNotationSeparator: /\s+/,
     chordSpacing: 2,
     space: '\u{00a0}',
     tabSize: 4,

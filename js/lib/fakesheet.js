@@ -8,6 +8,9 @@ export const FAKESHEET = {
     tokenCharacter: '.',
     inlinePrefix: '.',
     chordPlaceholders: ['/', '^', '~', '@', '$', '%', '_', '+', '='],
+    /**###
+     * We should be separating chord from notation with whitespace: /\s+/
+     */
     chordNotationSeparator: ':',
     chordSpacing: 2,
     space: '\u{00a0}',
@@ -22,9 +25,9 @@ export const FAKESHEET = {
 };
 export class FakeSheet {
     /**
-     * 'chords' is set from the name:notation string(s) supplied in the .chords declaration
+     * 'chords' is set from the name:notation string(s) supplied in the 'chords' metadata
      * of the fakesheet source text. Additional standard name:notation strings may optionally
-     * be added from one or more files, though the fakesheet .chords always take precendence.
+     * be added from one or more files, though the fakesheet 'chords' always take precendence.
      * These chord names are never transposed or made unicode-pretty.
 
      * We also need a unique list of chord names used ('chordsUsed') in the fakesheet source text,
@@ -43,50 +46,19 @@ export class FakeSheet {
         this.key = null;
         this.newKey = (key) ? new Chord(key) : null;
         this.capo = 0;
-        this.tuning = [];
+        this.instrument = new Instrument('guitar', 6, 22, ['E', 'A', 'D', 'G', 'B', 'E']);
+        this.tuning = this.instrument.standardTuning;
         this.tempo = 0;
         this.copyright = '';
-        this.chords = [];
         this.placeholder = FAKESHEET.chordPlaceholders[0];
+        this.chords = [];
         this.metadata = fakeSheetMetadata;
         this.lines = fakeSheetText.split('\n');
         this.sections = [];
         this.chordsUsed = [];
-        this.instrument = new Instrument('guitar', 6, 22, ['E', 'A', 'D', 'G', 'B', 'E']);
         this.errors = [];
         this.parseMetadata();
         this.parseSourceText();
-    }
-    parseMetadata() {
-        if (this.metadata === null)
-            return;
-        const metaMap = new Map();
-        metaMap.set('title', this.setTitle);
-        metaMap.set('artist', this.setArtist);
-        metaMap.set('composers', this.setComposers);
-        metaMap.set('key', this.setKey);
-        metaMap.set('capo', this.setCapo);
-        metaMap.set('tuning', this.setTuning);
-        metaMap.set('tempo', this.setTempo);
-        metaMap.set('copyright', this.setCopyright);
-        metaMap.set('placeholder', this.setPlaceholder);
-        metaMap.set('chords', this.setChords);
-        /**
-         * YAML parsing does not allow duplicate keywords, so the last entry is
-         * the only one recorded. Keywords without a value will be ignored.
-         */
-        metaMap.forEach((method, keyword) => {
-            if (keyword in this.metadata && this.metadata[keyword] !== null) {
-                let values = [];
-                if (Array.isArray(this.metadata[keyword])) {
-                    for (let value of this.metadata[keyword])
-                        values.push(`${value}`);
-                }
-                else
-                    values.push(`${this.metadata[keyword]}`);
-                method.call(this, keyword, values);
-            }
-        });
     }
     parseSourceText() {
         let currentSection = null;
@@ -106,13 +78,13 @@ export class FakeSheet {
                 if (token)
                     currentSection = this.newSection(currentSection, token, parameters, lineNo);
                 else
-                    this.addError(lineNo, 'Ignoring null token name');
+                    this.addError('Ignoring null token name', lineNo);
             }
             else {
                 /* lyric, chord, or blank line */
                 if (!currentSection) {
                     if (trimmedLine)
-                        this.addError(lineNo, 'Ignoring orphan line (not in a section)');
+                        this.addError('Ignoring orphan line (not in a section)', lineNo);
                     /** blank lines not in a section will be ignored */
                 }
                 else if (trimmedLine) {
@@ -136,70 +108,82 @@ export class FakeSheet {
             }
         }
     }
-    validTokenLine(property, name, parameters, lineNo) {
+    parseMetadata() {
+        if (this.metadata === null)
+            return;
+        const metaMap = new Map();
+        metaMap.set('title', this.setTitle);
+        metaMap.set('artist', this.setArtist);
+        metaMap.set('composers', this.setComposers);
+        metaMap.set('key', this.setKey);
+        metaMap.set('capo', this.setCapo);
+        metaMap.set('tuning', this.setTuning);
+        metaMap.set('tempo', this.setTempo);
+        metaMap.set('copyright', this.setCopyright);
+        metaMap.set('placeholder', this.setPlaceholder);
+        metaMap.set('chords', this.setChords);
         /**
-         * The value passed in the parameters is only valid if:
-         * - the given value (parameter list) is not empty
+         * YAML parsing does not allow duplicate keywords, so the last entry is
+         * the only one recorded. Keywords with a null or whitespace value will
+         * be ignored.
          */
-        let valid = false;
-        let errorMessage = '';
-        if (!parameters.length || !parameters.join('').trim()) {
-            errorMessage = `Ignoring ${name} with blank or invalid value`;
-        }
-        else
-            valid = true;
-        if (errorMessage)
-            this.addError(lineNo, errorMessage);
-        return valid;
-    }
-    /**### instead of "token": "property"; instead of "parameters": "values" */
-    setTitle(token, parameters, lineNo = 0) {
-        if (this.validTokenLine(this.title, token, parameters, lineNo)) {
-            this.title = parameters.join(' ');
-        }
-    }
-    setArtist(token, parameters, lineNo = 0) {
-        if (this.validTokenLine(this.artist, token, parameters, lineNo)) {
-            this.artist = parameters.join(' ');
-        }
-    }
-    setComposers(token, parameters, lineNo = 0) {
-        if (this.validTokenLine(this.composers, token, parameters, lineNo)) {
-            // this.composers = parameters.join(' ');
-            const conjunction = 'and';
-            let joinedList = '';
-            if (parameters.length) {
-                let separator = (parameters.length == 2) ? ` ${conjunction} ` : ', ';
-                joinedList = parameters.join(separator);
-                if (parameters.length > 2) {
-                    let lastComma = joinedList.lastIndexOf(', ');
-                    joinedList = `${joinedList.slice(0, lastComma + 1)} ${conjunction} ${joinedList.slice(lastComma + 2)}`;
+        metaMap.forEach((method, propertyName) => {
+            let rawValues = this.metadata[propertyName];
+            if (propertyName in this.metadata && rawValues) {
+                /** values is always an array; scalar values are treated as single-element arrays */
+                let values = [];
+                if (Array.isArray(rawValues)) {
+                    for (let value of rawValues)
+                        values.push(`${value}`);
                 }
+                else
+                    values.push(`${rawValues}`);
+                /**
+                 * Passing 'this' below allows the method to access the same (FakeSheet) object.
+                 * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call
+                 */
+                method.call(this, propertyName, values);
             }
-            this.composers = joinedList;
-        }
+        });
     }
-    setKey(token, parameters, lineNo = 0) {
-        if (this.validTokenLine(this.key, token, parameters, lineNo)) {
-            let lookupKey = parameters[0];
-            if (lookupKey.length > 1 && lookupKey.endsWith('m')) {
-                lookupKey = lookupKey.slice(0, -1);
+    setTitle(propertyName, values) {
+        this.title = values.join(' ');
+    }
+    setArtist(propertyName, values) {
+        this.artist = values.join(' ');
+    }
+    setComposers(propertyName, values) {
+        const conjunction = 'and';
+        let joinedList = '';
+        if (values.length) {
+            let separator = (values.length == 2) ? ` ${conjunction} ` : ', ';
+            joinedList = values.join(separator);
+            if (values.length > 2) {
+                let lastComma = joinedList.lastIndexOf(', ');
+                joinedList = `${joinedList.slice(0, lastComma + 1)} ${conjunction} ${joinedList.slice(lastComma + 2)}`;
             }
-            if (!FAKESHEET.notes.test(lookupKey)) {
-                this.addError(lineNo, `Ignoring invalid key value: ${parameters[0]}`);
-            }
-            else {
-                this.key = new Chord(parameters[0]);
-                /* ignore new key if it is the same as the token key */
-                if (this.newKey && this.newKey.root == this.key.root)
-                    this.newKey = null;
-            }
+        }
+        this.composers = joinedList;
+    }
+    setKey(propertyName, values) {
+        let lookupKey = values[0];
+        if (lookupKey.length > 1 && lookupKey.endsWith('m')) {
+            lookupKey = lookupKey.slice(0, -1);
+        }
+        if (!FAKESHEET.notes.test(lookupKey)) {
+            this.addError(`Ignoring invalid ${propertyName} value: ${values[0]}`);
+        }
+        else {
+            this.key = new Chord(values[0]);
+            /* ignore new key if it is the same as the propertyName key */
+            if (this.newKey && this.newKey.root == this.key.root)
+                this.newKey = null;
         }
     }
     deriveKey(chordName) {
         /**
          * Best practice is to explicitly name the song's key using the "key"
-         * metadata token, but if this isn't done this method will be called to
+         * metadata propertyName, but if this isn't done this method will be called to
          * derive the key from the first chord encountered (e.g., in a "chord"
          * declaration or section declaration).
          */
@@ -207,93 +191,91 @@ export class FakeSheet {
         if (chord.base)
             this.key = new Chord(chord.base);
     }
-    setCapo(token, parameters, lineNo = 0) {
-        if (this.validTokenLine(this.capo, token, parameters, lineNo)) {
-            let capo = Number(parameters[0]);
-            if (isNaN(capo) || capo < 0 || capo > 24) { /**### hardcoded 24? can we get from Instrument? */
-                this.addError(lineNo, `Ignoring invalid capo position: ${parameters[0]}`);
-            }
-            else
-                this.capo = capo;
+    setCapo(propertyName, values) {
+        let capo = Number(values[0]);
+        if (isNaN(capo) || capo < 0 || capo > this.instrument.frets) {
+            this.addError(`Ignoring invalid ${this.instrument.name} ${propertyName} position: ${values[0]}`);
         }
+        else
+            this.capo = capo;
     }
-    setTuning(token, parameters, lineNo = 0) {
-        if (this.validTokenLine(this.tuning.length, token, parameters, lineNo)) {
-            /* tuning must be defined before chords */
-            /* ### we force tuning to be defined before chords in parseMetadata, right? */
-            /* ### default tuning should be derived from Instrument */
-            if (this.chords.length) {
-                this.addError(lineNo, `${token} must be defined before chords`);
-            }
-            else {
-                let compressedNotes = '';
-                let invalidNotes = [];
-                for (let parameter of parameters)
-                    compressedNotes += parameter.trim();
-                /** Remove punctuation characters that may be used as note separators (,:;_-/.)
-                 * This allows the user to enter tunings like: E-A-D-G-B-E.
-                 */
-                compressedNotes = compressedNotes.replace(/[,:;_\-\/\.]/g, '');
-                let notes = [];
-                // for (let i = 0; i < compressedNotes.length; i += 1) {
-                // 	if (notes.length == 0 || 'ABCDEFG'.includes(compressedNotes[i])) {
-                // 		notes.push(compressedNotes[i]);
-                // 	} else {
-                // 		notes[notes.length-1] = notes[notes.length-1] + compressedNotes[i];
-                // 	}
-                // }
-                for (let compressedNote of compressedNotes) {
-                    if (notes.length == 0 || 'ABCDEFG'.includes(compressedNote)) {
-                        notes.push(compressedNote);
-                    }
-                    else {
-                        notes[notes.length - 1] = notes[notes.length - 1] + compressedNote;
-                    }
-                }
-                for (let note of notes) {
-                    if (!FAKESHEET.notes.test(note))
-                        invalidNotes.push(note);
-                }
-                if (invalidNotes.length) {
-                    this.addError(lineNo, `${token} contains invalid values: ${invalidNotes.join(' ')}`);
-                }
-                else if (notes.length != this.instrument.strings) {
-                    let errorMessage = `${this.instrument.name} ${token} requires exactly `;
-                    errorMessage += `${this.instrument.strings} notes, but ${notes.length} `;
-                    errorMessage += `are provided: ${notes.join(' ')}`;
-                    this.addError(lineNo, errorMessage);
-                }
-                else
-                    this.tuning = notes;
-            }
-        }
-    }
-    setTempo(token, parameters, lineNo = 0) {
-        if (this.validTokenLine(this.tempo, token, parameters, lineNo)) {
-            let tempo = Number(parameters[0]);
-            if (isNaN(tempo) || tempo < 20 || tempo > 400) {
-                this.addError(lineNo, `Ignoring invalid tempo: ${parameters[0]}`);
-            }
-            else
-                this.tempo = tempo;
-        }
-    }
-    setCopyright(token, parameters, lineNo = 0) {
-        if (this.validTokenLine(this.copyright, token, parameters, lineNo))
-            this.copyright = parameters.join(' ');
-    }
-    setChords(token, parameters, lineNo = 0) {
+    setTuning(propertyName, values) {
         /**
-         * Here we encounter parameters indicating chord name and notation,
-         * separated by FAKESHEET.chordNotationSeparator (e.g. "C:x32010").
-         * For every valid parameter, create or update an entry in 'this.chords'.
-         * Entries may already exist if a chord was previously referenced in a
-         * lyric-chord line or if referenced more than once in this token.
+         * Tuning must be defined before chords. We enforce this through the
+         * order of the default instrument and tuning assignments in the
+         * constructor, and through the parseMetadata map insertion order.
          */
-        for (let parameter of parameters) {
-            let words = parameter.split(FAKESHEET.chordNotationSeparator);
+        if (this.chords.length) {
+            this.addError(`${propertyName} must be defined before chords`);
+        }
+        else {
+            let compressedNotes = '';
+            let invalidNotes = [];
+            for (let value of values)
+                compressedNotes += value.trim();
+            /** Remove punctuation characters that may be used as note separators (,:;_-/.)
+             * This allows the user to enter tunings like: E-A-D-G-B-E.
+             */
+            compressedNotes = compressedNotes.replace(/[,:;_\-\/\.]/g, '');
+            let notes = [];
+            for (let compressedNote of compressedNotes) {
+                if (notes.length == 0 || 'ABCDEFG'.includes(compressedNote)) {
+                    notes.push(compressedNote);
+                }
+                else {
+                    notes[notes.length - 1] = notes[notes.length - 1] + compressedNote;
+                }
+            }
+            for (let note of notes) {
+                if (!FAKESHEET.notes.test(note))
+                    invalidNotes.push(note);
+            }
+            if (invalidNotes.length) {
+                this.addError(`${propertyName} contains invalid values: ${invalidNotes.join(' ')}`);
+            }
+            else if (notes.length != this.instrument.strings) {
+                let errorMessage = `${this.instrument.name} ${propertyName} requires exactly `;
+                errorMessage += `${this.instrument.strings} notes, but ${notes.length} `;
+                errorMessage += `are provided: ${notes.join(' ')}`;
+                this.addError(errorMessage);
+            }
+            else
+                this.tuning = notes;
+        }
+    }
+    setTempo(propertyName, values) {
+        let tempo = Number(values[0]);
+        if (isNaN(tempo) || tempo < 20 || tempo > 400) {
+            this.addError(`Ignoring invalid tempo: ${values[0]}`);
+        }
+        else
+            this.tempo = tempo;
+    }
+    setCopyright(propertyName, values) {
+        this.copyright = values.join(' ');
+    }
+    setPlaceholder(propertyName, values) {
+        let placeholder = values.join(' ');
+        if (!FAKESHEET.chordPlaceholders.includes(placeholder)) {
+            this.addError(`Ignoring invalid placeholder: ${placeholder}`);
+            this.addError(`...valid placeholders are: ${FAKESHEET.chordPlaceholders.join(' ')}`);
+            this.placeholder = FAKESHEET.chordPlaceholders[0];
+        }
+        else
+            this.placeholder = placeholder;
+    }
+    setChords(propertyName, values) {
+        /**
+         * Here we encounter values indicating chord name and notation,
+         * separated by FAKESHEET.chordNotationSeparator (e.g. "C:x32010").
+         * For every valid value, create or update an entry in 'this.chords'.
+         * Entries may already exist if a chord was previously referenced in a
+         * lyric-chord line or if referenced more than once in this propertyName.
+         */
+        for (let value of values) {
+            let words = value.split(FAKESHEET.chordNotationSeparator);
             if (words.length != 2)
-                this.addError(lineNo, `Ignoring invalid ${token}: ${parameter}`);
+                this.addError(`Ignoring invalid ${propertyName}: ${value}`);
             else {
                 /* split out into a separate method if needed elsewhere */
                 let chordName = words[0];
@@ -306,36 +288,22 @@ export class FakeSheet {
                     }
                 }
                 if (found)
-                    this.addError(lineNo, `Ignoring attempt to redefine ${token}: ${parameter}`);
+                    this.addError(`Ignoring attempt to redefine ${propertyName}: ${value}`);
                 else {
                     let chord = new Chord(chordName, this.instrument, chordNotation);
                     if (chordNotation && chord.notation !== null && chord.notation.valid) {
                         this.chords.push(chord);
-                        /* If the key hasn't already been established, set it from this chord */
+                        /** If the key hasn't already been established, set it from this chord */
                         if (!this.key)
                             this.deriveKey(chordName);
                     }
                     else
-                        this.addError(lineNo, `Ignoring ${token} with invalid notation: ${parameter}`);
+                        this.addError(`Ignoring ${propertyName} with invalid notation: ${value}`);
                 }
             }
         }
     }
-    setPlaceholder(token, parameters, lineNo = 0) {
-        if (this.validTokenLine(this.placeholder, token, parameters, lineNo)) {
-            let placeholder = parameters.join(' ');
-            if (!FAKESHEET.chordPlaceholders.includes(placeholder)) {
-                this.addError(lineNo, `Ignoring invalid placeholder: ${placeholder}`);
-                this.addError(lineNo, `...valid placeholders are: ${FAKESHEET.chordPlaceholders.join(' ')}`);
-                this.placeholder = FAKESHEET.chordPlaceholders[0];
-            }
-            else
-                this.placeholder = placeholder;
-        }
-    }
-    /**### instead of "token": "sectionName"; instead of "parameters": "chordNames" */
-    newSection(currentSection, token, parameters, lineNo) {
-        let sectionName = token;
+    newSection(currentSection, sectionName, chordNames, lineNo) {
         let existingSection = null;
         let chords = [];
         for (let section of this.sections) {
@@ -344,17 +312,17 @@ export class FakeSheet {
                 break;
             }
         }
-        if (existingSection && parameters.length) {
-            this.addError(lineNo, `Cannot redefine section: ${sectionName}`);
+        if (existingSection && chordNames.length) {
+            this.addError(`Cannot redefine section: ${sectionName}`, lineNo);
         }
-        else if (!existingSection && !parameters.length) {
-            this.addError(lineNo, `Section definition requires chords: ${sectionName}`);
+        else if (!existingSection && !chordNames.length) {
+            this.addError(`Section definition requires chords: ${sectionName}`, lineNo);
         }
         else {
             if (existingSection)
                 chords = existingSection.chords;
             else {
-                for (let chordName of parameters) {
+                for (let chordName of chordNames) {
                     chords.push(new Chord(chordName)); //### validate each chord, raise errors?
                 }
             }
@@ -389,17 +357,6 @@ export class FakeSheet {
     fakeSheetLines() {
         let fakeLines = [];
         for (let section of this.sections) {
-            /** ###
-             * A Section (e.g., ".chorus>") can indicate indentation via
-             * something like a ">" suffix. We can add this to the "indentation"
-             * property of the section's fakelines, assuming we have properties
-             * such as:
-             *
-             *   type: string
-             *   indentation: number
-             *   text: string
-             *
-             */
             for (let fakeLine of section.fakeLines(this.key, this.newKey)) {
                 fakeLines.push(fakeLine);
             }
@@ -446,7 +403,7 @@ export class FakeSheet {
         if (!this.newKey.base || this.newKey.base == this.key.base)
             this.newKey = null;
     }
-    addError(lineNo, text) {
+    addError(text, lineNo = 0) {
         if (lineNo)
             this.errors.push(`Line ${lineNo}: ${text}`);
         else
@@ -458,7 +415,6 @@ class Section {
         this.name = name;
         this.chords = chords;
         this.lines = [];
-        // this.inline = (FAKESHEET.inlinePrefixes.includes(name[0]));
         this.inline = name.startsWith(FAKESHEET.inlinePrefix);
         this.placeholder = placeholder;
     }
@@ -491,12 +447,12 @@ class Section {
                 let previousChordName = ''; /* will prevent repeating same chord */
                 let chordsLine = '';
                 let lyricsLine = '';
-                let indentation = 0;
                 /* replace ordinary spaces with non-breaking spaces */
                 line = line.replace(/ /g, FAKESHEET.space);
                 /* replace tabs with non-breaking spaces */
                 line = line.replace(/\t/g, FAKESHEET.space.repeat(FAKESHEET.tabSize));
-                /** determine how many spaces of indentation in the line */
+                /** determine how many spaces of indentation are in the line */
+                let indentation = 0;
                 const indented = line.match(/^(\s*)/);
                 if (indented)
                     indentation = indented[1].length;
@@ -515,13 +471,11 @@ class Section {
                         line = line.replace(this.placeholder, chordName);
                         currentChord = (currentChord + 1) % this.chords.length;
                     }
-                    // fakeLines.push(FAKESHEET.chordLine + line);
                     let fakeLine = { type: FAKESHEET.chordLine, indentation: indentation, text: line };
                     fakeLines.push(fakeLine);
                 }
                 else if (line.trim() == '') {
                     /* treat a blank line as an empty lyrics line */
-                    // fakeLines.push(FAKESHEET.lyricLine + line);
                     let fakeLine = { type: FAKESHEET.lyricLine, indentation: indentation, text: line };
                     fakeLines.push(fakeLine);
                 }
@@ -566,12 +520,10 @@ class Section {
                         }
                     }
                     if (chordsLine) {
-                        // fakeLines.push(FAKESHEET.chordLine + chordsLine);
                         let fakeLine = { type: FAKESHEET.chordLine, indentation: indentation, text: chordsLine };
                         fakeLines.push(fakeLine);
                     }
                     if (lyricsLine) {
-                        // fakeLines.push(FAKESHEET.lyricLine + lyricsLine);
                         let fakeLine = { type: FAKESHEET.lyricLine, indentation: indentation, text: lyricsLine };
                         fakeLines.push(fakeLine);
                     }

@@ -9,7 +9,10 @@ export const FAKESHEET = {
     inlinePrefix: '.',
     chordPlaceholders: ['/', '^', '~', '@', '$', '%', '_', '+', '='],
     /**###
-     * We should be separating chord from notation with whitespace: /\s+/
+     * We should be separating chord from notation with whitespace: /\s+/ This
+     * will prevent YAML errors if the user accidentally adds whitespace after
+     * the colon ("C: x32010"), and whitespace allows the chord list to be made
+     * prettier.
      */
     chordNotationSeparator: ':',
     chordSpacing: 2,

@@ -1,10 +1,9 @@
 ---
 title: Melon Seller
 artist: The Volumes
+composers: [Dan]
 key: C
 capo: 3
-tuning: EADGBE
-placeholder: ^
 ---
 ..intro C
 | ^ | ...

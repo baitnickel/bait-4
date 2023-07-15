@@ -1,19 +1,19 @@
 ---
 title: Promises We Make
 artist: The Baitnickels
+composers: [Dan]
 Key: Bm
 Capo: 2
-placeholder: ^
 chords:
-  - D:x00232
-  - G:320003
-  - Bm:x24432|2
-  - A/C#:x42220|2
-  - A/E:007650
-  - Asus4/E:007(6,7)50
-  - Gsus2:xx5035
-  - D!:x007(7,5)5|5
-  - G6:x55400
+  - D       x00232
+  - G       320003
+  - Bm      x24432|2
+  - A/C#    x42220|2
+  - A/E     007650
+  - Asus4/E 007(6,7)50
+  - Gsus2   xx5035
+  - D!      x007(7,5)5|5
+  - G6      x55400
 ---
 ..in Bm A/C#
 ^......... ^.

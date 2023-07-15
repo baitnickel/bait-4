@@ -1,13 +1,13 @@
 ---
 title: All I Know
 artist: The Baitnickels
+composers: [Dan]
 key: Am
 capo: 3
 tempo: 120
-placeholder: ^
 chords:
-  - Asus2:x02200
-  - Fmaj7b5:123200
+  - Asus2   x02200
+  - Fmaj7b5 123200
 ---
 ..intro Asus2
 ^ ...

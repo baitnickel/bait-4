@@ -1,8 +1,8 @@
 ---
 title: Nobody Needs to Know
 artist: The Baitnickels
+composers: [Dan]
 key: A
-placeholder: ^
 ---
 
 .v A E/A F#7sus4 F#m7 D(sus2) E

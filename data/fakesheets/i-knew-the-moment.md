@@ -1,18 +1,18 @@
 ---
 title: I Knew the Moment
 artist: The Baitnickels
+composers: [Dan]
 key: D
 capo: 3
 tempo: 110
-placeholder: ^
 chords:
-  - D(sus2):x0023(2,0)
-  - G6:320030
-  - Em:022003
-  - A7:x02223
-  - A:x02220
-  - Bmadd4:x24430
-  - Bmadd4/A:x04430
+  - D(sus2)  x0023(2,0)
+  - G6       320030
+  - Em       022003
+  - A7       x02223
+  - A        x02220
+  - Bmadd4   x24430
+  - Bmadd4/A x04430
 ---
 .v1 D(sus2) G6
 ^ I knew the moment, the moment I looked at you

@@ -1,13 +1,13 @@
 ---
 title: Matthew and Erin
 artist: The Baitnickels
+composers: [Dan]
 key: D
-placeholder: ^
 chords:
-  - Bm(add4):x24430
-  - Bb5:x133xx
-  - C5:x355xx
-  - D5add6:x5770x
+  - Bm(add4) x24430
+  - Bb5      x133xx
+  - C5       x355xx
+  - D5add6   x5770x
 ---
 
 .v D G A D G A Bm(add4) Bb A D

@@ -1,21 +1,20 @@
 ---
 title: All the Time
 artist: The Baitnickels
-composers: [dwd]
+composers: [Dan]
 key: G
 capo:
 tuning:
 tempo:
 copyright:
-placeholder: ^
 chords: # list chord-name and notation separated by whitespace
-  - D4add9:554030
-  - G:320003
-  - D6/F#:20020x
-  - Em:022000
-  - C:332010
-  - B:x2444x
-  - Am:002210
+  - D4add9 554030
+  - G      320003
+  - D6/F#  20020x
+  - Em     022000
+  - C      332010
+  - B      x2444x
+  - Am     002210
 ---
 
 ..intro D4add9

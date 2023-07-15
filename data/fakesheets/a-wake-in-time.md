@@ -1,18 +1,18 @@
 ---
 title: A Wake In Time
 artist: The Baitnickels
+composers: [Dan]
 key: A
 capo: 3
 tempo: 74
-placeholder: ^
 chords:
-  - Amaj7!:006650
-  - E9sus4:004430
-  - A:00222(5,2)|2
-  - Amaj7:00222(4,2)|2
-  - D:200232
-  - Dmaj7:200222
-  - E(sus4):022(1,2)00
+  - Amaj7! 006650
+  - E9sus4 004430
+  - A 00222(5,2)|2
+  - Amaj7 00222(4,2)|2
+  - D 200232
+  - Dmaj7 200222
+  - E(sus4) 022(1,2)00
 ---
 .v Amaj7! E9sus4 Amaj7! E9sus4 Amaj7! E9sus4 A
 ^Everything’s changing, ^try as we may

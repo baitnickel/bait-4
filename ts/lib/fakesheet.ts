@@ -26,13 +26,14 @@ import { MarkupLine } from './markup.js';
  * When a Section name begins with FAKESHEET.tokenCharacter + FAKESHEET.inlinePrefix,
  * it's an inline sequence (chords are placed on same line as text), e.g.,
  *   ..intro C F G
- *   | / | / | / |
+ *   | ^ | ^ | ^ |
  * 
  * Fakesheet files may contain comments (inline or whole line);
  * they begin with FAKESHEET.commentPattern.
  * 
  * To-do:
- * - Replace 'b' and '#' in note and chord names with unicode: '♭' and '♯'.
+ * - Fix line spacing
+ * - Do not display Tuning if it is not in metadata (equals default)
  * - Not only capo, but tuning and chords declarations should vanish on newKey
  * - Support a library of chord diagrams, particularly for newKeys
  */
@@ -51,7 +52,11 @@ export const FAKESHEET = {
 	commentPattern: /(^#|\s#).*/, /* comments begin with hash (at start of line or word) */
 	tokenCharacter: '.',
 	inlinePrefix: '.',
-	chordPlaceholders: ['/','^','~','@','$','%','_','+','='], /* the first one is the default */
+	/**
+	 * The first placeholder is the default; avoid characters that can be part
+	 * of a chord name or the comment pattern or inline markdown.
+	 */
+	chordPlaceholders: ['^','%','@','$'], 
 	/**
 	 * The whitespace chord-notation separator allows the chord list to be
 	 * prettified. For example:
@@ -94,19 +99,21 @@ export class FakeSheet {
 	errors: string[];          /* error messages written into the fakesheet */
 
 	/**
-	 * 'chords' is set from the name:notation string(s) supplied in the 'chords' metadata
-	 * of the fakesheet source text. Additional standard name:notation strings may optionally
-	 * be added from one or more files, though the fakesheet 'chords' always take precendence.
-	 * These chord names are never transposed or made unicode-pretty.
+	 * 'chords' is set of Chord objects defined in the 'chords' metadata in the
+	 * fakesheet source text. These are optional, required only if chord
+	 * diagrams are desired. We might someday have a "library" of standard
+	 * chords, read from a configuration file. The locally defined chords should
+	 * always take precedence, though.
 
-	 * We also need a unique list of chord names used ('chordsUsed') in the fakesheet source text, 
-	 * ordered by occurrence. This list may optionally be sorted alphabetically. It will be
-	 * used to select chords to be diagrammed from the list of 'chords'.
+	 * In 'chordsUsed', we maintain a unique list of chord names appearing in
+	 * the fakesheet source text, ordered by occurrence. This list might also be
+	 * sorted alphabetically, via configuration options. It will be used to
+	 * select which chord diagrams from the list of 'chords' will be rendered.
+	 * Currently, diagrams are rendered only when the original musical key is
+	 * selected.
 
-	 * Chord names will always be the original chord names until final presentation.
-	 * Only just before (or during) final presentation will we do transposition, lookup
-	 * of chords for diagrams, and finally made pretty (substituting unicode characters for
-	 * 'b' and '#' and such).	
+	 * Chord names are modified to use unicode: '♭' and '♯' as a final rendering
+	 * step . See 'function musicalCharacters'.
 	 */	
 
 	constructor(fakeSheetText: string, fakeSheetMetadata: any, key: string = '') {
@@ -117,7 +124,7 @@ export class FakeSheet {
 		this.newKey = (key) ? new Chord(key) : null;
 		this.capo = 0;
 		this.instrument = new Instrument('guitar', 6, 22, ['E','A','D','G','B','E']);
-		this.tuning = this.instrument.standardTuning;
+		this.tuning = []; /** when not set, we assume: this.instrument.standardTuning */
 		this.tempo = 0;
 		this.copyright = '';
 		this.placeholder = FAKESHEET.chordPlaceholders[0];
@@ -331,7 +338,7 @@ export class FakeSheet {
 	setChords(propertyName: string, values: string[]) {
 		/**
 		 * Here we encounter values indicating chord name and notation,
-		 * separated by FAKESHEET.chordNotationSeparator (e.g. "C:x32010").
+		 * separated by FAKESHEET.chordNotationSeparator (e.g. "C x32010").
 		 * For every valid value, create or update an entry in 'this.chords'.
 		 * Entries may already exist if a chord was previously referenced in a
 		 * lyric-chord line or if referenced more than once in this propertyName.
@@ -532,6 +539,7 @@ class Section {
 							chord = chord.transpose(key, newKey);
 							chordName = chord.name;
 						}
+						chordName = musicalCharacters(chordName);
 						line = line.replace(this.placeholder, chordName);
 						currentChord = (currentChord + 1) % this.chords.length;
 					}
@@ -566,6 +574,7 @@ class Section {
 								while (chordsLine.length > lyricsLine.length) lyricsLine += FAKESHEET.space;
 								/* update chord and lyric lines */
 								if (chordName) chordName += FAKESHEET.space.repeat(FAKESHEET.chordSpacing);
+								chordName = musicalCharacters(chordName);
 								chordsLine += chordName;
 								lyricsLine += character;
 							}
@@ -1023,7 +1032,7 @@ class Chord {
 		svgText.setAttribute('text-anchor', 'middle');
 		svgText.setAttribute('font-family', text.fontFamily);
 		svgText.setAttribute('font-size', text.fontSize.toString());
-		svgText.innerHTML = text.value;
+		svgText.innerHTML = musicalCharacters(text.value);
 		svg.appendChild(svgText);
 
 		return svg;
@@ -1240,4 +1249,10 @@ class Instrument {
 		this.frets = frets;
 		this.standardTuning = standardTuning;
 	}
+}
+
+function musicalCharacters(chordName: string) {
+	chordName = chordName.replace(/b/g, '♭');
+	chordName = chordName.replace(/#/g, '♯');
+	return chordName;
 }

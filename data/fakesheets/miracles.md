@@ -1,9 +1,9 @@
 ---
 title: Miracles
 artist: The Baitnickels
+composers: [Dan]
 key: C
 capo: 5
-placeholder: ^
 ---
 .v C Am F G(7)                                     
 ^Danny was up at Eight. He had a ^meeting with destiny.

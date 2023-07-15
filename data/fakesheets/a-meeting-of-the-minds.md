@@ -1,11 +1,11 @@
 ---
 title: A Meeting of the Minds
 artist: The Baitnickels
-placeholder: ^
+composers: [Dan]
 chords:
-  - C/F:133010
-  - G:320003
-  - C!:x3(0,2)0(0,1)0
+  - C/F 133010
+  - G 320003
+  - C! x3(0,2)0(0,1)0
 ---
     # (Cycle over guitar (and bass?)
     # Introduce cycle over same plus piano

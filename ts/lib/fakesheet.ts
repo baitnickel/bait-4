@@ -79,6 +79,26 @@ export const FAKESHEET = {
 	// forceSectionBlankLine: true,
 }
 
+class Instrument {
+	name: string;              /* instrument name */
+	strings: number;           /* guitar 6, ukulele 4, piano 88 */
+	frets: number;             /* guitar 22, piano 0 */
+	standardTuning: string[];  /* guitar: E A D G B E */
+
+	constructor(name: string, strings: number, frets: number, standardTuning: string[]) {
+		this.name = name;
+		this.strings = strings;
+		this.frets = frets;
+		this.standardTuning = standardTuning;
+	}
+}
+
+function musicalCharacters(chordName: string) {
+	chordName = chordName.replace(/b/g, '♭');
+	chordName = chordName.replace(/#/g, '♯');
+	return chordName;
+}
+
 export class FakeSheet {
 	title: string;             /* song title */
 	artist: string;            /* performing/composing artist name(s) */
@@ -116,6 +136,27 @@ export class FakeSheet {
 	 * step . See 'function musicalCharacters'.
 	 */	
 
+	/**###
+	 * The `songbook` module gets the tonics to be displayed in the musical
+	 * "key" drop-down by directly reading `FAKESHEET.tonics`. If this were
+	 * instead a FakeSheet method (perhaps `FakeSheet.tonics(pretty=true)`), we
+	 * could apply the `musicalCharacters` function to the tonics so that the UI
+	 * properly displays the rich unicode flat and sharp characters.
+	 */
+
+	/**###
+	 * all optional parameters should be passed in an Options object (even key
+	 * change?), declared and exported here. Should be able to specify
+	 * Instrument, placeholder, key, maybe even source text? What would it mean
+	 * to instantiate a FakeSheet object without any parameters? Maybe it
+	 * triggers an "open local file" dialog? Running the parsing methods should
+	 * be optional, either one or both or neither should produce expected
+	 * results.
+	 *
+	 * YAML extraction should happen here so that line numbers can be reported
+	 * correctly (in which case, the `parseMetadata` method would be
+	 * automatically invoked based on the absence or presence of metadata).
+	 */
 	constructor(fakeSheetText: string, fakeSheetMetadata: any, key: string = '') {
 		this.title = '(untitled)';
 		this.artist = '';
@@ -159,7 +200,7 @@ export class FakeSheet {
 				else this.addError('Ignoring null token name', lineNo);
 			}
 			else {
-				/* lyric, chord, or blank line */
+				/* lyric, chord, or blank line ### or text line (blank or not), whole else belongs in separate method? */
 				if (!currentSection) {
 					if (trimmedLine) this.addError('Ignoring orphan line (not in a section)', lineNo);
 					/** blank lines not in a section will be ignored */
@@ -469,6 +510,18 @@ export class FakeSheet {
 		 */
 		this.newKey = new Chord(newKey);
 		if (!this.newKey.base || this.newKey.base == this.key!.base) this.newKey = null;
+	}
+
+	tonics(unicode: Boolean = false) {
+		let adjustedTonics: string[] = [];
+		for (let tonicSet of FAKESHEET.tonics) {
+			let tonics = tonicSet.split(FAKESHEET.tonicSeparator);
+			for (let tonic of tonics) {
+				if (unicode) tonic = musicalCharacters(tonic);
+				adjustedTonics.push(tonic);
+			}
+		}
+		return adjustedTonics;
 	}
 
 	addError(text: string, lineNo: number = 0) {
@@ -1236,23 +1289,3 @@ class Chord {
 		return svg;
 	}
 }	
-
-class Instrument {
-	name: string;              /* instrument name */
-	strings: number;           /* guitar 6, ukulele 4, piano 88 */
-	frets: number;             /* guitar 22, piano 0 */
-	standardTuning: string[];  /* guitar: E A D G B E */
-
-	constructor(name: string, strings: number, frets: number, standardTuning: string[]) {
-		this.name = name;
-		this.strings = strings;
-		this.frets = frets;
-		this.standardTuning = standardTuning;
-	}
-}
-
-function musicalCharacters(chordName: string) {
-	chordName = chordName.replace(/b/g, '♭');
-	chordName = chordName.replace(/#/g, '♯');
-	return chordName;
-}

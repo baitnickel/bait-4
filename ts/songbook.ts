@@ -262,18 +262,19 @@ function keySelectElement(fakesheet: FakeSheet) {
 		labelElement.htmlFor = CSS_ID.keyTag;
 		metadataBlock.appendChild(labelElement); /** ### should be a sub-div? */
 		
-		let minorCharacter = (fakesheet.key.minor) ? 'm' : '';
-		let currentKey = (fakesheet.newKey) ? fakesheet.newKey.base : fakesheet.key.base;
-		for (let tonicSet of FAKESHEET.tonics) {
-			let tonics = tonicSet.split(FAKESHEET.tonicSeparator);
-			for (let tonic of tonics) {
-				let value = tonic + minorCharacter;
-				let text = (value == fakesheet.key.base) ? `${value} ◆` : value;
-				let defaultKey = (value == fakesheet.key.base);
-				let selectedKey = (value == currentKey);
-				let option = new Option(text, value, defaultKey, selectedKey);
-				selectElement.add(option);
-			}
+		const minorCharacter = (fakesheet.key.minor) ? 'm' : '';
+		const currentKey = (fakesheet.newKey) ? fakesheet.newKey.base : fakesheet.key.base;
+		const tonics = fakesheet.tonics(false); /** plain ASCII for Option "value" */
+		const unicodeTonics = fakesheet.tonics(true); /** unicode for Option "text" (drop-down list) */
+		for (let i = 0; i < tonics.length; i += 1) {
+			const value = tonics[i] + minorCharacter;
+			let text = unicodeTonics[i] + minorCharacter;
+			if (value == fakesheet.key.base) text += ' ◆';
+			let defaultKey = (value == fakesheet.key.base);
+			let selectedKey = (value == currentKey);
+			/** see: https://developer.mozilla.org/en-US/docs/Web/API/HTMLOptionElement/Option */
+			let option = new Option(text, value, defaultKey, selectedKey);
+			selectElement.add(option);
 		}
 
 		selectElement.addEventListener('change', (e: Event) => {

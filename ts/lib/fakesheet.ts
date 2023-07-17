@@ -70,7 +70,7 @@ export const FAKESHEET = {
 	chordSpacing: 2, /* minimum number of spaces between chords on chord line */
 	space: '\u{00a0}', /* unicode no-break space */
 	tabSize: 4, /* tabs in source documents are replaced with this many spaces */
-	keyTag: 'key-select',
+	// keyTag: 'key-select', //### no longer used?
 	chordLine: 'C',
 	lyricLine: 'L',
 	removeLeadingBlanks: true,
@@ -93,7 +93,7 @@ class Instrument {
 	}
 }
 
-function musicalCharacters(chordName: string) {
+function prettyChord(chordName: string) {
 	chordName = chordName.replace(/b/g, '♭');
 	chordName = chordName.replace(/#/g, '♯');
 	return chordName;
@@ -110,7 +110,7 @@ export class FakeSheet {
 	tuning: string[];          /* open string notes (e.g., ['E','A','D','G','B','E']) */
 	tempo: number;             /* beats per minute */
 	copyright: string;         /* copyright info, to be displayed following copyright symbol */
-	chords: Chord[];           /* used to display chord diagrams */
+	chords: Chord[];           /* Chord objects, used to display chord diagrams */
 	placeholder: string;       /* chord placeholder */
 	metadata: any;             /* metadata from source text */
 	lines: string[];           /* source text of fakesheet */
@@ -133,19 +133,11 @@ export class FakeSheet {
 	 * selected.
 
 	 * Chord names are modified to use unicode: '♭' and '♯' as a final rendering
-	 * step . See 'function musicalCharacters'.
+	 * step . See 'function prettyChord'.
 	 */	
 
 	/**###
-	 * The `songbook` module gets the tonics to be displayed in the musical
-	 * "key" drop-down by directly reading `FAKESHEET.tonics`. If this were
-	 * instead a FakeSheet method (perhaps `FakeSheet.tonics(pretty=true)`), we
-	 * could apply the `musicalCharacters` function to the tonics so that the UI
-	 * properly displays the rich unicode flat and sharp characters.
-	 */
-
-	/**###
-	 * all optional parameters should be passed in an Options object (even key
+	 * all optional parameters might be passed in an Options object (even key
 	 * change?), declared and exported here. Should be able to specify
 	 * Instrument, placeholder, key, maybe even source text? What would it mean
 	 * to instantiate a FakeSheet object without any parameters? Maybe it
@@ -193,7 +185,7 @@ export class FakeSheet {
 			let trimmedLine = line.trim();
 			let firstChar = (trimmedLine) ? trimmedLine[0] : '';
 			if (firstChar == FAKESHEET.tokenCharacter) {
-				/* token line */
+				/* Section token line */
 				let parameters = trimmedLine.split(/\s+/);
 				let token = parameters.shift()!.toLowerCase().slice(1);
 				if (token) currentSection = this.newSection(currentSection, token, parameters, lineNo);
@@ -251,7 +243,7 @@ export class FakeSheet {
 				}
 				else values.push(`${rawValues}`);
 				/**
-				 * Passing 'this' below allows the method to access the same (FakeSheet) object.
+				 * Passing 'this' below gives the called method the FakeSheet object context
 				 * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call
 				 */
 				method.call(this, propertyName, values);
@@ -517,7 +509,7 @@ export class FakeSheet {
 		for (let tonicSet of FAKESHEET.tonics) {
 			let tonics = tonicSet.split(FAKESHEET.tonicSeparator);
 			for (let tonic of tonics) {
-				if (unicode) tonic = musicalCharacters(tonic);
+				if (unicode) tonic = prettyChord(tonic);
 				adjustedTonics.push(tonic);
 			}
 		}
@@ -592,7 +584,7 @@ class Section {
 							chord = chord.transpose(key, newKey);
 							chordName = chord.name;
 						}
-						chordName = musicalCharacters(chordName);
+						chordName = prettyChord(chordName);
 						line = line.replace(this.placeholder, chordName);
 						currentChord = (currentChord + 1) % this.chords.length;
 					}
@@ -627,7 +619,7 @@ class Section {
 								while (chordsLine.length > lyricsLine.length) lyricsLine += FAKESHEET.space;
 								/* update chord and lyric lines */
 								if (chordName) chordName += FAKESHEET.space.repeat(FAKESHEET.chordSpacing);
-								chordName = musicalCharacters(chordName);
+								chordName = prettyChord(chordName);
 								chordsLine += chordName;
 								lyricsLine += character;
 							}
@@ -1085,7 +1077,7 @@ class Chord {
 		svgText.setAttribute('text-anchor', 'middle');
 		svgText.setAttribute('font-family', text.fontFamily);
 		svgText.setAttribute('font-size', text.fontSize.toString());
-		svgText.innerHTML = musicalCharacters(text.value);
+		svgText.innerHTML = prettyChord(text.value);
 		svg.appendChild(svgText);
 
 		return svg;

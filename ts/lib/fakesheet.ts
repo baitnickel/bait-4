@@ -177,40 +177,56 @@ export class FakeSheet {
 		let lineNo = 0;
 		let textLinesFound = false; /** lines containing non-space characters */
 		let consecutiveBlankLines = 0;
+		let leadLines: string[] = []; /** lines above the first section */
 
 		for (let line of this.lines) {
 			lineNo += 1;
-			let commentLine = FAKESHEET.commentPattern.test(line);
+			const comment = FAKESHEET.commentPattern.test(line);
 			line = line.replace(FAKESHEET.commentPattern, '');
-			let trimmedLine = line.trim();
+			const trimmedLine = line.trim();
+			const commentOnly = comment && !trimmedLine;
 			let firstChar = (trimmedLine) ? trimmedLine[0] : '';
 			if (firstChar == FAKESHEET.tokenCharacter) {
 				/* Section token line */
 				let parameters = trimmedLine.split(/\s+/);
-				let token = parameters.shift()!.toLowerCase().slice(1);
+				const token = parameters.shift()!.toLowerCase().slice(1);
 				if (token) currentSection = this.newSection(currentSection, token, parameters, lineNo);
 				else this.addError('Ignoring null token name', lineNo);
 			}
 			else {
-				/* lyric, chord, or blank line ### or text line (blank or not), whole else belongs in separate method? */
+				/** text line - may or may not have placeholders, may be blank */
 				if (!currentSection) {
-					if (trimmedLine) this.addError('Ignoring orphan line (not in a section)', lineNo);
-					/** blank lines not in a section will be ignored */
-				} else if (trimmedLine) {
-					/** non-blank line in a section */
-					while (consecutiveBlankLines > 0) {
-						currentSection.addLine('');
-						consecutiveBlankLines -= 1;
+					if (line.includes(this.placeholder)) {
+						this.addError('Ignoring line with placeholders - not in a section', lineNo);
+					}
+					else leadLines.push(line); /** save plain text lines until we're in the first section */
+				}
+				else if (!commentOnly) {
+					if (leadLines.length) {
+						for (let leadLine of leadLines) currentSection.addLine(leadLine);
+						leadLines = [];
 					}
 					currentSection.addLine(line);
-					textLinesFound = true;
-				} else {
-					/** blank line in a section */
-					if (!commentLine) { /** lines that contain only comments are always ignored */
-						if (FAKESHEET.removeTrailingBlanks) consecutiveBlankLines += 1;
-						if (textLinesFound || !FAKESHEET.removeLeadingBlanks) currentSection.addLine(line);
-					}
 				}
+				// /* lyric, chord, or blank line */
+				// if (!currentSection) {
+				// 	if (trimmedLine) this.addError('Ignoring orphan line (not in a section)', lineNo);
+				// 	/** blank lines not in a section will be ignored */
+				// } else if (trimmedLine) {
+				// 	/** non-blank line in a section */
+				// 	while (consecutiveBlankLines > 0) {
+				// 		currentSection.addLine('');
+				// 		consecutiveBlankLines -= 1;
+				// 	}
+				// 	currentSection.addLine(line);
+				// 	textLinesFound = true;
+				// } else {
+				// 	/** blank line in a section */
+				// 	if (!comment) { /** lines that contain only comments are always ignored */
+				// 		if (FAKESHEET.removeTrailingBlanks) consecutiveBlankLines += 1;
+				// 		if (textLinesFound || !FAKESHEET.removeLeadingBlanks) currentSection.addLine(line);
+				// 	}
+				// }
 			}
 		}
 	}

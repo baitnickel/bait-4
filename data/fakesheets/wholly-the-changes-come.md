@@ -19,9 +19,13 @@ chords:
   - E        022100
   - Em       022000
 ---
-
-..intro C F G C F C G C(sus4)
+These are lead lines
+  I have added three of them
+    each one indented two spaces past the previous
+.intro C F G C F C G C(sus4)
   intro: | ^ | ^ | ^ | ^ | ^ | ^ | ^ | ^ ...
+  #and this is a comment
+  #and so is this
 
 .v C F G C F C G C(sus4)
 ^One generation grows ^into the next, ^wholly the changes ^come 

@@ -59,64 +59,64 @@ sites:
     category:
     type: MAIN
     size: L
-    tents:
-    table: 
+    tents: 4
+    table: Movable
     comment: open, on corner, exposed and near entrance & highway
   -
     site: 2
     category:
     type: MAIN
     size: L
-    tents: 5
-    table: 
+    tents: 3
+    table: Movable
     comment: lots of tent space, could be OK in combination with 4, but near entrance & highway
   -
     site: 3
     category:
     type: MAIN
     size: L
-    tents: 5
-    table:
-    comment: drive-thru vehicle access, exposed to much road and site 7
+    tents: 3
+    table: Movable
+    comment: drive-thru vehicle access, exposed to much road and site 7, open sun in the afternoon
   -
     site: 4
     category:
     type: MAIN
-    size: XL
-    tents:
-    table:
+    size: L
+    tents: 3
+    table: Movable
     comment: secluded if combined with 5, but site of thefts, near entrance
   -
     site: 5
     category:
     type: MAIN
     size: L
-    tents: 6
+    tents: 1
     table: Movable
-    comment: could be OK bedroom site in combination with adjacent site; deep, some exposure to 4 & 6
+    comment: could be OK bedroom site in combination with adjacent site; deep, some exposure to 4 & 6, path to Nature Trail along side
   -
     site: 6
     category: good
     type: MAIN
     size: L
-    tents: 5
-    table:
+    tents: 2
+    table: Movable
     comment: semi-secluded, some exposure to sites 5 & 8
   -
     site: 7
     category:
     type: MAIN
     size: M
-    tents: 3
-    table:
+    tents: 1
+    table: Movable
     comment: exposed to sites 3 & 9
   -
     site: 8
     category: good
     type: MAIN
     size: M
-    tents: 2
-    table:
+    tents: 1
+    table: Movable
     comment: pretty secluded
   -
     site: 9
@@ -124,15 +124,15 @@ sites:
     type: MAIN
     size: L
     tents: 4
-    table:
+    table: Movable
     comment: deep, secluded, 6,8,9 would be a good combination, exposed to site 7, front of site is next to bathroom trail
   -
     site: 10
     category: good
     type: MAIN
     size: L
-    tents: 3
-    table:
+    tents: 2
+    table: Movable
     comment: deep, very secluded, good combo with 12,14
   -
     site: 11
@@ -171,9 +171,9 @@ sites:
     category: good
     type: MAIN
     size: S
-    tents: 2
-    table:
-    comment: deep, secluded, 12,14,15 would be a good combination
+    tents: 1
+    table: Movable
+    comment: deep, secluded, at River Trail, 12,14,15 would be a good combination
   -
     site: 16
     category: bad
@@ -202,16 +202,16 @@ sites:
     site: 19
     category:
     type: MAIN
-    size: L
-    tents: 3
-    table:
+    size: M
+    tents: 2
+    table: Movable
     comment: secluded, deep, next to bathroom trail and service road, open to site 21
   -
     site: 20
     category: bad
-    type: REMOVED?
+    type: MAIN
     size: S
-    tents: 2
+    tents: 1
     table:
     comment: River Trail practically part of site at rear
   -
@@ -226,17 +226,17 @@ sites:
     site: 22
     category: bad
     type: MAIN
-    size:
+    size: L
     tents: 3
-    table:
+    table: Movable
     comment: nice site on River Trail (at back of site), deep & secluded
   -
     site: 23
     category:
     type: MAIN
-    size:
-    tents: 1
-    table:
+    size: S
+    tents: 2
+    table: Fixed
     comment: nice bedroom site with 24; on corner, very open and exposed, only OK with 21 & 24
   -
     site: J24
@@ -274,16 +274,16 @@ sites:
     site: 28
     category: good
     type: MAIN
-    size:
+    size: L
     tents: 4
-    table:
+    table: Movable
     comment: on corner, exposed to traffic, near campground entrance, good bedroom site, small area allotted for vehicles and for table, bear box, fire pit, equipment
   -
     site: 29
     category: bad
     type: MAIN
-    size:
-    tents: 3
+    size: L
+    tents: 2
     table: Fixed
     comment: open corner site, lots of exposure to road and site 26, fire pit close to bear box
   -
@@ -298,15 +298,15 @@ sites:
     site: 31
     category: bad
     type: MAIN
-    size:
-    tents: 2
-    table:
+    size: L
+    tents: 3
+    table: Movable
     comment: exposed site—31 & 32 are basically part of the same site
   -
     site: 32
     category: bad
     type: MAIN
-    size:
+    size: S
     tents: 1
     table: Fixed
     comment: 31 & 32 are basically part of the same site, very high fire pit
@@ -314,8 +314,8 @@ sites:
     site: 33
     category:
     type: MAIN
-    size: M
-    tents: 3
+    size: S
+    tents: 1
     table: Fixed
     comment: lots of sun, little tree cover, fire pit close to parking and road, secluded from other sites (except 34 across road)
   -
@@ -323,15 +323,15 @@ sites:
     category:
     type: MAIN
     size: S
-    tents: 2
+    tents: 1
     table: Fixed
     comment: lots of sun, fire pit does not accommodate chairs (large rock and post in the way), secluded (except for 33 across road)
   -
     site: 35
     category:
     type: MAIN
-    size: M
-    tents: 2
+    size: S
+    tents: 1
     table: Fixed
     comment: lots of afternoon sun, fire pit very close to bear box and parking, secluded
   -
@@ -340,7 +340,7 @@ sites:
     type: MAIN
     size: S
     tents: 2
-    table: Fixed
+    table: Movable
     comment: nice site, secluded except for pathway on south
   -
     site: 37
@@ -355,7 +355,7 @@ sites:
     category:
     type: MAIN
     size: S
-    tents: 1
+    tents: 2
     table: Movable
     comment: huge parking area, rocks around fire pit, pathway to north, exposed to 99
   -
@@ -371,15 +371,15 @@ sites:
     category: bad
     type: MAIN
     size: S
-    tents: 3
-    table: Fixed
-    comment: looked like a big quarry in 2015, adjacent to campfire center on south
+    tents: 1
+    table: Movable
+    comment: the 2015 rock quarry has become an open meadow, adjacent to campfire center on south
   -
     site: 41
     category: limited
     type: ADA
-    size:
-    tents: 2
+    size: S
+    tents: 1
     table: Movable
     comment: mostly paved/leveled, secluded but across from south entrance to campfire center
   -
@@ -395,8 +395,8 @@ sites:
     category:
     type: MAIN
     size: S
-    tents: 2
-    table: Fixed
+    tents: 1
+    table: Movable
     comment: limited exposure to 45,47 (above 47), view of river, rocks around fire pit
   -
     site: 44
@@ -404,32 +404,32 @@ sites:
     type: MAIN
     size: L
     tents: 3
-    table: Fixed
+    table: Movable
     comment: some exposure to 42 otherwise secluded, excellent community site
   -
     site: 45
     category: good
     type: OUTER
     size: L
-    tents: 3
+    tents: 2
     table: Fixed
     comment: some exposure to 43, table, tree, and rocks near very high fire pit
   -
     site: 46
     category: limited
-    type: REMOVED?
-    size: L
-    tents: 4
-    table:
-    comment: cannot be reserved, large rock near very high fire pit, secluded from other sites, river view, far from bathroom
+    type: OUTER
+    size: S
+    tents: 1
+    table: Fixed
+    comment: large rock near very high fire pit, secluded from other sites, river view, far from bathroom
   -
     site: 47
     category: good
     type: OUTER
     size: L
     tents: 6
-    table: Fixed
-    comment: 2001-2002 main site, big corner site, lots of exposure to road, river view, exposed to 48
+    table: Movable
+    comment: 2001-2002 base camp, big corner site, lots of exposure to road, river view, exposed to 48
   -
     site: 48
     category: good
@@ -448,20 +448,20 @@ sites:
     comment: premier site at bottom of bathroom stairs, exposed to 48 (tents can provide buffer), uphill path to bathroom on north
   -
     site: 50
-    category: good
+    category:
     type: OUTER
-    size: XL
-    tents:
-    table:
-    comment: one-week reservations only
+    size: S
+    tents: 1
+    table: Movable
+    comment: near sites A & B, no privacy
   -
     site: 51
-    category: good
+    category:
     type: OUTER
-    size: XL
-    tents:
+    size: M
+    tents: 2
     table:
-    comment: one-week reservations only
+    comment: river site, near sites A & B, no privacy
   -
     site: 52
     category:
@@ -493,13 +493,13 @@ sites:
     size: S
     tents: 3
     table: Fixed
-    comment: river site sandwiched between 54 & 56, trees frame site on river side, 54,55,56 all run together with no distinction
+    comment: river site sandwiched between 54 & 56, trees frame site on river side creating shade, 54,55,56 all run together with no distinction
   -
     site: 56
-    category: bad
+    category:
     type: OUTER
     size: L
-    tents: 6
+    tents: 3
     table: Fixed
     comment: river site, 54,55,56 all run together, trees frame site on river side, would be great if not for presence of 55
   -
@@ -514,7 +514,7 @@ sites:
     site: 58
     category: good
     type: OUTER
-    size: M
+    size: L
     tents: 4
     table: Fixed
     comment: river site, separated by distance and shrubs from 57, no sites to south, good tree cover
@@ -524,78 +524,78 @@ sites:
     type: OUTER
     size: M
     tents: 4
-    table: Fixed?
+    table: Fixed
     comment: river site
   -
     site: 60
     category: good
     type: OUTER
     size: M
-    tents: 4
-    table: Fixed?
-    comment: river site
+    tents: 2
+    table: Fixed
+    comment: river site, very nice
   -
     site: 76
     category: good
     type: OUTER
     size: L
-    tents: 8
-    table: Fixed
+    tents: 3
+    table: Movable
     comment:
   -
     site: 77
     category: good
     type: OUTER
-    size: XL
-    tents: 6
-    table: Fixed
-    comment: (Lyon’s main site in 2005), very secluded, high fire pit, far from bathroom
+    size: L
+    tents: 3
+    table:
+    comment: (Lyon’s base camp in 2005), very secluded, high fire pit, far from bathroom
   -
     site: 78
     category: good
     type: OUTER
-    size: XL
-    tents: 6
-    table: Fixed
+    size: M
+    tents: 2
+    table: Movable
     comment:
   -
     site: 79
     category: good
     type: OUTER
-    size: L
-    tents: 4
+    size: M
+    tents: 2
     table: Fixed
     comment: big site, but much of it is large parking lot, secluded, far from bathroom
   -
     site: 80
     category: good
     type: OUTER
-    size: XL
-    tents: 6
-    table: Fixed
-    comment: in big trees, some exposure to 78, lots of exposure to 81, closed bathroom in view to west, high fire pit, far from usable bathroom
+    size: L
+    tents: 4
+    table: Movable
+    comment: in big trees, some exposure to 78, lots of exposure to 81, defunct bathroom in view to west, high fire pit, far from usable bathroom
   -
     site: 81
     category: good
     type: OUTER
     size: L
-    tents: 6
+    tents: 2
     table: Fixed
     comment: excellent if combined with 80, fully exposed to 80 otherwise secluded, high fire pit
   -
     site: 82
     category: limited
     type: FCFS
-    size: M
+    size: L
     tents: 2
     table: Fixed
-    comment: typically for RVs, exposed to 83 otherwise secluded, far from bathroom
+    comment: very deep, typically for RVs, exposed to 83 otherwise secluded, far from bathroom
   -
     site: 83
     category: good
     type: OUTER
-    size: M
-    tents: 3
+    size: S
+    tents: 1
     table: Movable
     comment: exposed to 82 and some exposure to 85, far from bathroom
   -
@@ -603,15 +603,15 @@ sites:
     category: good
     type: OUTER
     size: S
-    tents: 3
+    tents: 1
     table: Movable
-    comment: secluded, large tree blocks fire pit seating, far from bathroom
+    comment: secluded, shady, large tree blocks fire pit seating, far from bathroom
   -
     site: 85
     category: good
     type: OUTER
     size: S
-    tents: 3
+    tents: 1
     table: Movable
     comment: some exposure to 83 & 87, low fire pit, far from bathroom
   -
@@ -619,22 +619,22 @@ sites:
     category: good
     type: OUTER
     size: M
-    tents: 3
+    tents: 2
     table: Movable
     comment: some exposure to park maintenance facility in back otherwise secluded, far from bathroom
   -
     site: 87
     category: good
     type: OUTER
-    size: M
-    tents: 3
+    size: S
+    tents: 1
     table: Movable
     comment: little tree cover, lots of sun, leveled somewhat like ADA sites, largely secluded, far from bathroom
   -
     site: 88
     category: good
     type: OUTER
-    size: S
+    size: M
     tents: 2
     table: Movable
     comment: very secluded except for some exposure to park maintenance facility in back, far from bathroom
@@ -642,10 +642,10 @@ sites:
     site: 89
     category: good
     type: OUTER
-    size: S
+    size: M
     tents: 2
     table: Movable
-    comment: garbage/recycling practically within site near road, very secluded, far from bathroom
+    comment: very secluded, nice in back, far from bathroom
   -
     site: 90
     category: limited
@@ -658,7 +658,7 @@ sites:
     site: 91
     category: limited
     type: BUFFER
-    size: S
+    size: M
     tents: 1
     table: Movable
     comment: close to and somewhat exposed to major east-west campground and maintenance facility roads, otherwise secluded, far from bathroom
@@ -666,24 +666,24 @@ sites:
     site: 92
     category:
     type: MAIN
-    size: S
+    size: M
     tents: 2
     table: Movable
-    comment: rocks/trees on one side of fire pit, pretty secluded despite major east-west campground road on south, far from bathroom
+    comment: open, unappealing, rocks/trees on one side of fire pit, pretty secluded despite major east-west campground road on south, far from bathroom
   -
     site: 93
     category:
     type: MAIN
     size: M
-    tents: 3
+    tents: 2
     table: Movable
     comment: fairly secluded, far from bathroom
   -
     site: 94
     category:
     type: MAIN
-    size: M
-    tents: 4
+    size: S
+    tents: 2
     table: Movable
     comment: adjacent to main north-south campground road on east, parking for 3 vehicles, relatively secluded, far from bathroom
   -
@@ -693,7 +693,7 @@ sites:
     size: S
     tents: 2
     table: Movable
-    comment: some exposure to 97, trees and shrubs around part of fire pit, far from bathroom
+    comment: some exposure to 97, lots of sun in the noon hour, trees and shrubs around part of fire pit, far from bathroom
   -
     site: 96
     category:
@@ -709,7 +709,7 @@ sites:
     size: S
     tents: 2
     table: Movable
-    comment: open—lots of morning sun, some exposure to 95 & 99
+    comment: open—lots of morning sun, some exposure to 95 & 99, worked well as a base camp in 2023
   -
     site: 98
     category: good
@@ -722,18 +722,18 @@ sites:
     site: 99
     category: bad
     type: MAIN
-    size: S
+    size: L
     tents: 2
     table: Movable
-    comment: exposure to 97 & 38
+    comment: not very private, exposure to 97 & 38
   -
     site: 100
     category: good
     type: MAIN
-    size: S
+    size: M
     tents: 3
     table: Movable
-    comment: room for 3 vehicles, pretty well secluded despite bathroom on north side and pathway on south side
+    comment: room for 3 vehicles, shady and pretty well secluded despite bathroom on north side and pathway on south side
   -
     site: 101
     category:
@@ -747,15 +747,15 @@ sites:
     category: good
     type: MAIN
     size: S
-    tents: 3
+    tents: 2
     table: Movable
-    comment: high fire pit, campsite is dark along the rear (dense tree cover), very secluded, bathroom across road but largely hidden from view due to shrubs
+    comment: high fire pit, campsite is dark along the rear (dense tree cover), very secluded, bathroom across road but largely hidden from view due to shrubs, close to kiosk
   -
     site: 103
     category:
     type: MAIN
-    size: L
-    tents: 4
+    size: M
+    tents: 2
     table: Movable
     comment: 2004 bedroom site; bear box is taller and shallower than standard box and is harder to open, tall fire pit is close to bear box and large tree, some exposure to bathroom on south, 105 on north, 31 on west, open to southeast (not much tree cover on that side)
   -
@@ -765,7 +765,7 @@ sites:
     size: L
     tents: 3
     table: Movable
-    comment: 2004 main site; room for 3 vehicles, weird bear box placement at head of parking area, secluded, good community site
+    comment: 2004 base camp; room for 3 vehicles, weird bear box placement at head of parking area, secluded, good community site
   -
     site: J105
     category:

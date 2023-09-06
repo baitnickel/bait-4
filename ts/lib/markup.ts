@@ -1,4 +1,26 @@
-/**
+import { Resource } from './resource.js';
+
+/*###
+ * Recognize embedded tags (#todo, #todo2, #todo-3, &c.). Does not apply to tags
+ * listed in Front Matter--these are treated separately. Replace tag with space,
+ * and condense space around it, trim start and/or end if tag appears at start
+ * or end? Does not apply within Code and Code Blocks.
+ *
+ * Support custom markdown enclosed in braces. Mostly this will be resource
+ * references such as {photo: foo}, {photo/category: bar}, where the Front
+ * Matter of the document resolves the reference. The current
+ * [content][reference] and ![content][reference] URL and Image syntaxes are
+ * standard markdown and probably can coexist with new brace syntax. Braces may
+ * also be used as a replacement for the current Span syntax--perhaps: {{.foo
+ * #bar content text}}.
+ *
+ * Constants in class `MarkdownElement` and function `markup` should be moved
+ * into the global space at the top of this module, where they only need to be
+ * executed once, on import. There may be opportunities to consolidate some of
+ * the regex definitions too.
+ */
+
+/*
  * Code Blocks - delimited by '~~~' or '```', lines from delimiter thru delimiter
  * Quote Blocks - consecutive lines beginning with '> '
  * List Blocks - consecutive lines beginning with '- ' or '\d+\. '
@@ -16,30 +38,63 @@
  */
 
 const MARKUP = {
-	version: '2023.02.26',
+	version: '2023.09.06',
 }
-var IN_DETAILS_BLOCK = false;
+console.log('markup:', MARKUP.version);
 
-import { Resource } from './resource.js';
+/* block patterns */
+const CODE_BLOCK_PATTERN = /^(~~~|```)$/;
+const QUOTE_BLOCK_PATTERN = /^>\s*/; //### does not enforce space between '>' and text
+const LIST_BLOCK_PATTERN = /^([-+*]|\d{1,}\.)\s+\S+/;
+const LIST_BLOCK_LEAD_PATTERN = /^([-+*]|\d{1,}\.)\s+/;
+const HEADING_PATTERN = /^#{1,6}\s+\S+/;
+const HORIZONTAL_RULE_PATTERN = /^[-_*]{3,}\s*$/;
+const DETAILS_PATTERN = /^#\$\s*/;
+/* HTML tags */
+const CODE_TAG = 'code';
+const BOLD_TAG = 'strong';
+const ITALIC_TAG = 'em';
+const IMAGE_TAG = 'img';
+const LINK_TAG = 'a';
+const SPAN_TAG = 'span';
+const UNORDERED_ITEM_TYPE = 'ul';
+const ORDERED_ITEM_TYPE = 'ol';
+/* non-global patterns--text will be split on this pattern (there will only be 1 per segment) */
+const CODE_PATTERN = /(`.+?`)/;
+const CODE_SEGMENT_PATTERN = /^`.+`$/;
+/* global patterns--replacements are simple segment.replace operations */
+const BOLD_PATTERN = /\*{2}(.+?)\*{2}/g;
+const ITALIC_PATTERN = /\*(.+?)\*/g;
+const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g; /** ###  was: /!\[(.*)]\((.*?)\)/ */
+const LINK_PATTERN = /\[(.*?)]\((.*?)\)/g;
+/* non-global patterns--replacements are complex and will be performed in a while loop */
+const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
+const LINK_REFERENCE_PATTERN = /\[(.*?)\]\[(\S*?)\]/;
+const SPAN_PATTERN = /\[\[(.*?)\]\]/;
 
-/** This function is the starting point. Given a string containing multiple
- * lines of markdown text, it returns an array of HTML lines. It does this by
- * generating an array of MarkdownElement objects; each element has a 'render'
- * method which generates HTML.
+let IN_DETAILS_BLOCK = false; /* for now, this must be global */
+
+/**
+ * This function is typically the starting point. Given a string containing
+ * multiple lines of markdown text, it returns an array of HTML lines. It does
+ * this by generating an array of `MarkdownElement` objects; each with a
+ * `render` method that generates HTML. The `baseUrl` parameter is only required
+ * if markdown contains resource objects with relative (query) definitions.
  *
  * The first pass at the beginning of this function collects all references and
- * stores them into an associative array, where they can be looked up during the
- * second pass to resolve absolute URLs. References are referred to in
- * hyperlink, image, footnote, &c. markdown.
+ * stores them in a Map, where they can be looked up during the second pass to
+ * resolve absolute URLs. References are referred to in hyperlink, image,
+ * footnote, &c. markdown.
+ *
+ *
  */
 export function Markup(markdown: string, baseUrl: string = '') {
-	/** baseUrl is only required if markdown contains resource objects with relative (query) definitions */
-	/** First Pass: Create a list of Resource objects from markdown references */
+	/* First Pass: Create a list of Resource objects from markdown references */
 	let resources = new Map<string, Resource>(); /* see: https://www.carlrippon.com/typescript-dictionary/ */
 	let htmlLines: string[] = [];
 	let markdownLines = markdown.split('\n');
 	let referencePattern = /^\[(\S+)\]:\s+(.*)/;
-	/** step through the array in reverse order, as we will remove items along the way */
+	/* step through the array in reverse order, as we will remove items along the way */
 	for (let i = markdownLines.length - 1; i >= 0; i -= 1) {
 		let referenceMatch = markdownLines[i].trim().match(referencePattern);
 		if (referenceMatch !== null) {
@@ -51,7 +106,7 @@ export function Markup(markdown: string, baseUrl: string = '') {
 		}
 	}
 
-	/** Second Pass: Create a list of MarkdownElement objects and render their HTML */
+	/* Second Pass: Create a list of MarkdownElement objects and render their HTML */
 	let elements: MarkdownElement[] = [];
 	let index = 0;
 	IN_DETAILS_BLOCK = false;
@@ -66,17 +121,20 @@ export function Markup(markdown: string, baseUrl: string = '') {
 	}
 	if (IN_DETAILS_BLOCK) htmlLines.push('</details>');
 
-	// htmlLines.unshift(`<code>v${MARKUP.version}</code>`);
 	return htmlLines.join('\n');
 }
 
 /**
- * Mark up a single line of text.
- * Options:
- *   M: markup - convert Markdown text to HTML;
- *   E: escape special characters using HTML Entities;
- *   T: typeset characters using proper quotes, dashes, ellipses, etc.;
- *   F: like 'T' for Fixed-width fonts (no dash or ellipsis conversion);
+ * Mark up a single line of text. We call the internal `markup` function, the
+ * same function that is called by MarkdownElement.render().
+ *
+ * Options: `M`: markup - convert Markdown text to HTML; `E`: escape special
+ * characters using HTML Entities; `T`: typeset characters using proper quotes,
+ * dashes, ellipses, etc.; `F`: like `T` for Fixed-width fonts (no dash or
+ * ellipsis conversion);
+ *
+ * (### Can this function be integrated into the `Markup` function? Why can't a
+ * single line be treated as a single-element array in `Markup`?)
  */
 export function MarkupLine(line: string, options: string) {
 	options = options.toUpperCase();
@@ -89,6 +147,14 @@ export function MarkupLine(line: string, options: string) {
 	return line;
 }
 
+/**
+ * Typically called by the factory method, `getMarkdownElement`.
+ *
+ * `content`: always initialized to an empty array of strings?
+ * `tags`: one of more HTML tags to be opened at the beginning and closed at the end
+ * `typesetting`: should content lines be typeset?
+ * `markingUp`: might content lines contain inline markdown?
+ */
 class MarkdownElement {
 	prefix: string;
 	suffix: string;
@@ -107,12 +173,6 @@ class MarkdownElement {
 	static readonly HORIZONTAL_RULE_PATTERN = /^[-_*]{3,}\s*$/;
 	static readonly DETAILS_PATTERN = /^#\$\s*/;
 
-	/** Typically called by the factory method, 'getMarkdownElement'
-	 * content: always initialized to an empty array of strings?
-	 * tags: one of more tags to be opened at the beginning and closed at the end
-	 * typesetting: should content lines be typeset?
-	 * markingUp: might content lines contain inline markdown? 
-	*/
 	constructor(
 		content: string[],
 		tags: string[],
@@ -137,21 +197,21 @@ class MarkdownElement {
 		}
 	}
 
+	/**
+	 * A Factory method. Parse through lines of markdown text, beginning at
+	 * the line indicated by index (starting at line 0), and ending when the
+	 * first element encountered is complete. Instantiate and return a
+	 * MarkdownElement object. The index may be reset for a subsequent call
+	 * by adding MarkdownElement.length to the previous index (which is what
+	 * the calling function, `Markup`, does).
+	 *
+	 * Returns the MarkdownElement object, or null.
+	 */
 	static getMarkdownElement(
 		lines: string[],
 		index: number,
 		resources: Map<string, Resource>,
 	): MarkdownElement|null {
-		/**
-		 * A Factory method. Parse through lines of markdown text, beginning at
-		 * the line indicated by index (starting at line 0), and ending when the
-		 * first element encountered is complete. Instantiate and return a
-		 * MarkdownElement object. The index may be reset for a subsequent call
-		 * by adding MarkdownElement.length to the previous index (which is what
-		 * the calling function, 'Markup', does).
-		 * 
-		 * Returns the MarkdownElement object, or null.
-		 */
 		let element: MarkdownElement|null = null;
 		let content: string[] = [];
 		let contentTerminated = false;
@@ -160,7 +220,7 @@ class MarkdownElement {
 			let line = lines[i];
 			if (!foundNonBlankLine) {
 				if (line.trim() == '') {
-					/**
+					/*
 					 * Write leading empty lines to content. This is done so
 					 * that the caller can properly advance the lines index
 					 * based on the length of (number of markdown lines
@@ -169,7 +229,7 @@ class MarkdownElement {
 					content.push(line.trim());
 				} else {
 					foundNonBlankLine = true;
-					/** 
+					/*
 					 * The first non-empty line identifies the element type.
 					 * These are all block elements as opposed to inline
 					 * elements. Heading and Horizontal Rule elements are
@@ -178,17 +238,24 @@ class MarkdownElement {
 					 * implicitly.
 					 */
 					let trimmedLine = line.trim();
-					if (MarkdownElement.CODE_BLOCK_PATTERN.test(trimmedLine)) element = new CodeBlock();
-					else if (MarkdownElement.QUOTE_BLOCK_PATTERN.test(trimmedLine)) element = new QuoteBlock();
-					else if (MarkdownElement.LIST_BLOCK_PATTERN.test(trimmedLine)) element = new ListBlock();
-					else if (MarkdownElement.HEADING_PATTERN.test(trimmedLine)) element = new Heading();
-					else if (MarkdownElement.HORIZONTAL_RULE_PATTERN.test(trimmedLine)) element = new HorizontalRule();
-					else if (MarkdownElement.DETAILS_PATTERN.test(trimmedLine)) element = new Details();
+					// if (MarkdownElement.CODE_BLOCK_PATTERN.test(trimmedLine)) element = new CodeBlock();
+					// else if (MarkdownElement.QUOTE_BLOCK_PATTERN.test(trimmedLine)) element = new QuoteBlock();
+					// else if (MarkdownElement.LIST_BLOCK_PATTERN.test(trimmedLine)) element = new ListBlock();
+					// else if (MarkdownElement.HEADING_PATTERN.test(trimmedLine)) element = new Heading();
+					// else if (MarkdownElement.HORIZONTAL_RULE_PATTERN.test(trimmedLine)) element = new HorizontalRule();
+					// else if (MarkdownElement.DETAILS_PATTERN.test(trimmedLine)) element = new Details();
+					// else element = new Paragraph();
+					if (CODE_BLOCK_PATTERN.test(trimmedLine)) element = new CodeBlock();
+					else if (QUOTE_BLOCK_PATTERN.test(trimmedLine)) element = new QuoteBlock();
+					else if (LIST_BLOCK_PATTERN.test(trimmedLine)) element = new ListBlock();
+					else if (HEADING_PATTERN.test(trimmedLine)) element = new Heading();
+					else if (HORIZONTAL_RULE_PATTERN.test(trimmedLine)) element = new HorizontalRule();
+					else if (DETAILS_PATTERN.test(trimmedLine)) element = new Details();
 					else element = new Paragraph();
 					content.push(line);
 				}
 			} else {
-				/**
+				/*
 				 * If we have reached a line which represents the end of the
 				 * element's content, break out of the loop. Otherwise, add this
 				 * line to the content and continue.
@@ -217,7 +284,7 @@ class MarkdownElement {
 	addContent(content: string[]) {
 		this.content = content;
 		this.length = content.length; /** length includes leading empty lines */
-		while (this.content[0].trim() == '') this.content.shift(); /** remove leading empty lines */
+		while (this.content[0].trim() == '') this.content.shift(); /* remove leading empty lines */
 	}
 
 	/**
@@ -229,7 +296,7 @@ class MarkdownElement {
 	terminalLine(line: string) {
 		return true;
 	}
-	
+
 	/**
 	 * Read the object's content lines and return HTML lines. HTML entity
 	 * encoding is done here, as well as typesetting and inline markup, as
@@ -277,7 +344,7 @@ class QuoteBlock extends MarkdownElement {
 	}
 	addContent(content: string[]) {
 		super.addContent(content);
-		/** Remove the indentation indicator ('>') and add line breaks. */
+		/* Remove the indentation indicator ('>') and add line breaks. */
 		let newContent: string[] = [];
 		for (let line of content) {
 			line = line.trim().replace(/^>\s*/, '');
@@ -290,27 +357,27 @@ class QuoteBlock extends MarkdownElement {
 	}
 }
 
+/**
+ * A `ListBlock` is composed of `ListItems` (such as a bullet), and any `ListItem`
+ * may contain a `ListSubBlock` (a `ListBlock` nested inside the `ListItem`). The
+ * recursive property of `ListBlocks` is handled in the `ListSubBlock.render()`
+ * method.
+ */
 class ListBlock extends MarkdownElement {
-	/**
-	 * A ListBlock is composed of ListItems (such as a bullet), and any ListItem
-	 * may contain a ListSubBlock (a ListBlock nested inside the ListItem). The
-	 * recursive property of ListBlocks is handled in the ListSubBlock.render()
-	 * method.
-	 */
 	constructor() {
 		super([], ['li'], true, true);
 	}
 
 	render() {
-		const DEFAULT_ITEM_TYPE = 'ul';
-		const ORDERED_ITEM_TYPE = 'ol';
-		const LIST_BLOCK_LEAD_PATTERN = /^([-+*]|\d{1,}\.)\s+/;
+		// const UNORDERED_ITEM_TYPE = 'ul';
+		// const ORDERED_ITEM_TYPE = 'ol';
+		// const LIST_BLOCK_LEAD_PATTERN = /^([-+*]|\d{1,}\.)\s+/;
 
 		let items: ListItem[] = [];
 		let previousLevel = -1;
 		for (let line of this.content) {
 			let level = 0;
-			let itemType = DEFAULT_ITEM_TYPE;
+			let itemType = UNORDERED_ITEM_TYPE;
 			let value = '';
 			let tabs = line.match(/^\t*/);
 			if (tabs) level = tabs[0].length;
@@ -365,7 +432,7 @@ class ListItem {
 		this.value = value;
 		this.block = null;
 	}
-} 
+}
 
 class ListSubBlock {
 	listType: string; /* 'ul' or 'ol' */
@@ -458,20 +525,26 @@ class Paragraph extends MarkdownElement {
 		this.endOfLine = '<br>';
 	}
 	terminalLine(line: string) {
-		let terminate = false;
-		if (
+		// let terminate = false;
+		// if (
+		return (
 			line == ''
-			|| MarkdownElement.CODE_BLOCK_PATTERN.test(line)
-			|| MarkdownElement.QUOTE_BLOCK_PATTERN.test(line)
-			|| MarkdownElement.LIST_BLOCK_PATTERN.test(line)
-			|| MarkdownElement.HEADING_PATTERN.test(line)
-			|| MarkdownElement.HORIZONTAL_RULE_PATTERN.test(line)
-			|| MarkdownElement.DETAILS_PATTERN.test(line)
-		) terminate = true;
-		return terminate;
+			|| CODE_BLOCK_PATTERN.test(line)
+			|| QUOTE_BLOCK_PATTERN.test(line)
+			|| LIST_BLOCK_PATTERN.test(line)
+			|| HEADING_PATTERN.test(line)
+			|| HORIZONTAL_RULE_PATTERN.test(line)
+			|| DETAILS_PATTERN.test(line)
+		);
+		// ) terminate = true;
+		// return terminate;
 	}
 }
 
+/**
+ * Replace special characters `&`, `<`, and `>`, characters that may conflict
+ * with HTML rendering, with corresponding `&xx;` HTML entities.
+ */
 function encodeEntities(text: string) {
 	let encodedText = text;
 	encodedText = encodedText.replace(/&/g, '&amp;');
@@ -480,12 +553,12 @@ function encodeEntities(text: string) {
 	return encodedText;
 }
 
+/**
+ * Replace typewriter characters with unicode typographic characters.
+ * Oddities like `’twas` will get the wrong single quote (fix these
+ * manually in the source text--on the Mac: `Shift-Option-]`).
+ */
 function typeset(text: string, fixedWidth = false) {
-	/**
-	 * Replace typewriter characters with unicode typographic characters.
-	 * Oddities like ’twas will get the wrong single quote (fix these
-	 * manually in the source text--on the Mac: Option-Shift-]).
-	 */
 	let typesetText = text;
 	typesetText = typesetText.replace(/(^|[-\u2014\s(\["])'/g, "$1\u2018"); // opening singles
 	typesetText = typesetText.replace(/'/g, "\u2019"); // closing singles & apostrophes
@@ -503,26 +576,30 @@ function typeset(text: string, fixedWidth = false) {
 	return typesetText;
 }
 
+/**
+ * Given a markdown text string and an optional Map of Resources (resolved in a
+ * prior inspection of the whole document), return HTML markup.
+ */
 function markup(text: string, resources: Map<string, Resource>|null = null) {
-	const CODE_TAG = 'code';
-	const BOLD_TAG = 'strong';
-	const ITALIC_TAG = 'em';
-	const IMAGE_TAG = 'img';
-	const LINK_TAG = 'a';
-	const SPAN_TAG = 'span';
-	/** non-global patterns, as there will only be 1 per segment as text will be split on this pattern */
-	const CODE_PATTERN = /(`.+?`)/;
-	const CODE_SEGMENT_PATTERN = /^`.+`$/;
-	/** global patterns, as replacements are simple segment.replace operations */
-	const BOLD_PATTERN = /\*{2}(.+?)\*{2}/g;
-	const ITALIC_PATTERN = /\*(.+?)\*/g;
-	const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g; /** ###  was: /!\[(.*)]\((.*?)\)/ */
-	const LINK_PATTERN = /\[(.*?)]\((.*?)\)/g;
-	/** non-global patterns, as replacements are complex and will be performed in a while loop */
-	const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
-	const LINK_REFERENCE_PATTERN = /\[(.*?)\]\[(\S*?)\]/;
-	const SPAN_PATTERN = /\[\[(.*?)\]\]/;
-	/**
+	// const CODE_TAG = 'code';
+	// const BOLD_TAG = 'strong';
+	// const ITALIC_TAG = 'em';
+	// const IMAGE_TAG = 'img';
+	// const LINK_TAG = 'a';
+	// const SPAN_TAG = 'span';
+	// /* non-global patterns, as there will only be 1 per segment as text will be split on this pattern */
+	// const CODE_PATTERN = /(`.+?`)/;
+	// const CODE_SEGMENT_PATTERN = /^`.+`$/;
+	// /* global patterns, as replacements are simple segment.replace operations */
+	// const BOLD_PATTERN = /\*{2}(.+?)\*{2}/g;
+	// const ITALIC_PATTERN = /\*(.+?)\*/g;
+	// const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g; /** ###  was: /!\[(.*)]\((.*?)\)/ */
+	// const LINK_PATTERN = /\[(.*?)]\((.*?)\)/g;
+	// /* non-global patterns, as replacements are complex and will be performed in a while loop */
+	// const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
+	// const LINK_REFERENCE_PATTERN = /\[(.*?)\]\[(\S*?)\]/;
+	// const SPAN_PATTERN = /\[\[(.*?)\]\]/;
+	/*
 	 * Split text into segments, made up of `code` segments and non-`code`
 	 * segments. Inline markup is applied to only non-`code` segments.
 	 */
@@ -530,16 +607,16 @@ function markup(text: string, resources: Map<string, Resource>|null = null) {
 	let segments = text.split(CODE_PATTERN);
 	for (let segment of segments) {
 		if (CODE_SEGMENT_PATTERN.test(segment)) {
-			segment = segment.replace('`', `<${CODE_TAG}>`); 
-			segment = segment.replace('`', `</${CODE_TAG}>`); 
+			segment = segment.replace('`', `<${CODE_TAG}>`);
+			segment = segment.replace('`', `</${CODE_TAG}>`);
 		}
 		else {
-			/** simple global replacements */
+			/* simple global replacements */
 			segment = segment.replace(IMAGE_PATTERN, `<${IMAGE_TAG} src="$2" alt="$1">`);
 			segment = segment.replace(LINK_PATTERN, `<${LINK_TAG} href="$2">$1</${LINK_TAG}>`);
 			segment = segment.replace(BOLD_PATTERN, `<${BOLD_TAG}>$1</${BOLD_TAG}>`);
 			segment = segment.replace(ITALIC_PATTERN, `<${ITALIC_TAG}>$1</${ITALIC_TAG}>`);
-			/** complex replacements (cannot be done using a simple global replacement) */
+			/* complex replacements (cannot be done using a simple global replacement) */
 			if (resources !== null) {
 				segment = markupReference(segment, IMAGE_REFERENCE_PATTERN, IMAGE_TAG, resources);
 				segment = markupReference(segment, LINK_REFERENCE_PATTERN, LINK_TAG, resources);
@@ -551,8 +628,10 @@ function markup(text: string, resources: Map<string, Resource>|null = null) {
 	return markedUpText;
 }
 
+/**
+ * Image and Link markdown using references, resolved in Resource objects.
+ */
 function markupReference(segment: string, pattern: RegExp, tag: string, resources: Map<string, Resource>) {
-	/** Image and Link markdown using references, resolved in Resource objects */
 	while (pattern.test(segment)) {
 		let captureGroups = segment.match(pattern)!;
 		let inlineText = captureGroups[1];
@@ -563,14 +642,20 @@ function markupReference(segment: string, pattern: RegExp, tag: string, resource
 	return segment;
 }
 
+/**
+ * (### This is custom markdown and conflicts with Obsidian custom markdown,
+ * using double brackets. It should be modified—perhaps replacing the double
+ * brackets with double braces?)
+ *
+ * Span markdown supports the addition of `class` and `id` attributes. Classes
+ * and IDs must be entered into the markdown as the first words, classes
+ * prefixed with `.`, and ID prefixed with `#`. When multiple IDs are entered,
+ * all but the first one is ignored.
+ *
+ * E.g.: `[[.my-class #my-id and my text]]`
+ */
 function markupSpan(segment: string, pattern: RegExp, tag: string) {
-	/** 
-	 * Span markdown supports the addition of 'class' and 'id' attributes.
-	 * Classes and IDs must be entered into the markdown as the first words,
-	 * classes prefixed with '.', and ID prefixed with '#'. When multiple IDs
-	 * are entered, all but the first one is ignored.
-	 *
-	 * E.g.: [[.my-class #my-id and my text]]
+	/**
 	 */
 	while (pattern.test(segment)) {
 		let captureGroups = segment.match(pattern)!;
@@ -582,7 +667,7 @@ function markupSpan(segment: string, pattern: RegExp, tag: string) {
 		let plainTextFound = false;
 		for (let word of spannedWords) {
 			if (word) {
-				if (plainTextFound) contents.push(word); 
+				if (plainTextFound) contents.push(word);
 				else if (word.startsWith('.')) {
 					if (word.length > 1) classes.push(word.slice(1));
 				}

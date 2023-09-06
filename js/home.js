@@ -1,5 +1,6 @@
 import { Page } from './lib/page.js';
 import * as Embed from './lib/embed.js';
+import { Markup } from './lib/markup.js';
 export function render() {
     const page = new Page();
     const lyrics = [
@@ -10,4 +11,12 @@ export function render() {
     ];
     page.content.append(Embed.paragraph(lyrics));
     page.content.append(Embed.smugImage('i-SDpf2qV', 'S'));
+    const markdown = [
+        '### Sample Markdown',
+        'In the *very* beginning there was only **void**. God took a look at the void and decided it was very good. "Very good!", God said to itself. And so the world began.',
+        '>Void in every sense of the word.',
+        'After a while, there was `light` and the tree of knowledge.'
+    ];
+    const html = Markup(markdown.join('\n'));
+    page.content.append(Embed.paragraph(html));
 }

@@ -23,6 +23,7 @@ import { Resource } from './resource.js';
 /*
  * Code Blocks - delimited by '~~~' or '```', lines from delimiter thru delimiter
  * Quote Blocks - consecutive lines beginning with '> '
+ * Quotation - a line consisting of a quoted string followed by a tilde and an attribution
  * List Blocks - consecutive lines beginning with '- ' or '\d+\. '
  * Headings - line beginning with 1-6 hashes (#) followed by whitespace
  * Horizontal Rules - line consisting of '---' or '***' or '___'{3,}
@@ -34,17 +35,18 @@ import { Resource } from './resource.js';
  * Italics - *content*
  * URL - [content](url) or [content][reference]
  * Image - ![content](url) or ![content][reference]
- * Span - [[content]]
+ * Span - {{content}}
  */
 
 const MARKUP = {
-	version: '2023.09.06',
+	version: '2023.09.07',
 }
-console.log('markup:', MARKUP.version);
+console.log(`markup: ${MARKUP.version}`);
 
 /* block patterns */
 const CODE_BLOCK_PATTERN = /^(~~~|```)$/;
 const QUOTE_BLOCK_PATTERN = /^>\s*/; //### does not enforce space between '>' and text
+const QUOTATION_PATTERN = /^"(.+)"\s*~\s*(.+)$/; // e.g., "I think therefore I am" ~ Descartes
 const LIST_BLOCK_PATTERN = /^([-+*]|\d{1,}\.)\s+\S+/;
 const LIST_BLOCK_LEAD_PATTERN = /^([-+*]|\d{1,}\.)\s+/;
 const HEADING_PATTERN = /^#{1,6}\s+\S+/;
@@ -70,7 +72,7 @@ const LINK_PATTERN = /\[(.*?)]\((.*?)\)/g;
 /* non-global patterns--replacements are complex and will be performed in a while loop */
 const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
 const LINK_REFERENCE_PATTERN = /\[(.*?)\]\[(\S*?)\]/;
-const SPAN_PATTERN = /\[\[(.*?)\]\]/;
+const SPAN_PATTERN = /\{\{(.*?)\}\}/;
 
 let IN_DETAILS_BLOCK = false; /* for now, this must be global */
 
@@ -166,13 +168,6 @@ class MarkdownElement {
 	addTerminalLine: boolean;
 	resources: Map<string, Resource>|null;
 
-	static readonly CODE_BLOCK_PATTERN = /^(~~~|```)$/;
-	static readonly QUOTE_BLOCK_PATTERN = /^>\s*/; //### does not enforce space between '>' and text
-	static readonly LIST_BLOCK_PATTERN = /^([-+*]|\d{1,}\.)\s+\S+/;
-	static readonly HEADING_PATTERN = /^#{1,6}\s+\S+/;
-	static readonly HORIZONTAL_RULE_PATTERN = /^[-_*]{3,}\s*$/;
-	static readonly DETAILS_PATTERN = /^#\$\s*/;
-
 	constructor(
 		content: string[],
 		tags: string[],
@@ -238,15 +233,9 @@ class MarkdownElement {
 					 * implicitly.
 					 */
 					let trimmedLine = line.trim();
-					// if (MarkdownElement.CODE_BLOCK_PATTERN.test(trimmedLine)) element = new CodeBlock();
-					// else if (MarkdownElement.QUOTE_BLOCK_PATTERN.test(trimmedLine)) element = new QuoteBlock();
-					// else if (MarkdownElement.LIST_BLOCK_PATTERN.test(trimmedLine)) element = new ListBlock();
-					// else if (MarkdownElement.HEADING_PATTERN.test(trimmedLine)) element = new Heading();
-					// else if (MarkdownElement.HORIZONTAL_RULE_PATTERN.test(trimmedLine)) element = new HorizontalRule();
-					// else if (MarkdownElement.DETAILS_PATTERN.test(trimmedLine)) element = new Details();
-					// else element = new Paragraph();
 					if (CODE_BLOCK_PATTERN.test(trimmedLine)) element = new CodeBlock();
 					else if (QUOTE_BLOCK_PATTERN.test(trimmedLine)) element = new QuoteBlock();
+					else if (QUOTATION_PATTERN.test(trimmedLine)) element = new Quotation();
 					else if (LIST_BLOCK_PATTERN.test(trimmedLine)) element = new ListBlock();
 					else if (HEADING_PATTERN.test(trimmedLine)) element = new Heading();
 					else if (HORIZONTAL_RULE_PATTERN.test(trimmedLine)) element = new HorizontalRule();
@@ -333,7 +322,7 @@ class CodeBlock extends MarkdownElement {
 		this.content.pop();
 	}
 	terminalLine(line: string) {
-		return MarkdownElement.CODE_BLOCK_PATTERN.test(line);
+		return CODE_BLOCK_PATTERN.test(line);
 	}
 }
 
@@ -353,7 +342,35 @@ class QuoteBlock extends MarkdownElement {
 		this.content = newContent;
 	}
 	terminalLine(line: string) {
-		return !(MarkdownElement.QUOTE_BLOCK_PATTERN.test(line));
+		return !(QUOTE_BLOCK_PATTERN.test(line));
+	}
+}
+
+/**
+ * Custom markup, interpreting a line such as:
+ *
+ * "I think therefore I am" ~ Descartes
+ *
+ * See the `markupReference` function for examples of getting the capture groups
+ * (quote and attribution). ###
+ */
+class Quotation extends MarkdownElement {
+	constructor() {
+		super([], ['blockquote'], true, true);
+		this.endOfLine = '<br>';
+	}
+	addContent(content: string[]) {
+		super.addContent(content);
+		/* Remove the indentation indicator ('>') and add line breaks. */
+		let newContent: string[] = [];
+		for (let line of content) {
+			line = line.trim().replace(/^>\s*/, '');
+			newContent.push(line);
+		}
+		this.content = newContent;
+	}
+	terminalLine(line: string) {
+		return !(QUOTE_BLOCK_PATTERN.test(line));
 	}
 }
 
@@ -369,10 +386,6 @@ class ListBlock extends MarkdownElement {
 	}
 
 	render() {
-		// const UNORDERED_ITEM_TYPE = 'ul';
-		// const ORDERED_ITEM_TYPE = 'ol';
-		// const LIST_BLOCK_LEAD_PATTERN = /^([-+*]|\d{1,}\.)\s+/;
-
 		let items: ListItem[] = [];
 		let previousLevel = -1;
 		for (let line of this.content) {
@@ -417,7 +430,7 @@ class ListBlock extends MarkdownElement {
 	}
 
 	terminalLine(line: string) {
-		return !(MarkdownElement.LIST_BLOCK_PATTERN.test(line));
+		return !(LIST_BLOCK_PATTERN.test(line));
 	}
 }
 
@@ -525,19 +538,16 @@ class Paragraph extends MarkdownElement {
 		this.endOfLine = '<br>';
 	}
 	terminalLine(line: string) {
-		// let terminate = false;
-		// if (
 		return (
 			line == ''
 			|| CODE_BLOCK_PATTERN.test(line)
 			|| QUOTE_BLOCK_PATTERN.test(line)
+			|| QUOTATION_PATTERN.test(line)
 			|| LIST_BLOCK_PATTERN.test(line)
 			|| HEADING_PATTERN.test(line)
 			|| HORIZONTAL_RULE_PATTERN.test(line)
 			|| DETAILS_PATTERN.test(line)
 		);
-		// ) terminate = true;
-		// return terminate;
 	}
 }
 
@@ -581,24 +591,6 @@ function typeset(text: string, fixedWidth = false) {
  * prior inspection of the whole document), return HTML markup.
  */
 function markup(text: string, resources: Map<string, Resource>|null = null) {
-	// const CODE_TAG = 'code';
-	// const BOLD_TAG = 'strong';
-	// const ITALIC_TAG = 'em';
-	// const IMAGE_TAG = 'img';
-	// const LINK_TAG = 'a';
-	// const SPAN_TAG = 'span';
-	// /* non-global patterns, as there will only be 1 per segment as text will be split on this pattern */
-	// const CODE_PATTERN = /(`.+?`)/;
-	// const CODE_SEGMENT_PATTERN = /^`.+`$/;
-	// /* global patterns, as replacements are simple segment.replace operations */
-	// const BOLD_PATTERN = /\*{2}(.+?)\*{2}/g;
-	// const ITALIC_PATTERN = /\*(.+?)\*/g;
-	// const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g; /** ###  was: /!\[(.*)]\((.*?)\)/ */
-	// const LINK_PATTERN = /\[(.*?)]\((.*?)\)/g;
-	// /* non-global patterns, as replacements are complex and will be performed in a while loop */
-	// const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
-	// const LINK_REFERENCE_PATTERN = /\[(.*?)\]\[(\S*?)\]/;
-	// const SPAN_PATTERN = /\[\[(.*?)\]\]/;
 	/*
 	 * Split text into segments, made up of `code` segments and non-`code`
 	 * segments. Inline markup is applied to only non-`code` segments.
@@ -643,16 +635,12 @@ function markupReference(segment: string, pattern: RegExp, tag: string, resource
 }
 
 /**
- * (### This is custom markdown and conflicts with Obsidian custom markdown,
- * using double brackets. It should be modified—perhaps replacing the double
- * brackets with double braces?)
- *
  * Span markdown supports the addition of `class` and `id` attributes. Classes
  * and IDs must be entered into the markdown as the first words, classes
  * prefixed with `.`, and ID prefixed with `#`. When multiple IDs are entered,
  * all but the first one is ignored.
  *
- * E.g.: `[[.my-class #my-id and my text]]`
+ * E.g.: `{{.my-class #my-id and my text}}`
  */
 function markupSpan(segment: string, pattern: RegExp, tag: string) {
 	/**

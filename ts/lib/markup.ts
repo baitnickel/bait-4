@@ -11,13 +11,8 @@ import { Resource } from './resource.js';
  * Matter of the document resolves the reference. The current
  * [content][reference] and ![content][reference] URL and Image syntaxes are
  * standard markdown and probably can coexist with new brace syntax. Braces may
- * also be used as a replacement for the current Span syntax--perhaps: {{.foo
- * #bar content text}}.
- *
- * Constants in class `MarkdownElement` and function `markup` should be moved
- * into the global space at the top of this module, where they only need to be
- * executed once, on import. There may be opportunities to consolidate some of
- * the regex definitions too.
+ * also be used as a replacement for the current Span syntax: {{.foo #bar
+ * content text}}.
  */
 
 /*
@@ -45,7 +40,7 @@ console.log(`markup: ${MARKUP.version}`);
 
 /* block patterns */
 const CODE_BLOCK_PATTERN = /^(~~~|```)$/;
-const QUOTE_BLOCK_PATTERN = /^>\s*/; //### does not enforce space between '>' and text
+const QUOTE_BLOCK_PATTERN = /^>\s*/; // note: does not enforce space between '>' and text
 const QUOTATION_PATTERN = /^"(.+)"\s*~\s*(.+)$/; // e.g., "I think therefore I am" ~ Descartes
 const LIST_BLOCK_PATTERN = /^([-+*]|\d{1,}\.)\s+\S+/;
 const LIST_BLOCK_LEAD_PATTERN = /^([-+*]|\d{1,}\.)\s+/;
@@ -78,23 +73,22 @@ let IN_DETAILS_BLOCK = false; /* for now, this must be global */
 
 /**
  * This function is typically the starting point. Given a string containing
- * multiple lines of markdown text, it returns an array of HTML lines. It does
- * this by generating an array of `MarkdownElement` objects; each with a
- * `render` method that generates HTML. The `baseUrl` parameter is only required
- * if markdown contains resource objects with relative (query) definitions.
+ * multiple lines of markdown text, or an array of lines of markdown text, it
+ * returns an array of HTML lines. It does this by generating an array of
+ * `MarkdownElement` objects; each with a `render` method that generates HTML.
+ * The `baseUrl` parameter is only required if markdown contains resource
+ * objects with relative (query) definitions.
  *
  * The first pass at the beginning of this function collects all references and
  * stores them in a Map, where they can be looked up during the second pass to
  * resolve absolute URLs. References are referred to in hyperlink, image,
  * footnote, &c. markdown.
- *
- *
  */
-export function Markup(markdown: string, baseUrl: string = '') {
+export function Markup(markdown: string|string[], baseUrl: string = '') {
 	/* First Pass: Create a list of Resource objects from markdown references */
 	let resources = new Map<string, Resource>(); /* see: https://www.carlrippon.com/typescript-dictionary/ */
 	let htmlLines: string[] = [];
-	let markdownLines = markdown.split('\n');
+	let markdownLines = (typeof markdown == 'string') ? markdown.split('\n') : markdown;
 	let referencePattern = /^\[(\S+)\]:\s+(.*)/;
 	/* step through the array in reverse order, as we will remove items along the way */
 	for (let i = markdownLines.length - 1; i >= 0; i -= 1) {
@@ -153,7 +147,7 @@ export function MarkupLine(line: string, options: string) {
  * Typically called by the factory method, `getMarkdownElement`.
  *
  * `content`: always initialized to an empty array of strings?
- * `tags`: one of more HTML tags to be opened at the beginning and closed at the end
+ * `tags`: one or more HTML tags to be opened at the beginning and closed at the end
  * `typesetting`: should content lines be typeset?
  * `markingUp`: might content lines contain inline markdown?
  */
@@ -245,6 +239,7 @@ class MarkdownElement {
 				}
 			} else {
 				/*
+				 * This is a line following the element's first non-empty line.
 				 * If we have reached a line which represents the end of the
 				 * element's content, break out of the loop. Otherwise, add this
 				 * line to the content and continue.
@@ -347,30 +342,42 @@ class QuoteBlock extends MarkdownElement {
 }
 
 /**
- * Custom markup, interpreting a line such as:
- *
- * "I think therefore I am" ~ Descartes
- *
- * See the `markupReference` function for examples of getting the capture groups
- * (quote and attribution). ###
+ * Custom markup, source example: "I think therefore I am" ~ Descartes
  */
 class Quotation extends MarkdownElement {
 	constructor() {
-		super([], ['blockquote'], true, true);
-		this.endOfLine = '<br>';
+		super([], ['p', 'blockquote'], true, true); /* every quotation is its own paragraph */
 	}
-	addContent(content: string[]) {
-		super.addContent(content);
-		/* Remove the indentation indicator ('>') and add line breaks. */
-		let newContent: string[] = [];
-		for (let line of content) {
-			line = line.trim().replace(/^>\s*/, '');
-			newContent.push(line);
+	/* 
+	 * When rendering a `Quotation` line, we will use only the RegExp captured
+	 * results, creating one line for the quotation and one line for the
+	 * attribution.
+	 */
+	render() {
+		let htmlLines: string[] = [];
+		const matchResults = QUOTATION_PATTERN.exec(this.content[0]);
+		let lines: string[] = [];
+		let properQuotation = false;
+		if (matchResults === null || matchResults.length < 3) lines = this.content;
+		else {
+			properQuotation = true;
+			lines = matchResults.slice(1,3);
 		}
-		this.content = newContent;
-	}
-	terminalLine(line: string) {
-		return !(QUOTE_BLOCK_PATTERN.test(line));
+		for (let i in lines) {
+			lines[i] = encodeEntities(lines[i]);
+			if (this.typesetting) lines[i] = typeset(lines[i]);
+			if (this.markingUp) lines[i] = markup(lines[i]);
+		}
+		if (properQuotation) {
+			const quote = '\u201c';
+			const endQuote = '\u201d';
+			const indentation = '&numsp;&numsp;';
+			const quotation = `${this.prefix}${quote}${lines[0]}${endQuote}<br>`;
+			const attribution = `<small>${indentation}~ ${lines[1]}</small>${this.suffix}`;
+			htmlLines.push(`${quotation}${attribution}`);
+		}
+		else htmlLines = lines;
+		return htmlLines;
 	}
 }
 
@@ -538,6 +545,9 @@ class Paragraph extends MarkdownElement {
 		this.endOfLine = '<br>';
 	}
 	terminalLine(line: string) {
+		/*
+		 * A paragraph is terminated by an empty line or any of the block elements
+		 */
 		return (
 			line == ''
 			|| CODE_BLOCK_PATTERN.test(line)

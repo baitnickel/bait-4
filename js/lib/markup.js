@@ -95,7 +95,12 @@ export function Markup(markdown, baseUrl = '') {
             markdownLines.splice(i, 1); /** remove the markdown line so it won't be processed in pass two */
         }
     }
-    /* Second Pass: Create a list of MarkdownElement objects and render their HTML */
+    /*
+     * Second Pass: Create an array of MarkdownElement objects and render their
+     * HTML, returning a single HTML string representing the entire document.
+     * Each MarkdownElement object will contain one or more lines of markdown
+     * text "content".
+     */
     let elements = [];
     let index = 0;
     IN_DETAILS_BLOCK = false;
@@ -158,6 +163,7 @@ class MarkdownElement {
         this.content = content;
         this.length = content.length; /* content length on instantiation */
         this.addTerminalLine = false;
+        this.terminal = '';
         for (let tag of tags) {
             let openTag = `<${tag}>`;
             let closeTag = `</${tag}>`;
@@ -179,10 +185,10 @@ class MarkdownElement {
         let element = null;
         let content = [];
         let contentTerminated = false;
-        let foundNonBlankLine = false;
+        let seekingFirstLine = true;
         for (let i = index; i < lines.length; i += 1) {
             let line = lines[i];
-            if (!foundNonBlankLine) {
+            if (seekingFirstLine) {
                 if (line.trim() == '') {
                     /*
                      * Write leading empty lines to content. This is done so
@@ -193,7 +199,7 @@ class MarkdownElement {
                     content.push(line.trim());
                 }
                 else {
-                    foundNonBlankLine = true;
+                    seekingFirstLine = false;
                     /*
                      * The first non-empty line identifies the element type.
                      * These are all block elements as opposed to inline
@@ -260,10 +266,12 @@ class MarkdownElement {
             this.content.shift(); /* remove leading empty lines */
     }
     /**
-     * 'terminalLine' returns true if the given line of markdown text represents
-     * the end of the current block element, else false. Subclasses for
-     * single-line elements do not need to override this method, as the first
-     * (and last) line is always the terminal line.
+     * Called by the factory method `getMarkdownElement` during the creation of
+     * a `MarkdownElement` object to determine when a multi-line element is
+     * complete. 'terminalLine' returns true if the given line of markdown text
+     * represents the end of the current block element, else false. Subclasses
+     * for single-line elements do not need to override this method, as the
+     * first (and only) line is always the terminal line.
      */
     terminalLine(line) {
         return true;
@@ -309,6 +317,7 @@ class CodeBlock extends MarkdownElement {
     }
     terminalLine(line) {
         return CODE_BLOCK_PATTERN.test(line);
+        // return (line.trim() == this.content[0].trim());
     }
 }
 class QuoteBlock extends MarkdownElement {

@@ -21,7 +21,7 @@ import { Resource } from './resource.js';
  * Headings - line beginning with 1-6 hashes (#) followed by whitespace
  * Horizontal Rules - line consisting of '---' or '***' or '___'{3,}
  * Details Block - block following line starting with '#$ ', terminated by another Details line or EOF
- * Paragraphs - lines not matching any of above patterns until empty line
+ * Paragraphs - lines not matching a blank line or any of above block patterns
  *
  * Code - `content`
  * Italics - *content*
@@ -126,11 +126,11 @@ class SourceText {
         const referencePattern = /^\[(\S+)\]:\s+(.*)/;
         /* step through the array in reverse order, as we will remove items along the way */
         for (let i = this.lines.length - 1; i >= 0; i -= 1) {
-            let referenceMatch = this.lines[i].trim().match(referencePattern);
+            const referenceMatch = this.lines[i].trim().match(referencePattern);
             if (referenceMatch !== null) {
-                let name = referenceMatch[1].toLowerCase();
-                let parameters = referenceMatch[2];
-                let resource = new Resource(parameters);
+                const name = referenceMatch[1].toLowerCase();
+                const parameters = referenceMatch[2];
+                const resource = new Resource(parameters);
                 this.resources.set(name, resource); /* add resource to map */
                 this.lines.splice(i, 1); /* remove the markdown line so it won't be processed in subsequent passes */
             }
@@ -141,17 +141,13 @@ class SourceText {
      * representing the elements.
      */
     html() {
-        let htmlLines = [];
-        const elements = [];
+        const htmlLines = [];
         while (true) {
             const element = this.getNextElement();
             if (element === null)
                 break;
-            elements.push(element);
-            // this.index += element.length;
-        }
-        for (let element of elements) {
-            htmlLines = htmlLines.concat(element.render());
+            for (const htmlLine of element.render())
+                htmlLines.push(htmlLine);
         }
         return htmlLines.join('\n');
     }
@@ -168,32 +164,14 @@ class SourceText {
         let contentTerminated = false;
         let seekingFirstLine = true;
         while (this.index < this.lines.length) {
-            // for (let i = this.index; i < this.lines.length; i += 1) {
-            // let line = this.lines[i];
             let line = this.lines[this.index];
             if (seekingFirstLine) {
-                // if (line.trim() == '') {
-                // 	/*
-                // 	 * Write leading empty lines to content. This is done so
-                // 	 * that the caller can properly advance the lines index
-                // 	 * based on the length of (number of markdown lines
-                // 	 * comprising) the element's content.
-                // 	 */
-                // 	content.push(line.trim());
-                // } else {
                 if (line.trim()) { /* ignore leading blank lines */
                     seekingFirstLine = false;
-                    /*
-                     * The first non-empty line identifies the element type.
-                     * These are all block elements as opposed to inline
-                     * elements. Heading and Horizontal Rule elements are
-                     * somewhat special cases, in this respect, as they are
-                     * blocks that always begin and end on the same line, ending
-                     * implicitly.
-                     */
+                    /* The first non-empty line identifies the block element type. */
                     let trimmedLine = line.trim();
                     if (CODE_BLOCK_PATTERN.test(trimmedLine))
-                        element = new CodeBlock();
+                        element = new CodeBlock(trimmedLine);
                     else if (QUOTE_BLOCK_PATTERN.test(trimmedLine))
                         element = new QuoteBlock();
                     else if (QUOTATION_PATTERN.test(trimmedLine))
@@ -218,9 +196,11 @@ class SourceText {
                  * element's content, break out of the loop. Otherwise, add this
                  * line to the content and continue.
                  */
-                if (element !== null && element.terminalLine(line.trim())) {
-                    if (element.addTerminalLine)
+                if (element !== null && element.isTerminalLine(line.trim())) {
+                    if (element.addTerminalLine) {
                         content.push(line);
+                        this.index += 1;
+                    }
                     contentTerminated = true;
                     break;
                 }
@@ -235,7 +215,8 @@ class SourceText {
             element.addContent(content);
             element.resources = this.resources;
         }
-        // ### if we have reached the end of the lines,
+        // ### if we have reached the end of the lines
+        // (where this.index >= this.lines.length),
         // we must ensure that the element is properly terminated.
         // this is particularly important for Detail blocks,
         // code blocks, and paragraph blocks,
@@ -258,7 +239,6 @@ class MarkdownElement {
         this.markingUp = markingUp;
         this.resources = null;
         this.content = content;
-        this.length = content.length; /* content length on instantiation */
         this.addTerminalLine = false;
         this.terminal = '';
         for (let tag of tags) {
@@ -271,23 +251,22 @@ class MarkdownElement {
     /**
      * Called by `SourceText.getNextElement` during the creation of a
      * `MarkdownElement` object to determine when a multi-line element is
-     * complete. 'terminalLine' returns true if the given line of markdown text
-     * represents the end of the current block element, else false. Subclasses
-     * for single-line elements do not need to override this method, as the
-     * first (and only) line is always the terminal line.
+     * complete. 'isTerminalLine' returns true if the given line of markdown
+     * text represents the end of the current block element, else false.
+     * Subclasses for single-line elements do not need to override this method,
+     * as the first (and only) line is always the terminal line.
      */
-    terminalLine(line) {
+    isTerminalLine(line) {
         return true;
     }
     /**
      * 'addContent' is called after the object is instantiated to set its
-     * 'content' and 'length' properties (subclasses may set additional
-     * properties). Leading empty lines are removed. This is the first step in
-     * converting the raw markdown text to HTML.
+     * 'content' property (subclasses may set additional properties and may
+     * alter the raw content). Leading empty lines (if any) are removed. This is
+     * the first step in converting the raw markdown text to HTML.
      */
     addContent(content) {
         this.content = content;
-        this.length = content.length; /** length includes leading empty lines */
         while (this.content[0].trim() == '')
             this.content.shift(); /* remove leading empty lines */
     }
@@ -318,15 +297,16 @@ class MarkdownElement {
     }
 }
 //### need to test un-delimited code block at end of source file
-//### need to ensure that starting pattern matches ending pattern
 class CodeBlock extends MarkdownElement {
-    constructor() {
+    constructor(line) {
         super([], ['pre', 'code'], false, false);
         this.addTerminalLine = true;
+        let matchResults = CODE_BLOCK_PATTERN.exec(line);
+        if (matchResults !== null)
+            this.terminal = matchResults[1];
     }
-    terminalLine(line) {
-        return CODE_BLOCK_PATTERN.test(line);
-        // return (line.trim() == this.content[0].trim());
+    isTerminalLine(line) {
+        return line.trim() == this.terminal.trim();
     }
     addContent(content) {
         super.addContent(content);
@@ -340,7 +320,7 @@ class QuoteBlock extends MarkdownElement {
         super([], ['blockquote'], true, true);
         this.endOfLine = '<br>';
     }
-    terminalLine(line) {
+    isTerminalLine(line) {
         return !(QUOTE_BLOCK_PATTERN.test(line));
     }
     addContent(content) {
@@ -407,7 +387,7 @@ class ListBlock extends MarkdownElement {
     constructor() {
         super([], ['li'], true, true);
     }
-    terminalLine(line) {
+    isTerminalLine(line) {
         return !(LIST_BLOCK_PATTERN.test(line));
     }
     render() {
@@ -556,7 +536,7 @@ class Paragraph extends MarkdownElement {
         super([], ['p'], true, true);
         this.endOfLine = '<br>';
     }
-    terminalLine(line) {
+    isTerminalLine(line) {
         /*
          * A paragraph is terminated by an empty line or any of the block elements
          */
@@ -660,8 +640,6 @@ function markupReference(segment, pattern, tag, resources) {
  * E.g.: `{{.my-class #my-id and my text}}`
  */
 function markupSpan(segment, pattern, tag) {
-    /**
-     */
     while (pattern.test(segment)) {
         let captureGroups = segment.match(pattern);
         let contents = [];
@@ -696,129 +674,3 @@ function markupSpan(segment, pattern, tag) {
     }
     return segment;
 }
-// /**
-//  * This is the original markup function, before the introduction of the
-//  * SourceText class.
-//  *
-//  * This function is typically the starting point. Given a string containing
-//  * multiple lines of markdown text, or an array of lines of markdown text, it
-//  * returns an array of HTML lines. It does this by generating an array of
-//  * `MarkdownElement` objects; each with a `render` method that generates HTML.
-//  * The `baseUrl` parameter is only required if markdown contains resource
-//  * objects with relative (query) definitions.
-//  *
-//  * The first pass at the beginning of this function collects all references and
-//  * stores them in a Map, where they can be looked up during the second pass to
-//  * resolve absolute URLs. References are referred to in hyperlink, image,
-//  * footnote, &c. markdown.
-//  */
-// function Markup1(markdown: string|string[], baseUrl: string = '') {
-// 	/* First Pass: Create a list of Resource objects from markdown references */
-// 	let resources = new Map<string, Resource>(); /* see: https://www.carlrippon.com/typescript-dictionary/ */
-// 	let htmlLines: string[] = [];
-// 	let markdownLines = (typeof markdown == 'string') ? markdown.split('\n') : markdown;
-// 	let referencePattern = /^\[(\S+)\]:\s+(.*)/;
-// 	/* step through the array in reverse order, as we will remove items along the way */
-// 	for (let i = markdownLines.length - 1; i >= 0; i -= 1) {
-// 		let referenceMatch = markdownLines[i].trim().match(referencePattern);
-// 		if (referenceMatch !== null) {
-// 			let name = referenceMatch[1].toLowerCase();
-// 			let parameters = referenceMatch[2];
-// 			let resource = new Resource(parameters);
-// 			resources.set(name, resource); /** add resource to map */
-// 			markdownLines.splice(i, 1); /** remove the markdown line so it won't be processed in pass two */
-// 		}
-// 	}
-// 	/*
-// 	 * Second Pass: Create an array of MarkdownElement objects and render their
-// 	 * HTML, returning a single HTML string representing the entire document.
-// 	 * Each MarkdownElement object will contain one or more lines of markdown
-// 	 * text "content".
-// 	 */
-// 	let elements: MarkdownElement[] = [];
-// 	let index = 0;
-// 	IN_DETAILS_BLOCK = false;
-// 	while (true) {
-// 		let element = MarkdownElement.getMarkdownElement(markdownLines, index, resources);
-// 		if (element === null) break;
-// 		elements.push(element);
-// 		index += element.length;
-// 	}
-// 	for (let element of elements) {
-// 		htmlLines = htmlLines.concat(element.render());
-// 	}
-// 	if (IN_DETAILS_BLOCK) htmlLines.push('</details>');
-// 	return htmlLines.join('\n');
-// }
-// /**
-//  * A Factory method. Parse through lines of markdown text, beginning at
-//  * the line indicated by index (starting at line 0), and ending when the
-//  * first element encountered is complete. Instantiate and return a
-//  * MarkdownElement object. The index may be reset for a subsequent call
-//  * by adding MarkdownElement.length to the previous index (which is what
-//  * the calling function, `Markup`, does).
-//  *
-//  * Returns the MarkdownElement object, or null.
-//  */
-// static getMarkdownElement(
-// 	lines: string[],
-// 	index: number,
-// 	resources: Map<string, Resource>,
-// ): MarkdownElement|null {
-// 	let element: MarkdownElement|null = null;
-// 	let content: string[] = [];
-// 	let contentTerminated = false;
-// 	let seekingFirstLine = true;
-// 	for (let i = index; i < lines.length; i += 1) {
-// 		let line = lines[i];
-// 		if (seekingFirstLine) {
-// 			if (line.trim() == '') {
-// 				/*
-// 				 * Write leading empty lines to content. This is done so
-// 				 * that the caller can properly advance the lines index
-// 				 * based on the length of (number of markdown lines
-// 				 * comprising) the element's content.
-// 				 */
-// 				content.push(line.trim());
-// 			} else {
-// 				seekingFirstLine = false;
-// 				/*
-// 				 * The first non-empty line identifies the element type.
-// 				 * These are all block elements as opposed to inline
-// 				 * elements. Heading and Horizontal Rule elements are
-// 				 * somewhat special cases, in this respect, as they are
-// 				 * blocks that always begin and end on the same line, ending
-// 				 * implicitly.
-// 				 */
-// 				let trimmedLine = line.trim();
-// 				if (CODE_BLOCK_PATTERN.test(trimmedLine)) element = new CodeBlock();
-// 				else if (QUOTE_BLOCK_PATTERN.test(trimmedLine)) element = new QuoteBlock();
-// 				else if (QUOTATION_PATTERN.test(trimmedLine)) element = new Quotation();
-// 				else if (LIST_BLOCK_PATTERN.test(trimmedLine)) element = new ListBlock();
-// 				else if (HEADING_PATTERN.test(trimmedLine)) element = new Heading();
-// 				else if (HORIZONTAL_RULE_PATTERN.test(trimmedLine)) element = new HorizontalRule();
-// 				else if (DETAILS_PATTERN.test(trimmedLine)) element = new Details();
-// 				else element = new Paragraph();
-// 				content.push(line);
-// 			}
-// 		} else {
-// 			/*
-// 			 * This is a line following the element's first non-empty line.
-// 			 * If we have reached a line which represents the end of the
-// 			 * element's content, break out of the loop. Otherwise, add this
-// 			 * line to the content and continue.
-// 			 */
-// 			if (element !== null && element.terminalLine(line.trim())) {
-// 				if (element.addTerminalLine) content.push(line);
-// 				contentTerminated = true;
-// 				break;
-// 			} else content.push(line);
-// 		}
-// 	}
-// 	if (element !== null) {
-// 		if (!contentTerminated && element.addTerminalLine) content.push('');
-// 		element.addContent(content);
-// 		element.resources = resources;
-// 	}
-// 	return element;
-// }

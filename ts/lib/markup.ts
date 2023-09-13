@@ -56,16 +56,17 @@ const QUOTATION_PATTERN = /^"(.+)"\s*~\s*(.+)$/; // e.g., "I think therefore I a
 const LIST_BLOCK_PATTERN = /^([-+*]|\d{1,}\.)\s+\S+/;
 const LIST_BLOCK_LEAD_PATTERN = /^([-+*]|\d{1,}\.)\s+/;
 const HEADING_PATTERN = /^#{1,6}\s+\S+/;
-const HORIZONTAL_RULE_PATTERN = /^[-_*]{3,}\s*$/;
+// <hr> is 3 or more hyphens, underscores, or asterisks, each followed by 0 or more spaces or tabs
+const HORIZONTAL_RULE_PATTERN = /^((-+[ \t]{0,}){3,}|(_+[ \t]{0,}){3,}|(\*+[ \t]{0,}){3,})$/;
 const DETAILS_PATTERN = /^#\$\s*/;
-/* inline patterns--text will be split on this pattern (there will only be 1 per segment) */
+/* inline patterns--text will be split on this pattern (there will only be one per segment) */
 const CODE_PATTERN = /(`.+?`)/;
 const CODE_SEGMENT_PATTERN = /^`.+`$/;
 /* inline patterns--replacements are simple segment.replace operations */
 const ITALIC_PATTERN = /\*(.+?)\*/g;
 const BOLD_PATTERN = /\*{2}(.+?)\*{2}/g;
 const STRIKETHROUGH_PATTERN = /~{2}(.+?)~{2}/g;
-const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g; /** ###  was: /!\[(.*)]\((.*?)\)/ */
+const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g;
 const LINK_PATTERN = /\[(.*?)]\((.*?)\)/g;
 /* inline patterns--replacements are complex and will be performed in a while loop */
 const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
@@ -175,29 +176,26 @@ class SourceText {
 		while (this.index < this.lines.length) {
 			let line = this.lines[this.index];
 			if (seekingFirstLine) {
-				if (line.trim()) {  /* ignore leading blank lines */ 
+				if (line.trim()) { /* ignore leading blank lines */ 
 					seekingFirstLine = false;
-					/* The first non-empty line identifies the block element type. */
+					/* The first non-blank line identifies the block element type. */
 					let trimmedLine = line.trim();
 					if (CODE_BLOCK_PATTERN.test(trimmedLine)) element = new CodeBlock(trimmedLine);
 					else if (QUOTE_BLOCK_PATTERN.test(trimmedLine)) element = new QuoteBlock();
 					else if (QUOTATION_PATTERN.test(trimmedLine)) element = new Quotation();
+					else if (HORIZONTAL_RULE_PATTERN.test(trimmedLine)) element = new HorizontalRule();
+					/* List block test cannot come before Horizontal Rule test */
 					else if (LIST_BLOCK_PATTERN.test(trimmedLine)) element = new ListBlock();
 					else if (HEADING_PATTERN.test(trimmedLine)) element = new Heading();
-					else if (HORIZONTAL_RULE_PATTERN.test(trimmedLine)) element = new HorizontalRule();
 					else if (DETAILS_PATTERN.test(trimmedLine)) element = new Details();
 					else element = new Paragraph();
 					content.push(line);
 				}
 			}
 			else {
-				/*
-				 * This is a line following the element's first non-empty line.
-				 * If we have reached a line which represents the end of the
-				 * element's content, break out of the loop. Otherwise, add this
-				 * line to the content and continue.
-				 */
-				if (element !== null && element.isTerminalLine(line.trim())) {
+				/* Process lines following the element's first non-blank line. */
+				if (element !== null && element.isTerminalLine(line)) {
+					/* This line terminates the block */
 					if (element.addTerminalLine) {
 						content.push(line);
 						this.index += 1;
@@ -209,23 +207,22 @@ class SourceText {
 			this.index += 1;
 		}
 		if (element !== null) {
-			if (!contentTerminated && element.addTerminalLine) content.push('');
+			/*
+			 * Ensure that the element is terminated, even in cases where we've
+			 * reached the end of the SourceText lines without an explicit
+			 * terminal line.
+			 */
+			if (!contentTerminated && element.addTerminalLine) content.push(element.terminal);
+			/* Pass raw content (created locally here) and resources to the element object. */
 			element.addContent(content);
 			element.resources = this.resources;
 		}
-		// ### if we have reached the end of the lines
-		// (where this.index >= this.lines.length),
-		// we must ensure that the element is properly terminated.
-		// this is particularly important for Detail blocks,
-		// code blocks, and paragraph blocks,
-		// but it applies in general.
-
 		return element;
 	}
 }
 
 /**
- * `content`: always initialized to an empty array of strings?
+ * `content`: always initialized to an empty array of strings
  * `tags`: one or more HTML tags to be opened at the beginning and closed at the end
  * `typesetting`: should content lines be typeset?
  * `markingUp`: might content lines contain inline markdown?
@@ -241,12 +238,7 @@ class MarkdownElement {
 	terminal: string; /* for multi-line block elements, the terminal string (e.g., '~~~') */
 	resources: Map<string, Resource>|null;
 
-	constructor(
-		content: string[],
-		tags: string[],
-		typesetting: boolean,
-		markingUp: boolean,
-	) {
+	constructor(content: string[], tags: string[], typesetting: boolean, markingUp: boolean) {
 		this.prefix = '';
 		this.suffix = '';
 		this.endOfLine = '';
@@ -310,7 +302,6 @@ class MarkdownElement {
 	}
 }
 
-//### need to test un-delimited code block at end of source file
 class CodeBlock extends MarkdownElement {
 	constructor(line: string) {
 		super([], ['pre', 'code'], false, false);
@@ -335,7 +326,7 @@ class QuoteBlock extends MarkdownElement {
 		this.endOfLine = '<br>';
 	}
 	isTerminalLine(line: string) {
-		return !(QUOTE_BLOCK_PATTERN.test(line));
+		return !(QUOTE_BLOCK_PATTERN.test(line.trim()));
 	}
 	addContent(content: string[]) {
 		super.addContent(content);
@@ -400,7 +391,7 @@ class ListBlock extends MarkdownElement {
 		super([], ['li'], true, true);
 	}
 	isTerminalLine(line: string) {
-		return !(LIST_BLOCK_PATTERN.test(line));
+		return !(LIST_BLOCK_PATTERN.test(line.trim()));
 	}
 	render() {
 		let items: ListItem[] = [];
@@ -554,6 +545,7 @@ class Paragraph extends MarkdownElement {
 		/*
 		 * A paragraph is terminated by an empty line or any of the block elements
 		 */
+		line = line.trim();
 		return (
 			line == ''
 			|| CODE_BLOCK_PATTERN.test(line)

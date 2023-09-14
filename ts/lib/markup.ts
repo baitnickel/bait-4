@@ -31,7 +31,7 @@ import { Resource } from './resource.js';
  * Strikethrough - ~~content~~
  * URL - [content](url) or [content][reference]
  * Image - ![content](url) or ![content][reference]
- * Span - {{content}}
+ * Span - {{.class content}}
  */
 
 const MARKUP = {
@@ -89,8 +89,8 @@ export function Markup(markdown: string|string[]) {
 }
 
 /**
- * Mark up a single line of text. We call the internal `markup` function, the
- * same function that is called by MarkdownElement.render().
+ * Mark up a single line of text. We call the internal `markupText` function,
+ * the same function that is called by MarkdownElement.render().
  *
  * Options: `M`: markup - convert Markdown text to HTML; `E`: escape special
  * characters using HTML Entities; `T`: typeset characters using proper quotes,
@@ -104,7 +104,7 @@ export function MarkupLine(line: string, options: string) {
 		if (options.includes('F')) line = typeset(line, true);
 		else line = typeset(line, false);
 	}
-	if (options.includes('M')) line = markup(line);
+	if (options.includes('M')) line = markupText(line);
 	return line;
 }
 
@@ -222,7 +222,6 @@ class SourceText {
 }
 
 /**
- * `content`: always initialized to an empty array of strings
  * `tags`: one or more HTML tags to be opened at the beginning and closed at the end
  * `typesetting`: should content lines be typeset?
  * `markingUp`: might content lines contain inline markdown?
@@ -238,7 +237,7 @@ class MarkdownElement {
 	terminal: string; /* for multi-line block elements, the terminal string (e.g., '~~~') */
 	resources: Map<string, Resource>|null;
 
-	constructor(content: string[], tags: string[], typesetting: boolean, markingUp: boolean) {
+	constructor(tags: string[], typesetting: boolean, markingUp: boolean) {
 		this.prefix = '';
 		this.suffix = '';
 		this.endOfLine = '';
@@ -246,7 +245,7 @@ class MarkdownElement {
 		this.typesetting = typesetting;
 		this.markingUp = markingUp;
 		this.resources = null;
-		this.content = content;
+		this.content = [];
 		this.addTerminalLine = false;
 		this.terminal = '';
 		for (let tag of tags) {
@@ -292,7 +291,7 @@ class MarkdownElement {
 			let line = this.content[i];
 			line = encodeEntities(line);
 			if (this.typesetting) line = typeset(line);
-			if (this.markingUp) line = markup(line, this.resources);
+			if (this.markingUp) line = markupText(line, this.resources);
 			if (+i == 0) line = this.prefix + line;
 			if (+i < this.content.length - 1) line += this.endOfLine;
 			else line += this.suffix;
@@ -304,7 +303,7 @@ class MarkdownElement {
 
 class CodeBlock extends MarkdownElement {
 	constructor(line: string) {
-		super([], ['pre', 'code'], false, false);
+		super(['pre', 'code'], false, false);
 		this.addTerminalLine = true;
 		let matchResults = CODE_BLOCK_PATTERN.exec(line);
 		if (matchResults !== null) this.terminal = matchResults[1];
@@ -322,7 +321,7 @@ class CodeBlock extends MarkdownElement {
 
 class QuoteBlock extends MarkdownElement {
 	constructor() {
-		super([], ['blockquote'], true, true);
+		super(['blockquote'], true, true);
 		this.endOfLine = '<br>';
 	}
 	isTerminalLine(line: string) {
@@ -341,11 +340,11 @@ class QuoteBlock extends MarkdownElement {
 }
 
 /**
- * Custom markup, source example: "I think therefore I am" ~ Descartes
+ * Custom markdown, source example: "I think therefore I am" ~ Descartes
  */
 class Quotation extends MarkdownElement {
 	constructor() {
-		super([], ['p', 'blockquote'], true, true); /* every quotation is its own paragraph */
+		super(['p', 'blockquote'], true, true); /* every quotation is its own paragraph */
 	}
 	/* 
 	 * When rendering a `Quotation` line, we will use only the RegExp captured
@@ -365,7 +364,7 @@ class Quotation extends MarkdownElement {
 		for (let i in lines) {
 			lines[i] = encodeEntities(lines[i]);
 			if (this.typesetting) lines[i] = typeset(lines[i]);
-			if (this.markingUp) lines[i] = markup(lines[i]);
+			if (this.markingUp) lines[i] = markupText(lines[i]);
 		}
 		if (properQuotation) {
 			const quote = '\u201c';
@@ -388,7 +387,7 @@ class Quotation extends MarkdownElement {
  */
 class ListBlock extends MarkdownElement {
 	constructor() {
-		super([], ['li'], true, true);
+		super(['li'], true, true);
 	}
 	isTerminalLine(line: string) {
 		return !(LIST_BLOCK_PATTERN.test(line.trim()));
@@ -408,7 +407,7 @@ class ListBlock extends MarkdownElement {
 			if (value) {
 				if (level > previousLevel + 1) level = previousLevel + 1; /* limit indentation */
 				value = encodeEntities(value);
-				if (this.markingUp) value = markup(value, this.resources);
+				if (this.markingUp) value = markupText(value, this.resources);
 				if (this.typesetting) value = typeset(value);
 				let item = new ListItem(level, itemType, value);
 				items.push(item);
@@ -483,7 +482,7 @@ class ListSubBlock {
 
 class Heading extends MarkdownElement {
 	constructor() {
-		super([], ['h#'], true, true);
+		super(['h#'], true, true);
 	}
 	addContent(content: string[]) {
 		super.addContent(content);
@@ -501,7 +500,7 @@ class Heading extends MarkdownElement {
 
 class HorizontalRule extends MarkdownElement {
 	constructor() {
-		super([], ['hr'], false, false);
+		super(['hr'], false, false);
 	}
 	render() {
 		return [this.prefix];
@@ -510,7 +509,7 @@ class HorizontalRule extends MarkdownElement {
 
 class Details extends MarkdownElement {
 	constructor() {
-		super([], ['details'], true, true);
+		super(['details'], true, true);
 	}
 	addContent(content: string[]) {
 		super.addContent(content);
@@ -527,7 +526,7 @@ class Details extends MarkdownElement {
 			let summary = this.content[0];
 			summary = encodeEntities(summary);
 			if (this.typesetting) summary = typeset(summary);
-			if (this.markingUp) summary = markup(summary);
+			if (this.markingUp) summary = markupText(summary);
 			htmlLines.push(`${this.prefix}<summary>${summary}</summary>`);
 			IN_DETAILS_BLOCK = true;
 		}
@@ -538,7 +537,7 @@ class Details extends MarkdownElement {
 
 class Paragraph extends MarkdownElement {
 	constructor() {
-		super([], ['p'], true, true);
+		super(['p'], true, true);
 		this.endOfLine = '<br>';
 	}
 	isTerminalLine(line: string) {
@@ -598,7 +597,7 @@ function typeset(text: string, fixedWidth = false) {
  * Given a markdown text string and an optional Map of Resources (resolved in a
  * prior inspection of the whole document), return HTML markup.
  */
-function markup(text: string, resources: Map<string, Resource>|null = null) {
+function markupText(text: string, resources: Map<string, Resource>|null = null) {
 	/*
 	 * Split text into segments, made up of `code` segments and non-`code`
 	 * segments. Inline markup is applied to only non-`code` segments.

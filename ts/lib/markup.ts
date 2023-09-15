@@ -73,7 +73,8 @@ const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
 const LINK_REFERENCE_PATTERN = /\[(.*?)\]\[(\S*?)\]/;
 const SPAN_PATTERN = /\{\{(.*?)\}\}/;
 
-let IN_DETAILS_BLOCK = false; /* for now, this must be global */
+// let IN_DETAILS_BLOCK = false; /* for now, this must be global */
+
 
 /**
  * This function is typically the starting point. Given markdown text (in either
@@ -84,13 +85,16 @@ let IN_DETAILS_BLOCK = false; /* for now, this must be global */
  * contains resource objects with relative (query) definitions.
  */
 export function Markup(markdown: string|string[]) {
-	const sourceText = new SourceText(markdown);
-	return sourceText.html();
+	MARKDOWN.loadLines(markdown);
+	// const sourceText = new SourceText(markdown);
+	return MARKDOWN.html();
 }
 
 /**
- * Mark up a single line of text. We call the internal `markupText` function,
- * the same function that is called by MarkdownElement.render().
+ * Mark up a single line of text, handling inline elements only. We call the
+ * internal `markupText` function, the same function that is called by
+ * MarkdownElement.render(). We are assuming that there are no block
+ * elements--they won't be interpreted.
  *
  * Options: `M`: markup - convert Markdown text to HTML; `E`: escape special
  * characters using HTML Entities; `T`: typeset characters using proper quotes,
@@ -118,13 +122,26 @@ class SourceText {
 	lines: string[];
 	index: number;
 	resources: Map<string, Resource>|null;
+	inDetails: boolean; /* special control for custom `Details` block processing */
+	pendingDetailsTerminal: string; /* Details Block terminal HTML line */
 
-	constructor(markdown: string|string[]) {
-		this.lines = (typeof markdown == 'string') ? markdown.split('\n') : markdown;
+	constructor() {
+		this.lines = [];
 		this.index = 0;
 		this.resources = null;
+		this.inDetails = false;
+		this.pendingDetailsTerminal = '';
 		/* extract Resource references from the markdown text and update the `resources` property */
 		this.getResources();
+	}
+
+	loadLines(lines: string|string[]) {
+		this.lines = (typeof lines == 'string') ? lines.split('\n') : lines;
+	}
+
+	processingDetails(inDetails: boolean) {
+		// this.pendingDetailsTerminal = pendingDetailsTerminal;
+		this.inDetails = inDetails;
 	}
 
 	/**
@@ -156,7 +173,10 @@ class SourceText {
 		while (true) {
 			const element = this.getNextElement();
 			if (element === null) break;
-			for (const htmlLine of element.render()) htmlLines.push(htmlLine);
+			for (const htmlLine of element.render()) {
+				console.log(htmlLine);
+				htmlLines.push(htmlLine);
+			}
 		}
 		return htmlLines.join('\n');
 	}
@@ -171,55 +191,85 @@ class SourceText {
 	getNextElement() {
 		let element: MarkdownElement|null = null;
 		let content: string[] = [];
-		let contentTerminated = false;
+		let contentIsComplete = false;
 		let seekingFirstLine = true;
 		while (this.index < this.lines.length) {
 			let line = this.lines[this.index];
 			if (seekingFirstLine) {
-				if (line.trim()) { /* ignore leading blank lines */ 
-					seekingFirstLine = false;
-					/* The first non-blank line identifies the block element type. */
+				if (!line.trim()) {
+					/* ignore leading blank lines */
+					this.index += 1;
+				}
+				else {
+					/* The first line identifies the block element type. */
 					let trimmedLine = line.trim();
 					if (CODE_BLOCK_PATTERN.test(trimmedLine)) element = new CodeBlock(trimmedLine);
 					else if (QUOTE_BLOCK_PATTERN.test(trimmedLine)) element = new QuoteBlock();
 					else if (QUOTATION_PATTERN.test(trimmedLine)) element = new Quotation();
+					/* A single line may pass both the Horizontal Rule test and
+					 * the List Block test. In this case, the first pattern
+					 * tested below takes precedence (change the order to change
+					 * the precedence).
+					 */
 					else if (HORIZONTAL_RULE_PATTERN.test(trimmedLine)) element = new HorizontalRule();
-					/* List block test cannot come before Horizontal Rule test */
 					else if (LIST_BLOCK_PATTERN.test(trimmedLine)) element = new ListBlock();
 					else if (HEADING_PATTERN.test(trimmedLine)) element = new Heading();
 					else if (DETAILS_PATTERN.test(trimmedLine)) element = new Details();
 					else element = new Paragraph();
+
 					content.push(line);
+					this.index += 1;
+					seekingFirstLine = false;
 				}
 			}
 			else {
-				/* Process lines following the element's first non-blank line. */
-				if (element !== null && element.isTerminalLine(line)) {
-					/* This line terminates the block */
-					if (element.addTerminalLine) {
+				/* After the first line (and the creation of the element
+				 * object), we add subsequent lines to the element's content.
+				 */
+				if (element!.isTerminalLine(line)) {
+					/* the element's content is complete; finish up and break out of the loop */
+					contentIsComplete = true;
+					if (element!.addTerminalLine) {
 						content.push(line);
 						this.index += 1;
 					}
-					contentTerminated = true;
 					break;
-				} else content.push(line);
+				}
+				else {
+					/* add this line to the content and continue looping for more lines */
+					content.push(line);
+					this.index += 1;
+				}
 			}
-			this.index += 1;
 		}
+
 		if (element !== null) {
-			/*
-			 * Ensure that the element is terminated, even in cases where we've
+			/* Ensure that the element is terminated, even in cases where we've
 			 * reached the end of the SourceText lines without an explicit
 			 * terminal line.
 			 */
-			if (!contentTerminated && element.addTerminalLine) content.push(element.terminal);
+			if (!contentIsComplete && element.addTerminalLine) content.push(element.terminal);
 			/* Pass raw content (created locally here) and resources to the element object. */
 			element.addContent(content);
 			element.resources = this.resources;
 		}
+		//### Dangling Details are still a problem.
+		//### We will ignore it for now since Safari seems to handle it,
+		//### but further work might solve this with a "block stack".
+		// else {
+		// 	/* We've processed the last element; process any pending actions */
+		// 	if (this.inDetails) ...
+		// }
 		return element;
 	}
 }
+
+/**
+ * This global object represents the source markdown text and all its
+ * properties.
+ */
+const MARKDOWN = new SourceText;
+
 
 /**
  * `tags`: one or more HTML tags to be opened at the beginning and closed at the end
@@ -507,9 +557,22 @@ class HorizontalRule extends MarkdownElement {
 	}
 }
 
+/**
+ * Much like the `Heading` element, the `Details` element consists of a single
+ * line--in this case, "#$", optionally followed by whitespace and a text
+ * `Summary`, e.g.: "#$ Sample Details". When rendered, it first checks to see
+ * if a previous `Details` block was encountered (i.e., we are `inDetails`) and,
+ * if so, we add the `</details>` HTML line to close it. Then we add the new
+ * `<details>` HTML line, and optional `<summary>`...`</summary>` HTML line.
+ *
+ * `SourceText.getNextElement()` will check to see if we are `inDetails` after
+ * processing the final markdown line, and if so, it will add the closing
+ * `</details>` line (`Details.terminal`).
+ */
 class Details extends MarkdownElement {
 	constructor() {
 		super(['details'], true, true);
+		this.terminal = this.suffix;
 	}
 	addContent(content: string[]) {
 		super.addContent(content);
@@ -521,16 +584,16 @@ class Details extends MarkdownElement {
 	}
 	render() {
 		let htmlLines: string[] = [];
-		if (IN_DETAILS_BLOCK) htmlLines.push(this.suffix); /** close previous Details section */
+		if (MARKDOWN.inDetails) htmlLines.push(this.suffix); /** close previous Details section */
 		if (this.content.length) {
 			let summary = this.content[0];
 			summary = encodeEntities(summary);
 			if (this.typesetting) summary = typeset(summary);
 			if (this.markingUp) summary = markupText(summary);
 			htmlLines.push(`${this.prefix}<summary>${summary}</summary>`);
-			IN_DETAILS_BLOCK = true;
+			MARKDOWN.processingDetails(true);
 		}
-		else IN_DETAILS_BLOCK = false;
+		else MARKDOWN.processingDetails(false);
 		return htmlLines;
 	}
 }

@@ -1,5 +1,18 @@
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+};
+var _TableBlock_instances, _TableBlock_fields;
 import { Resource } from './resource.js';
-/*###
+/*### to do:
+ *
+ * Add support for tables:
+ *   | Item | Description |
+ *   | --- |
+ *   | item 1 | item 1 description |
+ *   | item 2 | item 2 description |
+ *
  * Recognize embedded tags (#todo, #todo2, #todo-3, &c.). Does not apply to tags
  * listed in Front Matter--these are treated separately. Replace tag with space,
  * and condense space around it, trim start and/or end if tag appears at start
@@ -17,6 +30,7 @@ import { Resource } from './resource.js';
  * Code Blocks - delimited by '~~~' or '```', lines from delimiter thru delimiter
  * Quote Blocks - consecutive lines beginning with '> '
  * Quotation - a line consisting of a quoted string followed by a tilde and an attribution
+ * Table Blocks - consecutive lines beginning with '|' and ending with '|'
  * List Blocks - consecutive lines beginning with '- ' or '\d+\. '
  * Headings - line beginning with 1-6 hashes (#) followed by whitespace
  * Horizontal Rules - line consisting of '---' or '***' or '___'{3,}
@@ -32,7 +46,7 @@ import { Resource } from './resource.js';
  * Span - {{.class content}}
  */
 const MARKUP = {
-    version: '2023.09.16',
+    version: '2023.09.17',
 };
 console.log(`markup: ${MARKUP.version}`);
 /* HTML tags */
@@ -45,10 +59,15 @@ const LINK_TAG = 'a';
 const SPAN_TAG = 'span';
 const UNORDERED_ITEM_TYPE = 'ul';
 const ORDERED_ITEM_TYPE = 'ol';
+const TABLE_TAG = 'table';
+const TABLE_ROW_TAG = 'tr';
+const TABLE_HEADING_TAG = 'th';
+const TABLE_ITEM_TAG = 'td';
 /* block patterns */
 const CODE_BLOCK_PATTERN = /^(~~~|```)$/;
 const QUOTE_BLOCK_PATTERN = /^>\s*/; // note: does not enforce space between '>' and text
 const QUOTATION_PATTERN = /^"(.+)"\s*~\s*(.+)$/; // e.g., "I think therefore I am" ~ Descartes
+const TABLE_BLOCK_PATTERN = /^\|.*\|$/;
 const LIST_BLOCK_PATTERN = /^([-+*]|\d{1,}\.)\s+\S+/;
 const LIST_BLOCK_LEAD_PATTERN = /^([-+*]|\d{1,}\.)\s+/;
 const HEADING_PATTERN = /^#{1,6}\s+\S+/;
@@ -187,6 +206,8 @@ class SourceText {
                         element = new QuoteBlock();
                     else if (QUOTATION_PATTERN.test(trimmedLine))
                         element = new Quotation();
+                    else if (TABLE_BLOCK_PATTERN.test(trimmedLine))
+                        element = new TableBlock();
                     /* A Horizontal Rule entry can be misinterpreted as a List Block entry.
                        Test for the prior before testing for the latter to avoid this. */
                     else if (HORIZONTAL_RULE_PATTERN.test(trimmedLine))
@@ -392,6 +413,80 @@ class Quotation extends MarkdownElement {
     }
 }
 /**
+ *
+ */
+class TableBlock extends MarkdownElement {
+    constructor() {
+        super([TABLE_TAG], true, true);
+        _TableBlock_instances.add(this);
+        this.columns = 0;
+        this.headingDivider = -1;
+    }
+    isTerminalLine(line) {
+        return !(TABLE_BLOCK_PATTERN.test(line.trim()));
+    }
+    addContent(content) {
+        super.addContent(content);
+        /*
+         * We do not alter the content here, but simply determine how many
+         * columns (fields) there are, based on the first line, and at which row
+         * (if any) the table headings are divided from the table items.
+         */
+        for (let i = 0; i < this.content.length; i += 1) {
+            let fields = __classPrivateFieldGet(this, _TableBlock_instances, "m", _TableBlock_fields).call(this, this.content[i]);
+            // let fields = line.split('|');
+            // fields.shift(); /* pattern always results in empty field 0 - discard it */
+            // fields.pop();   /* pattern always results in empty field N - discard it */
+            if (!this.columns)
+                this.columns = fields.length; /* first line determines number of fields/columns */
+            if (this.headingDivider < 0) {
+                let firstField = fields[0];
+                /* the heading divider is the first row where the first field contains only 3 or more hyphens */
+                if (/^-{3,}$/.test(firstField))
+                    this.headingDivider = i;
+            }
+            if (this.columns && this.headingDivider >= 0)
+                break;
+        }
+    }
+    render() {
+        let htmlLines = [];
+        htmlLines.push(this.prefix);
+        let tag = (this.headingDivider > 0) ? TABLE_HEADING_TAG : TABLE_ITEM_TAG;
+        for (let i = 0; i < this.content.length; i += 1) {
+            if (i == this.headingDivider)
+                tag = TABLE_ITEM_TAG;
+            else {
+                htmlLines.push(`<${TABLE_ROW_TAG}>`);
+                let fields = __classPrivateFieldGet(this, _TableBlock_instances, "m", _TableBlock_fields).call(this, this.content[i]);
+                /* loop over each field - ignore fields beyond column limit */
+                // let line = this.content[i].trim();
+                // let fields = line.split('|');
+                // fields.shift(); /* pattern always results in empty field 0 - discard it */
+                // fields.pop();   /* pattern always results in empty field N - discard it */
+                for (let j = 0; j < this.columns; j += 1) {
+                    let field = (j >= fields.length) ? '' : fields[j];
+                    htmlLines.push(`<${tag}>${field}</${tag}>`);
+                }
+                htmlLines.push(`</${TABLE_ROW_TAG}>`);
+            }
+        }
+        htmlLines.push(this.suffix);
+        return htmlLines;
+    }
+}
+_TableBlock_instances = new WeakSet(), _TableBlock_fields = function _TableBlock_fields(line) {
+    let fields = [];
+    line = line.trim();
+    fields = line.split('|');
+    fields.shift(); /* pattern always results in empty field 0 - discard it */
+    fields.pop(); /* pattern always results in empty field N - discard it */
+    for (let i = 0; i < fields.length; i += 1) {
+        fields[i] = fields[i].trim();
+    }
+    return fields;
+};
+/**
  * A `ListBlock` is composed of `ListItems` (such as a bullet), and any `ListItem`
  * may contain a `ListSubBlock` (a `ListBlock` nested inside the `ListItem`). The
  * recursive property of `ListBlocks` is handled in the `ListSubBlock.render()`
@@ -573,6 +668,7 @@ class Paragraph extends MarkdownElement {
             || CODE_BLOCK_PATTERN.test(line)
             || QUOTE_BLOCK_PATTERN.test(line)
             || QUOTATION_PATTERN.test(line)
+            || TABLE_BLOCK_PATTERN.test(line)
             || LIST_BLOCK_PATTERN.test(line)
             || HEADING_PATTERN.test(line)
             || HORIZONTAL_RULE_PATTERN.test(line)

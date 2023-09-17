@@ -35,7 +35,7 @@ import { Resource } from './resource.js';
  */
 
 const MARKUP = {
-	version: '2023.09.11',
+	version: '2023.09.16',
 }
 console.log(`markup: ${MARKUP.version}`);
 
@@ -73,9 +73,6 @@ const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
 const LINK_REFERENCE_PATTERN = /\[(.*?)\]\[(\S*?)\]/;
 const SPAN_PATTERN = /\{\{(.*?)\}\}/;
 
-// let IN_DETAILS_BLOCK = false; /* for now, this must be global */
-
-
 /**
  * This function is typically the starting point. Given markdown text (in either
  * a single string which may or may not contain newline characters, or an array
@@ -86,7 +83,6 @@ const SPAN_PATTERN = /\{\{(.*?)\}\}/;
  */
 export function Markup(markdown: string|string[]) {
 	MARKDOWN.loadLines(markdown);
-	// const sourceText = new SourceText(markdown);
 	return MARKDOWN.html();
 }
 
@@ -122,26 +118,19 @@ class SourceText {
 	lines: string[];
 	index: number;
 	resources: Map<string, Resource>|null;
-	inDetails: boolean; /* special control for custom `Details` block processing */
-	pendingDetailsTerminal: string; /* Details Block terminal HTML line */
+	detailsObject: MarkdownElement|null; /* Details object pending closure (if any) */
 
 	constructor() {
 		this.lines = [];
 		this.index = 0;
 		this.resources = null;
-		this.inDetails = false;
-		this.pendingDetailsTerminal = '';
+		this.detailsObject = null;
 		/* extract Resource references from the markdown text and update the `resources` property */
 		this.getResources();
 	}
 
 	loadLines(lines: string|string[]) {
 		this.lines = (typeof lines == 'string') ? lines.split('\n') : lines;
-	}
-
-	processingDetails(inDetails: boolean) {
-		// this.pendingDetailsTerminal = pendingDetailsTerminal;
-		this.inDetails = inDetails;
 	}
 
 	/**
@@ -174,10 +163,11 @@ class SourceText {
 			const element = this.getNextElement();
 			if (element === null) break;
 			for (const htmlLine of element.render()) {
-				console.log(htmlLine);
 				htmlLines.push(htmlLine);
 			}
 		}
+		if (this.detailsObject) htmlLines.push(this.detailsObject.suffix);
+		// for (const htmlLine of htmlLines) console.log(htmlLine); /*### for testing only */
 		return htmlLines.join('\n');
 	}
 
@@ -194,23 +184,17 @@ class SourceText {
 		let contentIsComplete = false;
 		let seekingFirstLine = true;
 		while (this.index < this.lines.length) {
-			let line = this.lines[this.index];
+			const line = this.lines[this.index];
 			if (seekingFirstLine) {
-				if (!line.trim()) {
-					/* ignore leading blank lines */
-					this.index += 1;
-				}
+				const trimmedLine = line.trim();
+				if (!trimmedLine) this.index += 1; /* ignore leading blank lines */
 				else {
 					/* The first line identifies the block element type. */
-					let trimmedLine = line.trim();
 					if (CODE_BLOCK_PATTERN.test(trimmedLine)) element = new CodeBlock(trimmedLine);
 					else if (QUOTE_BLOCK_PATTERN.test(trimmedLine)) element = new QuoteBlock();
 					else if (QUOTATION_PATTERN.test(trimmedLine)) element = new Quotation();
-					/* A single line may pass both the Horizontal Rule test and
-					 * the List Block test. In this case, the first pattern
-					 * tested below takes precedence (change the order to change
-					 * the precedence).
-					 */
+					/* A Horizontal Rule entry can be misinterpreted as a List Block entry.
+					   Test for the prior before testing for the latter to avoid this. */
 					else if (HORIZONTAL_RULE_PATTERN.test(trimmedLine)) element = new HorizontalRule();
 					else if (LIST_BLOCK_PATTERN.test(trimmedLine)) element = new ListBlock();
 					else if (HEADING_PATTERN.test(trimmedLine)) element = new Heading();
@@ -223,44 +207,34 @@ class SourceText {
 				}
 			}
 			else {
-				/* After the first line (and the creation of the element
-				 * object), we add subsequent lines to the element's content.
-				 */
-				if (element!.isTerminalLine(line)) {
+				if (!(element!.isTerminalLine(line))) { /* not terminating element */
+					/* add line to the content and loop for more */
+					content.push(line);
+					this.index += 1;
+				}
+				else { /* this line terminates the element's content */
 					/* the element's content is complete; finish up and break out of the loop */
 					contentIsComplete = true;
 					if (element!.addTerminalLine) {
 						content.push(line);
 						this.index += 1;
 					}
-					break;
-				}
-				else {
-					/* add this line to the content and continue looping for more lines */
-					content.push(line);
-					this.index += 1;
+					break; /* stop looping */
 				}
 			}
 		}
 
-		if (element !== null) {
+		if (element) {
 			/* Ensure that the element is terminated, even in cases where we've
 			 * reached the end of the SourceText lines without an explicit
 			 * terminal line.
 			 */
 			if (!contentIsComplete && element.addTerminalLine) content.push(element.terminal);
-			/* Pass raw content (created locally here) and resources to the element object. */
+			/* Pass raw content and resources to the element object. */
 			element.addContent(content);
 			element.resources = this.resources;
 		}
-		//### Dangling Details are still a problem.
-		//### We will ignore it for now since Safari seems to handle it,
-		//### but further work might solve this with a "block stack".
-		// else {
-		// 	/* We've processed the last element; process any pending actions */
-		// 	if (this.inDetails) ...
-		// }
-		return element;
+		return element; /* will be null when all lines have been processed */
 	}
 }
 
@@ -269,7 +243,6 @@ class SourceText {
  * properties.
  */
 const MARKDOWN = new SourceText;
-
 
 /**
  * `tags`: one or more HTML tags to be opened at the beginning and closed at the end
@@ -559,15 +532,18 @@ class HorizontalRule extends MarkdownElement {
 
 /**
  * Much like the `Heading` element, the `Details` element consists of a single
- * line--in this case, "#$", optionally followed by whitespace and a text
- * `Summary`, e.g.: "#$ Sample Details". When rendered, it first checks to see
- * if a previous `Details` block was encountered (i.e., we are `inDetails`) and,
+ * line--in this case, "#$", followed by whitespace and a text `Summary`, e.g.:
+ * "#$ Sample Details". When rendered, it first checks to see if a previous
+ * `Details` block was encountered (i.e., if MARKDOWN.detailsObject is set) and,
  * if so, we add the `</details>` HTML line to close it. Then we add the new
- * `<details>` HTML line, and optional `<summary>`...`</summary>` HTML line.
+ * `<details>` HTML line, and `<summary>`...`</summary>` HTML line.
  *
- * `SourceText.getNextElement()` will check to see if we are `inDetails` after
+ * "#$" without summary text will close a prior Details block (or will be
+ * ignored if there is no prior Details block.)
+ *
+ * `SourceText.html()` will check to see if MARKDOWN.detailsObject is set after
  * processing the final markdown line, and if so, it will add the closing
- * `</details>` line (`Details.terminal`).
+ * `</details>` line.
  */
 class Details extends MarkdownElement {
 	constructor() {
@@ -584,16 +560,16 @@ class Details extends MarkdownElement {
 	}
 	render() {
 		let htmlLines: string[] = [];
-		if (MARKDOWN.inDetails) htmlLines.push(this.suffix); /** close previous Details section */
+		if (MARKDOWN.detailsObject) htmlLines.push(this.suffix); /** close previous Details section */
 		if (this.content.length) {
 			let summary = this.content[0];
 			summary = encodeEntities(summary);
 			if (this.typesetting) summary = typeset(summary);
 			if (this.markingUp) summary = markupText(summary);
 			htmlLines.push(`${this.prefix}<summary>${summary}</summary>`);
-			MARKDOWN.processingDetails(true);
+			MARKDOWN.detailsObject = this;
 		}
-		else MARKDOWN.processingDetails(false);
+		else MARKDOWN.detailsObject = null;
 		return htmlLines;
 	}
 }
@@ -604,9 +580,7 @@ class Paragraph extends MarkdownElement {
 		this.endOfLine = '<br>';
 	}
 	isTerminalLine(line: string) {
-		/*
-		 * A paragraph is terminated by an empty line or any of the block elements
-		 */
+		/* A paragraph is terminated by an empty line or any of the block elements */
 		line = line.trim();
 		return (
 			line == ''
@@ -623,7 +597,7 @@ class Paragraph extends MarkdownElement {
 
 /**
  * Replace special characters `&`, `<`, and `>`, characters that may conflict
- * with HTML rendering, with corresponding `&xx;` HTML entities.
+ * with HTML rendering, with corresponding HTML entities.
  */
 function encodeEntities(text: string) {
 	let encodedText = text;

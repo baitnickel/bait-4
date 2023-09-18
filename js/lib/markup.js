@@ -1,10 +1,6 @@
 import { Resource } from './resource.js';
 /*### to do:
  *
- * Is the `adjustContent` method really necessary? Can we simply build
- * `SourceText.content` directly in `SourceText.getNextElement`, and handle any
- * special operations in `render`?
- *
  * Recognize embedded tags (#todo, #todo2, #todo-3, &c.). Does not apply to tags
  * listed in Front Matter--these are treated separately. Replace tag with space,
  * and condense space around it, trim start and/or end if tag appears at start
@@ -190,7 +186,7 @@ class SourceText {
      */
     getNextElement() {
         let element = null;
-        let content = [];
+        // let content: string[] = [];
         let contentIsComplete = false;
         let seekingFirstLine = true;
         while (this.index < this.lines.length) {
@@ -221,7 +217,7 @@ class SourceText {
                         element = new Details();
                     else
                         element = new Paragraph();
-                    content.push(line);
+                    element.content.push(line);
                     this.index += 1;
                     seekingFirstLine = false;
                 }
@@ -229,14 +225,14 @@ class SourceText {
             else {
                 if (!(element.isTerminalLine(line))) { /* not terminating element */
                     /* add line to the content and loop for more */
-                    content.push(line);
+                    element.content.push(line);
                     this.index += 1;
                 }
                 else { /* this line terminates the element's content */
                     /* the element's content is complete; finish up and break out of the loop */
                     contentIsComplete = true;
                     if (element.addTerminalLine) {
-                        content.push(line);
+                        element.content.push(line);
                         this.index += 1;
                     }
                     break; /* stop looping */
@@ -249,9 +245,9 @@ class SourceText {
              * terminal line.
              */
             if (!contentIsComplete && element.addTerminalLine)
-                content.push(element.terminal);
-            /* Pass raw content and resources to the element object. */
-            element.adjustContent(content);
+                element.content.push(element.terminal);
+            /* Adjust the content and pass resources to the element object. */
+            element.adjustContent();
             element.resources = this.resources;
         }
         return element; /* will be null when all lines have been processed */
@@ -297,13 +293,13 @@ class MarkdownElement {
         return true;
     }
     /**
-     * `adjustContent` is called after the object is instantiated to set its
-     * `content` property (subclasses may set additional properties and may
-     * alter the raw content). Leading empty lines (if any) are removed. This is
-     * the first step in converting the raw markdown text to HTML.
+     * `adjustContent` is called in `SourceText.getNextElement` after the
+     * element object is instantiated and all of its lines captured. Here, we
+     * adjust its `content` property (subclasses may set additional properties
+     * and may alter the raw content). Leading empty lines (if any) are removed.
+     * This is the first step in converting the raw markdown text to HTML.
      */
-    adjustContent(content) {
-        this.content = content;
+    adjustContent() {
         while (this.content[0].trim() == '')
             this.content.shift(); /* remove leading empty lines */
     }
@@ -345,8 +341,8 @@ class CodeBlock extends MarkdownElement {
     isTerminalLine(line) {
         return line.trim() == this.terminal.trim();
     }
-    adjustContent(content) {
-        super.adjustContent(content);
+    adjustContent() {
+        super.adjustContent();
         /** Remove the first and last lines (the delimiters--'```' or '~~~') */
         this.content.shift();
         this.content.pop();
@@ -360,11 +356,11 @@ class QuoteBlock extends MarkdownElement {
     isTerminalLine(line) {
         return !(QUOTE_BLOCK_PATTERN.test(line.trim()));
     }
-    adjustContent(content) {
-        super.adjustContent(content);
+    adjustContent() {
+        super.adjustContent();
         /* Remove the indentation indicator ('>') and add line breaks. */
         let newContent = [];
-        for (let line of content) {
+        for (let line of this.content) {
             line = line.trim().replace(/^>\s*/, '');
             newContent.push(line);
         }
@@ -415,7 +411,11 @@ class Quotation extends MarkdownElement {
     }
 }
 /**
- *
+ * A Table Block is represented as consecutive lines, each line beginning and
+ * ending with a pipe (|) character. The pipe character is also used as a
+ * field/column delimiter. A line having three or more hyphens in its first
+ * field (e.g., "|---|") is treated as a separator between heading line(s) and
+ * item line(s).
  */
 class TableBlock extends MarkdownElement {
     constructor() {
@@ -426,8 +426,8 @@ class TableBlock extends MarkdownElement {
     isTerminalLine(line) {
         return !(TABLE_BLOCK_PATTERN.test(line.trim()));
     }
-    adjustContent(content) {
-        super.adjustContent(content);
+    adjustContent() {
+        super.adjustContent();
         /*
          * We do not alter the content here, but simply determine how many
          * columns (fields) there are, based on the first line, and at which row
@@ -469,7 +469,8 @@ class TableBlock extends MarkdownElement {
         return htmlLines;
     }
     /**
-     * Given a markdown table line, return an array of fields with each field trimmed.
+     * Given a markdown table line, return an array of pipe-separated fields
+     * with each field trimmed.
      */
     fields(line) {
         let fields = [];
@@ -582,9 +583,9 @@ class Heading extends MarkdownElement {
     constructor() {
         super([HEADING_TAG], true, true);
     }
-    adjustContent(content) {
-        super.adjustContent(content);
-        let line = content[0].trim(); /* heading elements can only have one line */
+    adjustContent() {
+        super.adjustContent();
+        let line = this.content[0].trim(); /* heading elements can only have one line */
         let matches = line.match(/^#{1,6}/); /* subset of MarkdownElement.HEADING_PATTERN (just the hashes) */
         if (matches) { /* should always be true or we wouldn't be here */
             let hashes = matches[0];
@@ -623,10 +624,10 @@ class Details extends MarkdownElement {
         super([DETAILS_TAG], true, true);
         this.terminal = this.suffix;
     }
-    adjustContent(content) {
-        super.adjustContent(content);
+    adjustContent() {
+        super.adjustContent();
         let lines = [];
-        let line = content[0].trim(); /* details elements can only have one line */
+        let line = this.content[0].trim(); /* details elements can only have one line */
         line = line.replace('#$', '').trim();
         if (line)
             lines.push(line);

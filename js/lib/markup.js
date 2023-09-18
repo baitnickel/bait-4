@@ -1,17 +1,9 @@
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-};
-var _TableBlock_instances, _TableBlock_fields;
 import { Resource } from './resource.js';
 /*### to do:
  *
- * Add support for tables:
- *   | Item | Description |
- *   | --- |
- *   | item 1 | item 1 description |
- *   | item 2 | item 2 description |
+ * Is the `adjustContent` method really necessary? Can we simply build
+ * `SourceText.content` directly in `SourceText.getNextElement`, and handle any
+ * special operations in `render`?
  *
  * Recognize embedded tags (#todo, #todo2, #todo-3, &c.). Does not apply to tags
  * listed in Front Matter--these are treated separately. Replace tag with space,
@@ -31,6 +23,10 @@ import { Resource } from './resource.js';
  * Quote Blocks - consecutive lines beginning with '> '
  * Quotation - a line consisting of a quoted string followed by a tilde and an attribution
  * Table Blocks - consecutive lines beginning with '|' and ending with '|'
+ *   | Item | Description |            (column headings)
+ *   | --- |                           (headings/items separator)
+ *   | item 1 | item 1 description |
+ *   | item 2 | item 2 description |
  * List Blocks - consecutive lines beginning with '- ' or '\d+\. '
  * Headings - line beginning with 1-6 hashes (#) followed by whitespace
  * Horizontal Rules - line consisting of '---' or '***' or '___'{3,}
@@ -45,24 +41,30 @@ import { Resource } from './resource.js';
  * Image - ![content](url) or ![content][reference]
  * Span - {{.class content}}
  */
-const MARKUP = {
-    version: '2023.09.17',
-};
-console.log(`markup: ${MARKUP.version}`);
+console.log(`markup: 2023.09.18`); /* report version */
 /* HTML tags */
+const PARAGRAPH_TAG = 'p';
+const LINE_BREAK_TAG = 'br';
+const HEADING_TAG = 'h'; /* converted to 'h1'...'h6' in Heading class */
 const CODE_TAG = 'code';
 const ITALIC_TAG = 'em';
 const BOLD_TAG = 'strong';
 const STRIKETHROUGH_TAG = 's';
+const PREFORMATTED_TAG = 'pre';
+const BLOCKQUOTE_TAG = 'blockquote';
+const HORIZONTAL_RULE_TAG = 'hr';
 const IMAGE_TAG = 'img';
 const LINK_TAG = 'a';
 const SPAN_TAG = 'span';
+const LIST_ITEM_TAG = 'li';
 const UNORDERED_ITEM_TYPE = 'ul';
 const ORDERED_ITEM_TYPE = 'ol';
 const TABLE_TAG = 'table';
 const TABLE_ROW_TAG = 'tr';
 const TABLE_HEADING_TAG = 'th';
 const TABLE_ITEM_TAG = 'td';
+const DETAILS_TAG = 'details';
+const SUMMARY_TAG = 'summary';
 /* block patterns */
 const CODE_BLOCK_PATTERN = /^(~~~|```)$/;
 const QUOTE_BLOCK_PATTERN = /^>\s*/; // note: does not enforce space between '>' and text
@@ -71,19 +73,18 @@ const TABLE_BLOCK_PATTERN = /^\|.*\|$/;
 const LIST_BLOCK_PATTERN = /^([-+*]|\d{1,}\.)\s+\S+/;
 const LIST_BLOCK_LEAD_PATTERN = /^([-+*]|\d{1,}\.)\s+/;
 const HEADING_PATTERN = /^#{1,6}\s+\S+/;
+const DETAILS_PATTERN = /^#\$\s*/;
 // <hr> is 3 or more hyphens, underscores, or asterisks, each followed by 0 or more spaces or tabs
 const HORIZONTAL_RULE_PATTERN = /^((-+[ \t]{0,}){3,}|(_+[ \t]{0,}){3,}|(\*+[ \t]{0,}){3,})$/;
-const DETAILS_PATTERN = /^#\$\s*/;
-/* inline patterns--text will be split on this pattern (there will only be one per segment) */
+/* simple inline patterns--replacements are straightforward replace operations */
 const CODE_PATTERN = /(`.+?`)/;
 const CODE_SEGMENT_PATTERN = /^`.+`$/;
-/* inline patterns--replacements are simple segment.replace operations */
 const ITALIC_PATTERN = /\*(.+?)\*/g;
 const BOLD_PATTERN = /\*{2}(.+?)\*{2}/g;
 const STRIKETHROUGH_PATTERN = /~{2}(.+?)~{2}/g;
 const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g;
 const LINK_PATTERN = /\[(.*?)]\((.*?)\)/g;
-/* inline patterns--replacements are complex and will be performed in a while loop */
+/* complex inline patterns--replacements will be performed in a while loop */
 const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
 const LINK_REFERENCE_PATTERN = /\[(.*?)\]\[(\S*?)\]/;
 const SPAN_PATTERN = /\{\{(.*?)\}\}/;
@@ -92,8 +93,8 @@ const SPAN_PATTERN = /\{\{(.*?)\}\}/;
  * a single string which may or may not contain newline characters, or an array
  * of strings), it returns a single string of HTML text. It does this by
  * generating an array of `MarkdownElement` objects; each with a `render` method
- * that generates HTML. The `baseUrl` parameter is only required if markdown
- * contains resource objects with relative (query) definitions.
+ * that generates HTML. A `baseUrl` parameter may be required if markdown
+ * contains `Resource` objects with relative (query) definitions.
  */
 export function Markup(markdown) {
     MARKDOWN.loadLines(markdown);
@@ -250,7 +251,7 @@ class SourceText {
             if (!contentIsComplete && element.addTerminalLine)
                 content.push(element.terminal);
             /* Pass raw content and resources to the element object. */
-            element.addContent(content);
+            element.adjustContent(content);
             element.resources = this.resources;
         }
         return element; /* will be null when all lines have been processed */
@@ -287,7 +288,7 @@ class MarkdownElement {
     /**
      * Called by `SourceText.getNextElement` during the creation of a
      * `MarkdownElement` object to determine when a multi-line element is
-     * complete. 'isTerminalLine' returns true if the given line of markdown
+     * complete. `isTerminalLine` returns true if the given line of markdown
      * text represents the end of the current block element, else false.
      * Subclasses for single-line elements do not need to override this method,
      * as the first (and only) line is always the terminal line.
@@ -296,21 +297,22 @@ class MarkdownElement {
         return true;
     }
     /**
-     * 'addContent' is called after the object is instantiated to set its
-     * 'content' property (subclasses may set additional properties and may
+     * `adjustContent` is called after the object is instantiated to set its
+     * `content` property (subclasses may set additional properties and may
      * alter the raw content). Leading empty lines (if any) are removed. This is
      * the first step in converting the raw markdown text to HTML.
      */
-    addContent(content) {
+    adjustContent(content) {
         this.content = content;
         while (this.content[0].trim() == '')
             this.content.shift(); /* remove leading empty lines */
     }
     /**
-     * Read the object's content lines and return HTML lines. HTML entity
-     * encoding is done here, as well as typesetting and inline markup, as
-     * appropriate. The HTML start and end tags (prefix and suffix) are added to
-     * the first and last lines, respectively.
+     * `render` is called in the main processing loop of `SourceText.html`. Read
+     * the object's content lines and return HTML lines. HTML entity encoding is
+     * done here, as well as typesetting and inline markup, as appropriate. The
+     * HTML start and end tags (prefix and suffix) are added to the first and
+     * last lines, respectively.
      */
     render() {
         let htmlLines = [];
@@ -334,7 +336,7 @@ class MarkdownElement {
 }
 class CodeBlock extends MarkdownElement {
     constructor(line) {
-        super(['pre', 'code'], false, false);
+        super([PREFORMATTED_TAG, CODE_TAG], false, false);
         this.addTerminalLine = true;
         let matchResults = CODE_BLOCK_PATTERN.exec(line);
         if (matchResults !== null)
@@ -343,8 +345,8 @@ class CodeBlock extends MarkdownElement {
     isTerminalLine(line) {
         return line.trim() == this.terminal.trim();
     }
-    addContent(content) {
-        super.addContent(content);
+    adjustContent(content) {
+        super.adjustContent(content);
         /** Remove the first and last lines (the delimiters--'```' or '~~~') */
         this.content.shift();
         this.content.pop();
@@ -352,14 +354,14 @@ class CodeBlock extends MarkdownElement {
 }
 class QuoteBlock extends MarkdownElement {
     constructor() {
-        super(['blockquote'], true, true);
-        this.endOfLine = '<br>';
+        super([BLOCKQUOTE_TAG], true, true);
+        this.endOfLine = `<${LINE_BREAK_TAG}>`;
     }
     isTerminalLine(line) {
         return !(QUOTE_BLOCK_PATTERN.test(line.trim()));
     }
-    addContent(content) {
-        super.addContent(content);
+    adjustContent(content) {
+        super.adjustContent(content);
         /* Remove the indentation indicator ('>') and add line breaks. */
         let newContent = [];
         for (let line of content) {
@@ -374,7 +376,7 @@ class QuoteBlock extends MarkdownElement {
  */
 class Quotation extends MarkdownElement {
     constructor() {
-        super(['p', 'blockquote'], true, true); /* every quotation is its own paragraph */
+        super([PARAGRAPH_TAG, BLOCKQUOTE_TAG], true, true); /* every quotation is its own paragraph */
     }
     /*
      * When rendering a `Quotation` line, we will use only the RegExp captured
@@ -418,25 +420,21 @@ class Quotation extends MarkdownElement {
 class TableBlock extends MarkdownElement {
     constructor() {
         super([TABLE_TAG], true, true);
-        _TableBlock_instances.add(this);
         this.columns = 0;
         this.headingDivider = -1;
     }
     isTerminalLine(line) {
         return !(TABLE_BLOCK_PATTERN.test(line.trim()));
     }
-    addContent(content) {
-        super.addContent(content);
+    adjustContent(content) {
+        super.adjustContent(content);
         /*
          * We do not alter the content here, but simply determine how many
          * columns (fields) there are, based on the first line, and at which row
          * (if any) the table headings are divided from the table items.
          */
         for (let i = 0; i < this.content.length; i += 1) {
-            let fields = __classPrivateFieldGet(this, _TableBlock_instances, "m", _TableBlock_fields).call(this, this.content[i]);
-            // let fields = line.split('|');
-            // fields.shift(); /* pattern always results in empty field 0 - discard it */
-            // fields.pop();   /* pattern always results in empty field N - discard it */
+            let fields = this.fields(this.content[i]);
             if (!this.columns)
                 this.columns = fields.length; /* first line determines number of fields/columns */
             if (this.headingDivider < 0) {
@@ -458,12 +456,8 @@ class TableBlock extends MarkdownElement {
                 tag = TABLE_ITEM_TAG;
             else {
                 htmlLines.push(`<${TABLE_ROW_TAG}>`);
-                let fields = __classPrivateFieldGet(this, _TableBlock_instances, "m", _TableBlock_fields).call(this, this.content[i]);
+                let fields = this.fields(this.content[i]);
                 /* loop over each field - ignore fields beyond column limit */
-                // let line = this.content[i].trim();
-                // let fields = line.split('|');
-                // fields.shift(); /* pattern always results in empty field 0 - discard it */
-                // fields.pop();   /* pattern always results in empty field N - discard it */
                 for (let j = 0; j < this.columns; j += 1) {
                     let field = (j >= fields.length) ? '' : fields[j];
                     htmlLines.push(`<${tag}>${field}</${tag}>`);
@@ -474,18 +468,21 @@ class TableBlock extends MarkdownElement {
         htmlLines.push(this.suffix);
         return htmlLines;
     }
-}
-_TableBlock_instances = new WeakSet(), _TableBlock_fields = function _TableBlock_fields(line) {
-    let fields = [];
-    line = line.trim();
-    fields = line.split('|');
-    fields.shift(); /* pattern always results in empty field 0 - discard it */
-    fields.pop(); /* pattern always results in empty field N - discard it */
-    for (let i = 0; i < fields.length; i += 1) {
-        fields[i] = fields[i].trim();
+    /**
+     * Given a markdown table line, return an array of fields with each field trimmed.
+     */
+    fields(line) {
+        let fields = [];
+        line = line.trim();
+        fields = line.split('|');
+        fields.shift(); /* pattern always results in empty field 0 - discard it */
+        fields.pop(); /* pattern always results in empty field N - discard it */
+        for (let i = 0; i < fields.length; i += 1) {
+            fields[i] = fields[i].trim();
+        }
+        return fields;
     }
-    return fields;
-};
+}
 /**
  * A `ListBlock` is composed of `ListItems` (such as a bullet), and any `ListItem`
  * may contain a `ListSubBlock` (a `ListBlock` nested inside the `ListItem`). The
@@ -494,7 +491,7 @@ _TableBlock_instances = new WeakSet(), _TableBlock_fields = function _TableBlock
  */
 class ListBlock extends MarkdownElement {
     constructor() {
-        super(['li'], true, true);
+        super([LIST_ITEM_TAG], true, true);
     }
     isTerminalLine(line) {
         return !(LIST_BLOCK_PATTERN.test(line.trim()));
@@ -504,13 +501,11 @@ class ListBlock extends MarkdownElement {
         let previousLevel = -1;
         for (let line of this.content) {
             let level = 0;
-            let itemType = UNORDERED_ITEM_TYPE;
+            let itemType = (/^\d+\./.test(line.trim())) ? ORDERED_ITEM_TYPE : UNORDERED_ITEM_TYPE;
             let value = '';
             let tabs = line.match(/^\t*/);
             if (tabs)
                 level = tabs[0].length;
-            if (/^\d+\./.test(line.trim()))
-                itemType = ORDERED_ITEM_TYPE;
             let lineContents = line.trim().split(LIST_BLOCK_LEAD_PATTERN);
             if (lineContents.length >= 3)
                 value = lineContents[2];
@@ -585,24 +580,24 @@ class ListSubBlock {
 }
 class Heading extends MarkdownElement {
     constructor() {
-        super(['h#'], true, true);
+        super([HEADING_TAG], true, true);
     }
-    addContent(content) {
-        super.addContent(content);
+    adjustContent(content) {
+        super.adjustContent(content);
         let line = content[0].trim(); /* heading elements can only have one line */
         let matches = line.match(/^#{1,6}/); /* subset of MarkdownElement.HEADING_PATTERN (just the hashes) */
         if (matches) { /* should always be true or we wouldn't be here */
             let hashes = matches[0];
             line = line.substring(hashes.length).trim();
-            this.prefix = this.prefix.replace('#', `${hashes.length}`); /* '#' is our arbitrary char in tags */
-            this.suffix = this.suffix.replace('#', `${hashes.length}`);
+            this.prefix = this.prefix.replace(HEADING_TAG, `${HEADING_TAG}${hashes.length}`);
+            this.suffix = this.suffix.replace(HEADING_TAG, `${HEADING_TAG}${hashes.length}`);
         }
         this.content = [line];
     }
 }
 class HorizontalRule extends MarkdownElement {
     constructor() {
-        super(['hr'], false, false);
+        super([HORIZONTAL_RULE_TAG], false, false);
     }
     render() {
         return [this.prefix];
@@ -625,11 +620,11 @@ class HorizontalRule extends MarkdownElement {
  */
 class Details extends MarkdownElement {
     constructor() {
-        super(['details'], true, true);
+        super([DETAILS_TAG], true, true);
         this.terminal = this.suffix;
     }
-    addContent(content) {
-        super.addContent(content);
+    adjustContent(content) {
+        super.adjustContent(content);
         let lines = [];
         let line = content[0].trim(); /* details elements can only have one line */
         line = line.replace('#$', '').trim();
@@ -648,7 +643,7 @@ class Details extends MarkdownElement {
                 summary = typeset(summary);
             if (this.markingUp)
                 summary = markupText(summary);
-            htmlLines.push(`${this.prefix}<summary>${summary}</summary>`);
+            htmlLines.push(`${this.prefix}<${SUMMARY_TAG}>${summary}</${SUMMARY_TAG}>`);
             MARKDOWN.detailsObject = this;
         }
         else
@@ -658,8 +653,8 @@ class Details extends MarkdownElement {
 }
 class Paragraph extends MarkdownElement {
     constructor() {
-        super(['p'], true, true);
-        this.endOfLine = '<br>';
+        super([PARAGRAPH_TAG], true, true);
+        this.endOfLine = `<${LINE_BREAK_TAG}>`;
     }
     isTerminalLine(line) {
         /* A paragraph is terminated by an empty line or any of the block elements */
@@ -710,13 +705,11 @@ function typeset(text, fixedWidth = false) {
 }
 /**
  * Given a markdown text string and an optional Map of Resources (resolved in a
- * prior inspection of the whole document), return HTML markup.
+ * prior inspection of the whole document), return HTML markup. Text is split
+ * into "segments", made up of `code` segments and non-`code` segments. Inline
+ * markup is applied to only non-`code` segments.
  */
 function markupText(text, resources = null) {
-    /*
-     * Split text into segments, made up of `code` segments and non-`code`
-     * segments. Inline markup is applied to only non-`code` segments.
-     */
     let markedUpText = '';
     let segments = text.split(CODE_PATTERN);
     for (let segment of segments) {
@@ -799,3 +792,25 @@ function markupSpan(segment, pattern, tag) {
     }
     return segment;
 }
+/**
+ * Maintenance Notes
+ *
+ * Adding a new Block element:
+ * - add top comments
+ * - add top constants:
+ *   - HTML tag(s)
+ *   - RegExp pattern(s)
+ * - define new class extending `MarkdownElement`:
+ *   - `isTerminalLine` (not needed for single-line blocks)
+ *   - `adjustContent`
+ *   - `render`
+ * - in `SourceText.getNextElement`, add RegExp test and create new object instance
+ * - in `Paragraph.isTerminalLine`, add RegExp test
+ *
+ * Adding a new Inline element:
+ * - add top comments
+ * - add top constants:
+ *   - HTML tag(s)
+ *   - RegExp pattern(s)
+ * - in function `markupText`, add RegExp replacement
+ */ 

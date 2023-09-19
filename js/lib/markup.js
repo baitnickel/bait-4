@@ -16,7 +16,7 @@ import { Resource } from './resource.js';
  */
 /*
  * Code Blocks - delimited by '~~~' or '```', lines from delimiter thru delimiter
- * Quote Blocks - consecutive lines beginning with '> '
+ * Quote Blocks - consecutive lines beginning with '>'
  * Quotation - a line consisting of a quoted string followed by a tilde and an attribution
  * Table Blocks - consecutive lines beginning with '|' and ending with '|'
  *   | Item | Description |            (column headings)
@@ -25,7 +25,7 @@ import { Resource } from './resource.js';
  *   | item 2 | item 2 description |
  * List Blocks - consecutive lines beginning with '- ' or '\d+\. '
  * Headings - line beginning with 1-6 hashes (#) followed by whitespace
- * Horizontal Rules - line consisting of '---' or '***' or '___'{3,}
+ * Horizontal Rules - line of three or more hyphens, asterisks, or underscores, intervening whitespace allowed
  * Details Block - block following line starting with '#$ ', terminated by another Details line or EOF
  * Paragraphs - lines not matching a blank line or any of above block patterns
  *
@@ -62,17 +62,16 @@ const TABLE_ITEM_TAG = 'td';
 const DETAILS_TAG = 'details';
 const SUMMARY_TAG = 'summary';
 /* block patterns */
-const CODE_BLOCK_PATTERN = /^(~~~|```)$/;
-const QUOTE_BLOCK_PATTERN = /^>\s*/; // note: does not enforce space between '>' and text
-const QUOTATION_PATTERN = /^"(.+)"\s*~\s*(.+)$/; // e.g., "I think therefore I am" ~ Descartes
+const CODE_BLOCK_PATTERN = /^(~~~|```)$/; /* starting and ending delimiters must match */
+const QUOTE_BLOCK_PATTERN = /^>\s*/; /* does not enforce space between '>' and text */
+const QUOTATION_PATTERN = /^"(.+)"\s*~\s*(.+)$/; /* e.g., "I think therefore I am" ~ Descartes */
 const TABLE_BLOCK_PATTERN = /^\|.*\|$/;
 const LIST_BLOCK_PATTERN = /^([-+*]|\d{1,}\.)\s+\S+/;
 const LIST_BLOCK_LEAD_PATTERN = /^([-+*]|\d{1,}\.)\s+/;
 const HEADING_PATTERN = /^#{1,6}\s+\S+/;
-const DETAILS_PATTERN = /^#\$\s*/;
-// <hr> is 3 or more hyphens, underscores, or asterisks, each followed by 0 or more spaces or tabs
+const DETAILS_PATTERN = /^#\$\s*/; /* "#$ summary" begins Detail Block, "#$" alone terminates Block */
 const HORIZONTAL_RULE_PATTERN = /^((-+[ \t]{0,}){3,}|(_+[ \t]{0,}){3,}|(\*+[ \t]{0,}){3,})$/;
-/* simple inline patterns--replacements are straightforward replace operations */
+/* simple inline patterns--replacements are straightforward "replace" operations */
 const CODE_PATTERN = /(`.+?`)/;
 const CODE_SEGMENT_PATTERN = /^`.+`$/;
 const ITALIC_PATTERN = /\*(.+?)\*/g;
@@ -122,10 +121,9 @@ export function MarkupLine(line, options) {
     return line;
 }
 /**
- * Markdown text (either a single string or an array of strings) is used to
- * create a `SourceText` object. This object will maintain an index used to step
- * through the source text lines, and a Map of any `Resources` referenced in the
- * text.
+ * A `SourceText` object represents lines of markdown text. This object will
+ * maintain an index used to step through the source text lines, and a Map of
+ * any `Resources` referenced in the text.
  */
 class SourceText {
     constructor() {
@@ -174,7 +172,7 @@ class SourceText {
         }
         if (this.detailsObject)
             htmlLines.push(this.detailsObject.suffix);
-        // for (const htmlLine of htmlLines) console.log(htmlLine); /*### for testing only */
+        // for (const htmlLine of htmlLines) console.log(htmlLine); /*### diagnostic */
         return htmlLines.join('\n');
     }
     /**
@@ -186,7 +184,6 @@ class SourceText {
      */
     getNextElement() {
         let element = null;
-        // let content: string[] = [];
         let contentIsComplete = false;
         let seekingFirstLine = true;
         while (this.index < this.lines.length) {
@@ -205,7 +202,7 @@ class SourceText {
                         element = new Quotation();
                     else if (TABLE_BLOCK_PATTERN.test(trimmedLine))
                         element = new TableBlock();
-                    /* A Horizontal Rule entry can be misinterpreted as a List Block entry.
+                    /* A Horizontal Rule entry such as "- - -" can be misinterpreted as a List Block entry.
                        Test for the prior before testing for the latter to avoid this. */
                     else if (HORIZONTAL_RULE_PATTERN.test(trimmedLine))
                         element = new HorizontalRule();
@@ -223,19 +220,19 @@ class SourceText {
                 }
             }
             else {
-                if (!(element.isTerminalLine(line))) { /* not terminating element */
-                    /* add line to the content and loop for more */
+                if (!(element.isTerminalLine(line))) {
+                    /* content is incomplete; add line to the content and loop for more */
                     element.content.push(line);
                     this.index += 1;
                 }
-                else { /* this line terminates the element's content */
+                else {
                     /* the element's content is complete; finish up and break out of the loop */
                     contentIsComplete = true;
                     if (element.addTerminalLine) {
                         element.content.push(line);
                         this.index += 1;
                     }
-                    break; /* stop looping */
+                    break;
                 }
             }
         }
@@ -259,9 +256,12 @@ class SourceText {
  */
 const MARKDOWN = new SourceText;
 /**
- * `tags`: one or more HTML tags to be opened at the beginning and closed at the end
- * `typesetting`: should content lines be typeset?
- * `markingUp`: might content lines contain inline markdown?
+ * `MarkdownElement` is a superclass; all element objects will be instantiated
+ * as subclass extensions of this superclass. Parameters: `tags`: one or more
+ * HTML tags to be opened at the beginning and closed at the end; `typesetting`:
+ * should certain special characters (quotes, dashes, ellipses) in the content
+ * lines be typeset? `markingUp`: should inline elements in the content lines be
+ * marked up?
  */
 class MarkdownElement {
     constructor(tags, typesetting, markingUp) {
@@ -282,10 +282,10 @@ class MarkdownElement {
         }
     }
     /**
-     * Called by `SourceText.getNextElement` during the creation of a
-     * `MarkdownElement` object to determine when a multi-line element is
-     * complete. `isTerminalLine` returns true if the given line of markdown
-     * text represents the end of the current block element, else false.
+     * This method is called in `SourceText.getNextElement` during the creation
+     * of a block element object to determine when all the markdown lines of the
+     * element have been captured. This method returns true if the given line of
+     * markdown text represents the last line of the element, else false.
      * Subclasses for single-line elements do not need to override this method,
      * as the first (and only) line is always the terminal line.
      */
@@ -293,22 +293,23 @@ class MarkdownElement {
         return true;
     }
     /**
-     * `adjustContent` is called in `SourceText.getNextElement` after the
-     * element object is instantiated and all of its lines captured. Here, we
-     * adjust its `content` property (subclasses may set additional properties
-     * and may alter the raw content). Leading empty lines (if any) are removed.
-     * This is the first step in converting the raw markdown text to HTML.
+     * This method is called in `SourceText.getNextElement` after the element
+     * object is instantiated and all of its lines captured. Here, we adjust the
+     * `content` lines--subclasses may set additional properties and may alter
+     * the raw content. Leading empty lines (if any) are always removed. This is
+     * the first step in converting the raw markdown text to HTML.
      */
     adjustContent() {
         while (this.content[0].trim() == '')
             this.content.shift(); /* remove leading empty lines */
     }
     /**
-     * `render` is called in the main processing loop of `SourceText.html`. Read
-     * the object's content lines and return HTML lines. HTML entity encoding is
-     * done here, as well as typesetting and inline markup, as appropriate. The
-     * HTML start and end tags (prefix and suffix) are added to the first and
-     * last lines, respectively.
+     * This method is called in the main processing loop of `SourceText.html`.
+     * Read the element's content lines, converting them to HTML lines, and
+     * return the result. HTML entity encoding is done here, as well as
+     * typesetting and inline markup, based on the `typesetting` and `markingUp`
+     * boolean properties. The HTML start and end tags (prefix and suffix) are
+     * added to the first and last HTML lines, respectively.
      */
     render() {
         let htmlLines = [];
@@ -372,7 +373,7 @@ class QuoteBlock extends MarkdownElement {
  */
 class Quotation extends MarkdownElement {
     constructor() {
-        super([PARAGRAPH_TAG, BLOCKQUOTE_TAG], true, true); /* every quotation is its own paragraph */
+        super([PARAGRAPH_TAG, BLOCKQUOTE_TAG], true, true); /*### every quotation is its own paragraph; handle in CSS instead? */
     }
     /*
      * When rendering a `Quotation` line, we will use only the RegExp captured
@@ -754,7 +755,7 @@ function markupReference(segment, pattern, tag, resources) {
  * Span markdown supports the addition of `class` and `id` attributes. Classes
  * and IDs must be entered into the markdown as the first words, classes
  * prefixed with `.`, and ID prefixed with `#`. When multiple IDs are entered,
- * all but the first one is ignored.
+ * all but the first one are ignored.
  *
  * E.g.: `{{.my-class #my-id and my text}}`
  */

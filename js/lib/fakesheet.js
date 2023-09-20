@@ -72,17 +72,13 @@ export class FakeSheet {
      * triggers an "open local file" dialog? Running the parsing methods should
      * be optional, either one or both or neither should produce expected
      * results.
-     *
-     * YAML extraction should happen here so that line numbers can be reported
-     * correctly (in which case, the `parseMetadata` method would be
-     * automatically invoked based on the absence or presence of metadata).
      */
-    constructor(fakeSheetText, fakeSheetMetadata, key = '') {
+    constructor(fakeSheet) {
         this.title = '(untitled)';
         this.artist = '';
         this.composers = '';
         this.key = null;
-        this.newKey = (key) ? new Chord(key) : null;
+        this.newKey = null; //(key) ? new Chord(key) : null;
         this.capo = 0;
         this.instrument = new Instrument('guitar', 6, 22, ['E', 'A', 'D', 'G', 'B', 'E']);
         this.tuning = []; /** when not set, we assume: this.instrument.standardTuning */
@@ -90,19 +86,18 @@ export class FakeSheet {
         this.copyright = '';
         this.placeholder = FAKESHEET.chordPlaceholders[0];
         this.chords = [];
-        this.metadata = fakeSheetMetadata;
-        this.lines = fakeSheetText.split('\n');
+        this.metadata = fakeSheet.metadata;
+        this.lines = fakeSheet.text.split('\n');
         this.sections = [];
         this.chordsUsed = [];
         this.errors = [];
         this.parseMetadata();
-        this.parseSourceText();
+        this.parseSourceText(fakeSheet.firstTextLine);
     }
-    parseSourceText() {
+    parseSourceText(firstLine) {
         let currentSection = null;
-        let lineNo = 0;
+        let lineNo = firstLine;
         for (let line of this.lines) {
-            lineNo += 1;
             const comment = FAKESHEET.commentPattern.test(line);
             line = line.replace(FAKESHEET.commentPattern, '');
             const trimmedLine = line.trim();
@@ -124,6 +119,7 @@ export class FakeSheet {
                 else if (trimmedLine)
                     this.addError('Ignoring line before first section', lineNo);
             }
+            lineNo += 1;
         }
     }
     parseMetadata() {

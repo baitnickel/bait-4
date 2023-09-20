@@ -1,20 +1,21 @@
 import * as YAML from './yaml.js';
 
 /**
- * A Note object represents a markdown document which may contain YAML
- * Front Matter (metadata).
+ * A MarkdownDocument object represents a document which may contain YAML
+ * metadata as well as text.
  */
-
-export class Note {
+export class MarkdownDocument {
 	metadata: any;
-	markdown: string;
+	text: string;
+	firstTextLine: number;
 	options: YAML.Options;
 	errors: boolean;
 	metadataErrors: string[];
 
-	constructor(note: string, yamlOnly: boolean = false) {
+	constructor(markdownDocument: string, yamlOnly: boolean = false) {
 		this.metadata = null;
-		this.markdown = '';
+		this.text = '';
+		this.firstTextLine = 0;
 		this.options = { // ### set using parameter(s)
 			convertNulls: true,
 			convertNumbers: true,
@@ -23,13 +24,16 @@ export class Note {
 		this.errors = false;
 		this.metadataErrors = [];
 		const metadataLines: string[] = [];
-		const markdownLines: string[] = [];
+		const textLines: string[] = [];
 
-		const lines = note.trim().split('\n');
+		const lines = markdownDocument.trimEnd().split('\n');
 		let inMetadata = (yamlOnly) ? true : false;
 		let firstLine = true;
+		let lineNumber = 0;
 		for (let line of lines) {
-			if (firstLine && line.trimEnd() == YAML.Separator) {
+			lineNumber += 1;
+			if (firstLine && !line.trim()) continue; /* ignore empty lines at start of document */
+			else if (firstLine && line.trimEnd() == YAML.Separator) {
 				inMetadata = true;
 				metadataLines.push(line);
 			}
@@ -38,7 +42,10 @@ export class Note {
 				inMetadata = false;
 			}
 			else if (inMetadata) metadataLines.push(line);
-			else markdownLines.push(line);
+			else {
+				if (this.firstTextLine == 0) this.firstTextLine = lineNumber;
+				textLines.push(line);
+			}
 			firstLine = false;
 		}
 		if (metadataLines.length) {
@@ -52,7 +59,7 @@ export class Note {
 				this.metadataErrors = yaml.exceptions;
 			}
 		}
-		if (markdownLines.length) this.markdown = markdownLines.join('\n').trim();
+		if (textLines.length) this.text = textLines.join('\n');
 	}
 
 	/**

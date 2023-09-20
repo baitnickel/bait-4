@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as DB from './lib/fetch.js'
-import { Note } from './lib/note.js';
+import { MarkdownDocument } from './lib/md-doc.js';
 import { FAKESHEET, FakeSheet, FakeLine } from './lib/fakesheet.js'
 import { MarkupLine } from './lib/markup.js';
 
@@ -60,10 +60,10 @@ export function render() {
 				page.content.innerHTML = MarkupLine(errorMessage, 'etm');
 			}
 			else {
-				let note = new Note(fakeSheetText);
-				if (note.errors) page.content.innerHTML = note.errorMessages();
+				let markdown = new MarkdownDocument(fakeSheetText);
+				if (markdown.errors) page.content.innerHTML = markdown.errorMessages();
 				else {
-					let fakeSheet = new FakeSheet(note.markdown, note.metadata);
+					let fakeSheet = new FakeSheet(markdown);
 					displaySheet(fakeSheet);
 				}
 			}
@@ -75,7 +75,7 @@ export function render() {
 		page.addHeading('List of Songs', 2);
 		const fakeSheetIndexPath = `${dataPath}/index.yaml`;
 		DB.fetchData(fakeSheetIndexPath).then ((indexText: string) => {
-			let yaml = new Note(indexText, true);
+			let yaml = new MarkdownDocument(indexText, true);
 			if (yaml.errors) page.content.innerHTML = yaml.errorMessages();
 			else {
 				let sortOrder = ARTIST_SORT; /**### should be widget option */

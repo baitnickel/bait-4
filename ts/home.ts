@@ -1,6 +1,7 @@
 import { Page } from './lib/page.js';
 import * as Embed from './lib/embed.js';
 import * as DB from './lib/fetch.js'
+import { MarkdownDocument } from './lib/md-doc.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 
 export function render() {
@@ -15,13 +16,15 @@ export function render() {
 	page.content.append(Embed.smugImage('i-SDpf2qV', 'S'));
 
 	const testMarkdownFile = `${page.fetchOrigin}/data/test-markdown.md`;
-	DB.fetchData(testMarkdownFile).then((markdownText: string) => {
-		if (!markdownText) {
+	DB.fetchData(testMarkdownFile).then((fileContent: string) => {
+		if (!fileContent) {
 			const errorMessage = `Cannot read file: \`${testMarkdownFile}\``;
 			page.content.append(Embed.paragraph(MarkupLine(errorMessage, 'etm')));
 		}
 		else {
-			const html = Markup(markdownText);
+			const markdownDocument = new MarkdownDocument(fileContent);
+			markdownDocument.text += `\n\nFirst text line is: ${markdownDocument.firstTextLine}`;
+			const html = Markup(markdownDocument.text);
 			page.content.append(Embed.paragraph(html));
 		}
 	});

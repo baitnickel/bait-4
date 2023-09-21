@@ -99,8 +99,8 @@ export class Page {
     }
     displayFooter() {
         const footerLines = [];
-        const updateDate = new Date(document.lastModified).toDateString(); /** HTML file modification date */
-        footerLines.push(`Last updated <span id=footer-date>${updateDate}</span>`);
+        // const buildDate = new Date(document.lastModified).toDateString(); /** HTML file modification date */
+        footerLines.push(`Last updated <span id=footer-date>${Session.built.toDateString()}</span>`);
         footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
         this.footer.innerHTML = footerLines.join('<br>');
     }

@@ -1,4 +1,5 @@
 export const Session = {
-	encryption: 44,
+	built: new Date('2023-09-21T19:05:15'),
+	encryption: 26,
 	encryptPrefix: 999,
 }

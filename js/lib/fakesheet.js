@@ -92,12 +92,13 @@ export class FakeSheet {
         this.chordsUsed = [];
         this.errors = [];
         this.parseMetadata();
-        this.parseSourceText(fakeSheet.firstTextLine);
+        this.parseSourceText(fakeSheet.textOffset);
     }
-    parseSourceText(firstLine) {
+    parseSourceText(textOffset) {
         let currentSection = null;
-        let lineNo = firstLine;
+        let lineNo = textOffset;
         for (let line of this.lines) {
+            lineNo += 1;
             const comment = FAKESHEET.commentPattern.test(line);
             line = line.replace(FAKESHEET.commentPattern, '');
             const trimmedLine = line.trim();
@@ -119,7 +120,6 @@ export class FakeSheet {
                 else if (trimmedLine)
                     this.addError('Ignoring line before first section', lineNo);
             }
-            lineNo += 1;
         }
     }
     parseMetadata() {

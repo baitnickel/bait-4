@@ -22,7 +22,7 @@ export function render() {
 		}
 		else {
 			const markdownDocument = new MarkdownDocument(fileContent);
-			markdownDocument.text += `\n\nFirst text line is: ${markdownDocument.firstTextLine}`;
+			markdownDocument.text += `\n\nFirst text line is: ${markdownDocument.textOffset + 1}`;
 			const html = Markup(markdownDocument.text);
 			page.content.append(Embed.paragraph(html));
 		}

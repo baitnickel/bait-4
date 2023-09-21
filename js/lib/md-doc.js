@@ -7,7 +7,7 @@ export class MarkdownDocument {
     constructor(markdownDocument, yamlOnly = false) {
         this.metadata = null;
         this.text = '';
-        this.firstTextLine = 0;
+        this.textOffset = -1;
         this.options = {
             convertNulls: true,
             convertNumbers: true,
@@ -20,9 +20,8 @@ export class MarkdownDocument {
         const lines = markdownDocument.trimEnd().split('\n');
         let inMetadata = (yamlOnly) ? true : false;
         let firstLine = true;
-        let lineNumber = 0;
+        let textOffset = 0;
         for (let line of lines) {
-            lineNumber += 1;
             if (firstLine && !line.trim())
                 continue; /* ignore empty lines at start of document */
             else if (firstLine && line.trimEnd() == YAML.Separator) {
@@ -36,11 +35,12 @@ export class MarkdownDocument {
             else if (inMetadata)
                 metadataLines.push(line);
             else {
-                if (this.firstTextLine == 0)
-                    this.firstTextLine = lineNumber;
+                if (this.textOffset < 0)
+                    this.textOffset = textOffset;
                 textLines.push(line);
             }
             firstLine = false;
+            textOffset += 1;
         }
         if (metadataLines.length) {
             const yaml = new YAML.YAML(metadataLines);

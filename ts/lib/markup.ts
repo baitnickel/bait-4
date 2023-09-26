@@ -126,11 +126,11 @@ export function MarkupLine(line: string, options: string) {
 }
 
 /**
- * A `SourceText` object represents lines of markdown text. This object will
- * maintain an index used to step through the source text lines, and a Map of
- * any `Resources` referenced in the text.
+ * A `MarkdownText` object represents lines of markdown text. This object will
+ * maintain an index used to step through the text lines, and a Map of any
+ * `Resources` referenced in the text.
  */
-class SourceText {
+class MarkdownText {
 	lines: string[];
 	index: number;
 	resources: Map<string, Resource>|null;
@@ -150,7 +150,7 @@ class SourceText {
 	}
 
 	/**
-	 * Called as the first pass over the `SourceText` lines to extract any
+	 * Called as the first pass over the `MarkdownText` lines to extract any
 	 * `Resource` references from the text.
 	 */
 	getResources() {
@@ -170,7 +170,7 @@ class SourceText {
 	}
 
 	/**
-	 * Process the `SourceText` lines, returning a string of HTML text
+	 * Process the `MarkdownText` lines, returning a string of HTML text
 	 * representing the elements.
 	 */
 	html() {
@@ -242,7 +242,7 @@ class SourceText {
 
 		if (element) {
 			/* Ensure that the element is terminated, even in cases where we've
-			 * reached the end of the SourceText lines without an explicit
+			 * reached the end of the MarkdownText lines without an explicit
 			 * terminal line.
 			 */
 			if (!contentIsComplete && element.addTerminalLine) element.content.push(element.terminal);
@@ -258,7 +258,7 @@ class SourceText {
  * This global object represents the source markdown text and all its
  * properties.
  */
-const MARKDOWN = new SourceText;
+const MARKDOWN = new MarkdownText;
 
 /**
  * `MarkdownElement` is a superclass; all element objects will be instantiated
@@ -299,19 +299,19 @@ class MarkdownElement {
 	}
 
 	/**
-	 * This method is called in `SourceText.getNextElement` during the creation
-	 * of a block element object to determine when all the markdown lines of the
-	 * element have been captured. This method returns true if the given line of
-	 * markdown text represents the last line of the element, else false.
-	 * Subclasses for single-line elements do not need to override this method,
-	 * as the first (and only) line is always the terminal line.
+	 * This method is called in `MarkdownText.getNextElement` during the
+	 * creation of a block element object to determine when all the markdown
+	 * lines of the element have been captured. This method returns true if the
+	 * given line of markdown text represents the last line of the element, else
+	 * false. Subclasses for single-line elements do not need to override this
+	 * method, as the first (and only) line is always the terminal line.
 	 */
 	isTerminalLine(line: string) {
 		return true;
 	}
 
 	/**
-	 * This method is called in `SourceText.getNextElement` after the element
+	 * This method is called in `MarkdownText.getNextElement` after the element
 	 * object is instantiated and all of its lines captured. Here, we adjust the
 	 * `content` lines--subclasses may set additional properties and may alter
 	 * the raw content. Leading empty lines (if any) are always removed. This is
@@ -322,7 +322,7 @@ class MarkdownElement {
 	}
 
 	/**
-	 * This method is called in the main processing loop of `SourceText.html`.
+	 * This method is called in the main processing loop of `MarkdownText.html`.
 	 * Read the element's content lines, converting them to HTML lines, and
 	 * return the result. HTML entity encoding is done here, as well as
 	 * typesetting and inline markup, based on the `typesetting` and `markingUp`
@@ -634,9 +634,9 @@ class HorizontalRule extends MarkdownElement {
  * "#$" without summary text will close a prior Details block (or will be
  * ignored if there is no prior Details block.)
  *
- * `SourceText.html()` will check to see if MARKDOWN.detailsObject is set after
- * processing the final markdown line, and if so, it will add the closing
- * `</details>` line.
+ * `MarkdownText.html()` will check to see if MARKDOWN.detailsObject is set
+ * after processing the final markdown line, and if so, it will add the closing
+ * `</details>` tag.
  */
 class Details extends MarkdownElement {
 	constructor() {
@@ -822,7 +822,7 @@ function markupSpan(segment: string, pattern: RegExp, tag: string) {
  *   - `isTerminalLine` (not needed for single-line blocks)
  *   - `adjustContent`
  *   - `render`
- * - in `SourceText.getNextElement`, add RegExp test and create new object instance
+ * - in `MarkdownText.getNextElement`, add RegExp test and create new object instance
  * - in `Paragraph.isTerminalLine`, add RegExp test
  * 
  * Adding a new Inline element:

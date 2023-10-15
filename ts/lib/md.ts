@@ -16,7 +16,7 @@ export class MarkdownDocument {
 		this.metadata = null;
 		this.text = '';
 		this.textOffset = -1;
-		this.options = { // ### set using parameter(s)
+		this.options = { // @todo set using parameter(s)
 			convertNulls: true,
 			convertNumbers: true,
 			convertBooleans: true,

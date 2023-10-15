@@ -40,7 +40,7 @@ export type Options = {
 	convertBooleans: boolean,
 };
 
-/* ### must also catch duplicate mapping keys */
+/** @todo must also catch duplicate mapping keys */
 const ERRORS = {
 	noKey: 'plain text without key',
 	wrongKeyType: 'key-type/block-type mismatch',
@@ -72,6 +72,18 @@ export class YAML {
 	}
 
 	/**
+	 * @todo
+	 * I assume (we need to test this) that if we construct a YAML object from
+	 * an empty string, we'll get an empty `data` object in return. This could
+	 * be the result of opening a markdown document that has no YAML metadata.
+	 *
+	 * Having parsed lines to create a YAML data object, we should be able to
+	 * call a method which will take a revised data object (with node changes,
+	 * additions, deletions) and "reverse-engineer" it, creating metadata lines.
+	 * But! ... I think this method really belongs in the `document` module.
+	 */
+
+	/**
 	 * A Block is a set of nodes having the same indentation depth. Every Block
 	 * has one ParentNode, the node under which they are indented (the highest
 	 * level Block is an exception--its parent is the variable in the calling
@@ -86,7 +98,6 @@ export class YAML {
 	 * '<key>:' or '-'. Long text may be entered as a sequence of lines
 	 * (including empty lines).
 	 */
-
 	parse() {
 		let blocks: Block[] = [];
 		let parentNode: YAMLNode|null = null;

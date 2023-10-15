@@ -1,7 +1,7 @@
 import { Page } from './lib/page.js';
 import * as Embed from './lib/embed.js';
 import * as DB from './lib/fetch.js';
-import { MarkdownDocument } from './lib/md-doc.js';
+import { MarkdownDocument } from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 export function render() {
     const page = new Page();

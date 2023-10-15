@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as DB from './lib/fetch.js'
-import { MarkdownDocument } from './lib/md-doc.js';
+import { MarkdownDocument } from './lib/md.js';
 import * as Table from './lib/table.js';
 import * as Reservations from './lib/reservations.js';
 import * as SVG from './lib/svg.js';

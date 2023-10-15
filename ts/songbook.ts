@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as DB from './lib/fetch.js'
-import { MarkdownDocument } from './lib/md-doc.js';
+import { MarkdownDocument } from './lib/md.js';
 import { FAKESHEET, FakeSheet, FakeLine } from './lib/fakesheet.js'
 import { MarkupLine } from './lib/markup.js';
 

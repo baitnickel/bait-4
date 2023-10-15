@@ -1,4 +1,4 @@
-import { MarkdownDocument } from './md-doc.js';
+import { MarkdownDocument } from './md.js';
 import { MarkupLine } from './markup.js';
 
 /**

@@ -4,7 +4,7 @@ export const FAKESHEET = {
     notes: /(Ab|A#|Bb|C#|Db|D#|Eb|F#|Gb|G#|A|B|C|D|E|F|G)/,
     tonics: ['A', 'A#|Bb', 'B', 'C', 'C#|Db', 'D', 'D#|Eb', 'E', 'F', 'F#|Gb', 'G', 'G#|Ab'],
     tonicSeparator: '|',
-    commentPattern: /(^#|\s#).*/,
+    commentPattern: /(^\/{2}|\s\/{2}).*/,
     tokenCharacter: '.',
     inlinePrefix: '.',
     /**

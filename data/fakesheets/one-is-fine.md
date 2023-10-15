@@ -13,7 +13,7 @@ chords:
 .v Am E7! Am! Am7/G! D9! F! Am E7 Am
 One is ^fine, they told me, one is fine
 Two is too, too, many, too much of the ^time
-#When you ^lose your bal^ance, when you ^start to fall^
+//When you ^lose your bal^ance, when you ^start to fall^
 When you ^lose that fee^ling, when you ^start to fall^
 One is ^fine, they ^told me, one is ^all
 
@@ -27,5 +27,5 @@ We are too, too differently in^clined
 It’s a ^kind of fee^ling neither ^high nor low^
 When the ^time is rig^ht, we will ^know
 
-#It’s the ^kind of fee^ling only ^few will know^
-#When it comes in f^ocus, one’ll ^know
+//It’s the ^kind of fee^ling only ^few will know^
+//When it comes in f^ocus, one’ll ^know

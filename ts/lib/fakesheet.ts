@@ -50,7 +50,7 @@ export const FAKESHEET = {
 	notes: /(Ab|A#|Bb|C#|Db|D#|Eb|F#|Gb|G#|A|B|C|D|E|F|G)/,
 	tonics: ['A','A#|Bb','B','C','C#|Db','D','D#|Eb','E','F','F#|Gb','G','G#|Ab'],
 	tonicSeparator: '|',
-	commentPattern: /(^#|\s#).*/, /* comments begin with hash (at start of line or word) */
+	commentPattern: /(^\/{2}|\s\/{2}).*/, /* comments follow double-slash at line start or after whitespace */
 	tokenCharacter: '.',
 	inlinePrefix: '.',
 	/**

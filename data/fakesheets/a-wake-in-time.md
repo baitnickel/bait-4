@@ -21,10 +21,9 @@ chords:
 
 .ch A Amaj7 D Dmaj7 A Amaj7 D Dmaj7 E(sus4)
 	^Lost in your eyes, they’re all I can see, ^held in the shine they shine upon me
-	^Riding the waves, adrift are we, ^only (ah, just) a wake in time
-	# ^Floating, a wake in time
+	^Riding the waves, adrift are we, ^only (ah, just) a wake in time  // ^Floating, a wake in time
 	^True are the hearts that beat in one time, ^true are the steps with hands entwined
-	^Two on a course as true as one mind, ^floating along are we   ^ # side by side are we
+	^Two on a course as true as one mind, ^floating along are we   ^ // side by side are we
 
 .v
 ^Tickle my fancy, ^take me away

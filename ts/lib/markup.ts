@@ -34,6 +34,7 @@ import { Resource } from './resource.js';
  * Code - `content`
  * Italics - *content*
  * Bold - **content**
+ * Highlight - ==content==
  * Strikethrough - ~~content~~
  * URL - [content](url) or [content][reference]
  * Image - ![content](url) or ![content][reference]
@@ -49,6 +50,7 @@ const HEADING_TAG = 'h'; /* converted to 'h1'...'h6' in Heading class */
 const CODE_TAG = 'code';
 const ITALIC_TAG = 'em';
 const BOLD_TAG = 'strong';
+const HIGHLIGHT_TAG = 'mark';
 const STRIKETHROUGH_TAG = 's';
 const PREFORMATTED_TAG = 'pre';
 const BLOCKQUOTE_TAG = 'blockquote';
@@ -82,6 +84,7 @@ const CODE_PATTERN = /(`.+?`)/;
 const CODE_SEGMENT_PATTERN = /^`.+`$/;
 const ITALIC_PATTERN = /\*(.+?)\*/g;
 const BOLD_PATTERN = /\*{2}(.+?)\*{2}/g;
+const HIGHLIGHT_PATTERN = /={2}(.+?)={2}/g;
 const STRIKETHROUGH_PATTERN = /~{2}(.+?)~{2}/g;
 const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g;
 const LINK_PATTERN = /\[(.*?)]\((.*?)\)/g;
@@ -744,6 +747,7 @@ function markupText(text: string, resources: Map<string, Resource>|null = null) 
 			segment = segment.replace(LINK_PATTERN, `<${LINK_TAG} href="$2">$1</${LINK_TAG}>`);
 			segment = segment.replace(BOLD_PATTERN, `<${BOLD_TAG}>$1</${BOLD_TAG}>`);
 			segment = segment.replace(ITALIC_PATTERN, `<${ITALIC_TAG}>$1</${ITALIC_TAG}>`);
+			segment = segment.replace(HIGHLIGHT_PATTERN, `<${HIGHLIGHT_TAG}>$1</${HIGHLIGHT_TAG}>`);
 			segment = segment.replace(STRIKETHROUGH_PATTERN, `<${STRIKETHROUGH_TAG}>$1</${STRIKETHROUGH_TAG}>`);
 			/* complex replacements (cannot be done using a simple global replacement) */
 			if (resources !== null) {

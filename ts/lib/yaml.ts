@@ -1,3 +1,5 @@
+import { Type } from './types.js';
+
 /**
  * Usage:
  *   const yaml = new YAML(text);
@@ -228,8 +230,16 @@ export class YAML {
 		 * YAMLNodes.
 		 */
 		let nodes: YAMLNode[] = [];
-		const indentedText = /(\S+)/;
-		const keyValue = /^\s*(\S+):\s+(.*)/;
+		const indentedText = /(\S+)/; /* solely for determining indentation level */
+		/**
+		 * @variation
+		 * was: `/^\s*(\S+):\s+(.*)/`, but we are now supporting keys that
+		 * contain embedded whitespace--essential when, for example, dealing
+		 * with file pathnames. Keys will still be trimmed (essentially), all
+		 * white space between the last non-whitespace character and the colon
+		 * ignored.
+		 */
+		const keyValue = /^\s*(\S.*\S)\s*:\s+(.*)/;
 		const sequenceValue = /^\s*(-)\s+(.*)/;
 	
 		for (let textLine of this.lines) {
@@ -361,6 +371,89 @@ export class YAML {
 	success() {
 		return (this.exceptions.length) ? false : true;
 	}
+
+	/**
+	 * This is a (probably) temporary class (i.e., static) function to stringify
+	 * a map. We are making some assumptions about the map here, for expediency,
+	 * expecting a string key and either an object (Map, Array, or other Object)
+	 * string, number, or boolean value.
+	 * 
+	 * key: scalar
+	 * key: {foo: bar, fit: bit}
+	 * key: [1, 2, 3]
+	 * 
+	 */
+	static stringify(key: string, value: object|string|number|boolean) {
+		let yamlLine = '';
+		yamlLine = `${key}: `;
+		if (typeof value == 'object') {
+			if (Array.isArray(value)) yamlLine += `[${value.join(', ')}]`;
+			else {
+				const elements: string[] = [];
+				for (const [key, element] of Object.entries(value)) elements.push(`${key}: ${element}`);
+				yamlLine += `{${elements.join(', ')}}`;
+			}
+		}
+		else yamlLine += `${value}`;
+		return yamlLine;
+	}
+
+	/**
+	 * @todo
+	 * Convert an "any" data object into YAML text. Like all of my YAML code,
+	 * this may not be suitable outside these projects; it's not an attempt to
+	 * support other variations of YAML code. We can keep this method simple,
+	 * making a lot of assumptions, and expanding it to cover all the bases as
+	 * needed.
+	 * 
+	 * function f1(a: any) {
+	 *   a.b(); // OK
+	 * }
+	 * function f2(a: unknown) {
+	 *   a.b();
+	 * 'a' is of type 'unknown'.
+	 * }
+	 * 
+	 * https://stackoverflow.com/questions/749266/object-dump-javascript
+	 */
+	// static stringify(data: any, indentation = 0) {
+	// 	// build an array of YAML lines
+	// 	// recursive calls concatenate returned lines to current lines
+	// 	// indentation is used to indent (`${' '.repeat(indentation * 2)}${value}`)
+	// 	let yamlLines: string[] = [];
+	// 	const type =  Type(data);
+	// 	if (type == 'map' || type == 'object') {
+	// 		let keys: string[] = [];
+	// 		if (type == 'map') keys = Array.from(data.keys());
+	// 		else keys = Object.keys(data);
+	// 		// yamlLines = keys.join(', ');
+	// 		data.forEach((value: any, key: any, map: any) => {
+	// 			if (['map', 'object', 'array'].includes(Type(value))) {
+	// 				yamlLines.push(`${key}: `);
+	// 			}
+	// 			else {
+	// 				for (const yamlLine of this.stringify(value, indentation + 1)) {
+	// 					yamlLines.push(yamlLine);
+	// 				}
+	// 			}
+	// 			yamlLines.push(`${key}: ${value}`);
+	// 		})
+	// 		// if value is scalar, 'key: value' 
+	// 		// else 'key:' and get value lines through recursion
+	// 	}
+	// 	else if (type == 'object') {
+	// 		const keys = Object.keys(data);
+	// 		// yamlLines = keys.join(', ');
+	// 		// if value is scalar, 'key: value' 
+	// 		// else 'key:' and get value lines through recursion
+	// 	}
+	// 	else if (type == 'array') {
+	// 		// yamlLines = data.join(', ');
+	// 		// if item value is scalar, '- value'
+	// 		// else '-' and get value lines through recursion
+	// 	}
+	// 	return yamlLines;
+	// }
 }
 
 // /** test run */

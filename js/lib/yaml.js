@@ -1,24 +1,3 @@
-/**
- * Usage:
- *   const yaml = new YAML(text);
- *   // override default options before parsing (see below)
- *   const data = yaml.parse();
- *   yaml.reportExceptions();
- * Options:
- *   enable/disable individual exceptions
- *   enable/disable individual data type conversions, e.g.:
- *     yaml.options.convertNumbers = false;
- *     yaml.options.convertNulls = false;
- *     yaml.options.convertBooleans = false;
-
- * Syntax Rules:
- *   valid lines start with 'key:' or '-' (no plain text)
- *   invalid lines are ignored (reported in an error log if requested)
- *   values are resolved from zero or more expressions (in flow or block)
- *   a flow expression always follows a node's key on the same line
- *   a set of block expressions may only be introduced by a node without a value
- *   expressions may be object literals, array literals, or string literals
- */
 /** @todo must also catch duplicate mapping keys */
 const ERRORS = {
     noKey: 'plain text without key',
@@ -196,8 +175,16 @@ export class YAML {
          * YAMLNodes.
          */
         let nodes = [];
-        const indentedText = /(\S+)/;
-        const keyValue = /^\s*(\S+):\s+(.*)/;
+        const indentedText = /(\S+)/; /* solely for determining indentation level */
+        /**
+         * @variation
+         * was: `/^\s*(\S+):\s+(.*)/`, but we are now supporting keys that
+         * contain embedded whitespace--essential when, for example, dealing
+         * with file pathnames. Keys will still be trimmed (essentially), all
+         * white space between the last non-whitespace character and the colon
+         * ignored.
+         */
+        const keyValue = /^\s*(\S.*\S)\s*:\s+(.*)/;
         const sequenceValue = /^\s*(-)\s+(.*)/;
         for (let textLine of this.lines) {
             let key = '';
@@ -327,6 +314,34 @@ export class YAML {
     }
     success() {
         return (this.exceptions.length) ? false : true;
+    }
+    /**
+     * This is a (probably) temporary class (i.e., static) function to stringify
+     * a map. We are making some assumptions about the map here, for expediency,
+     * expecting a string key and either an object (Map, Array, or other Object)
+     * string, number, or boolean value.
+     *
+     * key: scalar
+     * key: {foo: bar, fit: bit}
+     * key: [1, 2, 3]
+     *
+     */
+    static stringify(key, value) {
+        let yamlLine = '';
+        yamlLine = `${key}: `;
+        if (typeof value == 'object') {
+            if (Array.isArray(value))
+                yamlLine += `[${value.join(', ')}]`;
+            else {
+                const elements = [];
+                for (const [key, element] of Object.entries(value))
+                    elements.push(`${key}: ${element}`);
+                yamlLine += `{${elements.join(', ')}}`;
+            }
+        }
+        else
+            yamlLine += `${value}`;
+        return yamlLine;
     }
 }
 // /** test run */

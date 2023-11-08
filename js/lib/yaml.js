@@ -184,7 +184,7 @@ export class YAML {
          * white space between the last non-whitespace character and the colon
          * ignored.
          */
-        const keyValue = /^\s*(\S.*\S)\s*:\s+(.*)/;
+        const keyValue = /^\s*(\S+):\s+(.*)/; // /^\s*(\S.*\S)\s*:\s+(.*)/;
         const sequenceValue = /^\s*(-)\s+(.*)/;
         for (let textLine of this.lines) {
             let key = '';

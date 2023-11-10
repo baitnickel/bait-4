@@ -24,7 +24,8 @@ const CSS_ID = {
 const ARTIST_SORT = 'a';
 const SONG_SORT = 's';
 const page = new Page();
-const dataPath = `${page.fetchOrigin}/data/fakesheets`;
+const dataPath = `${page.fetchOrigin}/Content/fakesheets`;
+const indicesPath = `${page.fetchOrigin}/Indices`;
 const errorBlock = document.createElement('div');
 errorBlock.id = CSS_ID.errorBlock;
 const metadataBlock = document.createElement('div');
@@ -34,8 +35,8 @@ sheetBlock.id = CSS_ID.sheetBlock;
 const diagramBlock = document.createElement('div');
 diagramBlock.id = CSS_ID.diagramBlock;
 export function render() {
-    let songQuery = page.parameters.get('song');
-    let sortQuery = page.parameters.get('sort');
+    const songQuery = page.parameters.get('song');
+    const sortQuery = page.parameters.get('sort');
     if (songQuery) {
         /** Display the song's fakesheet */
         const fakeSheetFilePath = `${dataPath}/${songQuery}`;
@@ -45,11 +46,11 @@ export function render() {
                 page.content.innerHTML = MarkupLine(errorMessage, 'etm');
             }
             else {
-                let markdown = new MarkdownDocument(fakeSheetText);
+                const markdown = new MarkdownDocument(fakeSheetText);
                 if (markdown.errors)
                     page.content.innerHTML = markdown.errorMessages();
                 else {
-                    let fakeSheet = new FakeSheet(markdown);
+                    const fakeSheet = new FakeSheet(markdown);
                     displaySheet(fakeSheet);
                 }
             }
@@ -59,81 +60,72 @@ export function render() {
         /** Display a list of songs having fakesheets */
         page.setTitle('Song Book');
         page.addHeading('List of Songs', 2);
-        const fakeSheetIndexPath = `${dataPath}/index.yaml`;
-        DB.fetchData(fakeSheetIndexPath).then((indexText) => {
-            let yaml = new MarkdownDocument(indexText, true);
-            if (yaml.errors)
-                page.content.innerHTML = yaml.errorMessages();
-            else {
-                let sortOrder = ARTIST_SORT; /**### should be widget option */
-                if (sortQuery) {
-                    sortQuery = sortQuery.toLowerCase();
-                    if (sortQuery[0] == ARTIST_SORT)
-                        sortOrder = ARTIST_SORT;
-                    else if (sortQuery[0] == SONG_SORT)
-                        sortOrder = SONG_SORT;
-                }
-                const songMap = new Map(Object.entries(yaml.metadata));
-                const songKeys = sortedSongKeys(songMap, sortOrder); /** 'songKeys' are the fakesheet file names */
-                let pElement = document.createElement('p');
-                let artistDiv = null; /** <div> to contain an artist's items */
-                let detailsElement = null;
-                let previousArtist = '';
-                for (let songKey of songKeys) {
-                    let song = songMap.get(songKey);
-                    if (sortOrder == ARTIST_SORT) {
-                        let songBookItem = song.title;
-                        if (previousArtist != song.artist) {
-                            if (previousArtist) { /** this is not the first song */
-                                /** close the current <details> block and start a new one */
-                                if (artistDiv && detailsElement) {
-                                    detailsElement.append(artistDiv);
-                                    page.content.append(detailsElement);
-                                }
+        const fakeSheetIndexPath = `${indicesPath}/fakesheets.json`;
+        DB.fetchData(fakeSheetIndexPath).then((songs) => {
+            const songMap = new Map(Object.entries(songs));
+            let sortOrder = ARTIST_SORT; /** @todo should be widget option */
+            if (sortQuery) {
+                const lowerCaseSortQuery = sortQuery.toLowerCase();
+                if (lowerCaseSortQuery[0] == ARTIST_SORT)
+                    sortOrder = ARTIST_SORT;
+                else if (lowerCaseSortQuery[0] == SONG_SORT)
+                    sortOrder = SONG_SORT;
+            }
+            const songKeys = sortedSongKeys(songMap, sortOrder); /** 'songKeys' are the fakesheet file names */
+            const pElement = document.createElement('p');
+            let artistDiv = null; /** <div> to contain an artist's items */
+            let detailsElement = null;
+            let previousArtist = '';
+            for (const songKey of songKeys) {
+                const song = songMap.get(songKey);
+                if (sortOrder == ARTIST_SORT) {
+                    const songBookItem = song.title;
+                    if (previousArtist != song.artist) {
+                        if (previousArtist) { /** this is not the first song */
+                            /** close the current <details> block and start a new one */
+                            if (artistDiv && detailsElement) {
+                                detailsElement.append(artistDiv);
+                                page.content.append(detailsElement);
                             }
-                            detailsElement = document.createElement('details');
-                            let summaryElement = document.createElement('summary');
-                            summaryElement.innerHTML = MarkupLine(song.artist, 'et');
-                            detailsElement.append(summaryElement);
-                            artistDiv = document.createElement('div');
-                            artistDiv.classList.add(CSS_CLASS.songTitleLink);
                         }
-                        if (artistDiv && detailsElement) {
-                            let anchorElement = document.createElement('a');
-                            anchorElement.href = page.url + `?page=songbook&song=${songKey}`;
-                            anchorElement.innerHTML = MarkupLine(songBookItem, 'et');
-                            artistDiv.appendChild(anchorElement);
-                            let breakElement = document.createElement('br');
-                            artistDiv.appendChild(breakElement);
-                            detailsElement.append(pElement);
-                        }
+                        detailsElement = document.createElement('details');
+                        const summaryElement = document.createElement('summary');
+                        summaryElement.innerHTML = MarkupLine(song.artist, 'et');
+                        detailsElement.append(summaryElement);
+                        artistDiv = document.createElement('div');
+                        artistDiv.classList.add(CSS_CLASS.songTitleLink);
                     }
-                    else { /** sortOrder == SONG_SORT */
-                        let songBookItem = `${song.title} - ${song.artist}`;
-                        let anchorElement = document.createElement('a');
+                    if (artistDiv && detailsElement) {
+                        const anchorElement = document.createElement('a');
                         anchorElement.href = page.url + `?page=songbook&song=${songKey}`;
                         anchorElement.innerHTML = MarkupLine(songBookItem, 'et');
-                        pElement.appendChild(anchorElement);
-                        let breakElement = document.createElement('br');
-                        pElement.appendChild(breakElement);
-                        page.content.append(pElement);
+                        artistDiv.appendChild(anchorElement);
+                        const breakElement = document.createElement('br');
+                        artistDiv.appendChild(breakElement);
+                        detailsElement.append(pElement);
                     }
-                    previousArtist = song.artist;
                 }
-                if (artistDiv && detailsElement) {
-                    detailsElement.append(artistDiv);
-                    page.content.append(detailsElement);
+                else { /** sortOrder == SONG_SORT */
+                    const songBookItem = `${song.title} - ${song.artist}`;
+                    const anchorElement = document.createElement('a');
+                    anchorElement.href = page.url + `?page=songbook&song=${songKey}`;
+                    anchorElement.innerHTML = MarkupLine(songBookItem, 'et');
+                    pElement.appendChild(anchorElement);
+                    const breakElement = document.createElement('br');
+                    pElement.appendChild(breakElement);
+                    page.content.append(pElement);
                 }
+                previousArtist = song.artist;
+            }
+            if (artistDiv && detailsElement) {
+                detailsElement.append(artistDiv);
+                page.content.append(detailsElement);
             }
         });
     }
 }
 function displaySheet(fakesheet) {
-    /** Display song title in both HTML title and Heading */
-    // let title = (fakesheet.title) ? fakesheet.title : '(untitled)';
-    let title = fakesheet.title;
-    if (fakesheet.artist)
-        title += ` - ${fakesheet.artist}`;
+    const title = (fakesheet.artist) ? `${fakesheet.title} - ${fakesheet.artist}` : fakesheet.title;
     document.title = MarkupLine(title, 'ET');
     page.addHeading(MarkupLine(title, 'ET'), 4);
     /** Create placeholders for page content */
@@ -148,15 +140,15 @@ function displaySheet(fakesheet) {
     fillDiagramBlock(fakesheet);
 }
 function metadataItem(id, label, value) {
-    let itemSpanElement = document.createElement('span');
+    const itemSpanElement = document.createElement('span');
     itemSpanElement.id = id;
-    let labelSpanElement = document.createElement('span');
-    let valueSpanElement = document.createElement('span');
+    const labelSpanElement = document.createElement('span');
+    const valueSpanElement = document.createElement('span');
     label += ' ';
-    let labelText = document.createTextNode(MarkupLine(label, 'T'));
+    const labelText = document.createTextNode(MarkupLine(label, 'T'));
     labelSpanElement.appendChild(labelText);
     labelSpanElement.classList.add(CSS_CLASS.metadataLabel);
-    let valueText = document.createTextNode(MarkupLine(value, 'T'));
+    const valueText = document.createTextNode(MarkupLine(value, 'T'));
     valueSpanElement.appendChild(valueText);
     valueSpanElement.classList.add(CSS_CLASS.metadataValue);
     itemSpanElement.appendChild(labelSpanElement);
@@ -167,9 +159,7 @@ function metadataItem(id, label, value) {
 function fillErrorBlock(fakesheet) {
     errorBlock.innerHTML = '';
     if (fakesheet.errors.length) {
-        // errorBlock.appendChild(document.createTextNode('Errors:'));
-        // errorBlock.appendChild(document.createElement('br'));
-        for (let error of fakesheet.errors) {
+        for (const error of fakesheet.errors) {
             errorBlock.appendChild(document.createTextNode(error));
             errorBlock.appendChild(document.createElement('br'));
         }
@@ -179,11 +169,11 @@ function fillErrorBlock(fakesheet) {
 function fillMetadataBlock(fakesheet) {
     metadataBlock.innerHTML = '';
     if (fakesheet.key) {
-        let labelSpanElement = document.createElement('span');
-        let labelText = document.createTextNode('Key: ');
+        const labelSpanElement = document.createElement('span');
+        const labelText = document.createTextNode('Key: ');
         labelSpanElement.appendChild(labelText);
         labelSpanElement.classList.add(CSS_CLASS.metadataLabel);
-        let selectElement = keySelectElement(fakesheet);
+        const selectElement = keySelectElement(fakesheet);
         metadataBlock.appendChild(labelSpanElement);
         metadataBlock.appendChild(selectElement);
         metadataBlock.appendChild(document.createElement('br'));
@@ -206,14 +196,12 @@ function fillMetadataBlock(fakesheet) {
 }
 function fillSheetBlock(fakesheet) {
     sheetBlock.innerHTML = '';
-    let fakeSheetLines = fakesheet.fakeSheetLines();
-    for (let fakeSheetLine of fakeSheetLines) {
-        // let lineType = fakeSheetLine[0];
-        // fakeSheetLine = fakeSheetLine.slice(1) + '\n'; /** remove character 0 and add a newline for <pre> */
+    const fakeSheetLines = fakesheet.fakeSheetLines();
+    for (const fakeSheetLine of fakeSheetLines) {
         fakeSheetLine.text += '\n'; /** add a newline for <pre> */
-        let lineText = document.createTextNode(MarkupLine(fakeSheetLine.text, 'F'));
+        const lineText = document.createTextNode(MarkupLine(fakeSheetLine.text, 'F'));
         if (fakeSheetLine.type == FAKESHEET.chordLine) {
-            let spanElement = document.createElement('span');
+            const spanElement = document.createElement('span');
             spanElement.classList.add(CSS_CLASS.chords);
             spanElement.appendChild(lineText);
             sheetBlock.appendChild(spanElement);
@@ -224,22 +212,22 @@ function fillSheetBlock(fakesheet) {
 }
 function fillDiagramBlock(fakesheet) {
     diagramBlock.innerHTML = '';
-    let diagrams = fakesheet.chordDiagrams();
+    const diagrams = fakesheet.chordDiagrams();
     if (diagrams.length) {
-        let horizontalRuleElement = document.createElement('hr');
+        const horizontalRuleElement = document.createElement('hr');
         diagramBlock.appendChild(horizontalRuleElement);
-        for (let diagram of diagrams) {
+        for (const diagram of diagrams) {
             diagramBlock.appendChild(diagram);
         }
     }
 }
 function keySelectElement(fakesheet) {
     /** Define the musical Key of the song as a drop-down selection */
-    let selectElement = document.createElement('select');
+    const selectElement = document.createElement('select');
     selectElement.name = 'keys';
     selectElement.id = CSS_ID.keyTag;
     if (fakesheet.key) {
-        let labelElement = document.createElement('label');
+        const labelElement = document.createElement('label');
         labelElement.htmlFor = CSS_ID.keyTag;
         metadataBlock.appendChild(labelElement); /** ### should be a sub-div? */
         const minorCharacter = (fakesheet.key.minor) ? 'm' : '';
@@ -251,10 +239,10 @@ function keySelectElement(fakesheet) {
             let text = unicodeTonics[i] + minorCharacter;
             if (value == fakesheet.key.base)
                 text += ' ◆';
-            let defaultKey = (value == fakesheet.key.base);
-            let selectedKey = (value == currentKey);
+            const defaultKey = (value == fakesheet.key.base);
+            const selectedKey = (value == currentKey);
             /** see: https://developer.mozilla.org/en-US/docs/Web/API/HTMLOptionElement/Option */
-            let option = new Option(text, value, defaultKey, selectedKey);
+            const option = new Option(text, value, defaultKey, selectedKey);
             selectElement.add(option);
         }
         selectElement.addEventListener('change', (e) => {
@@ -262,7 +250,7 @@ function keySelectElement(fakesheet) {
              * e.target is the element listened to (selectElement)
              * e.target.value holds the new value of the element after it's changed (e.g., "Bm")
              */
-            let element = e.target; /** "as" type casting required for TypeScript */
+            const element = e.target; /** "as" type casting required for TypeScript */
             changeKey(fakesheet, element.value);
         });
     }
@@ -278,14 +266,14 @@ function changeKey(fakesheet, newKey) {
     fillDiagramBlock(fakesheet);
 }
 function sortedSongKeys(songMap, sortOrder) {
-    let keys = Array.from(songMap.keys());
+    const keys = Array.from(songMap.keys());
     keys.sort((a, b) => {
-        let songA = songMap.get(a);
-        let songB = songMap.get(b);
-        let artistA = sortableTitle(songA.artist);
-        let artistB = sortableTitle(songB.artist);
-        let titleA = sortableTitle(songA.title);
-        let titleB = sortableTitle(songB.title);
+        const songA = songMap.get(a);
+        const songB = songMap.get(b);
+        const artistA = sortableTitle(songA.artist);
+        const artistB = sortableTitle(songB.artist);
+        const titleA = sortableTitle(songA.title);
+        const titleB = sortableTitle(songB.title);
         let sortValue = 0;
         if (sortOrder != ARTIST_SORT || artistA == artistB) {
             sortValue = (titleA > titleB) ? 1 : -1;
@@ -296,20 +284,20 @@ function sortedSongKeys(songMap, sortOrder) {
     });
     return keys;
 }
+/**
+ * Given a string containing a title (such as a song title or a band
+ * name), return a string that may be used in sorting, where all
+ * characters are converted to lower case, and leading articles ('a',
+ * 'an', and 'the') are moved to the title's end.
+ */
 function sortableTitle(rawTitle) {
-    /**
-     * Given a string containing a title (such as a song title or a band
-     * name), return a string that may be used in sorting, where all
-     * characters are converted to lower case, and leading articles ('a',
-     * 'an', and 'the') are moved to the title's end.
-     */
     let adjustedTitle = rawTitle.toLowerCase();
-    let words = adjustedTitle.split(/\s+/);
+    const words = adjustedTitle.split(/\s+/);
     if (!words[0])
         words.shift(); /** remove leading whitespace */
     /** remove leading article */
     if (['a', 'an', 'the'].includes(words[0])) {
-        let newLastWord = words.shift();
+        const newLastWord = words.shift();
         if (newLastWord)
             words.push(newLastWord);
     }

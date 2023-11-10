@@ -3,7 +3,7 @@ The `bait-4` site is an experiment, a prototype of a publishing system, stressin
 `bait-4` is, as the name suggests, the fourth iteration of my website experiments. I've been at it for a few years.
 
 We assume here that you are at least somewhat familiar with the following topics; if not, follow the links:
-- [Markdown text files](https://www.markdownguide.org/basic-syntax/)
+- [Markdown text files](https://www.markdownguide.org/getting-started/)
 - [Standard HTML](https://developer.mozilla.org/en-US/docs/Learn/HTML)
 - [Standard JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-- [TypeScript](https://www.typescriptlang.org/docs/handbook/)
+- [TypeScript](https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html)

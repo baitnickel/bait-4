@@ -1,4 +1,7 @@
 {
+	"README.md": {
+		"revision": 1699644889750
+	},
 	"drafts/Santa Cruz.md": {
 		"revision": 1698965236646,
 		"access": 0
@@ -82,9 +85,6 @@
 	"fakesheets/zacharys-song.md": {
 		"revision": 1699483302704,
 		"access": 0
-	},
-	"technical/process/README.md": {
-		"revision": 1699644148197
 	},
 	"test-docs/Father Son and Holy Ghost.md": {
 		"revision": 1699046574872,

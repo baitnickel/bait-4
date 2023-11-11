@@ -7,3 +7,5 @@ We assume here that you are at least somewhat familiar with the following topics
 - [Standard HTML](https://developer.mozilla.org/en-US/docs/Learn/HTML)
 - [Standard JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 - [TypeScript](https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html)
+
+We are not using any third-party libraries, only standard JavaScript, so there are no dependencies. We're following the Mozilla documentation strictly, using only code features that are supported on (virtually) all modern browsers.

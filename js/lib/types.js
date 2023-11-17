@@ -34,3 +34,14 @@ export function IsYamlFile(pathName) {
     const yamlExtension = /\.ya?ml$/i;
     return yamlExtension.test(pathName);
 }
+/**
+ * File Information is read from the OS file data and YAML metadata. These are
+ * used determine how to sync files between the source and target systems.
+*/
+export const AccessKey = 'Access';
+/**
+ * Fakesheet files contain special YAML metadata, some of which is used in
+ * lookup functionality in the frontend.
+ */
+export const SongTitleKey = 'title';
+export const SongArtistKey = 'artist';

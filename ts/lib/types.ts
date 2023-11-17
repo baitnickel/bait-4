@@ -36,31 +36,34 @@ export function IsYamlFile(pathName: string) {
 /**
  * File Information is read from the OS file data and YAML metadata. These are
  * used determine how to sync files between the source and target systems.
- */
+*/
+export const AccessKey = 'Access';
 export type FileInfo = {
 	revision: number; /* Date.valueOf(); */
 	access: number;
-};
+}
 
 /**
  * Fakesheet files contain special YAML metadata, some of which is used in
  * lookup functionality in the frontend.
  */
+export const SongTitleKey = 'title';
+export const SongArtistKey = 'artist';
 export type FakesheetLookups = {
 	title: string;
 	artist: string;
-};
+}
 
 export type Song = {
 	title: string;
 	composers: string[];
 	copyright: string;
-};
+}
 
 export type Chord = {
 	name: string;
 	notation: string;
-};
+}
 
 export type FakeSheet = {
 	song: Song;
@@ -71,12 +74,12 @@ export type FakeSheet = {
 	tempo: number;
 	chords: Chord[];
 	text: string;
-};
+}
 
 export type Collection = {
 	title: string;
 	entry: Song[];  /** or Song[]|Video[] ... */
-};
+}
 
 // export type Song = {
 // 	audio: string;      /** e.g., audio/my-title.mp3*/
@@ -88,13 +91,14 @@ type Location = {
 	city: string;
 	state: string;
 	country: string;
-};
+}
 
 type Photo = {
 	uri: string;
 	width: number;
 	height: number;
 }
+
 type JournalEntry = {
 	id: string;
 	source: string;

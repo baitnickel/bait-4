@@ -17,6 +17,13 @@
  *
  * Are there general Collection properties and methods, or are they always
  * specific to the record types?
+ *
+ * When instantiating a Pane, perhaps we need to pass in an index path (e.g.,
+ * "data/journals.json") and an index key (e.g.,
+ * "E6685186170A4DA9945B58B764340E0F"); the index key may be empty ("") if
+ * processing is to be done against the whole Collection. As there may be many
+ * different kinds of article collections, how will we tell the methods what
+ * exactly needs to be done? Generic types??
  */
 export class Pane {
     set id(x) { this.element.id = x; }
@@ -113,4 +120,4 @@ addArticleHTML(element: HTMLElement) {
         }
     });
 }
-*/ 
+*/

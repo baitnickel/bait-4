@@ -4,25 +4,20 @@
  */
 export class Collection<Value> {
 	map: Map<string, Value>;
-	// headerRecord: Value; // or possibly a standard Collections header type
-	// dataRecords: Map<string, Value>; 
-	currentKey: string;
+	index: number;
 	orderedKeys: string[]; // persists until sorted again
 	randomKeys: string[]; // array is depleted every time an entry is requested, rebuilt when empty
 
-	constructor(jsonPath: any) {
-		// convert raw file into data object and extract the header row and the data rows
-		let jsonData = {}; // read the jsonPath file and get data object
-		this.map = new Map<string, Value>(Object.entries(jsonData));
-		// this.headerRecord = {};
-		// this.dataRecords = {};
-		this.currentKey = '';
-		this.orderedKeys = []; // populated by sort method
-		this.randomKeys = []; // populated by random method
+	constructor(jsonText: any) {
+		/* convert raw JSON text into a Map object */
+		this.map = new Map<string, Value>(Object.entries(jsonText));
+		this.index = 0;
+		this.orderedKeys = Array.from(this.map.keys()); // modified by sort method
+		this.randomKeys = Shuffle(this.orderedKeys);
 	}
 
 	sort(fields: string[]) {
-		const keys = Object.keys(this.map);
+		const keys = Array.from(this.map.keys());
 		// using the fields array, sort the data record keys
 		// first field is primary sort, second is secondary, etc.
 		// default sort is ascending, overridden by "-" prefix ("+" is assumed)
@@ -31,25 +26,68 @@ export class Collection<Value> {
 	}
 
 	// any/all of these may pass in an optional filter (tags, etc.)
-	first() {}
-	last() {}
-	next() {}
-	previous() {}
-	proximate() {}
-	random() {
-		let randomKey: string|undefined
-		randomKey = this.randomKeys.pop(); // get and remove the random key
-		if (randomKey === undefined) {
-			// regenerate a new this.randomKeys (avoid first being same as current?)
-			randomKey = this.randomKeys.pop();
+	currentKey() {
+		if (!this.orderedKeys.length) return '';
+		return this.orderedKeys[this.index];
+	}
+	firstKey() {
+		if (!this.orderedKeys.length) return '';
+		this.index = 0;
+		return this.orderedKeys[this.index];
+	}
+	lastKey() {
+		if (!this.orderedKeys.length) return '';
+		this.index = this.orderedKeys.length - 1;
+		return this.orderedKeys[this.index];
+	}
+	nextKey() {
+		if (!this.orderedKeys.length) return '';
+		this.index += 1;
+		if (this.index >= this.orderedKeys.length) this.index = 0;
+		return this.orderedKeys[this.index];
+	}
+	previousKey() {
+		if (!this.orderedKeys.length) return '';
+		this.index -= 1;
+		if (this.index < 0) this.index = this.orderedKeys.length - 1;
+		return this.orderedKeys[this.index];
+	}
+	proximateKey() {
+		if (!this.orderedKeys.length) return '';
+		return ''; // not supported yet ... is there a general meaning here??
+	}
+
+	randomKey() {
+		let randomKey = '';
+		if (this.randomKeys.length) {
+			randomKey = this.randomKeys.shift()!; // get and remove the random key
+		} 
+		else {
+			this.randomKeys = Shuffle(this.orderedKeys); /* generate a new randomKeys array */
+			if (this.randomKeys.length) randomKey = this.randomKeys.shift()!;
 		}
-		if (randomKey) this.currentKey = randomKey;
+		return randomKey;
 	}
 
 	render(options: string[]) {
 		let html = '';
 		// options are like render "as article", "as quote", etc.
+		// this is where a header/options record may be needed
 		// returns HTML
 		return html;
 	}
+}
+
+/**
+ * Given an array of strings, return a new array containing the same entries
+ * randomly shuffled.
+ */
+export function Shuffle(entries: string[]) {
+	const shuffledEntries: string[] = [];
+	const copyOfEntries = entries.slice(0); /* don't modify original array */
+	while (copyOfEntries.length > 0) {
+		const randomIndex = Math.floor(Math.random() * copyOfEntries.length);
+		shuffledEntries.push(copyOfEntries.splice(randomIndex, 1)[0]);
+	}
+	return shuffledEntries;
 }

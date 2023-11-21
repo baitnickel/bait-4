@@ -1,6 +1,10 @@
 /**
  * A Collection is created from JSON text, representing a Map with string keys
- * and values treated as any type (can't pass generic types into a class).
+ * and values specified by a generic type.
+ * - Usage: const collection = new Collection\<MyType\>(jsonText);
+ *
+ * `map` is the Map represented in the JSON text. `orderedKeys` is an array of
+ * Map keys; this array may be reordered via the `sort` method.
  */
 export class Collection {
     constructor(jsonText) {
@@ -10,32 +14,52 @@ export class Collection {
         this.orderedKeys = Array.from(this.map.keys()); // modified by sort method
         this.randomKeys = Shuffle(this.orderedKeys);
     }
+    /**
+     * Using the given Map field or fields, reorder the keys in the
+     * `orderedKeys` array and reset the `currentKey` to be the first element of
+     * the array. Field names may have a '+' or '-' prefix to indicate ascending
+     * or descending sort, respectively. '+' is assumed if neither character is
+     * present.
+     */
     sort(fields) {
-        const keys = Array.from(this.map.keys());
         // using the fields array, sort the data record keys
         // first field is primary sort, second is secondary, etc.
         // default sort is ascending, overridden by "-" prefix ("+" is assumed)
         // remove prefix for processing
-        return keys; // sorted keys
     }
     // any/all of these may pass in an optional filter (tags, etc.)
+    /**
+     * Return the current key, i.e., the key pointed to by the `index` property.
+     */
     currentKey() {
         if (!this.orderedKeys.length)
             return '';
         return this.orderedKeys[this.index];
     }
+    /**
+     * Return the first key in `orderedKeys` (the key at index 0), and reset the
+     * index to 0.
+     */
     firstKey() {
         if (!this.orderedKeys.length)
             return '';
         this.index = 0;
         return this.orderedKeys[this.index];
     }
+    /**
+     * Return the last key in `orderedKeys`, and reset the index to the position
+     * of the last key.
+     */
     lastKey() {
         if (!this.orderedKeys.length)
             return '';
         this.index = this.orderedKeys.length - 1;
         return this.orderedKeys[this.index];
     }
+    /**
+     * Return the next key in `orderedKeys`, and reset the index to the position
+     * of this key.
+     */
     nextKey() {
         if (!this.orderedKeys.length)
             return '';
@@ -44,6 +68,10 @@ export class Collection {
             this.index = 0;
         return this.orderedKeys[this.index];
     }
+    /**
+     * Return the previous key in `orderedKeys`, and reset the index to the
+     * position of this key.
+     */
     previousKey() {
         if (!this.orderedKeys.length)
             return '';
@@ -57,6 +85,12 @@ export class Collection {
             return '';
         return ''; // not supported yet ... is there a general meaning here??
     }
+    /**
+     * Return a randomly selected key from `orderedKeys`. The index is not
+     * changed. This method may be called multiple times, and will return a
+     * different key each time until all keys have been returned, at which time
+     * the random selection will be reinitialized.
+     */
     randomKey() {
         let randomKey = '';
         if (this.randomKeys.length) {
@@ -69,6 +103,9 @@ export class Collection {
         }
         return randomKey;
     }
+    /**
+     * Return an HTML representation of the Map data (options to be determined).
+     */
     render(options) {
         let html = '';
         // options are like render "as article", "as quote", etc.

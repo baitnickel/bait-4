@@ -21,7 +21,7 @@ export class Collection {
      * or descending sort, respectively. '+' is assumed if neither character is
      * present.
      */
-    sort(fields, fieldIndex = 0) {
+    sort(fields) {
         // using the fields array, sort the data record keys
         // first field is primary sort, second is secondary, etc.
         // default sort is ascending, overridden by "-" prefix ("+" is assumed)
@@ -33,17 +33,19 @@ export class Collection {
         // if a and b differ, return result
         // if a and b are equal and there are more fields, recurse for fields[next]
         // this.orderedKeys.sort((a, b) => {
-        // 	const recordA = this.map.get(a)!;
-        // 	const recordB = this.map.get(b)!;
-        // 	const fieldA = recordA[fields[fieldIndex]]);
-        // 	const fieldB = recordB[fields[fieldIndex]]);
         // 	let sortValue = 0;
-        // 	if (fieldA == fieldB) {
-        // 		fieldIndex += 1;
-        // 		if (fieldIndex >= fields.length - 1) return 0;
-        // 		else this.sort(fields, fieldIndex);
+        // 	const recordA: Value = this.map.get(a)!;
+        // 	const recordB: Value = this.map.get(b)!;
+        // 	// const recordB = this.map.get(b) as Value extends object;
+        // 	for (const field of fields) {
+        // 		if (field in recordA && field in recordB) {
+        // 			const fieldA = recordA[field];
+        // 			const fieldB = recordB[field];
+        // 			if (fieldA == fieldB) continue;
+        // 			sortValue = (fieldA > fieldB) ? 1 : -1;
+        // 			break;
+        // 		}
         // 	}
-        // 	else sortValue = (fieldA > fieldB) ? 1 : -1;
         // 	return sortValue;
         // });	
     }
@@ -100,11 +102,10 @@ export class Collection {
             this.index = this.orderedKeys.length - 1;
         return this.orderedKeys[this.index];
     }
-    proximateKey() {
-        if (!this.orderedKeys.length)
-            return '';
-        return ''; // not supported yet ... is there a general meaning here??
-    }
+    // proximateKey() {
+    // 	if (!this.orderedKeys.length) return '';
+    // 	return ''; // not supported yet ... is there a general meaning here??
+    // }
     /**
      * Return a randomly selected key from `orderedKeys`. The index is not
      * changed. This method may be called multiple times, and will return a
@@ -122,16 +123,6 @@ export class Collection {
                 randomKey = this.randomKeys.shift();
         }
         return randomKey;
-    }
-    /**
-     * Return an HTML representation of the Map data (options to be determined).
-     */
-    render(options) {
-        let html = '';
-        // options are like render "as article", "as quote", etc.
-        // this is where a header/options record may be needed
-        // returns HTML
-        return html;
     }
 }
 /**

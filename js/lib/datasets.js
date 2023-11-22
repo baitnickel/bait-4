@@ -21,11 +21,31 @@ export class Collection {
      * or descending sort, respectively. '+' is assumed if neither character is
      * present.
      */
-    sort(fields) {
+    sort(fields, fieldIndex = 0) {
         // using the fields array, sort the data record keys
         // first field is primary sort, second is secondary, etc.
         // default sort is ascending, overridden by "-" prefix ("+" is assumed)
-        // remove prefix for processing
+        // remove prefix during processing
+        // we may need options such as: case-sensitive? title-sort?
+        // can options be field prefixes or do we need sortField objects?
+        // this is a recursive routine
+        // begin with fields[0]
+        // if a and b differ, return result
+        // if a and b are equal and there are more fields, recurse for fields[next]
+        // this.orderedKeys.sort((a, b) => {
+        // 	const recordA = this.map.get(a)!;
+        // 	const recordB = this.map.get(b)!;
+        // 	const fieldA = recordA[fields[fieldIndex]]);
+        // 	const fieldB = recordB[fields[fieldIndex]]);
+        // 	let sortValue = 0;
+        // 	if (fieldA == fieldB) {
+        // 		fieldIndex += 1;
+        // 		if (fieldIndex >= fields.length - 1) return 0;
+        // 		else this.sort(fields, fieldIndex);
+        // 	}
+        // 	else sortValue = (fieldA > fieldB) ? 1 : -1;
+        // 	return sortValue;
+        // });	
     }
     // any/all of these may pass in an optional filter (tags, etc.)
     /**
@@ -126,4 +146,24 @@ export function Shuffle(entries) {
         shuffledEntries.push(copyOfEntries.splice(randomIndex, 1)[0]);
     }
     return shuffledEntries;
+}
+/**
+ * Given a string containing a title (such as a song title or a band
+ * name), return a string that may be used in sorting, where all
+ * characters are converted to lower case, and leading articles ('a',
+ * 'an', and 'the') are moved to the title's end.
+ */
+function sortableTitle(rawTitle) {
+    let adjustedTitle = rawTitle.toLowerCase();
+    const words = adjustedTitle.split(/\s+/);
+    if (!words[0])
+        words.shift(); /** remove leading whitespace */
+    /** remove leading article */
+    if (['a', 'an', 'the'].includes(words[0])) {
+        const newLastWord = words.shift();
+        if (newLastWord)
+            words.push(newLastWord);
+    }
+    adjustedTitle = words.join(' ');
+    return adjustedTitle;
 }

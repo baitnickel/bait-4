@@ -15,9 +15,15 @@ export function render() {
         const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
         DB.fetchData(songsIndexFile).then((fileContent) => {
             const songCollection = new Collection(fileContent);
-            for (const [fileName, songInfo] of songCollection.map) {
-                console.log(`${fileName}: ${songInfo.title}`);
+            songCollection.sort(['artist', 'title']);
+            let keys = songCollection.orderedKeys;
+            for (const key of keys) {
+                const lookups = songCollection.map.get(key);
+                console.log(`${key}: ${lookups.artist} ${lookups.title}`);
             }
+            // for (const [fileName, songInfo] of songCollection.map) {
+            // 	console.log(`${fileName}: ${songInfo.title}`);
+            // }
         });
         // const testMarkdownFile = `${page.fetchOrigin}/data/test-markdown.md`;
         // DB.fetchData(testMarkdownFile).then((fileContent: string) => {

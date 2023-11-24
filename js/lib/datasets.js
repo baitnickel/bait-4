@@ -25,29 +25,29 @@ export class Collection {
         // using the fields array, sort the data record keys
         // first field is primary sort, second is secondary, etc.
         // default sort is ascending, overridden by "-" prefix ("+" is assumed)
-        // remove prefix during processing
-        // we may need options such as: case-sensitive? title-sort?
+        // remove special prefix ('+', '-', etc.) during processing
+        // we may need prefix options such as: case-sensitive? title-sort?
         // can options be field prefixes or do we need sortField objects?
-        // this is a recursive routine
-        // begin with fields[0]
-        // if a and b differ, return result
-        // if a and b are equal and there are more fields, recurse for fields[next]
-        // this.orderedKeys.sort((a, b) => {
-        // 	let sortValue = 0;
-        // 	const recordA: Value = this.map.get(a)!;
-        // 	const recordB: Value = this.map.get(b)!;
-        // 	// const recordB = this.map.get(b) as Value extends object;
-        // 	for (const field of fields) {
-        // 		if (field in recordA && field in recordB) {
-        // 			const fieldA = recordA[field];
-        // 			const fieldB = recordB[field];
-        // 			if (fieldA == fieldB) continue;
-        // 			sortValue = (fieldA > fieldB) ? 1 : -1;
-        // 			break;
-        // 		}
-        // 	}
-        // 	return sortValue;
-        // });	
+        this.orderedKeys.sort((a, b) => {
+            let sortValue = 0;
+            /*
+             *  These map values must be defined as type 'any', as this is a
+             *  generic routine and is intended to work for any type of value.
+             */
+            const recordA = this.map.get(a);
+            const recordB = this.map.get(b);
+            for (const field of fields) {
+                if (field in recordA && field in recordB) {
+                    const fieldA = recordA[field];
+                    const fieldB = recordB[field];
+                    if (fieldA == fieldB)
+                        continue;
+                    sortValue = (fieldA > fieldB) ? 1 : -1;
+                    break;
+                }
+            }
+            return sortValue;
+        });
     }
     // any/all of these may pass in an optional filter (tags, etc.)
     /**

@@ -2,7 +2,7 @@ import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Embed from './lib/embed.js';
 import * as DB from './lib/fetch.js'
-import { Collection, Shuffle } from './lib/datasets.js';
+import { Dataset, Collection } from './lib/datasets.js';
 import { MarkdownDocument } from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 
@@ -17,18 +17,18 @@ export function render() {
 	page.content.append(Embed.smugImage('i-SDpf2qV', 'S'));
 
 	if (page.local) {
+
 		const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
-		DB.fetchData(songsIndexFile).then((fileContent: string) => {
-			const songCollection = new Collection<T.FakesheetLookups>(fileContent);
-			songCollection.sort(['artist', 'title']);
-			let keys = songCollection.orderedKeys;
-			for (const key of keys) {
-				const lookups = songCollection.map.get(key)!;
-				console.log(`${key}: ${lookups.artist} ${lookups.title}`);
-			} 
-			// for (const [fileName, songInfo] of songCollection.map) {
-			// 	console.log(`${fileName}: ${songInfo.title}`);
-			// }
+		DB.fetchData(songsIndexFile).then((fileContent: any) => {
+			const dataset = new Dataset<T.FakesheetLookups>(fileContent);
+			let selectedKeys = dataset.sort(dataset.keys, ['title', 'artist']);
+			selectedKeys = dataset.filter(selectedKeys, 'artist', 'The Volumes');
+			const dataLines: string[] = [];
+			for (const key of selectedKeys) {
+				const lookups = dataset.map.get(key)!;
+				dataLines.push(`${key}: ${lookups.artist} - ${lookups.title}`);
+			}
+			page.content.append(Embed.paragraph(dataLines));
 		});
 
 		// const testMarkdownFile = `${page.fetchOrigin}/data/test-markdown.md`;

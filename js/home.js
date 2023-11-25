@@ -1,7 +1,7 @@
 import { Page } from './lib/page.js';
 import * as Embed from './lib/embed.js';
 import * as DB from './lib/fetch.js';
-import { Collection } from './lib/datasets.js';
+import { Dataset } from './lib/datasets.js';
 export function render() {
     const page = new Page();
     const lyrics = [
@@ -14,16 +14,15 @@ export function render() {
     if (page.local) {
         const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
         DB.fetchData(songsIndexFile).then((fileContent) => {
-            const songCollection = new Collection(fileContent);
-            songCollection.sort(['artist', 'title']);
-            let keys = songCollection.orderedKeys;
-            for (const key of keys) {
-                const lookups = songCollection.map.get(key);
-                console.log(`${key}: ${lookups.artist} ${lookups.title}`);
+            const dataset = new Dataset(fileContent);
+            let selectedKeys = dataset.sort(dataset.keys, ['title', 'artist']);
+            selectedKeys = dataset.filter(selectedKeys, 'artist', 'The Volumes');
+            const dataLines = [];
+            for (const key of selectedKeys) {
+                const lookups = dataset.map.get(key);
+                dataLines.push(`${key}: ${lookups.artist} - ${lookups.title}`);
             }
-            // for (const [fileName, songInfo] of songCollection.map) {
-            // 	console.log(`${fileName}: ${songInfo.title}`);
-            // }
+            page.content.append(Embed.paragraph(dataLines));
         });
         // const testMarkdownFile = `${page.fetchOrigin}/data/test-markdown.md`;
         // DB.fetchData(testMarkdownFile).then((fileContent: string) => {

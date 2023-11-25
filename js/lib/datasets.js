@@ -1,4 +1,93 @@
 /**
+ * A Dataset object. Given JSON text, return a Map containing data that conforms to Dataset standards:
+ * - string key
+ * - value containing required fields (to be determined)
+ *
+ * `Dataset.keys` may be filtered using the standard Array.filter, e.g.:
+ * - const filteredKeys = dataset.keys.filter(Value['field'] == 'ok');
+ */
+export class Dataset {
+    constructor(jsonData) {
+        /* convert raw JSON data object into a Map object */
+        this.map = new Map(Object.entries(jsonData));
+        this.keys = Array.from(this.map.keys());
+        this.randomKeys = Shuffle(this.keys);
+    }
+    /**
+     * `this.keys` may be filtered using the standard Array.filter, e.g.:
+     * - const filteredKeys = dataset.keys.filter
+     */
+    /**
+     * Using the given Map field or fields, reorder the keys in the
+     * `orderedKeys` array and reset the `currentKey` to be the first element of
+     * the array. Field names may have a '+' or '-' prefix to indicate ascending
+     * or descending sort, respectively. '+' is assumed if neither character is
+     * present.
+     */
+    sort(keys, fields) {
+        // using the fields array, sort the data record keys
+        // first field is primary sort, second is secondary, etc.
+        // default sort is ascending, overridden by "-" prefix ("+" is assumed)
+        // remove special prefix ('+', '-', etc.) during processing
+        // we may need prefix options such as: case-sensitive? title-sort?
+        // can options be field prefixes or do we need sortField objects?
+        const sortedKeys = keys.slice(); /* get a copy of the property */
+        sortedKeys.sort((a, b) => {
+            let sortValue = 0;
+            /*
+             *  These map values must be defined as type 'any', as this is a
+             *  generic routine and is intended to work for any type of value.
+             */
+            const recordA = this.map.get(a);
+            const recordB = this.map.get(b);
+            for (const field of fields) {
+                if (field in recordA && field in recordB) {
+                    const fieldA = recordA[field];
+                    const fieldB = recordB[field];
+                    if (fieldA == fieldB)
+                        continue;
+                    sortValue = (fieldA > fieldB) ? 1 : -1;
+                    break;
+                }
+            }
+            return sortValue;
+        });
+        return sortedKeys;
+    }
+    filter(keys, field, value) {
+        // let filteredKeys = this.keys.slice();
+        // filteredKeys = Array.from(this.map.keys()).filter((key: string) => {
+        // 	const entry: Value|undefined = this.map.get(key);
+        // 	if (entry) return entry[field] === value;
+        // });
+        let filteredKeys = [];
+        for (const key of keys) {
+            const entry = this.map.get(key);
+            if (entry !== undefined) {
+                if (entry && entry[field] == value)
+                    filteredKeys.push(key);
+            }
+        }
+        return filteredKeys;
+    }
+    /**
+     * Return a randomly selected key from the given `keys` array. This method
+     * may be called multiple times, and will return a different key each time
+     * until all keys have been returned, at which time the returned key will be
+     * `undefined`--unless `recycling` is specified, in which case the random
+     * selection will be reinitialized from the given `keys`.
+     */
+    randomKey(keys, recycling = false) {
+        let randomKey = undefined;
+        if (keys.length) {
+            if (!this.randomKeys.length && recycling)
+                this.randomKeys = Shuffle(keys);
+            randomKey = this.randomKeys.shift();
+        }
+        return randomKey;
+    }
+}
+/**
  * A Collection is created from JSON text, representing a Map with string keys
  * and values specified by a generic type.
  * - Usage: const collection = new Collection\<MyType\>(jsonText);
@@ -131,7 +220,7 @@ export class Collection {
  */
 export function Shuffle(entries) {
     const shuffledEntries = [];
-    const copyOfEntries = entries.slice(0); /* don't modify original array */
+    const copyOfEntries = entries.slice(); /* don't modify original array */
     while (copyOfEntries.length > 0) {
         const randomIndex = Math.floor(Math.random() * copyOfEntries.length);
         shuffledEntries.push(copyOfEntries.splice(randomIndex, 1)[0]);

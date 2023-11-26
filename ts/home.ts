@@ -18,24 +18,42 @@ export function render() {
 
 	if (page.local) {
 
-		const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
-		// const songsIndexFile = `${page.fetchOrigin}/data/park.md`;
-		// DB.fetchData(songsIndexFile).then((fileContent: any) => {
-		// 	const dataset = new Dataset<T.FakesheetLookups>(fileContent);
-		// 	let selectedKeys = dataset.sort(dataset.keys, ['title', 'artist']);
-		// 	selectedKeys = dataset.filter(selectedKeys, 'artist', 'The Volumes');
-		DB.fetchMap<T.FakesheetLookups>(songsIndexFile).then((songsMap) => {
-			let selectedKeys = Array.from(songsMap.keys());
-			// selectedKeys = Data.Shuffle(selectedKeys);
-			// selectedKeys = Data.SortedKeys(songsMap, ['artist', 'title']);
-			selectedKeys = Data.FilteredKeys(songsMap, 'artist', 'The Volumes');
+		const indexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
+		DB.fetchData(indexFile).then((songData) => {
+			const songs = new Data.Bundle<T.FakesheetLookups>(songData);
 			const dataLines: string[] = [];
-			for (const key of selectedKeys) {
-				const lookups = songsMap.get(key)!;
-				dataLines.push(`${key}: ${lookups.artist} - ${lookups.title}`);
+			dataLines.push(`Bundle Size: ${songs.size}`);
+			songs.sort('artist');
+			songs.shuffle();
+			songs.sort();
+			let id = 0;
+			for (const key of songs.keys) {
+				id += 1;
+				dataLines.push(`${id}: ${songs.get(key, 'artist')} - ${key}`);
 			}
 			page.content.append(Embed.paragraph(dataLines));
 		});
+
+
+
+		// const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
+		// // const songsIndexFile = `${page.fetchOrigin}/data/park.md`;
+		// // DB.fetchData(songsIndexFile).then((fileContent: any) => {
+		// // 	const dataset = new Dataset<T.FakesheetLookups>(fileContent);
+		// // 	let selectedKeys = dataset.sort(dataset.keys, ['title', 'artist']);
+		// // 	selectedKeys = dataset.filter(selectedKeys, 'artist', 'The Volumes');
+		// DB.fetchMap<T.FakesheetLookups>(songsIndexFile).then((songsMap) => {
+		// 	let selectedKeys = Array.from(songsMap.keys());
+		// 	// selectedKeys = Data.Shuffle(selectedKeys);
+		// 	// selectedKeys = Data.SortedKeys(songsMap, ['artist', 'title']);
+		// 	selectedKeys = Data.FilteredKeys(songsMap, 'artist', 'The Volumes');
+		// 	const dataLines: string[] = [];
+		// 	for (const key of selectedKeys) {
+		// 		const lookups = songsMap.get(key)!;
+		// 		dataLines.push(`${key}: ${lookups.artist} - ${lookups.title}`);
+		// 	}
+		// 	page.content.append(Embed.paragraph(dataLines));
+		// });
 
 		// const testMarkdownFile = `${page.fetchOrigin}/data/test-markdown.md`;
 		// DB.fetchData(testMarkdownFile).then((fileContent: string) => {

@@ -41,3 +41,20 @@ export async function fetchMap<Value>(path: string) {
 		return map;
 	}
 }
+
+export async function fetchBundle<Value>(path: string) {
+	try {
+		const uri = new Request(path);
+		const response = await fetch(uri);
+		if (!response.ok) throw `cannot fetch ${path}`;
+		if (!path.toLowerCase().endsWith('.json')) throw `${path} is not a JSON file`;
+		let data: any = await response.json();
+		let map = new Map<string, Value>(Object.entries(data));
+		return map;
+	}
+	catch(error) {
+		console.error(error);
+		let map = new Map<string, Value>(); /* empty Map */
+		return map;
+	}
+}

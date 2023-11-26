@@ -1,4 +1,123 @@
 /**
+ * Glob, Clump, Chunk, Bundle. Map with string key and strict record form,
+ * conforms to an interface.
+ *
+ * Here is a use for `Interface` as opposed to `Type`. An Interface has a narrow
+ * use—it is always confined to, corresponds to datasets, indices, corresponding
+ * to data stored in files as a loose, read-only database.
+ *
+ * `bundle.sort()` changes the bundle. `bundle.keys` exposes the current ordered
+ * keys—similarly, `bundle.size`, &c. `Bundle.merge(...)` might take a `spread`
+ * of Bundles and return their composite, a new Bundle. In addition to merge,
+ * there could be additional `Set` operations: XOR, &c.
+ *
+ * Bundles allow complex data manipulations because we know—can assume—a lot
+ * about their fields. When a bundle of a certain interface type is
+ * instantiated, we perform initialization of every required field.
+ * Pseudo/virtual fields can be created at this time too e.g., Seasonal is set
+ * to (2000.Now -2000.Then) (orbital moment)—better called Orbital or
+ * OrbitalOffset or just Offset, perhaps.
+ *
+ * standard (Interface-defined) fields should be lowercase. When Articles set
+ * them via metadata, they should conform to this standard, and avoid collisions
+ * by capitalizing custom data.
+ *
+ * An Interface is the `Options` parameter I have used or considered using in a
+ * number of places. 
+ */
+
+export class Bundle<Interface> {
+	private map;
+	private originalKeys;
+	get keys() { return Array.from(this.map.keys()) }
+	get size() { return this.map.size }
+
+	constructor(map: Map<string, Interface>) {
+		this.map = new Map<string, Interface>(Object.entries(map));
+		this.originalKeys = Array.from(this.map.keys());
+	}
+
+	/**
+	 * Given one or more `bundles`, replace `this.map` with the merged contents of
+	 * the given bundles.
+	 */
+	merge(bundles: Bundle<Interface>[]) {
+		// lots of possible problems could arise from this!
+	}
+
+	/**
+	 * Sort the private map in place. Field names may contain a prefix directive
+	 * to control sort direction (assuming ascending), title-sorting (assuming
+	 * not), etc.
+	 */
+	sort(fields: string|string[] = []) {
+		const newMap = new Map<string, Interface>();
+		let sortFields: string[] = (typeof fields == 'string') ? [fields] : fields;
+		let sortedKeys = this.originalKeys; /* when no argument, revert to original sort */
+		if (sortFields.length) {
+			sortedKeys = this.keys; /* get a copy of the property */
+			sortedKeys.sort((a, b) => {
+				let sortValue = 0;
+				const recordA: any = this.map.get(a)!;
+				const recordB: any = this.map.get(b)!;
+				for (const field of sortFields) {
+					if (field in recordA && field in recordB) {
+						const fieldA = recordA[field];
+						const fieldB = recordB[field];
+						if (fieldA == fieldB) continue;
+						sortValue = (fieldA > fieldB) ? 1 : -1;
+						break;
+					}
+				}
+				return sortValue;
+			});
+		}
+		for (const key of sortedKeys) {
+			newMap.set(key, this.map.get(key)!);
+		}
+		this.map = newMap;
+	}
+
+	/**
+	 * Randomly sort the private map.
+	 */
+	shuffle() {
+		const sortedKeys: string[] = [];
+		const newMap = new Map<string, Interface>();
+		const copyOfKeys = this.keys;
+		while (copyOfKeys.length > 0) {
+			const randomIndex = Math.floor(Math.random() * copyOfKeys.length);
+			sortedKeys.push(copyOfKeys.splice(randomIndex, 1)[0]);
+		}
+		for (const key of sortedKeys) {
+			newMap.set(key, this.map.get(key)!);
+		}
+		this.map = newMap;
+	}
+	
+
+	get(key: string, field: string) {
+		let fieldValue = '';
+		let record: any = this.map.get(key);
+		if (record !== undefined && field in record) {
+			fieldValue = record[field];
+		}
+		return fieldValue;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/**
  * Using the given Map field or fields, reorder the keys in the
  * `orderedKeys` array and reset the `currentKey` to be the first element of
  * the array. Field names may have a '+' or '-' prefix to indicate ascending

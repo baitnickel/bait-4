@@ -18,14 +18,13 @@ export function render() {
 
 	if (page.local) {
 
-		const indexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
-		DB.fetchData(indexFile).then((songData) => {
-			const songs = new Data.Bundle<T.FakesheetLookups>(songData);
+		const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
+		DB.fetchCollection<T.FakesheetLookups>(songsIndexFile).then((songs) => {
 			const dataLines: string[] = [];
 			dataLines.push(`Bundle Size: ${songs.size}`);
 			songs.sort('artist');
-			songs.shuffle();
-			songs.sort();
+			// songs.shuffle();
+			// songs.sort();
 			let id = 0;
 			for (const key of songs.keys) {
 				id += 1;

@@ -1,3 +1,4 @@
+import * as Datasets from './datasets.js';
 /**
  * Read the file given in `path` containing data of `type` (default is 'text').
  * JSON files and blobs are handled differently than text files. When no `type`
@@ -46,7 +47,7 @@ export async function fetchMap(path) {
         return map;
     }
 }
-export async function fetchBundle(path) {
+export async function fetchCollection(path) {
     try {
         const uri = new Request(path);
         const response = await fetch(uri);
@@ -54,13 +55,14 @@ export async function fetchBundle(path) {
             throw `cannot fetch ${path}`;
         if (!path.toLowerCase().endsWith('.json'))
             throw `${path} is not a JSON file`;
-        let data = await response.json();
-        let map = new Map(Object.entries(data));
-        return map;
+        const data = await response.json();
+        // const map = new Map<string, Value>(Object.entries(data));
+        const collection = new Datasets.Collection(data);
+        return collection;
     }
     catch (error) {
         console.error(error);
-        let map = new Map(); /* empty Map */
-        return map;
+        let collection = new Datasets.Collection({}); /* empty Collection */
+        return collection;
     }
 }

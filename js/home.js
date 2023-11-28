@@ -1,7 +1,6 @@
 import { Page } from './lib/page.js';
 import * as Embed from './lib/embed.js';
 import * as DB from './lib/fetch.js';
-import * as Data from './lib/datasets.js';
 export function render() {
     const page = new Page();
     const lyrics = [
@@ -12,14 +11,13 @@ export function render() {
     page.content.append(Embed.paragraph(lyrics));
     // page.content.append(Embed.smugImage('i-SDpf2qV', 'S'));
     if (page.local) {
-        const indexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
-        DB.fetchData(indexFile).then((songData) => {
-            const songs = new Data.Bundle(songData);
+        const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
+        DB.fetchCollection(songsIndexFile).then((songs) => {
             const dataLines = [];
             dataLines.push(`Bundle Size: ${songs.size}`);
             songs.sort('artist');
-            songs.shuffle();
-            songs.sort();
+            // songs.shuffle();
+            // songs.sort();
             let id = 0;
             for (const key of songs.keys) {
                 id += 1;

@@ -1,6 +1,7 @@
 import { Page } from './lib/page.js';
 import * as Embed from './lib/embed.js';
 import * as DB from './lib/fetch.js';
+import * as Data from './lib/datasets.js';
 export function render() {
     const page = new Page();
     const lyrics = [
@@ -14,14 +15,24 @@ export function render() {
         const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
         DB.fetchCollection(songsIndexFile).then((songs) => {
             const dataLines = [];
+            const fvalue = '7';
+            const expression = `${fvalue} == 007`;
+            const query = new Data.Query(expression);
+            dataLines.push(`Query: ${expression} is ${query.result()}`);
             dataLines.push(`Collection Size: ${songs.size}`);
-            songs.sort('t:artist');
+            songs.sort('dt:artist');
             // songs.shuffle();
+            const randomKey = Data.RandomKey(songs.keys);
+            if (randomKey) {
+                let randomSong = songs.record(randomKey);
+                dataLines.push(`Random Song: ${randomSong.title}`);
+            }
             // songs.sort();
             let id = 0;
             for (const key of songs.keys) {
                 id += 1;
-                dataLines.push(`${id}: ${songs.get(key, 'artist')} - ${key}`);
+                const song = songs.record(key);
+                dataLines.push(`${id}: ${song.artist} - ${key}`);
             }
             page.content.append(Embed.paragraph(dataLines));
         });

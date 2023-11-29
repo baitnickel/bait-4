@@ -47,6 +47,11 @@ export async function fetchMap(path) {
         return map;
     }
 }
+/**
+ * Read the JSON file given in `path` and return a Collection (defined in the
+ * custom Datasets module) with string keys and values of type `Value`. On
+ * errors, return an empty Collection.
+ */
 export async function fetchCollection(path) {
     try {
         const uri = new Request(path);
@@ -56,13 +61,12 @@ export async function fetchCollection(path) {
         if (!path.toLowerCase().endsWith('.json'))
             throw `${path} is not a JSON file`;
         const data = await response.json();
-        // const map = new Map<string, Value>(Object.entries(data));
         const collection = new Datasets.Collection(data);
         return collection;
     }
     catch (error) {
         console.error(error);
-        let collection = new Datasets.Collection({}); /* empty Collection */
+        let collection = new Datasets.Collection(); /* empty Collection */
         return collection;
     }
 }

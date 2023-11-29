@@ -14,8 +14,8 @@ export function render() {
         const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
         DB.fetchCollection(songsIndexFile).then((songs) => {
             const dataLines = [];
-            dataLines.push(`Bundle Size: ${songs.size}`);
-            songs.sort('artist');
+            dataLines.push(`Collection Size: ${songs.size}`);
+            songs.sort('t:artist');
             // songs.shuffle();
             // songs.sort();
             let id = 0;

@@ -1,0 +1,23 @@
+# The account names below must match the camper names in "campers.yaml",
+# and upper/lowercase is significant.
+
+smitty:
+  - { site: 40,   arrival: 2023-07-22, days: 7, account: Andrew }
+  - { site: 103,  arrival: 2023-07-22, days: 7, account: Joni }
+  - { site: 95,   arrival: 2023-07-22, days: 7, account: Pete }
+  - { site: 93,   arrival: 2023-07-22, days: 7, account: Laurel }
+  - { site: 99,   arrival: 2023-07-22, days: 7, account: James }
+  - { site: 97,   arrival: 2023-07-23, days: 7, account: Becca }
+  - { site: 36,   arrival: 2023-07-23, days: 7, account: Paul }
+  - { site: J26,  arrival: 2023-07-24, days: 6, account: Becca }
+  - { site: 15,   arrival: 2023-07-28, days: 7, account: Andrew }
+  - { site: 59,   arrival: 2023-07-28, days: 7, account: Corin }
+  - { site: 95,   arrival: 2023-07-29, days: 7, account: Dan }
+  - { site: 99,   arrival: 2023-07-29, days: 7, account: PWesley }
+  - { site: 104,  arrival: 2023-07-29, days: 7, account: PWesley }
+  - { site: J105, arrival: 2023-07-29, days: 7, account: Duck }
+  - { site: 103,  arrival: 2023-07-29, days: 7, account: Carisa }
+  - { site: 40,   arrival: 2023-07-29, days: 7, account: Joni }
+  - { site: 36,   arrival: 2023-07-30, days: 6, account: Corin }
+  - { site: 97,   arrival: 2023-07-30, days: 6, account: Dan }
+ 

@@ -1,5 +1,10 @@
 /**
  * General Type definitions used by both command line scripts and website code.
+ * Also contains functions--it is not to be regarded as merely a type
+ * declarations file.
+ *
+ * @todo
+ * - define `uri` as an extension of string, enforce valid URI
  */
 /**
  * Given any data object, return its type as a string:
@@ -22,17 +27,17 @@ export function Type(data) {
 /**
  * File types (based on extensions).
  */
+const MarkdownExtension = /\.md$/i;
+const JsonExtension = /\.json$/i;
+const YamlExtension = /\.ya?ml$/i;
 export function IsMarkdownFile(pathName) {
-    const markdownExtension = /\.md$/i;
-    return markdownExtension.test(pathName);
+    return MarkdownExtension.test(pathName);
 }
 export function IsJsonFile(pathName) {
-    const jsonExtension = /\.json$/i;
-    return jsonExtension.test(pathName);
+    return JsonExtension.test(pathName);
 }
 export function IsYamlFile(pathName) {
-    const yamlExtension = /\.ya?ml$/i;
-    return yamlExtension.test(pathName);
+    return YamlExtension.test(pathName);
 }
 /**
  * File Information is read from the OS file data and YAML metadata. These are

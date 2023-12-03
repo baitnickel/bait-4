@@ -1,0 +1,22 @@
+# Reservation account aliases
+# Colors represent family/groups
+# Color names must be official CSS color names;
+# see: https://drafts.csswg.org/css-color/#named-colors
+
+Pete:     skyblue
+Joni:     skyblue
+Carisa:   skyblue
+Paul:     skyblue
+Duck:     skyblue
+PWesley:  skyblue
+
+Dan:      palegreen
+Laurel:   palegreen
+Zach:     palegreen
+Wei:      palegreen
+Becca:    palegreen
+
+James:    khaki
+Corin:    khaki
+Isabella: khaki
+Andrew:   khaki

@@ -253,6 +253,15 @@ pre code { /* fenced code blocks */
 	padding-left: 1em;
 	border-left: .5em solid #ccc;
 }
+.quote {
+	font-size: 110%;
+	line-height: 1.25em;
+	background-color: lightgray; /* #cee5ff; */
+	margin-top: 1em;
+	padding: .75em;
+	border: .2em solid gray;
+	border-radius: .5em;
+}
 .article-header {
 	width: -moz-fit-content;
 	width: fit-content;

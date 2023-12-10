@@ -236,7 +236,7 @@ type Campground = { /* get rid of 'id' and key by name */
 // 	campgrounds: Campground[],
 // }
 
-type Quote = {
+export type Quote = {
 	text: string,
 	attribution: string,
 	note: string,

@@ -1,5 +1,6 @@
 import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
+import * as FS from './lib/fetch.js';
 import * as Embed from './lib/embed.js';
 import * as DB from './lib/fetch.js'
 import * as Data from './lib/datasets.js';
@@ -8,6 +9,14 @@ import { Markup, MarkupLine } from './lib/markup.js';
 
 export function render() {
 	const page = new Page();
+
+	const quoteElement = document.createElement('div');
+	quoteElement.className = 'quote';
+	page.content.append(quoteElement);
+	FS.fetchData('Content/data/quotes.json').then((quotes: T.Quote[]) => {
+		page.addQuote(quoteElement, quotes);
+	});
+
 	const lyrics: string[] = [
 		'There’s nothing you can know that isn’t known',
 		'Nothing you can see that isn’t shown',

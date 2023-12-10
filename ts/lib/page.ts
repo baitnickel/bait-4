@@ -1,3 +1,4 @@
+import * as T from './types.js';
 import { Session } from './settings.js';
 import { MarkupLine } from './markup.js';
 
@@ -72,12 +73,12 @@ export class Page {
 		if (footer) this.displayFooter();
 	}
 
+	/**
+	 * Retrieve cookies, if any, and display special menus (append them to
+	 * the MenuItems array) when cookies associated with special privileges
+	 * are present.
+	 */
 	displayHeader(){
-		/**
-		 * Retrieve cookies, if any, and display special menus (append them to
-		 * the MenuItems array) when cookies associated with special privileges
-		 * are present.
-		 */
 		const unorderedList = document.createElement('ul');
 		unorderedList.id = 'menu';
 		this.header.append(unorderedList);
@@ -137,17 +138,38 @@ export class Page {
 		if (asHeadingLevel >= 1 && asHeadingLevel <= 6) this.addHeading(document.title, asHeadingLevel);
 	}
 
+	/**
+	 * The first child element of <body> is <header> (the menu).
+	 * A page heading is added as a new <body> child,
+	 * directly below <header>, using tag <h1>...<h6> (based on 'level').
+	*/
 	addHeading(heading: string, level: number = 1) {
-		/**
-		 * The first child element of <body> is <header> (the menu).
-		 * A page heading is added as a new <body> child,
-		 * directly below <header>, using tag <h1>...<h6> (based on 'level').
-		 */
 		if (this.header) {
 			const tag = (level >= 1 && level <= 6) ? 'h' + level : 'h1';
 			const element = document.createElement(tag);
 			element.innerText = heading;
 			this.header.insertAdjacentElement('afterend', element);
+		}
+	}
+
+	/**
+	 * Given an existing (presumably empty) HTML element in `targetElement`,
+	 * select a quote at random from a list of given `quotes` and fill the
+	 * target element with the contents of the quote.
+	 */
+	addQuote(targetElement: HTMLElement, quotes: T.Quote[]) {
+		if (quotes.length) {
+			const randomQuote = Math.floor(Math.random() * quotes.length);
+			const quote = quotes[randomQuote];
+			const quoteText = document.createElement('span');
+			quoteText.innerHTML = '“' + MarkupLine(quote.text, 'etm') + '”';
+			const lineBreak = document.createElement('br');
+			const attribution = document.createElement('small');
+			const attributionNote = (quote.note) ? `${quote.attribution} (${quote.note})` : quote.attribution;
+			attribution.innerHTML = '~ ' + MarkupLine(attributionNote, 'etm');
+			targetElement.appendChild(quoteText);
+			targetElement.appendChild(lineBreak);
+			targetElement.appendChild(attribution);
 		}
 	}
 }

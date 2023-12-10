@@ -1,7 +1,6 @@
 import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as FS from './lib/fetch.js';
-import * as Embed from './lib/embed.js';
 import * as DB from './lib/fetch.js'
 import * as Data from './lib/datasets.js';
 import { MarkdownDocument } from './lib/md.js';
@@ -10,11 +9,9 @@ import { Markup, MarkupLine } from './lib/markup.js';
 export function render() {
 	const page = new Page();
 
-	const quoteElement = document.createElement('div');
-	quoteElement.className = 'quote';
-	page.content.append(quoteElement);
+	const quoteElement = page.appendElement('div', 'quote');
 	FS.fetchData('Content/data/quotes.json').then((quotes: T.Quote[]) => {
-		page.addQuote(quoteElement, quotes);
+		page.addRandomQuote(quoteElement, quotes);
 	});
 
 	const lyrics: string[] = [
@@ -22,8 +19,11 @@ export function render() {
 		'Nothing you can see that isn’t shown',
 		'Nowhere you can be that isn’t where you’re meant to be',
 	];
-	page.content.append(Embed.paragraph(lyrics));
+	page.appendParagraph(lyrics);
+	// page.content.append(Embed.paragraph(lyrics));
+	page.appendPhoto('i-SDpf2qV', 'S');
 	// page.content.append(Embed.smugImage('i-SDpf2qV', 'S'));
+	page.appendVideo('5FQpeqFmwVk', 560, 315);
 
 	if (page.local) {
 
@@ -49,7 +49,7 @@ export function render() {
 				const song = songs.record(key)!;
 				dataLines.push(`${id}: ${song.artist} - ${key}`);
 			}
-			page.content.append(Embed.paragraph(dataLines));
+			page.appendParagraph(dataLines);
 		});
 
 

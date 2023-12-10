@@ -153,11 +153,59 @@ export class Page {
 	}
 
 	/**
+	 * Given an HTML `elementType` and an optional `elementClass` (the latter
+	 * being one or more class names, separated by space), create the element,
+	 * appending it to Page.content. Return the element.
+	 */
+	appendElement(elementType: string, elementClass: string = '') {
+		const element = document.createElement(elementType);
+		element.className = elementClass;
+		this.content.append(element);
+		return element;
+	}
+
+	/** If text is array, separate each array element with <br> */
+	appendParagraph(text: string|string[]) {
+		let paragraph = document.createElement('p');
+		if (Array.isArray(text)) text = text.join('<br>');
+		paragraph.innerHTML = text;
+		this.content.append(paragraph);
+		return paragraph;
+	}
+
+	/**
+	 * Append an Image element to Page.content, and fill it by making a call to
+	 * SmugMug to retrieve a photo with the given `id`, `size`, and `type`. The
+	 * type defaults to "jpg". Return the HTMLImageElement.
+	 */
+	appendPhoto(id: string, size: string, type: string = 'jpg') {
+		const imageElement = new Image();
+		const smugMug = 'https://photos.smugmug.com/photos';
+		let source = `${smugMug}/${id}/0/${size}/${id}-${size}.${type}`;
+		if (size == 'O') source.replace('-O', '');
+		imageElement.src = source;
+		this.content.append(imageElement);
+		return imageElement;
+	}
+
+	appendVideo(embedID: string, width: number, height:number, options: string[] = []) {
+		const frame = document.createElement('iframe');
+		frame.src = `https://www.youtube.com/embed/${embedID}`;
+		frame.width = `${width}`;
+		frame.height = `${height}`;
+		frame.title = 'YouTube video player';
+		frame.allowFullscreen = true;
+		frame.allow = 'accelerometer,autoplay,clipboard-write,encrypted-media,gyroscope,picture-in-picture,web-share';
+		this.content.append(frame);
+		return frame;
+	}
+
+	/**
 	 * Given an existing (presumably empty) HTML element in `targetElement`,
 	 * select a quote at random from a list of given `quotes` and fill the
 	 * target element with the contents of the quote.
 	 */
-	addQuote(targetElement: HTMLElement, quotes: T.Quote[]) {
+	addRandomQuote(targetElement: HTMLElement, quotes: T.Quote[]) {
 		if (quotes.length) {
 			const randomQuote = Math.floor(Math.random() * quotes.length);
 			const quote = quotes[randomQuote];

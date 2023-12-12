@@ -107,15 +107,16 @@ export function Markup(markdown: string|string[]) {
 }
 
 /**
- * Mark up a single line of text, handling inline elements only. We call the
+ * Mark up a single line of plain text, handling inline elements only. We call the
  * internal `markupText` function, the same function that is called by
  * MarkdownElement.render(). We are assuming that there are no block
  * elements--they won't be interpreted.
  *
- * Options: `M`: markup - convert Markdown text to HTML; `E`: escape special
- * characters using HTML Entities; `T`: typeset characters using proper quotes,
- * dashes, ellipses, etc.; `F`: like `T` for Fixed-width fonts (no dash or
- * ellipsis conversion);
+ * Options: 
+ * - `M`: markup - convert Markdown text to HTML
+ * - `E`: escape special characters using HTML Entities
+ * - `T`: typeset characters using proper quotes, dashes, ellipses, etc.
+ * - `F`: like `T` for Fixed-width fonts (no dash or ellipsis conversion)
  */
 export function MarkupLine(line: string, options: string) {
 	options = options.toUpperCase();

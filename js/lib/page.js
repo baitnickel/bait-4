@@ -127,22 +127,33 @@ export class Page {
         }
     }
     /**
-     * Given an HTML `elementType` and an optional `elementClass` (the latter
-     * being one or more class names, separated by space), create the element,
-     * appending it to Page.content. Return the element.
+     * @todo
+     * In each of the following "append" methods, we cannot assume that
+     * this.content should be the target element--we have to have a way to
+     * override this default. Perhaps this can simply be done through a
+     * parameter that defaults to this.content, but default parameters are
+     * problematic. Another option is to return the finished element, and let
+     * the caller append it to the target element of its choice.
      */
-    appendElement(elementType, elementClass = '') {
-        const element = document.createElement(elementType);
-        element.className = elementClass;
-        this.content.append(element);
-        return element;
-    }
-    /** If text is array, separate each array element with <br> */
+    /**
+     * Given plain text in a string or string array, create a paragraph element
+     * to hold the text, and append the paragraph to Page.content. The text
+     * line(s) are marked up. Return the paragraph element. When the `text` is
+     * an array, each element will be displayed on separate lines (separated by
+     * <br> elements) within the paragraph.
+     */
     appendParagraph(text) {
-        let paragraph = document.createElement('p');
-        if (Array.isArray(text))
-            text = text.join('<br>');
-        paragraph.innerHTML = text;
+        let markedUpText = '';
+        if (Array.isArray(text) && text.length) {
+            const textLines = text.slice(); /* preserve original text lines */
+            for (const i in textLines)
+                textLines[i] = MarkupLine(textLines[i], 'met');
+            markedUpText = textLines.join('<br>');
+        }
+        else if (typeof text === 'string')
+            markedUpText = MarkupLine(text, 'met');
+        const paragraph = document.createElement('p');
+        paragraph.innerHTML = markedUpText;
         this.content.append(paragraph);
         return paragraph;
     }
@@ -161,6 +172,13 @@ export class Page {
         this.content.append(imageElement);
         return imageElement;
     }
+    /**
+     * Given an `embedID`, obtained from a YouTube URL, and a desired display
+     * `width` and `height`, create an "iframe" element to display the video
+     * using YouTube's API, and append the iframe to Page.content. The `options`
+     * parameter may be used in the future to control display options, but it is
+     * not being used currently.
+     */
     appendVideo(embedID, width, height, options = []) {
         const frame = document.createElement('iframe');
         frame.src = `https://www.youtube.com/embed/${embedID}`;
@@ -173,24 +191,23 @@ export class Page {
         return frame;
     }
     /**
-     * Given an existing (presumably empty) HTML element in `targetElement`,
-     * select a quote at random from a list of given `quotes` and fill the
-     * target element with the contents of the quote.
+     * Given a Quote object, format and append the quote to Page.content. Return
+     * the container element.
      */
-    addRandomQuote(targetElement, quotes) {
-        if (quotes.length) {
-            const randomQuote = Math.floor(Math.random() * quotes.length);
-            const quote = quotes[randomQuote];
-            const quoteText = document.createElement('span');
-            quoteText.innerHTML = '“' + MarkupLine(quote.text, 'etm') + '”';
-            const lineBreak = document.createElement('br');
-            const attribution = document.createElement('small');
-            const attributionNote = (quote.note) ? `${quote.attribution} (${quote.note})` : quote.attribution;
-            attribution.innerHTML = '~ ' + MarkupLine(attributionNote, 'etm');
-            targetElement.appendChild(quoteText);
-            targetElement.appendChild(lineBreak);
-            targetElement.appendChild(attribution);
-        }
+    appendQuote(quote) {
+        const container = document.createElement('div');
+        container.className = 'quote';
+        this.content.append(container);
+        const textParagraph = document.createElement('p');
+        textParagraph.className = 'text';
+        textParagraph.innerHTML = MarkupLine(`"${quote.text}"`, 'etm');
+        const attributionNote = (quote.note) ? `${quote.attribution} (${quote.note})` : quote.attribution;
+        const attributionParagraph = document.createElement('p');
+        attributionParagraph.className = 'attribution';
+        attributionParagraph.innerHTML = '~ ' + MarkupLine(attributionNote, 'etm');
+        container.appendChild(textParagraph);
+        container.appendChild(attributionParagraph);
+        return container;
     }
 }
 /**

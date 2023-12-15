@@ -32,6 +32,7 @@ import { Resource } from './resource.js';
  * Code - `content`
  * Italics - *content*
  * Bold - **content**
+ * Superscript - in "E=mc2^" superscript the digit
  * Highlight - ==content==
  * Strikethrough - ~~content~~
  * URL - [content](url) or [content][reference]
@@ -46,6 +47,7 @@ const HEADING_TAG = 'h'; /* converted to 'h1'...'h6' in Heading class */
 const CODE_TAG = 'code';
 const ITALIC_TAG = 'em';
 const BOLD_TAG = 'strong';
+const SUPERSCRIPT_TAG = 'sup';
 const HIGHLIGHT_TAG = 'mark';
 const STRIKETHROUGH_TAG = 's';
 const PREFORMATTED_TAG = 'pre';
@@ -78,6 +80,7 @@ const CODE_PATTERN = /(`.+?`)/;
 const CODE_SEGMENT_PATTERN = /^`.+`$/;
 const ITALIC_PATTERN = /\*(.+?)\*/g;
 const BOLD_PATTERN = /\*{2}(.+?)\*{2}/g;
+const SUPERSCRIPT_PATTERN = /([\S])(\d+)\^/g; ///([^\s\d])(\d)\^/g;
 const HIGHLIGHT_PATTERN = /={2}(.+?)={2}/g;
 const STRIKETHROUGH_PATTERN = /~{2}(.+?)~{2}/g;
 const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g;
@@ -727,6 +730,7 @@ function markupText(text, resources = null) {
             /* simple global replacements */
             segment = segment.replace(IMAGE_PATTERN, `<${IMAGE_TAG} src="$2" alt="$1">`);
             segment = segment.replace(LINK_PATTERN, `<${LINK_TAG} href="$2">$1</${LINK_TAG}>`);
+            segment = segment.replace(SUPERSCRIPT_PATTERN, `$1<${SUPERSCRIPT_TAG}>$2</${SUPERSCRIPT_TAG}>`);
             segment = segment.replace(BOLD_PATTERN, `<${BOLD_TAG}>$1</${BOLD_TAG}>`);
             segment = segment.replace(ITALIC_PATTERN, `<${ITALIC_TAG}>$1</${ITALIC_TAG}>`);
             segment = segment.replace(HIGHLIGHT_PATTERN, `<${HIGHLIGHT_TAG}>$1</${HIGHLIGHT_TAG}>`);

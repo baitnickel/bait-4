@@ -31,7 +31,7 @@ export function render() {
 	if (page.local) {
 		const testCollection = false;
 		const testMap = false;
-		const testMarkdown = false;
+		const testMarkdown = true;
 
 		if (testCollection) {
 			const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;

@@ -5,15 +5,22 @@ import { MarkdownDocument } from './lib/md.js';
 import { Markup } from './lib/markup.js';
 export function render() {
     const page = new Page();
+    const Quote = page.appendContent();
+    const Collection = page.appendContent();
+    const TestMap = page.appendContent();
+    const TestMarkdown = page.appendContent();
+    const Lorem = page.appendContent();
+    const Photo = page.appendContent();
+    const Video = page.appendContent();
     DB.fetchData(`${page.fetchOrigin}/Content/data/quotes.json`).then((quotes) => {
         const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        page.appendQuote(randomQuote);
+        page.appendQuote(Quote, randomQuote);
         const lorem = `Aliquip deserunt adipisicing id labore nisi ipsum aliqua sunt ex adipisicing velit sint quis nulla. Non ea irure voluptate non. Pariatur proident eu sunt non ullamco excepteur enim in enim reprehenderit eu occaecat occaecat tempor. Veniam aute non dolore tempor ex dolor tempor sint enim proident. Reprehenderit ex anim magna tempor adipisicing consequat ipsum exercitation laborum duis sunt fugiat nostrud. Excepteur aute commodo laboris qui ad enim amet velit. Nulla ex do labore anim ut commodo amet laboris eu dolore est. Ut sunt fugiat labore in sit id qui. Minim voluptate irure ea ea deserunt aliquip eiusmod commodo. Reprehenderit id ex amet quis elit labore et ad amet consequat deserunt anim. Anim ullamco sint elit veniam.`;
-        page.appendParagraph(lorem);
+        page.appendParagraph(Lorem, lorem);
     });
-    // page.appendPhoto('i-SDpf2qV', 'S');
+    page.appendPhoto(Photo, 'i-SDpf2qV', 'S');
     // page.appendParagraph('');
-    // page.appendVideo('9MtLIkk2ihw', 400, 220);
+    page.appendVideo(Video, '9MtLIkk2ihw', 400, 220);
     if (page.local) {
         const testCollection = false;
         const testMap = false;
@@ -37,7 +44,7 @@ export function render() {
                     const song = songs.record(key);
                     dataLines.push(`${id}: ${song.artist} - ${key}`);
                 }
-                page.appendParagraph(dataLines);
+                page.appendParagraph(Collection, dataLines);
             });
         }
         if (testMap) {
@@ -49,7 +56,7 @@ export function render() {
                     const lookups = songsMap.get(key);
                     dataLines.push(`${key}: ${lookups.artist} - ${lookups.title}`);
                 }
-                page.appendParagraph(dataLines);
+                page.appendParagraph(TestMap, dataLines);
             });
         }
         if (testMarkdown) {
@@ -57,13 +64,13 @@ export function render() {
             DB.fetchData(testMarkdownFile).then((fileContent) => {
                 if (!fileContent) {
                     const errorMessage = `Cannot read file: ${testMarkdownFile}`;
-                    page.appendParagraph(errorMessage);
+                    page.appendParagraph(TestMarkdown, errorMessage);
                 }
                 else {
                     const markdownDocument = new MarkdownDocument(fileContent);
                     markdownDocument.text += `\n\nFirst text line is: ${markdownDocument.textOffset + 1}`;
                     const html = Markup(markdownDocument.text);
-                    const paragraph = page.appendParagraph('');
+                    const paragraph = page.appendParagraph(TestMarkdown, '');
                     paragraph.innerHTML = html;
                 }
             });

@@ -162,6 +162,12 @@ export class Page {
 	 * the caller append it to the target element of its choice.
 	 */
 
+	appendContent(tagName: string = 'div') {
+		const element = document.createElement(tagName);
+		this.content.append(element);
+		return element;
+	}
+
 	/**
 	 * Given plain text in a string or string array, create a paragraph element
 	 * to hold the text, and append the paragraph to Page.content. The text
@@ -169,7 +175,7 @@ export class Page {
 	 * an array, each element will be displayed on separate lines (separated by
 	 * <br> elements) within the paragraph.
 	 */
-	appendParagraph(text: string|string[]) {
+	appendParagraph(targetElement: HTMLElement, text: string|string[]) {
 		let markedUpText = '';
 		if (Array.isArray(text) && text.length) {
 			const textLines = text.slice(); /* preserve original text lines */
@@ -179,7 +185,7 @@ export class Page {
 		else if (typeof text === 'string') markedUpText = MarkupLine(text, 'met');
 		const paragraph = document.createElement('p');
 		paragraph.innerHTML = markedUpText;
-		this.content.append(paragraph);
+		targetElement.append(paragraph);
 		return paragraph;
 	}
 
@@ -188,13 +194,13 @@ export class Page {
 	 * SmugMug to retrieve a photo with the given `id`, `size`, and `type`. The
 	 * type defaults to "jpg". Return the HTMLImageElement.
 	 */
-	appendPhoto(id: string, size: string, type: string = 'jpg') {
+	appendPhoto(targetElement: HTMLElement, id: string, size: string, type: string = 'jpg') {
 		const imageElement = new Image();
 		const smugMug = 'https://photos.smugmug.com/photos';
 		let source = `${smugMug}/${id}/0/${size}/${id}-${size}.${type}`;
 		if (size == 'O') source.replace('-O', '');
 		imageElement.src = source;
-		this.content.append(imageElement);
+		targetElement.append(imageElement);
 		return imageElement;
 	}
 
@@ -205,7 +211,7 @@ export class Page {
 	 * parameter may be used in the future to control display options, but it is
 	 * not being used currently. 
 	 */
-	appendVideo(embedID: string, width: number, height:number, options: string[] = []) {
+	appendVideo(targetElement: HTMLElement, embedID: string, width: number, height:number, options: string[] = []) {
 		const frame = document.createElement('iframe');
 		frame.src = `https://www.youtube.com/embed/${embedID}`;
 		frame.width = `${width}`;
@@ -213,7 +219,7 @@ export class Page {
 		frame.title = 'YouTube video player';
 		frame.allowFullscreen = true;
 		frame.allow = 'accelerometer,autoplay,clipboard-write,encrypted-media,gyroscope,picture-in-picture,web-share';
-		this.content.append(frame);
+		targetElement.append(frame);
 		return frame;
 	}
 
@@ -221,10 +227,12 @@ export class Page {
 	 * Given a Quote object, format and append the quote to Page.content. Return
 	 * the container element.
 	 */
-	appendQuote(quote: T.Quote) {
-		const container = document.createElement('div');
-		container.className = 'quote';
-		this.content.append(container);
+	appendQuote(targetElement: HTMLElement, quote: T.Quote) {
+		// const container = document.createElement('div');
+		// container.className = 'quote';
+		// targetElement.append(container);
+		targetElement.className = 'quote';
+
 		const textParagraph = document.createElement('p');
 		textParagraph.className = 'text';
 		textParagraph.innerHTML = MarkupLine(`"${quote.text}"`, 'etm');
@@ -232,9 +240,14 @@ export class Page {
 		const attributionParagraph = document.createElement('p');
 		attributionParagraph.className = 'attribution';
 		attributionParagraph.innerHTML = '~ ' + MarkupLine(attributionNote, 'etm');
-		container.appendChild(textParagraph);
-		container.appendChild(attributionParagraph);
-		return container;
+
+		targetElement.append(textParagraph);
+		targetElement.append(attributionParagraph);
+		return targetElement;
+
+		// container.appendChild(textParagraph);
+		// container.appendChild(attributionParagraph);
+		// return container;
 	}
 }
 

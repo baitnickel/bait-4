@@ -25,6 +25,32 @@ export function Type(data) {
     return type.toLowerCase();
 }
 /**
+ * Given an array of object property values, converted to strings if necessary,
+ * return a "key" string. Represent missing values with the empty string ('').
+ * Properties should be selected for the purpose of generating unique keys.
+ *
+ * E.g.: songKey = ObjectKey([song.title, song.artist]);
+ */
+export function ObjectKey(properties) {
+    let key = '';
+    let connector = '';
+    for (let property of properties) {
+        key += connector;
+        let words = property.split(/[\s\W_]/); /* ignore whitespace and non-word characters */
+        words.forEach((word) => {
+            word = word.trim();
+            if (word) {
+                let firstCharacter = word[0].toUpperCase(); /* improves readability */
+                let remainingCharacters = word.substring(1).toLowerCase();
+                word = firstCharacter + remainingCharacters;
+            }
+            key += word;
+        });
+        connector = '-';
+    }
+    return key;
+}
+/**
  * File types (based on extensions).
  */
 const MarkdownExtension = /\.md$/i;

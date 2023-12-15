@@ -241,4 +241,3 @@ export type Quote = {
 	attribution: string,
 	note: string,
 }
-

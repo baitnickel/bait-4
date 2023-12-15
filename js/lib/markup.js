@@ -80,7 +80,7 @@ const CODE_PATTERN = /(`.+?`)/;
 const CODE_SEGMENT_PATTERN = /^`.+`$/;
 const ITALIC_PATTERN = /\*(.+?)\*/g;
 const BOLD_PATTERN = /\*{2}(.+?)\*{2}/g;
-const SUPERSCRIPT_PATTERN = /([\S])(\d+)\^/g; ///([^\s\d])(\d)\^/g;
+const SUPERSCRIPT_PATTERN = /([\S])(\d+)\^/g;
 const HIGHLIGHT_PATTERN = /={2}(.+?)={2}/g;
 const STRIKETHROUGH_PATTERN = /~{2}(.+?)~{2}/g;
 const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g;

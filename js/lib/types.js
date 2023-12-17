@@ -32,23 +32,22 @@ export function Type(data) {
  * E.g.: songKey = ObjectKey([song.title, song.artist]);
  */
 export function ObjectKey(properties) {
-    let key = '';
-    let connector = '';
+    const keySegments = [];
+    const connector = '+';
     for (let property of properties) {
-        key += connector;
-        let words = property.split(/[\s\W_]/); /* ignore whitespace and non-word characters */
-        words.forEach((word) => {
-            word = word.trim();
+        let keySegment = '';
+        property = property.replace(/\'/g, ''); /* remove apostrophes */
+        let words = property.split(/[\s\W_]/); /* break words on space and non-alphanumeric */
+        words.forEach(word => {
+            word = word.toLowerCase().trim();
             if (word) {
-                let firstCharacter = word[0].toUpperCase(); /* improves readability */
-                let remainingCharacters = word.substring(1).toLowerCase();
-                word = firstCharacter + remainingCharacters;
+                word = word[0].toUpperCase() + word.substring(1);
+                keySegment += word;
             }
-            key += word;
         });
-        connector = '-';
+        keySegments.push(keySegment);
     }
-    return key;
+    return keySegments.join(connector);
 }
 /**
  * File types (based on extensions).

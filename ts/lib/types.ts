@@ -266,4 +266,5 @@ export type Quote = {
 	text: string,
 	attribution: string,
 	note: string,
+	date: string, /* ISO string */
 }

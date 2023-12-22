@@ -18,13 +18,13 @@ export function render() {
         const lorem = `Aliquip deserunt adipisicing id labore nisi ipsum aliqua sunt ex adipisicing velit sint quis nulla. Non ea irure voluptate non. Pariatur proident eu sunt non ullamco excepteur enim in enim reprehenderit eu occaecat occaecat tempor. Veniam aute non dolore tempor ex dolor tempor sint enim proident. Reprehenderit ex anim magna tempor adipisicing consequat ipsum exercitation laborum duis sunt fugiat nostrud. Excepteur aute commodo laboris qui ad enim amet velit. Nulla ex do labore anim ut commodo amet laboris eu dolore est. Ut sunt fugiat labore in sit id qui. Minim voluptate irure ea ea deserunt aliquip eiusmod commodo. Reprehenderit id ex amet quis elit labore et ad amet consequat deserunt anim. Anim ullamco sint elit veniam.`;
         page.appendParagraph(Lorem, lorem);
     });
-    page.appendPhoto(Photo, 'i-SDpf2qV', 'S');
+    // page.appendPhoto(Photo, 'i-SDpf2qV', 'S');
     // page.appendParagraph('');
-    page.appendVideo(Video, '9MtLIkk2ihw', 400, 220);
+    // page.appendVideo(Video, '9MtLIkk2ihw', 400, 220);
     if (page.local) {
-        const testCollection = false;
+        const testCollection = true;
         const testMap = false;
-        const testMarkdown = true;
+        const testMarkdown = false;
         if (testCollection) {
             const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
             DB.fetchCollection(songsIndexFile).then((songs) => {
@@ -37,12 +37,18 @@ export function render() {
                     dataLines.push(`Random Song: ==${randomSong.title}==`);
                     dataLines.push('');
                 }
-                // songs.sort();
                 let id = 0;
-                for (const key of songs.keys) {
+                // for (const key of songs.keys) {
+                // 	id += 1;
+                // 	const song = songs.record(key)!;
+                // 	dataLines.push(`${id}: ${song.artist} - ${key}`);
+                // }
+                let key = songs.first(); //songs.last();
+                while (key) {
                     id += 1;
                     const song = songs.record(key);
-                    dataLines.push(`${id}: ${song.artist} - ${key}`);
+                    dataLines.push(`${id}: ${song.artist} - ${song.title}`);
+                    key = songs.next(); //songs.previous();
                 }
                 page.appendParagraph(Collection, dataLines);
             });
@@ -50,11 +56,18 @@ export function render() {
         if (testMap) {
             const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
             DB.fetchMap(songsIndexFile).then((songsMap) => {
-                let selectedKeys = Array.from(songsMap.keys());
                 const dataLines = [];
-                for (const key of selectedKeys) {
-                    const lookups = songsMap.get(key);
-                    dataLines.push(`${key}: ${lookups.artist} - ${lookups.title}`);
+                // let selectedKeys = Array.from(songsMap.keys());
+                // for (const key of selectedKeys) {
+                // 	const lookups = songsMap.get(key)!;
+                // 	dataLines.push(`${key}: ${lookups.artist} - ${lookups.title}`);
+                // }
+                const collection = new Data.Collection(songsMap);
+                let entry = collection.first();
+                while (entry !== null) {
+                    const record = collection.record(entry);
+                    dataLines.push(`${entry}: ${record.artist} - ${record.title}`);
+                    entry = collection.next();
                 }
                 page.appendParagraph(TestMap, dataLines);
             });

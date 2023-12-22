@@ -128,16 +128,41 @@ export class Page {
     }
     /**
      * @todo
-     * In each of the following "append" methods, we cannot assume that
-     * this.content should be the target element--we have to have a way to
-     * override this default. Perhaps this can simply be done through a
-     * parameter that defaults to this.content, but default parameters are
-     * problematic. Another option is to return the finished element, and let
-     * the caller append it to the target element of its choice.
+     * Given `folders`, an array of folder path names (e.g., ['Content/drafts',
+     * 'Content/journals', 'Content/technical']), where the paths all follow the
+     * given `root`, extract the markdown files contained within them and
+     * organize them into a Collection that can be navigated through First,
+     * Previous, Next, Last, &c. directives.
+     *
+     * We must rely on Indices lest we are forced to read every file in each
+     * folder and examine its metadata--something which is not practical from a
+     * performance standpoint.
+     *
+     * We will likely need to specify filter or query conditions as a parameter,
+     * or rely on "Collection" markdown files whose metadata provide such
+     * details (perhaps, even including `folders` and `root`--maybe the only
+     * parameter this method needs is the name of a collection.md file).
+     *
+     * A Collection might be an audio album, an audio playlist, a set of
+     * journals or drafts or chapters, &c.--all described in a collection
+     * document.
+     *
+     * (Using the language of MDN's article on the "Iterator" object) a
+     * Collection is an object that conforms to the Collection protocol by
+     * providing first(), previous(), next(), and last() methods that return an
+     * Entry result object.
      */
-    appendContent(tagName = 'div') {
+    renderCollection(folders, root = '') {
+    }
+    /**
+     * Given an HTML `tagName`, denoting the HTML element type as in
+     * document.createElement(tagName), create a new HTML element and append it
+     * to the `targetElement` (this.content by default, as suggested by the
+     * method name). Return the new HTML element object.
+     */
+    appendContent(tagName = 'div', targetElement = this.content) {
         const element = document.createElement(tagName);
-        this.content.append(element);
+        targetElement.append(element);
         return element;
     }
     /**

@@ -1,6 +1,6 @@
 /**
  * A Collection is, in effect, an extension of Map. Collection keys must be
- * strings, and Collection values are specified by the generic Interface type,
+ * strings, and Collection values are specified by the generic Structure type,
  * which represents the data record in the Collection entries.
  */
 export class Collection {
@@ -9,14 +9,64 @@ export class Collection {
     constructor(data = {}) {
         this.map = new Map(Object.entries(data));
         this.originalKeys = Array.from(this.map.keys());
+        this.index = (this.size !== 0) ? 0 : null;
     }
     /**
-     * Given a `key` to an `Interface` record, return the `record` or
+     * Given a `key` to an `Structure` record, return the `record` or
      * `undefined` if the key is invalid.
      */
     record(key) {
         let record = this.map.get(key);
         return record;
+    }
+    /**
+     * Return the key of the first entry in the collection, or null if the
+     * collection is empty.
+     */
+    first() {
+        if (this.size) {
+            this.index = 0;
+            return this.keys[this.index];
+        }
+        else
+            return null;
+    }
+    /**
+     * Return the key of the previous entry in the collection, or null if the
+     * collection is empty or there is no previous key.
+     */
+    previous() {
+        if (this.size && this.index) {
+            this.index -= 1;
+            return this.keys[this.index];
+        }
+        else
+            return null;
+    }
+    /**
+     * Return the key of the next entry in the collection, or null if the
+     * collection is empty or there is no next key.
+     */
+    next() {
+        if (this.size && this.index !== null && this.index < this.size - 1) {
+            this.index += 1;
+            return this.keys[this.index];
+        }
+        else
+            return null;
+    }
+    /**
+     * Return the key of the last entry in the collection, or null if the
+     * collection is empty.
+     */
+    last() {
+        // if (this.size && this.index && this.index !== this.size - 1) {
+        if (this.size) {
+            this.index = this.size - 1;
+            return this.keys[this.index];
+        }
+        else
+            return null;
     }
     /**
      * Sort the private map in place. Field names may contain an optional prefix

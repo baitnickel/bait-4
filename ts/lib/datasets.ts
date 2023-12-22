@@ -158,7 +158,20 @@ export class Collection<Structure> {
 		for (const key of shuffledKeys) newMap.set(key, this.map.get(key)!);
 		this.map = newMap;
 	}
-	
+
+	/**
+	 * Return an array of strings, representing a subset of this Collection's
+	 * keys, including only entries that pass the test in the given `include`
+	 * function.
+	 */
+	subset(include: (key: string) => boolean) {
+		const keys: string[] = [];
+		for (const key of this.keys) {
+			if (include(key)) keys.push(key);
+		}
+		return keys;
+	}
+
 	/**
 	 * Extract only those entries meeting some selection criteria, such as an
 	 * array of Query statements.
@@ -168,8 +181,8 @@ export class Collection<Structure> {
 	 * and the remainder of the expression is a value to be tested. This should
 	 * return either the selected keys or a new Collection.
 	 */
-	extract() {
-	}
+	// extract() {
+	// }
 }
 
 /**

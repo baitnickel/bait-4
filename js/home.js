@@ -6,7 +6,7 @@ import { Markup } from './lib/markup.js';
 export function render() {
     const page = new Page();
     const Quote = page.appendContent();
-    const Collection = page.appendContent();
+    const TestCollection = page.appendContent();
     const TestMap = page.appendContent();
     const TestMarkdown = page.appendContent();
     const Lorem = page.appendContent();
@@ -24,7 +24,7 @@ export function render() {
     if (page.local) {
         const testCollection = true;
         const testMap = false;
-        const testMarkdown = false;
+        const testMarkdown = true;
         if (testCollection) {
             const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
             DB.fetchCollection(songsIndexFile).then((songs) => {
@@ -50,7 +50,18 @@ export function render() {
                     dataLines.push(`${id}: ${song.artist} - ${song.title}`);
                     key = songs.next(); //songs.previous();
                 }
-                page.appendParagraph(Collection, dataLines);
+                dataLines.push('___');
+                const subsetKeys = songs.subset(key => {
+                    const song = songs.record(key);
+                    return (song.artist == 'Dan' || song.artist.startsWith('Elle'));
+                });
+                id = 0;
+                for (const key of subsetKeys) {
+                    id += 1;
+                    const song = songs.record(key);
+                    dataLines.push(`${id}: ${song.artist} - ${song.title}`);
+                }
+                page.appendParagraph(TestCollection, dataLines);
             });
         }
         if (testMap) {

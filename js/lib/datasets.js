@@ -153,15 +153,17 @@ export class Collection {
         this.map = newMap;
     }
     /**
-     * Extract only those entries meeting some selection criteria, such as an
-     * array of Query statements.
-     *
-     * I think this method should take an expression, where the first word is a
-     * valid field name in this.map, the second word is a comparison operator,
-     * and the remainder of the expression is a value to be tested. This should
-     * return either the selected keys or a new Collection.
+     * Return an array of strings, representing a subset of this Collection's
+     * keys, including only entries that pass the test in the given `include`
+     * function.
      */
-    extract() {
+    subset(include) {
+        const keys = [];
+        for (const key of this.keys) {
+            if (include(key))
+                keys.push(key);
+        }
+        return keys;
     }
 }
 /**

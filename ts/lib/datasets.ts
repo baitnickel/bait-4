@@ -9,6 +9,8 @@ export class Collection<Structure> {
 	private index;
 	get keys() { return Array.from(this.map.keys()) }
 	get size() { return this.map.size }
+	get preceding() { return this.index !== null && this.index > 0 }
+	get succeeding() { return this.index !== null && this.index < (this.size - 1) }
 
 	constructor(data: any = {}) {
 		this.map = new Map<string, Structure>(Object.entries(data));

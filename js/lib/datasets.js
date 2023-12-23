@@ -6,6 +6,8 @@
 export class Collection {
     get keys() { return Array.from(this.map.keys()); }
     get size() { return this.map.size; }
+    get preceding() { return this.index !== null && this.index > 0; }
+    get succeeding() { return this.index !== null && this.index < (this.size - 1); }
     constructor(data = {}) {
         this.map = new Map(Object.entries(data));
         this.originalKeys = Array.from(this.map.keys());

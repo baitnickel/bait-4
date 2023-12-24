@@ -154,20 +154,12 @@ export class Collection {
             newMap.set(key, this.map.get(key));
         this.map = newMap;
     }
-    /**
-     * Return an array of strings, representing a subset of this Collection's
-     * keys, including only entries that pass the test in the given `include`
-     * function.
-     */
-    subset(include) {
-        const keys = [];
-        for (const key of this.keys) {
-            if (include(key))
-                keys.push(key);
-        }
-        return keys;
-    }
 }
+/**
+ * @todo ?
+ * create subclasses of Collection to handle code which relies on knowledge of a
+ * specific `Structure`, e.g., Songs.
+ */
 /**
  * A Query object is created from a string expression, e.g.:
  * - 'title == a day in the life'

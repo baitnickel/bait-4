@@ -155,13 +155,46 @@ export class Page {
     renderCollection(folders, root = '') {
     }
     /**
-     * Given an HTML `tagName`, denoting the HTML element type as in
-     * document.createElement(tagName), create a new HTML element and append it
-     * to the `targetElement` (this.content by default, as suggested by the
-     * method name). Return the new HTML element object.
+     * Given a string containing element `properties` (explained below), create
+     * a new HTML element and append it to the `targetElement` (this.content by
+     * default, as suggested by the method name). Return the new HTML element
+     * object.
+     *
+     * The `properties` string may contain three types of space-separated words:
+     * - id: a word starting with "#" (if multiple, only the first is used)
+     * - class list: words starting with "."
+     * - tag name: a word representing a valid HTML element tag (defaults to
+     *   "div"; if multiple, only the first is used)
+     *
+     * Example:
+     * - const element = page.appendContent('article #blog-1 .bold .pretty');
      */
-    appendContent(tagName = 'div', targetElement = this.content) {
+    appendContent(properties = '', targetElement = this.content) {
+        // split properties into terms
+        // set tagName, id, classList
+        const terms = properties.split(/\s/);
+        let tagName = '';
+        let id = '';
+        const classes = [];
+        for (const term of terms) {
+            if (term[0] == '#') {
+                if (term.length > 1 && !id)
+                    id = term.slice(1);
+            }
+            else if (term[0] == '.') {
+                if (term.length > 1 && !classes.includes(term))
+                    classes.push(term.slice(1));
+            }
+            else if (!tagName)
+                tagName = term;
+        }
+        if (!tagName)
+            tagName = 'div';
         const element = document.createElement(tagName);
+        if (id)
+            element.id = id;
+        if (classes.length)
+            element.className = classes.join(' ');
         targetElement.append(element);
         return element;
     }
@@ -179,9 +212,12 @@ export class Page {
             for (const i in textLines)
                 textLines[i] = MarkupLine(textLines[i], 'met');
             markedUpText = textLines.join('<br>');
+            // markedUpText = Markup(textLines);
         }
-        else if (typeof text === 'string')
+        else if (typeof text === 'string') {
             markedUpText = MarkupLine(text, 'met');
+            // markedUpText = Markup(text);
+        }
         const paragraph = document.createElement('p');
         paragraph.innerHTML = markedUpText;
         targetElement.append(paragraph);

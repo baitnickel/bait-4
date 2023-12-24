@@ -166,13 +166,13 @@ export class Collection<Structure> {
 	 * keys, including only entries that pass the test in the given `include`
 	 * function.
 	 */
-	subset(include: (key: string) => boolean) {
-		const keys: string[] = [];
-		for (const key of this.keys) {
-			if (include(key)) keys.push(key);
-		}
-		return keys;
-	}
+	// subset(include: (key: string) => boolean) {
+	// 	const keys: string[] = [];
+	// 	for (const key of this.keys) {
+	// 		if (include(key)) keys.push(key);
+	// 	}
+	// 	return keys;
+	// }
 
 	/**
 	 * Extract only those entries meeting some selection criteria, such as an
@@ -186,6 +186,12 @@ export class Collection<Structure> {
 	// extract() {
 	// }
 }
+
+/**
+ * @todo ?
+ * create subclasses of Collection to handle code which relies on knowledge of a
+ * specific `Structure`, e.g., Songs.
+ */
 
 /**
  * A Query object is created from a string expression, e.g.:

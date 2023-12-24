@@ -8,13 +8,13 @@ import { Markup, MarkupLine } from './lib/markup.js';
 export function render() {
 	const page = new Page();
 	
-	const Quote = page.appendContent();
-	const TestCollection = page.appendContent();
-	const TestMap = page.appendContent();
-	const TestMarkdown = page.appendContent();
-	const Lorem = page.appendContent();
-	const Photo = page.appendContent();
-	const Video = page.appendContent();
+	const Quote = page.appendContent('#Quote');
+	const TestCollection = page.appendContent('#TestCollection');
+	const TestMap = page.appendContent('#TestMap');
+	const TestMarkdown = page.appendContent('#TestMarkdown');
+	const Lorem = page.appendContent('#Lorem .blue');
+	const Photo = page.appendContent('#Photo');
+	const Video = page.appendContent('#Video');
 
 	DB.fetchData(`${page.fetchOrigin}/Content/data/quotes.json`).then((quotes: T.Quote[]) => {
 		const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
@@ -41,35 +41,28 @@ export function render() {
 				// songs.shuffle();
 				const randomKey = Data.RandomKey(songs.keys);
 				if (randomKey) {
-					let randomSong = songs.record(randomKey);
-					dataLines.push(`Random Song: ==${randomSong!.title}==`);
+					let randomSong = songs.record(randomKey)!;
+					dataLines.push(`Random Song: ==${randomSong.title}==`);
 					dataLines.push('');
 				}
 
 				let id = 0;
-				// for (const key of songs.keys) {
-				// 	id += 1;
-				// 	const song = songs.record(key)!;
-				// 	dataLines.push(`${id}: ${song.artist} - ${key}`);
-				// }
 				let key = songs.first(); //songs.last();
 				while (key) {
 					id += 1;
 					const song = songs.record(key)!;
-					dataLines.push(`${id}: ${song.artist} - ${song.title}`);
+					dataLines.push(`${id}: [${songs.preceding}] ${song.artist} - ${song.title} [${songs.succeeding}]`);
 					key = songs.next(); //songs.previous();
 				}
 
 				dataLines.push('___');
-				const subsetKeys = songs.subset(key => {
-					const song = songs.record(key);
-					return (song!.artist == 'Dan' || song!.artist.startsWith('Elle'));
-				});
 				id = 0;
-				for (const key of subsetKeys) {
-					id += 1;
+				for (const key of songs.keys) {
 					const song = songs.record(key)!;
-					dataLines.push(`${id}: ${song.artist} - ${song.title}`);
+					if (song.artist == 'Dan' || song.artist.startsWith('Elle')) {
+						id += 1;
+						dataLines.push(`${id}: ${song.artist} - ${song.title}`);
+					}
 				}
 
 				page.appendParagraph(TestCollection, dataLines);
@@ -80,11 +73,6 @@ export function render() {
 			const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
 			DB.fetchMap<T.FakesheetLookups>(songsIndexFile).then((songsMap) => {
 				const dataLines: string[] = [];
-				// let selectedKeys = Array.from(songsMap.keys());
-				// for (const key of selectedKeys) {
-				// 	const lookups = songsMap.get(key)!;
-				// 	dataLines.push(`${key}: ${lookups.artist} - ${lookups.title}`);
-				// }
 				const collection = new Data.Collection<T.FakesheetLookups>(songsMap);
 				let entry = collection.first();
 				while (entry !== null) {

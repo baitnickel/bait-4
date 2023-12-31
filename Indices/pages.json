@@ -1,0 +1,42 @@
+{
+	"camp": {
+		"revision": 1703457963646,
+		"access": 0
+	},
+	"home": {
+		"revision": 1703459788221,
+		"access": 0
+	},
+	"index": {
+		"revision": 1703436309247,
+		"access": 0
+	},
+	"songbook": {
+		"revision": 1703457963638,
+		"access": 0
+	},
+	"test-cookies": {
+		"revision": 1703457963596,
+		"access": 0
+	},
+	"test-file-api": {
+		"revision": 1703457963594,
+		"access": 0
+	},
+	"test-lyrics": {
+		"revision": 1703457963593,
+		"access": 0
+	},
+	"test-svg": {
+		"revision": 1703457963580,
+		"access": 0
+	},
+	"test-types": {
+		"revision": 1703459788217,
+		"access": 0
+	},
+	"test-yaml": {
+		"revision": 1703457963577,
+		"access": 0
+	}
+}

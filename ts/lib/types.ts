@@ -65,14 +65,21 @@ export function IsYamlFile(pathName: string) {
 	return YamlExtension.test(pathName);
 }
 
+export type Message = {
+	type: 'E' | 'W' | 'I';
+	text: string;
+}
+
 /**
  * File Information is read from the OS file data and YAML metadata. These are
  * used determine how to sync files between the source and target systems.
 */
 export const AccessKey = 'Access';
 export type FileInfo = {
-	revision: number; /* Date.valueOf(); */
+	sourcePath: string;
+	targetPath: string;
 	access: number;
+	revision: number; /* Date.valueOf(); */
 }
 
 /**
@@ -148,123 +155,124 @@ type Photo = {
  */
 
 type Track = {
-	id: number,
-	title: string,
-	performers: string[],
-	composers: string[],
-	date: string, /* year */
-	audio: string, /* file path */
-	sheets: string[], /* unused */
-	notes: string,
+	id: number;
+	title: string;
+	performers: string[];
+	composers: string[];
+	date: string; /* year */
+	audio: string; /* file path */
+	sheets: string[]; /* unused */
+	notes: string;
 }
 type Album = {
-	id: number, /* key */
-	title: string,
-	images: string[], /* unused */
-	tracks: Track[],
-	notes: string,
+	id: number; /* key */
+	title: string;
+	images: string[]; /* unused */
+	tracks: Track[];
+	notes: string;
 }
 
 type SongSheet = {
-	file: string, /* key */
-	title: string,
-	artist: string,
-	copyright: string,
+	file: string; /* key */
+	title: string;
+	artist: string;
+	copyright: string;
 }
 
 type HexagramText = {
-	commentary: string[],
-	verse: string[],
+	commentary: string[];
+	verse: string[];
 }
 type IChingName = {
-	chinese: string,
-	english: string,
-	script: string,
+	chinese: string;
+	english: string;
+	script: string;
 }
 type Hexagram = {
-	chapter: number,
-	character: string,
-	commentary: string[],
-	image: HexagramText,
-	judgment: HexagramText,
-	lines: HexagramText[],
-	name: IChingName,
+	chapter: number;
+	character: string;
+	commentary: string[];
+	image: HexagramText;
+	judgment: HexagramText;
+	lines: HexagramText[];
+	name: IChingName;
 }
 type IChing = {
-	attribution: string,
-	hexagrams: Hexagram[],
-	trigrams: IChingName[],
+	attribution: string;
+	hexagrams: Hexagram[];
+	trigrams: IChingName[];
 }
 type Radical = {
-	unicode: number,
-	character_name: string,
-	definitions: string[],
-	positive: boolean|null,
+	unicode: number;
+	character_name: string;
+	definitions: string[];
+	positive: boolean|null;
 }
 type Images = {
-	file: string,
-	created: string, /* Date */
+	file: string;
+	created: string; /* Date */
 }
 
 type Journal /* JournalEntry */ = { /* keyed by uri */
-	summary: string,
-	created: string, /* Date */
-	modified: string, /* Date */
-	starred: boolean,
-	tags: string[],
+	summary: string;
+	created: string; /* Date */
+	modified: string; /* Date */
+	starred: boolean;
+	tags: string[];
 	/* Location */
-	city: string,
-	state: string,
-	country: string,
+	city: string;
+	state: string;
+	country: string;
 	/* Photo */
-	photoFile: string,
-	photoWidth: number,
-	photoHeight: number,
+	photoFile: string;
+	photoWidth: number;
+	photoHeight: number;
 }
 // type Journal = {
-// 	file: { entry: JournalEntry },
+// 	file: { entry: JournalEntry };
 // }
 
 // type ParkAccount = {
-// 	account: { color: string },
+// 	account: { color: string };
 // }
 type Camper = { /* keyed by name */
-	color: string,
+	color: string;
 }
 type ParkReservation = { /* keyed by Campground name + Site name */
-	// parkId: number,
-	// campgroundId: number,
-	// site: string,
-	arrival: string /* pseudo Date */
-	days: number, /* or `nights` */
-	// account: ParkAccount,
-	account: string, /* key for Camper record */
+	// parkId: number;
+	// campgroundId: number;
+	// site: string;
+	arrival: string; /* pseudo Date */
+	days: number; /* or `nights` */
+	// account: ParkAccount;
+	account: string; /* key for Camper record */
 }
 type Campsite = { /* keyed by Campground name + Site name */
-	// site: string,
-	type: string,
-	size: string,
-	tents: number,
-	table: string,
-	/* reservations: ParkReservation[], */
-	comments: string,
+	// site: string;
+	type: string;
+	size: string;
+	tents: number;
+	table: string;
+	/* reservations: ParkReservation[]; */
+	comments: string;
 }
 type Campground = { /* get rid of 'id' and key by name */
-	// id: number,
-	// name: string,
-	map: string, /* uri */
-	comments: string[],
+	// id: number;
+	// name: string;
+	map: string; /* uri */
+	comments: string[];
 }
 // get rid of Park and just define Campgrounds instead
 // type Park = {
-// 	id: number,
-// 	name: string,
-// 	campgrounds: Campground[],
+// 	id: number;
+// 	name: string;
+// 	campgrounds: Campground[];
 // }
 
 export type Quote = {
-	text: string,
-	attribution: string,
-	note: string,
-	date: string, /* ISO string */
+	text: string;
+	attribution: string;
+	note: string;
+	date: string; /* Date.toISOString() */
+	source: string;
 }

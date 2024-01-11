@@ -1,8 +1,9 @@
 ---
 Access: 0
 title: Wholly the Changes Come
-artist: Dan
-composers: [Dan]
+artist: Dan Dickinson
+composers:
+  - Dan
 key: C
 capo: 2
 chords:

@@ -1,114 +1,170 @@
 {
 	"README.md": {
-		"revision": 1699662193766,
-		"access": -1
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/README.md",
+		"targetPath": "/Users/dan/Sites/bait-4/README.md",
+		"access": 0,
+		"revision": 1699662193766
 	},
 	"drafts/Santa Cruz.md": {
-		"revision": 1698965236646,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/drafts/Santa Cruz.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/drafts/Santa Cruz.md",
+		"access": 0,
+		"revision": 1698965236646
 	},
 	"fakesheets/a-meeting-of-the-minds.md": {
-		"revision": 1699484175742,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/a-meeting-of-the-minds.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/a-meeting-of-the-minds.md",
+		"access": 0,
+		"revision": 1699484175742
 	},
 	"fakesheets/a-wake-in-time.md": {
-		"revision": 1699484195862,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/a-wake-in-time.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/a-wake-in-time.md",
+		"access": 0,
+		"revision": 1699484195862
 	},
 	"fakesheets/all-i-know.md": {
-		"revision": 1699484215400,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/all-i-know.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/all-i-know.md",
+		"access": 0,
+		"revision": 1699484215400
 	},
 	"fakesheets/all-the-time.md": {
-		"revision": 1699484226706,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/all-the-time.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/all-the-time.md",
+		"access": 0,
+		"revision": 1699484226706
 	},
 	"fakesheets/i-knew-the-moment.md": {
-		"revision": 1699484237551,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/i-knew-the-moment.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/i-knew-the-moment.md",
+		"access": 0,
+		"revision": 1699484237551
 	},
 	"fakesheets/i-think-im-falling-in-love-again.md": {
-		"revision": 1699484254125,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/i-think-im-falling-in-love-again.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/i-think-im-falling-in-love-again.md",
+		"access": 0,
+		"revision": 1699484254125
 	},
 	"fakesheets/matthew-and-erin.md": {
-		"revision": 1699484263456,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/matthew-and-erin.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/matthew-and-erin.md",
+		"access": 0,
+		"revision": 1699484263456
 	},
 	"fakesheets/melon-seller.md": {
-		"revision": 1699484276033,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/melon-seller.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/melon-seller.md",
+		"access": 0,
+		"revision": 1699484276033
 	},
 	"fakesheets/miracles.md": {
-		"revision": 1699484287837,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/miracles.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/miracles.md",
+		"access": 0,
+		"revision": 1699484287837
 	},
 	"fakesheets/mitchell.md": {
-		"revision": 1699484299536,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/mitchell.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/mitchell.md",
+		"access": 0,
+		"revision": 1699484299536
 	},
 	"fakesheets/monterey.md": {
-		"revision": 1699484311618,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/monterey.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/monterey.md",
+		"access": 0,
+		"revision": 1699484311618
 	},
 	"fakesheets/nobody-needs-to-know.md": {
-		"revision": 1699484327083,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/nobody-needs-to-know.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/nobody-needs-to-know.md",
+		"access": 0,
+		"revision": 1699484327083
 	},
 	"fakesheets/one-is-fine.md": {
-		"revision": 1699484337963,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/one-is-fine.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/one-is-fine.md",
+		"access": 0,
+		"revision": 1699484337963
 	},
 	"fakesheets/promises-we-make.md": {
-		"revision": 1699484350152,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/promises-we-make.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/promises-we-make.md",
+		"access": 0,
+		"revision": 1699484350152
 	},
 	"fakesheets/rabbit-and-the-white-fish.md": {
-		"revision": 1699484363876,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/rabbit-and-the-white-fish.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/rabbit-and-the-white-fish.md",
+		"access": 0,
+		"revision": 1699484363876
 	},
 	"fakesheets/same-way-too.md": {
-		"revision": 1698965189003,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/same-way-too.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/same-way-too.md",
+		"access": 0,
+		"revision": 1698965189003
 	},
 	"fakesheets/she-left-me-last-night.md": {
-		"revision": 1699482846049,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/she-left-me-last-night.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/she-left-me-last-night.md",
+		"access": 0,
+		"revision": 1699482846049
 	},
 	"fakesheets/torn-apart.md": {
-		"revision": 1699484375391,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/torn-apart.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/torn-apart.md",
+		"access": 0,
+		"revision": 1699484375391
 	},
 	"fakesheets/wholly-the-changes-come.md": {
-		"revision": 1699484387913,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/wholly-the-changes-come.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/wholly-the-changes-come.md",
+		"access": 0,
+		"revision": 1704847340381
 	},
 	"fakesheets/zacharys-song.md": {
-		"revision": 1699483302704,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/fakesheets/zacharys-song.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/fakesheets/zacharys-song.md",
+		"access": 0,
+		"revision": 1699483302704
 	},
 	"test-docs/Father Son and Holy Ghost.md": {
-		"revision": 1701989226411,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/test-docs/Father Son and Holy Ghost.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/test-docs/Father Son and Holy Ghost.md",
+		"access": 0,
+		"revision": 1701989226411
 	},
 	"test-docs/Sangha.md": {
-		"revision": 1699046100114,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/test-docs/Sangha.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/test-docs/Sangha.md",
+		"access": 0,
+		"revision": 1699046100114
 	},
 	"test-redwords/40-matthew.md": {
-		"revision": 1699045940059,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/test-redwords/40-matthew.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/test-redwords/40-matthew.md",
+		"access": 0,
+		"revision": 1699045940059
 	},
 	"test-redwords/41-mark.md": {
-		"revision": 1699045879739,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/test-redwords/41-mark.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/test-redwords/41-mark.md",
+		"access": 0,
+		"revision": 1699045879739
 	},
 	"test-redwords/42-luke.md": {
-		"revision": 1699045888781,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/test-redwords/42-luke.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/test-redwords/42-luke.md",
+		"access": 0,
+		"revision": 1699045888781
 	},
 	"test-redwords/43-john.md": {
-		"revision": 1699045892878,
-		"access": 0
+		"sourcePath": "/Users/dan/Library/Mobile Documents/iCloud~md~obsidian/Documents/main/Content/test-redwords/43-john.md",
+		"targetPath": "/Users/dan/Sites/bait-4/Content/test-redwords/43-john.md",
+		"access": 0,
+		"revision": 1699045892878
 	}
 }

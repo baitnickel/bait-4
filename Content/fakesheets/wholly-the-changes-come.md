@@ -1,7 +1,7 @@
 ---
 Access: 0
 title: Wholly the Changes Come
-artist: Dan Dickinson
+artist: Dan
 composers:
   - Dan
 key: C

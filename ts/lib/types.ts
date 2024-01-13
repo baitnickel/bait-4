@@ -65,22 +65,35 @@ export function IsYamlFile(pathName: string) {
 	return YamlExtension.test(pathName);
 }
 
-export type Message = {
-	type: 'E' | 'W' | 'I';
-	text: string;
-}
+// export type Message = {
+// 	type: 'E' | 'W' | 'I';
+// 	text: string;
+// }
 
 /**
  * File Information is read from the OS file data and YAML metadata. These are
  * used determine how to sync files between the source and target systems.
 */
 export const AccessKey = 'Access';
-export type FileInfo = {
-	sourcePath: string;
-	targetPath: string;
+
+// export type FileInfo = {
+// 	source: string;
+// 	target: string;
+// 	access: number;
+// 	revision: number; /* Date.valueOf(); */
+// }
+
+export type FileSync = {
+	localPath: string;
+	remotePath: string;
+}
+
+export type FileStats = {
 	access: number;
 	revision: number; /* Date.valueOf(); */
 }
+
+export type FileInfo = FileSync | FileStats;
 
 /**
  * Fakesheet files contain special YAML metadata, some of which is used in

@@ -2,9 +2,12 @@
 # and upper/lowercase is significant.
 
 smitty:
-  # 2024 reservations
+  # 2024
   - { site: 12,   arrival: 2024-07-19, days: 7, account: Pete }
-  # 2023 reservations
+  - { site: 85,   arrival: 2024-07-20, days: 7, account: Zach }
+  - { site: 86,   arrival: 2024-07-20, days: 7, account: Becca }
+  - { site: 89,   arrival: 2024-07-20, days: 7, account: James }
+  # 2023
   - { site: 40,   arrival: 2023-07-22, days: 7, account: Andrew }
   - { site: 103,  arrival: 2023-07-22, days: 7, account: Joni }
   - { site: 95,   arrival: 2023-07-22, days: 7, account: Pete }

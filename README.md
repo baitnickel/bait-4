@@ -12,4 +12,7 @@ We assume here that you are at least somewhat familiar with the following topics
 
 We are not using any third-party libraries, only standard JavaScript, so there are no dependencies. We're following the Mozilla documentation strictly, using only code features that are supported on (virtually) all modern browsers.
 
-(Updated 1/18/2024)
+#### A Static Web Page
+Part of the challenge in a static environment is managing data complexity without a `database`. My approach is to maintain data—markdown articles, YAML configuration, &c.—in a separate repository on my localhost machine, and write code in this repository that performs refreshes of the website repository.
+
+(Updated 1/19/2024)

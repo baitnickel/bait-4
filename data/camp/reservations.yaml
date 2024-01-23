@@ -4,6 +4,7 @@
 smitty:
   # 2024
   - { site: 12,   arrival: 2024-07-19, days: 7, account: Pete }
+  - { site: 43,   arrival: 2024-07-23, days: 7, account: Duck }
   - { site: 47,   arrival: 2024-07-21, days: 7, account: Andrew }
   - { site: 58,   arrival: 2024-07-21, days: 7, account: James }
   - { site: 85,   arrival: 2024-07-20, days: 7, account: Zach }

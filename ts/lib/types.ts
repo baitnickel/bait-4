@@ -70,6 +70,26 @@ export function IsYamlFile(pathName: string) {
 // 	text: string;
 // }
 
+export type GlobalProperties = {
+	aliases: string[];
+	tags: string[];
+	access: number;
+}
+
+/**
+ * Instead, we could form a union type instead of repeating GlobalProperties
+ * here, but VSCode currently (2024) doesn't handle unions well (unionType =
+ * GlobalProperties|SongProperties) when assisting with property selections. Is
+ * it possible in TypeScript to "include" one type inside another? `eval`?
+ */
+export type SongProperties = {
+	aliases: string[];
+	tags: string[];
+	access: number;
+	title: string;
+	artist: string;
+}
+
 /**
  * File Information is read from the OS file data and YAML metadata. These are
  * used determine how to sync files between the source and target systems.

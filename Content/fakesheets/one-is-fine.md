@@ -1,5 +1,5 @@
 ---
-Access: 0
+access: 0
 title: One Is Fine
 artist: The Baitnickels
 composers: [Dan]

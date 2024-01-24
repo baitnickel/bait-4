@@ -1,5 +1,5 @@
 ---
-Access: 0
+access: 0
 title: A Meeting of the Minds
 artist: The Baitnickels
 composers: [Dan]

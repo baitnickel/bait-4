@@ -1,5 +1,5 @@
 ---
-Access: 0
+access: 0
 title: Rabbit and the White Fish
 artist: The Baitnickels
 composers: [Dan]

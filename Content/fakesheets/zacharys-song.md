@@ -1,5 +1,5 @@
 ---
-Access: 0
+access: 0
 title: Zachary's Song
 artist: Dan
 composers: [Dan]

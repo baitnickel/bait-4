@@ -1,5 +1,5 @@
 ---
-Access: 0
+access: 0
 title: Monterey
 artist: Elle Dickinson
 composers: [Isabella Wolfe Dickinson]

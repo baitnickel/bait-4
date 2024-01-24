@@ -1,5 +1,5 @@
 ---
-Access: 0
+access: 0
 title: All the Time
 artist: The Baitnickels
 composers: [Dan]

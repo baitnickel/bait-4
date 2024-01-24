@@ -1,5 +1,5 @@
 ---
-Access: 0
+access: 0
 title: Wholly the Changes Come
 artist: Dan
 composers:

@@ -7,6 +7,7 @@ smitty:
   - { site: 12,   arrival: 2024-07-25, days: 7, account: Paul }
   - { site: 43,   arrival: 2024-07-25, days: 7, account: Duck }
   - { site: 47,   arrival: 2024-07-21, days: 7, account: Andrew }
+  - { site: 47,   arrival: 2024-07-28, days: 6, account: PWesley }
   - { site: 58,   arrival: 2024-07-21, days: 7, account: James }
   - { site: 85,   arrival: 2024-07-20, days: 7, account: Zach }
   - { site: 85,   arrival: 2024-07-27, days: 7, account: Dan }

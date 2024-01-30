@@ -4,9 +4,10 @@ const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
 const MenuItems = [
-    { module: 'home', text: 'Home', icon: 'home.svg' },
-    { module: 'camp', text: 'Camping', icon: 'camp.svg' },
-    { module: 'songbook', text: 'Song Book', icon: 'songbook.svg' },
+    { module: 'home', parameters: [], text: 'Home', icon: 'home.svg' },
+    { module: 'camp', parameters: [], text: 'Camping', icon: 'camp.svg' },
+    { module: 'articles', parameters: ['path=Content/drafts'], text: 'Drafts', icon: '' },
+    { module: 'songbook', parameters: [], text: 'Song Book', icon: 'songbook.svg' },
 ];
 export class Page {
     constructor(header = true, footer = true) {
@@ -40,12 +41,12 @@ export class Page {
         }
         /** Add test pages */
         if (this.local) {
-            MenuItems.push({ module: 'test-redwords', text: 'Red Words', icon: '' });
-            MenuItems.push({ module: 'test-cookies', text: 'Cookies', icon: '' });
-            MenuItems.push({ module: 'test-lyrics', text: 'Lyrics', icon: '' });
-            MenuItems.push({ module: 'test-file-api', text: 'File API', icon: '' });
-            MenuItems.push({ module: 'test-svg', text: 'SVG', icon: '' });
-            MenuItems.push({ module: 'test-yaml', text: 'YAML', icon: '' });
+            MenuItems.push({ module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: '' });
+            // MenuItems.push({module: 'test-cookies', parameters: [], text: 'Cookies', icon: ''});
+            // MenuItems.push({module: 'test-lyrics', parameters: [], text: 'Lyrics', icon: ''});
+            // MenuItems.push({module: 'test-file-api', parameters: [], text: 'File API', icon: ''});
+            // MenuItems.push({module: 'test-svg', parameters: [], text: 'SVG', icon: ''});
+            // MenuItems.push({module: 'test-yaml', parameters: [], text: 'YAML', icon: ''});
         }
         if (header)
             this.displayHeader();
@@ -61,11 +62,15 @@ export class Page {
         const unorderedList = document.createElement('ul');
         unorderedList.id = 'menu';
         this.header.append(unorderedList);
-        for (let menuItem of MenuItems) {
+        for (const menuItem of MenuItems) {
             const listElement = document.createElement('li');
             unorderedList.append(listElement);
+            let urlQuery = `page=${menuItem.module}`;
+            for (const parameter of menuItem.parameters) {
+                urlQuery += `&${parameter}`;
+            }
             const anchor = document.createElement('a');
-            anchor.href = `${this.url}?page=${menuItem.module}`;
+            anchor.href = `${this.url}?${urlQuery}`;
             anchor.innerText = menuItem.text;
             listElement.append(anchor);
         }

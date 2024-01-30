@@ -98,6 +98,7 @@ const SPAN_PATTERN = /\{\{(.*?)\}\}/;
  * contains `Resource` objects with relative (query) definitions.
  */
 export function Markup(markdown) {
+    MARKDOWN = new MarkdownText();
     MARKDOWN.loadLines(markdown);
     return MARKDOWN.html();
 }
@@ -142,7 +143,15 @@ class MarkdownText {
         this.getResources();
     }
     loadLines(lines) {
-        this.lines = (typeof lines == 'string') ? lines.split('\n') : lines;
+        let line = '';
+        if (Array.isArray(lines)) {
+            line = lines.join('\n').trim();
+        }
+        else
+            line = lines.trim();
+        this.lines = line.split('\n');
+        // we now trim the lines before processing them
+        // this.lines = (typeof lines == 'string') ? lines.split('\n') : lines;
     }
     /**
      * Called as the first pass over the `MarkdownText` lines to extract any
@@ -261,7 +270,8 @@ class MarkdownText {
  * This global object represents the source markdown text and all its
  * properties.
  */
-const MARKDOWN = new MarkdownText;
+// const MARKDOWN = new MarkdownText; // Yikes! Constant is loaded on import, shared between looping calls
+let MARKDOWN;
 /**
  * `MarkdownElement` is a superclass; all element objects will be instantiated
  * as subclass extensions of this superclass. Parameters: `tags`: one or more

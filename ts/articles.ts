@@ -57,7 +57,7 @@ export function render() {
 	 */
 	DB.fetchMap<T.FileStats>(articlesIndex).then((articles: Map<string, T.FileStats>) => {
 		for (const path of articles.keys()) {
-			if (eligible(path, eligiblePaths)) paths.push(path);
+			if (eligible(path, eligiblePaths)) paths.push(`${page.fetchOrigin}/path`);
 		}
 		displayArticle(articleElement, paths[articleIndex]);
 	});

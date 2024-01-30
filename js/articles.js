@@ -52,7 +52,7 @@ export function render() {
     DB.fetchMap(articlesIndex).then((articles) => {
         for (const path of articles.keys()) {
             if (eligible(path, eligiblePaths))
-                paths.push(path);
+                paths.push(`${page.fetchOrigin}/path`);
         }
         displayArticle(articleElement, paths[articleIndex]);
     });

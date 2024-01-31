@@ -92,11 +92,15 @@ function eligible(path: string, eligiblePaths: string[]) {
  */
 function displayArticle(targetElement: HTMLElement, path: string) {
 	DB.fetchData(path).then((fileText: string) => {
-		let heading = '';
-		const matches = path.match(/.*\/(.*)\..*$/);
-		if (matches !== null) heading = `# ${matches[1]}\n`;
-		const markdownDocument = new MarkdownDocument(fileText);
-		const article = Markup(heading + markdownDocument.text);
+		const markdown = new MarkdownDocument(fileText);
+		let title = '';
+		if ('title' in markdown.metadata) title = markdown.metadata['title'];
+		else { /* use file name as title */
+			const matches = path.match(/.*\/(.*)\..*$/);
+			if (matches !== null) title = matches[1];
+		}
+		const heading = (title) ? `# ${title}\n` : ''
+		const article = Markup(heading + markdown.text);
 		targetElement.innerHTML = article;
 	});
 }

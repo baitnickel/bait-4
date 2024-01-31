@@ -125,11 +125,13 @@ export class Page {
      * directly below <header>, using tag <h1>...<h6> (based on 'level').
     */
     addHeading(heading, level = 1) {
-        if (this.header) {
+        // if (this.header) {
+        if (this.content) {
             const tag = (level >= 1 && level <= 6) ? 'h' + level : 'h1';
             const element = document.createElement(tag);
             element.innerText = heading;
-            this.header.insertAdjacentElement('afterend', element);
+            // this.header.insertAdjacentElement('afterend', element);
+            this.content.append(element);
         }
     }
     /**

@@ -70,10 +70,16 @@ export function IsYamlFile(pathName: string) {
 // 	text: string;
 // }
 
+/**
+ * Markdown files intended for website display will have most, if not all, of
+ * the properties declared in this type. All values are strings to simplify
+ * metadata preprocessing, though some may require string versions of other
+ * types, i.e., numbers, booleans, etc.
+ */
 export type Metadata = {
 	aliases: string[];
 	tags: string[];
-	access: number;
+	access: string;
 	title: string;
 	artist: string;
 }

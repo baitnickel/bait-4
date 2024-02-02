@@ -2,8 +2,7 @@
 access: 0
 title: Same Way Too
 artist: The Baitnickels
-composers:
-  - Dan
+composers: [Dan]
 key: B
 chords:
   - F#7      x443(2,0)0

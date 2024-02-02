@@ -1,8 +1,28 @@
 import * as YAML from './yaml.js';
 
 /**
- * A MarkdownDocument object represents a document which may contain YAML
- * metadata as well as text.
+ * Given a string containing the contents of a text file, presumed to be a
+ * markdown file that may or may not contain a YAML metadata header (front
+ * matter), create an object having the properties:
+ * 
+ * - `metadata`: a data object of type "any", containing metadata key:value
+ *   pairs, if any
+ * - `text`: the markdown text
+ * - `textOffset`: the zero-based line number of the first `text` line
+ * 
+ * If the file contains only YAML metadata lines without markdown text, and the
+ * YAML lines are not preceded by a "---" line and followed by a "---" line, set
+ * the `yamlOnly` parameter to `true`. Otherwise the lines will be treated as
+ * markdown text.
+ * 
+ * If all metadata values are to be returned as strings (or string arrays), set
+ * the `stringMetadata` parameter to `true`. Otherwise non-string values will be
+ * converted to Numbers, Booleans, and Nulls.
+ * 
+ * If parsing errors occur during instantiation, the `errors` property will be
+ * set to true, and a list of error messages will be found in `metadataErrors`.
+ * The `errorMessages` and `reportErrors` methods can be used to display error
+ * messages.
  */
 export class MarkdownDocument {
 	metadata: any;
@@ -12,15 +32,12 @@ export class MarkdownDocument {
 	errors: boolean;
 	metadataErrors: string[];
 
-	constructor(markdownDocument: string, yamlOnly: boolean = false) {
+	constructor( markdownDocument: string, yamlOnly = false, stringMetadata = false) {
 		this.metadata = null;
 		this.text = '';
 		this.textOffset = -1;
-		this.options = { // @todo set using parameter(s)
-			convertNulls: true,
-			convertNumbers: true,
-			convertBooleans: true,
-		};
+		if (stringMetadata) this.options = {convertNulls: false, convertNumbers: false, convertBooleans: false};
+		else this.options = {convertNulls: true, convertNumbers: true, convertBooleans: true};
 		this.errors = false;
 		this.metadataErrors = [];
 		const metadataLines: string[] = [];

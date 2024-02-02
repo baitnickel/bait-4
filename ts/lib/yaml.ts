@@ -148,8 +148,8 @@ export class YAML {
 				 	continue;
 				}
 
-				/** when node belongs to a previous block, roll up and remove the deeper block(s) */
-				this.compactBlocks(blocks, node.depth);
+				/** when node belongs to a previous block, roll up the data and remove the deeper block(s) */
+				this.rollUpBlocks(blocks, node.depth);
 
 				/** reject node having a type different than the block type */
 				if (node.type != blocks[0].type) {
@@ -173,12 +173,13 @@ export class YAML {
 
 		/** process dangling parentNode (last node is parent without children) */
 		if (parentNode) {
-			if (blocks[0].type == SEQ) blocks[0].data.push(null);
-			else blocks[0].data[parentNode.key] = null;
+			const value: string|null = (this.options.convertNulls) ? null : '';
+			if (blocks[0].type == SEQ) blocks[0].data.push(value);
+			else blocks[0].data[parentNode.key] = value;
 		}
 
-		/** compact the blocks data into the top-level block and return it */
-		return this.compactBlocks(blocks);
+		/** roll up the blocks data into the top-level block and return it to the calling program */
+		return this.rollUpBlocks(blocks);
 	}
 
 	block(parent: YAMLNode|null, child: YAMLNode) {
@@ -191,24 +192,32 @@ export class YAML {
 		return block;
 	}
 
-	compactBlocks(blocks: Block[], depth: number = 0) {
-		/**
-		 * The deepest Blocks (the leaves) are on the top of the (FILO) stack
-		 * and the root Block is on the bottom of the stack (a bit
-		 * counter-intuitive, perhaps). 'block[0]' is always the current Block,
-		 * the Block where nodes are currently being processed. Here, we compact
-		 * Blocks to the level specified in 'depth'.
-		 *
-		 * Return the data accumulated as we compact each block.
-		 */
+	/**
+	 * Roll up the data in the current block into the data of its parent block
+	 * and dispose of the current block. Continue until the specified depth is
+	 * reached, returning the data.
+	 * 
+	 * Each block maintains data accumulated from its parent and sibling blocks.
+	 * Ultimately, the data is accumulated from all blocks and returned as the
+	 * result of the YAML parsing.
+	 * 
+	 * The `blocks` array represents a FILO stack. A new block is shifted onto
+	 * the top of the Blocks stack (at index 0) whenever we encounter a node
+	 * that has a deeper indentation than the previous one. `block[0]` always
+	 * represents the current block, and `block[1]` the block that precedes it
+	 * (with a lower indentation depth).
+	 */
+	rollUpBlocks(blocks: Block[], depth: number = 0) {
 		let data: any = null;
 		if (blocks.length) {
 			while (blocks.length > 1 && blocks[0].parent && depth <= blocks[0].parent.depth) {
-				if (blocks[0].parent.type == SEQ) blocks[1].data.push(blocks[0].data)
-				else blocks[1].data[blocks[0].parent.key] = blocks[0].data;
+				let value = blocks[0].data;
+				if (value === null && !this.options.convertNulls) value = '';
+				if (blocks[0].parent.type == SEQ) blocks[1].data.push(value);
+				else blocks[1].data[blocks[0].parent.key] = value;
 				blocks.shift();
 			}
-			data = blocks[0].data;
+			data = blocks[0].data; // should we be using something like `value` above?
 		}
 		return data;
 	}
@@ -224,11 +233,11 @@ export class YAML {
 		return valid;
 	}
 
+	/**
+	 * Read an array of raw YAML text lines and return a corresponding array of
+	 * YAMLNodes.
+	 */
 	yamlNodes() {
-		/**
-		 * Read an array of raw YAML text lines and return a corresponding array of
-		 * YAMLNodes.
-		 */
 		let nodes: YAMLNode[] = [];
 		const indentedText = /(\S+)/; /* solely for determining indentation level */
 		/**
@@ -270,6 +279,10 @@ export class YAML {
 		return nodes;
 	}
 
+	/**
+	 * Based on conversion options, return the given value as either a string,
+	 * or the intended type (Number, Boolean, null). 
+	 */
 	convertValue(value: string) {
 		let convertedValue: any = value;
 		if (this.options.convertNumbers && !isNaN(Number(value))) {
@@ -278,12 +291,17 @@ export class YAML {
 		if (this.options.convertBooleans && ['true', 'false'].includes(value)) {
 			convertedValue = (value == 'true') ? true : false;
 		}
-		if (this.options.convertNulls && value == 'null') {
+		if (this.options.convertNulls && value == 'null') { // never true? is value ever set to string 'null'?
 			convertedValue = null;
 		}
 		return convertedValue;
 	}
 
+	/**
+	 * Interpret the given value, which may be a single value or a "flow" value
+	 * (a list of Map values in braces or a list of Sequence values in
+	 * brackets).
+	 */
 	interpretValue(value: string) {
 		let data: any = null;
 		if (value) {
@@ -296,6 +314,10 @@ export class YAML {
 		return data;
 	}
 	
+	/**
+	 * Given a Map expression, convert the values into a data Map. Return the
+	 * Map.
+	 */
 	flowMap(expression: string) {
 		let data: any = {};
 		const keyValues = this.commaSeparatedValues(expression);
@@ -311,6 +333,10 @@ export class YAML {
 		return data;
 	}
 	
+	/**
+	 * Given a Sequence expression, convert the values into an array. Return the
+	 * array.
+	 */
 	flowSequence(expression: string) {
 		let data: any = [];
 		const values = this.commaSeparatedValues(expression);
@@ -320,6 +346,9 @@ export class YAML {
 		return data;
 	}
 	
+	/**
+	 * Given a raw YAML text line, return a "clean" line, with comments removed.
+	 */
 	removeComments(line: string) {
 		let cleanLine = line;
 		/** pattern is hash preceded by whitespace and not quoted */
@@ -334,6 +363,10 @@ export class YAML {
 		return cleanLine;
 	}
 	
+	/**
+	 * Given a text string containing comma-separated values, return an array of
+	 * values.
+	 */
 	commaSeparatedValues(text: string) {
 		let values: string[] = [];
 		let pattern = /("[^"]+"|[^,]+)/g;
@@ -351,11 +384,21 @@ export class YAML {
 		return values;
 	}
 
+	/**
+	 * Given an `index` representing the file line number (minus 1), and an
+	 * `errorMessage`, compose an entry in `YAML.exceptions` indicating the line
+	 * number in the file where the error occurred, the error message, and the
+	 * content of the line.
+	 */
 	recordException(index: number, errorMessage: string) {
 		let lineNumber = index + 1;
 		this.exceptions.push(`[${lineNumber}] ${errorMessage}: ${this.lines[index].trim()}`);
 	}
 	
+	/**
+	 * Write exception messages, if any, to the console. Return `true` if
+	 * processing was successful, else `false`.
+	 */
 	reportExceptions() {
 		let successfulResult = this.success();
 		if (!successfulResult)
@@ -368,6 +411,9 @@ export class YAML {
 		return successfulResult;
 	}
 	
+	/**
+	 * Return `true` if processing was successful, else `false`.
+	 */
 	success() {
 		return (this.exceptions.length) ? false : true;
 	}

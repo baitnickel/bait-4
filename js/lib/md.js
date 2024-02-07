@@ -14,9 +14,9 @@ import * as YAML from './yaml.js';
  * the `yamlOnly` parameter to `true`. Otherwise the lines will be treated as
  * markdown text.
  *
- * If all metadata values are to be returned as strings (or string arrays), set
- * the `stringMetadata` parameter to `true`. Otherwise non-string values will be
- * converted to Numbers, Booleans, and Nulls.
+ * If all metadata values are to be returned as strings, let the
+ * `convertStrings` parameter default to false. Otherwise values which represent
+ * booleans and numbers will be converted to Numbers and Booleans.
  *
  * If parsing errors occur during instantiation, the `errors` property will be
  * set to true, and a list of error messages will be found in `metadataErrors`.
@@ -24,14 +24,10 @@ import * as YAML from './yaml.js';
  * messages.
  */
 export class MarkdownDocument {
-    constructor(markdownDocument, yamlOnly = false, stringMetadata = false) {
+    constructor(markdownDocument, yamlOnly = false, convertStrings = false) {
         this.metadata = null;
         this.text = '';
         this.textOffset = -1;
-        if (stringMetadata)
-            this.options = { convertNulls: false, convertNumbers: false, convertBooleans: false };
-        else
-            this.options = { convertNulls: true, convertNumbers: true, convertBooleans: true };
         this.errors = false;
         this.metadataErrors = [];
         const metadataLines = [];
@@ -63,10 +59,7 @@ export class MarkdownDocument {
         }
         if (metadataLines.length) {
             const yaml = new YAML.YAML(metadataLines);
-            yaml.options.convertNumbers = this.options.convertNumbers;
-            yaml.options.convertNulls = this.options.convertNulls;
-            yaml.options.convertBooleans = this.options.convertBooleans;
-            this.metadata = yaml.parse();
+            this.metadata = yaml.parse(convertStrings);
             if (yaml.exceptions.length) {
                 this.errors = true;
                 this.metadataErrors = yaml.exceptions;

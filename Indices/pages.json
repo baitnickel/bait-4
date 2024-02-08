@@ -1,50 +1,50 @@
 {
 	"articles": {
 		"access": 0,
-		"revision": 1706915533087
+		"revision": 1707332215351
 	},
 	"camp": {
 		"access": 0,
-		"revision": 1706915533108
+		"revision": 1707332215378
 	},
 	"home": {
 		"access": 0,
-		"revision": 1706915533110
+		"revision": 1707332215380
 	},
 	"index": {
 		"access": 0,
-		"revision": 1706915533113
+		"revision": 1707332215384
 	},
 	"songbook": {
 		"access": 0,
-		"revision": 1706915533170
+		"revision": 1707332215453
 	},
 	"test-cookies": {
 		"access": 0,
-		"revision": 1706915533172
+		"revision": 1707332215462
 	},
 	"test-file-api": {
 		"access": 0,
-		"revision": 1706915533173
+		"revision": 1707332215465
 	},
 	"test-lyrics": {
 		"access": 0,
-		"revision": 1706915533179
+		"revision": 1707332215470
 	},
 	"test-redwords": {
 		"access": 0,
-		"revision": 1706915533183
+		"revision": 1707332215474
 	},
 	"test-svg": {
 		"access": 0,
-		"revision": 1706915533186
+		"revision": 1707332215476
 	},
 	"test-types": {
 		"access": 0,
-		"revision": 1706915533188
+		"revision": 1707332215479
 	},
 	"test-yaml": {
 		"access": 0,
-		"revision": 1706915533196
+		"revision": 1707332215480
 	}
 }

@@ -196,7 +196,8 @@ export class YAML {
             /** reject node if it is missing a key or if the key is a duplicate */
             if (this.missingKey(node))
                 continue;
-            // if (nodes.length && this.duplicateKey(node, nodes)) continue; // false error on arrays with duplicate fields
+            if (this.duplicateKey(node, nodes))
+                continue;
             nodes.push(node);
         }
         return nodes;
@@ -330,36 +331,29 @@ export class YAML {
         return result;
     }
     /**
-     * @todo
-     * This fails with false positives when duplicate keys appear in a series of
-     * array fields, e.g.:
-     *
-     * sites:
-     *   -
-     *     number: 1
-     *     type: MAIN
-     *   -
-     *     number: 2
-     *     type: MAIN
-     *
-     * Until this method is corrected, if duplicate keys are present, the last
-     * occurrence of the key will overwrite the previous occurrence(s).
-     *
      * Given a `node` and an array of `currentNodes`, return true if the node's
-     * key is not a SEQUENCE_KEY and is equal to the key of another node at the
-     * same depth, else return false.
+     * key is equal to a previous node's key, otherwise return false.
      */
     duplicateKey(node, currentNodes) {
         let result = false;
-        // if (node.key != SEQUENCE_KEY) {
-        // 	for (const currentNode of currentNodes) {
-        // 		if (node.key == currentNode.key && node.depth == currentNode.depth) {
-        // 			this.recordException(node.line, ERRORS['duplicateKey']);
-        // 			result = true;
-        // 			break;
-        // 		}
-        // 	}
-        // }
+        if (currentNodes.length && node.key != SEQUENCE_KEY) {
+            /**
+             * Loop over the current nodes from bottom to top. As soon as we
+             * encounter a current node that has a lower depth than the new
+             * node, we don't need to look further--the new node is not a
+             * duplicate. When we encounter a current node with the same depth
+             * and the same key, the new node is a duplicate.
+             */
+            for (let i = currentNodes.length - 1; i >= 0; i -= 1) {
+                if (currentNodes[i].depth < node.depth)
+                    break;
+                if (currentNodes[i].depth == node.depth && currentNodes[i].key == node.key) {
+                    this.recordException(node.line, ERRORS['duplicateKey']);
+                    result = true;
+                    break;
+                }
+            }
+        }
         return result;
     }
     /**

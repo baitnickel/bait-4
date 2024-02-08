@@ -102,6 +102,34 @@ export type FakesheetLookups = {
 	artist: string;
 }
 
+///////////// this has been moved into the file-system module
+// /**
+//  * Given `metadata` of any type and a `defaultObject` of any type, return a new
+//  * object of the same type as `defaultObject`, setting properties from values in
+//  * `metadata` if the properties exist in `defaultObject`, and otherwise setting
+//  * properties from the `defaultObject`. Any properties in `metadata` that are
+//  * not in `defaultObject` are not included in the new object.
+//  * 
+//  * Adding "as Type" when calling this function, where "Type" is
+//  * `defaultObject`'s type, will coerce the new object to the same type as
+//  * `defaultObject`. For example:
+//  * - const defaultObject: DefaultObjectType = { a: 1, b: 2, c: 3 };
+//  * - const newObject = Properties(data, defaultObject) as DefaultObjectType;
+//  */
+// export function Properties(metadata: any, defaultObject: any) {
+// 	const newObject: {[index: string]: any} = {};
+// 	const objectKeys = Object.keys(defaultObject);
+// 	for (const key of objectKeys) {
+// 		if (metadata !== null && key in metadata && metadata[key] !== null) {
+// 			/* override the default property value using the value in metadata */
+// 			newObject[key] = metadata[key];
+// 		}
+// 		/* use the value from the default object */
+// 		else newObject[key] = defaultObject[key];
+// 	}
+// 	return newObject;
+// }
+
 // export type Song = {
 // 	title: string;
 // 	composers: string[];

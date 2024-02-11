@@ -231,6 +231,13 @@ pre code { /* fenced code blocks */
 	/* font-size: 80%; */
 }
 
+.input-form {
+	display: flex;
+	justify-content: space-between;
+	width: 60%;
+	margin: 0.5rem;
+}
+
 .question {
 	color: #00f;
 	font-style: italic;

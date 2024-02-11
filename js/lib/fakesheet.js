@@ -4,7 +4,7 @@ export const FAKESHEET = {
     notes: /(Ab|A#|Bb|C#|Db|D#|Eb|F#|Gb|G#|A|B|C|D|E|F|G)/,
     tonics: ['A', 'A#|Bb', 'B', 'C', 'C#|Db', 'D', 'D#|Eb', 'E', 'F', 'F#|Gb', 'G', 'G#|Ab'],
     tonicSeparator: '|',
-    commentPattern: /(^\/{2}|\s\/{2}).*/,
+    commentPattern: /(^\/{2}|\s\/{2}).*/, /* comments follow double-slash at line start or after whitespace */
     tokenCharacter: '.',
     inlinePrefix: '.',
     /**
@@ -21,10 +21,10 @@ export const FAKESHEET = {
      *   - C7       x32310
      *   - C(sus4)  x3(2,3)010
      */
-    chordNotationSeparator: /\s+/,
-    chordSpacing: 2,
-    space: '\u{00a0}',
-    tabSize: 4,
+    chordNotationSeparator: /\s+/, /* separates chord name from chord notation */
+    chordSpacing: 2, /* minimum number of spaces between chords on chord line */
+    space: '\u{00a0}', /* unicode no-break space */
+    tabSize: 4, /* tabs in source documents are replaced with this many spaces */
     // keyTag: 'key-select', //### no longer used?
     chordLine: 'C',
     lyricLine: 'L',

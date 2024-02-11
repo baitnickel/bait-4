@@ -187,7 +187,7 @@ export class YAML {
             const nodeText = textLine.match(indentedText);
             depth = (nodeText) ? nodeText.index : 0;
             const node = {
-                key: key,
+                key: key, // 'key' (map), '-' (seq), or '' (str)
                 type: (key == SEQUENCE_KEY) ? SEQ : MAP,
                 value: value,
                 depth: depth,

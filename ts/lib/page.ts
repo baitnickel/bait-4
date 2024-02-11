@@ -70,7 +70,7 @@ export class Page {
 			// MenuItems.push({module: 'test-lyrics', parameters: [], text: 'Lyrics', icon: ''});
 			// MenuItems.push({module: 'test-file-api', parameters: [], text: 'File API', icon: ''});
 			// MenuItems.push({module: 'test-svg', parameters: [], text: 'SVG', icon: ''});
-			// MenuItems.push({module: 'test-yaml', parameters: [], text: 'YAML', icon: ''});
+			MenuItems.push({module: 'test-yaml', parameters: [], text: 'YAML', icon: ''});
 		}
 		if (header) this.displayHeader();
 		if (footer) this.displayFooter();
@@ -314,6 +314,32 @@ export class Page {
 		// container.appendChild(textParagraph);
 		// container.appendChild(attributionParagraph);
 		// return container;
+	}
+
+	/**
+	 * Given a string of `code` lines (or string array of code lines), return
+	 * the string wrapped in "pre" and "code" tags.
+	 */
+	wrapCode(code: string|string[]) {
+		if (Array.isArray(code)) code = code.join('\n');
+		return `<pre><code>${code}</code><pre>`;
+	}
+
+	/**
+	 * Given an array of HTML `elements`, return a single-column HTML table
+	 * containing one row for each input control.
+	 */
+	optionsTable(elements: HTMLElement[], tableClass = 'options-table') {
+		const table = document.createElement('table');
+		table.className = tableClass;
+		for (const element of elements) {
+			const row = document.createElement('tr');
+			const rowItem = document.createElement('td');
+			rowItem.append(element);
+			row.append(rowItem);
+			table.append(row);
+		}
+		return table;
 	}
 }
 

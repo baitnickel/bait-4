@@ -102,6 +102,11 @@ export type FakesheetLookups = {
 	artist: string;
 }
 
+export type Option = {
+	element: string;
+	type: string;
+}
+
 ///////////// this has been moved into the file-system module
 // /**
 //  * Given `metadata` of any type and a `defaultObject` of any type, return a new

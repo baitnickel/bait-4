@@ -231,6 +231,10 @@ pre code { /* fenced code blocks */
 	/* font-size: 80%; */
 }
 
+#ok-button {
+	margin-top: .5em;
+}
+
 .input-form {
 	display: flex;
 	justify-content: space-between;

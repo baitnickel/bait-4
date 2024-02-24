@@ -71,6 +71,7 @@ export class Page {
 			// MenuItems.push({module: 'test-file-api', parameters: [], text: 'File API', icon: ''});
 			// MenuItems.push({module: 'test-svg', parameters: [], text: 'SVG', icon: ''});
 			MenuItems.push({module: 'test-yaml', parameters: [], text: 'YAML', icon: ''});
+			MenuItems.push({module: 'test-iching', parameters: [], text: '易經', icon: ''});
 		}
 		if (header) this.displayHeader();
 		if (footer) this.displayFooter();

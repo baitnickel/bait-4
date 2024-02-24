@@ -235,6 +235,21 @@ pre code { /* fenced code blocks */
 	margin-top: .5em;
 }
 
+.die-select {
+	margin-left: .5em;
+	/* margin-right: 1em; */
+	/* font-size: 32px; */
+}
+.dice-display {
+	font-size: 64px;
+}
+/* .die-select-group {
+	font-size: 16px;
+} */
+/* .die {
+	font-size: 32px;
+} */
+
 .input-form {
 	display: flex;
 	justify-content: space-between;

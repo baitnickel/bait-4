@@ -76,6 +76,13 @@
 		"date": "",
 		"source": "etc/legacy-quotes.md"
 	},
+	"and-indeed-empty-mind-perception-is-absence": {
+		"text": "And indeed, empty-mind perception is Absence looking out at Presence. This is Taoism's way of describing the Cosmos looking out at itself…",
+		"attribution": "David Hinton",
+		"note": "*Awakened Cosmos*",
+		"date": "2024-04-14T13:59:02.000Z",
+		"source": "log/2024-04-14 Sun.md"
+	},
 	"and-the-time-will-come-when-you-see-were-all-one": {
 		"text": "And the time will come when you see we're all one and life flows on within and without you.",
 		"attribution": "George Harrison",
@@ -538,6 +545,13 @@
 		"date": "",
 		"source": "etc/legacy-quotes.md"
 	},
+	"i-have-found-that-if-you-love-life-life-will": {
+		"text": "I have found that if you love life, life will love you back.",
+		"attribution": "Artur Rubinstein",
+		"note": "",
+		"date": "2024-02-29T22:06:32.216Z",
+		"source": "log/2024-02-29 Thu.md"
+	},
 	"i-have-no-special-talent-i-am-only-passionately": {
 		"text": "I have no special talent. I am only passionately curious.",
 		"attribution": "Albert Einstein",
@@ -655,7 +669,14 @@
 		"attribution": "Shunryū Suzuki",
 		"note": "",
 		"date": "2023-03-31T19:34:26.209Z",
-		"source": "Content/drafts/This Is Delusion.md"
+		"source": "Content/fragments/This Is Delusion.md"
+	},
+	"if-your-mind-is-calm-and-constant-you-can-keep": {
+		"text": "If your mind is calm and constant, you can keep yourself away from the noisy world even though you are in the midst of it. In the midst of noise and change, your mind will be quiet and stable.",
+		"attribution": "Shunryū Suzuki",
+		"note": "",
+		"date": "2024-03-15T14:40:20.702Z",
+		"source": "log/2024-03-15 Fri.md"
 	},
 	"if-your-nerve-deny-you-go-above-your-nerve": {
 		"text": "If your Nerve, deny you—Go above your Nerve",
@@ -712,6 +733,13 @@
 		"note": "",
 		"date": "",
 		"source": "etc/legacy-quotes.md"
+	},
+	"insight-into-the-nature-of-time-is-a-key-to": {
+		"text": "Insight into the nature of time is a key to understanding Zen.",
+		"attribution": "Andrea Martin",
+		"note": "",
+		"date": "2024-04-08T20:02:07.000Z",
+		"source": "log/2024-04-08 Mon.md"
 	},
 	"inspiration-rises-out-of-a-willingness-to-accept": {
 		"text": "Inspiration rises out of a willingness to accept it.",
@@ -1083,6 +1111,13 @@
 		"note": "",
 		"date": "",
 		"source": "etc/legacy-quotes.md"
+	},
+	"people-are-always-setting-conditions-for": {
+		"text": "People are always setting conditions for happiness. I love life without condition.",
+		"attribution": "Artur Rubinstein",
+		"note": "",
+		"date": "2024-02-29T22:06:32.216Z",
+		"source": "log/2024-02-29 Thu.md"
 	},
 	"people-have-a-hard-time-letting-go-of-suffering": {
 		"text": "People have a hard time letting go of suffering. Out of a fear of the unknown, they prefer suffering that is familiar.",
@@ -1482,6 +1517,13 @@
 		"note": "",
 		"date": "",
 		"source": "etc/legacy-quotes.md"
+	},
+	"the-splendor-of-the-river-is-that-it-is-the": {
+		"text": "The splendor of the river is that it *is* the meaning and has none.",
+		"attribution": "Alan Watts",
+		"note": "",
+		"date": "2024-04-05T15:02:51.000Z",
+		"source": "log/2024-04-05 Fri.md"
 	},
 	"the-tao-is-made-because-we-walk-it-things-become": {
 		"text": "The Tao is made because we walk it. Things become what they are called.",
@@ -1924,6 +1966,13 @@
 		"date": "",
 		"source": "etc/legacy-quotes.md"
 	},
+	"whats-so-funny-bout-peace-love-and-understanding": {
+		"text": "What's so funny ’bout peace, love, and understanding?",
+		"attribution": "Elvis Costello",
+		"note": "",
+		"date": "2024-03-22T14:47:36.422Z",
+		"source": "log/2024-03-22 Fri.md"
+	},
 	"when-i-am-sipping-tea-this-very-moment-of-my": {
 		"text": "When I am sipping tea, this very moment of my lifting the bowl to my lips is eternity itself transcending time and space.",
 		"attribution": "D. T. Suzuki",
@@ -1994,6 +2043,13 @@
 		"date": "",
 		"source": "etc/legacy-quotes.md"
 	},
+	"where-one-has-no-history-you-have-culture": {
+		"text": "Where one has no history, you have culture.",
+		"attribution": "Alan Watts",
+		"note": "",
+		"date": "2024-03-22T14:47:36.422Z",
+		"source": "log/2024-03-22 Fri.md"
+	},
 	"where-there-is-peace-and-meditation-there-is": {
 		"text": "Where there is peace and meditation, there is neither anxiety nor doubt.",
 		"attribution": "Francis of Assisi",
@@ -2041,7 +2097,7 @@
 		"attribution": "Shunryū Suzuki",
 		"note": "",
 		"date": "2024-02-09T16:15:38.780Z",
-		"source": "The Mudra In My Hands.md"
+		"source": "Content/drafts/The Mudra In My Hands.md"
 	},
 	"with-your-reaction-to-each-experience-you-create": {
 		"text": "With your reaction to each experience, you create the karma that will color your future. It is up to you whether this new karma is positive or negative. You simply have to pay attention at the right moment.",

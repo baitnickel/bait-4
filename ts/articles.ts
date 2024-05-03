@@ -4,8 +4,8 @@ import * as DB from './lib/fetch.js';
 import { Markup } from './lib/markup.js';
 import { MarkdownDocument } from './lib/md.js';
 
-export function render() {
-	const page = new Page();
+export function render(pageStats: T.FileStats) {
+	const page = new Page(pageStats);
 
 	const articlesIndex = `${page.fetchOrigin}/Indices/articles.json`;
 	/** @todo should support multiple paths */

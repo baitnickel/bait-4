@@ -1,3 +1,4 @@
+import * as T from './lib/types.js';
 import { Page } from './lib/page.js';
 import * as DB from './lib/fetch.js'
 import { FakesheetLookups } from './lib/types.js'
@@ -40,7 +41,7 @@ sheetBlock.id = CSS_ID.sheetBlock;
 const diagramBlock = document.createElement('div');
 diagramBlock.id = CSS_ID.diagramBlock;
 
-export function render() {
+export function render(pageStats: T.FileStats) {
 	const songQuery = page.parameters.get('song');
 	const sortQuery = page.parameters.get('sort');
 	

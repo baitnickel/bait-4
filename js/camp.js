@@ -5,8 +5,8 @@ import * as Table from './lib/table.js';
 import * as Reservations from './lib/reservations.js';
 const Park = 'smitty';
 const ThisYear = new Date().getFullYear();
-export function render() {
-    const page = new Page();
+export function render(pageStats) {
+    const page = new Page(pageStats);
     page.setTitle('Campsites', 2);
     const campgroundsPath = `${page.fetchOrigin}/data/camp/campgrounds.yaml`;
     const campersPath = `${page.fetchOrigin}/data/camp/campers.yaml`;

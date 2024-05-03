@@ -3,8 +3,8 @@ import * as DB from './lib/fetch.js';
 import * as Data from './lib/datasets.js';
 import { MarkdownDocument } from './lib/md.js';
 import { Markup } from './lib/markup.js';
-export function render() {
-    const page = new Page();
+export function render(pageStats) {
+    const page = new Page(pageStats);
     const Quote = page.appendContent('#Quote');
     const TestCollection = page.appendContent('#TestCollection');
     const TestMap = page.appendContent('#TestMap');

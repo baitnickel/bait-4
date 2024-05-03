@@ -10,7 +10,7 @@ const MenuItems = [
     { module: 'songbook', parameters: [], text: 'Song Book', icon: 'songbook.svg' },
 ];
 export class Page {
-    constructor(header = true, footer = true) {
+    constructor(pageStats = null, header = true, footer = true) {
         this.origin = window.location.origin;
         this.url = window.location.origin + window.location.pathname;
         this.parameters = new URLSearchParams(window.location.search);
@@ -19,6 +19,8 @@ export class Page {
         this.encryptPrefix = Session.encryptPrefix;
         this.options = new Map();
         this.local = (window.location.hostname == 'localhost');
+        this.access = (pageStats === null) ? 0 : pageStats.access;
+        this.revision = (pageStats === null) ? Session.built : pageStats.revision;
         this.header = document.createElement('div');
         this.header.id = 'header-menu';
         this.content = document.createElement('div');
@@ -107,7 +109,8 @@ export class Page {
     displayFooter() {
         const footerLines = [];
         // const buildDate = new Date(document.lastModified).toDateString(); /** HTML file modification date */
-        footerLines.push(`Last updated <span id=footer-date>${Session.built.toDateString()}</span>`);
+        const revisionDate = new Date(this.revision);
+        footerLines.push(`Last updated <span id=footer-date>${revisionDate.toString()}</span>`);
         footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
         this.footer.innerHTML = footerLines.join('<br>');
     }

@@ -5,8 +5,8 @@ import * as Data from './lib/datasets.js';
 import { MarkdownDocument } from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 
-export function render() {
-	const page = new Page();
+export function render(pageStats: T.FileStats) {
+	const page = new Page(pageStats);
 	
 	const Quote = page.appendContent('#Quote');
 	const TestCollection = page.appendContent('#TestCollection');

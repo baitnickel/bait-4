@@ -1,5 +1,5 @@
 import * as T from './lib/types.js';
-import { Session } from './lib/settings.js';
+import { ContentOrigin } from './lib/settings.js';
 import * as DB from './lib/fetch.js'
 
 /**
@@ -15,7 +15,7 @@ import * as DB from './lib/fetch.js'
  * 
  * The selected module is loaded dynamically in an async/await clause.
  */
-const pagesIndexPath = '../Indices/pages.json';
+const pagesIndexPath = `${ContentOrigin()}/Indices/pages.json`;
 const parameters = new URLSearchParams(document.location.search);
 const queryPage = (parameters.get('page')) ? parameters.get('page')! : 'home';
 DB.fetchMap<T.FileStats>(pagesIndexPath).then((pagesIndex: Map<string, T.FileStats>) => {

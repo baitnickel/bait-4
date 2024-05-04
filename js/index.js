@@ -1,3 +1,4 @@
+import { ContentOrigin } from './lib/settings.js';
 import * as DB from './lib/fetch.js';
 /**
  * This module is the first and only module called by index.html. We read the
@@ -12,7 +13,7 @@ import * as DB from './lib/fetch.js';
  *
  * The selected module is loaded dynamically in an async/await clause.
  */
-const pagesIndexPath = '../Indices/pages.json';
+const pagesIndexPath = `${ContentOrigin()}/Indices/pages.json`;
 const parameters = new URLSearchParams(document.location.search);
 const queryPage = (parameters.get('page')) ? parameters.get('page') : 'home';
 DB.fetchMap(pagesIndexPath).then((pagesIndex) => {

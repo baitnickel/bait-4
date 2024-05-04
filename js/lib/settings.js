@@ -8,8 +8,8 @@ export const Session = {
     encryptPrefix: 999,
 };
 /**
- * Fetching content files from the localhost is straightforward, but from GitHub
- * Pages we must use a special raw content URL.
+ * Fetching content files from the localhost is straightforward, but when
+ * fetching from GitHub Pages we must use a special raw content URL.
 */
 export function ContentOrigin() {
     if (Session.local)

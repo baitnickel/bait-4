@@ -7,7 +7,7 @@ import { MarkdownDocument } from './lib/md.js';
 export function render(pageStats: T.FileStats) {
 	const page = new Page(pageStats);
 
-	const articlesIndex = `${page.fetchOrigin}/Indices/articles.json`;
+	const articlesIndex = `${page.contentOrigin}/Indices/articles.json`;
 	/** @todo should support multiple paths */
 	const pagePath = (page.parameters.get('path')) ? page.parameters.get('path') : ''; 
 	const eligiblePaths = [pagePath!];
@@ -57,7 +57,7 @@ export function render(pageStats: T.FileStats) {
 	 */
 	DB.fetchMap<T.FileStats>(articlesIndex).then((articles: Map<string, T.FileStats>) => {
 		for (const path of articles.keys()) {
-			if (eligible(path, eligiblePaths)) paths.push(`${page.fetchOrigin}/${path}`);
+			if (eligible(path, eligiblePaths)) paths.push(`${page.contentOrigin}/${path}`);
 		}
 		displayArticle(articleElement, paths[articleIndex]);
 	});

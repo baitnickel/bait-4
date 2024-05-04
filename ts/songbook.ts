@@ -29,8 +29,8 @@ const ARTIST_SORT = 'a';
 const SONG_SORT = 's';
 
 const page = new Page();
-const dataPath = `${page.fetchOrigin}/Content/fakesheets`;
-const indicesPath = `${page.fetchOrigin}/Indices`;
+const dataPath = `${page.contentOrigin}/Content/fakesheets`;
+const indicesPath = `${page.contentOrigin}/Indices`;
 
 const errorBlock = document.createElement('div');
 errorBlock.id = CSS_ID.errorBlock;

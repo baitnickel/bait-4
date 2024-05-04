@@ -12,7 +12,7 @@ export function render(pageStats) {
     const Lorem = page.appendContent('#Lorem .blue');
     const Photo = page.appendContent('#Photo');
     const Video = page.appendContent('#Video');
-    DB.fetchData(`${page.fetchOrigin}/Content/data/quotes.json`).then((quotes) => {
+    DB.fetchData(`${page.contentOrigin}/Content/data/quotes.json`).then((quotes) => {
         const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
         page.appendQuote(Quote, randomQuote);
         const lorem = `Aliquip deserunt adipisicing id labore nisi ipsum aliqua sunt ex adipisicing velit sint quis nulla. Non ea irure voluptate non. Pariatur proident eu sunt non ullamco excepteur enim in enim reprehenderit eu occaecat occaecat tempor. Veniam aute non dolore tempor ex dolor tempor sint enim proident. Reprehenderit ex anim magna tempor adipisicing consequat ipsum exercitation laborum duis sunt fugiat nostrud. Excepteur aute commodo laboris qui ad enim amet velit. Nulla ex do labore anim ut commodo amet laboris eu dolore est. Ut sunt fugiat labore in sit id qui. Minim voluptate irure ea ea deserunt aliquip eiusmod commodo. Reprehenderit id ex amet quis elit labore et ad amet consequat deserunt anim. Anim ullamco sint elit veniam.`;
@@ -26,7 +26,7 @@ export function render(pageStats) {
         const testMap = false;
         const testMarkdown = true;
         if (testCollection) {
-            const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
+            const songsIndexFile = `${page.contentOrigin}/Indices/fakesheets.json`;
             DB.fetchCollection(songsIndexFile).then((songs) => {
                 const dataLines = [];
                 songs.sort('dt:artist');
@@ -58,7 +58,7 @@ export function render(pageStats) {
             });
         }
         if (testMap) {
-            const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
+            const songsIndexFile = `${page.contentOrigin}/Indices/fakesheets.json`;
             DB.fetchMap(songsIndexFile).then((songsMap) => {
                 const dataLines = [];
                 const collection = new Data.Collection(songsMap);
@@ -72,7 +72,7 @@ export function render(pageStats) {
             });
         }
         if (testMarkdown) {
-            const testMarkdownFile = `${page.fetchOrigin}/data/test-markdown.md`;
+            const testMarkdownFile = `${page.contentOrigin}/data/test-markdown.md`;
             DB.fetchData(testMarkdownFile).then((fileContent) => {
                 if (!fileContent) {
                     const errorMessage = `Cannot read file: ${testMarkdownFile}`;

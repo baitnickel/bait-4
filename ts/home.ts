@@ -16,7 +16,7 @@ export function render(pageStats: T.FileStats) {
 	const Photo = page.appendContent('#Photo');
 	const Video = page.appendContent('#Video');
 
-	DB.fetchData(`${page.fetchOrigin}/Content/data/quotes.json`).then((quotes: T.Quote[]) => {
+	DB.fetchData(`${page.contentOrigin}/Content/data/quotes.json`).then((quotes: T.Quote[]) => {
 		const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 		page.appendQuote(Quote, randomQuote);
 
@@ -34,7 +34,7 @@ export function render(pageStats: T.FileStats) {
 		const testMarkdown = true;
 
 		if (testCollection) {
-			const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
+			const songsIndexFile = `${page.contentOrigin}/Indices/fakesheets.json`;
 			DB.fetchCollection<T.FakesheetLookups>(songsIndexFile).then((songs) => {
 				const dataLines: string[] = [];
 				songs.sort('dt:artist');
@@ -70,7 +70,7 @@ export function render(pageStats: T.FileStats) {
 		}
 
 		if (testMap) {
-			const songsIndexFile = `${page.fetchOrigin}/Indices/fakesheets.json`;
+			const songsIndexFile = `${page.contentOrigin}/Indices/fakesheets.json`;
 			DB.fetchMap<T.FakesheetLookups>(songsIndexFile).then((songsMap) => {
 				const dataLines: string[] = [];
 				const collection = new Data.Collection<T.FakesheetLookups>(songsMap);
@@ -85,7 +85,7 @@ export function render(pageStats: T.FileStats) {
 		}
 
 		if (testMarkdown) {
-			const testMarkdownFile = `${page.fetchOrigin}/data/test-markdown.md`;
+			const testMarkdownFile = `${page.contentOrigin}/data/test-markdown.md`;
 			DB.fetchData(testMarkdownFile).then((fileContent: string) => {
 				if (!fileContent) {
 					const errorMessage = `Cannot read file: ${testMarkdownFile}`;

@@ -1,4 +1,4 @@
-import { Session } from './settings.js';
+import { Session, ContentOrigin } from './settings.js';
 import { MarkupLine } from './markup.js';
 const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
@@ -12,13 +12,14 @@ const MenuItems = [
 export class Page {
     constructor(pageStats = null, header = true, footer = true) {
         this.origin = window.location.origin;
+        this.contentOrigin = ContentOrigin();
+        this.local = Session.local;
         this.url = window.location.origin + window.location.pathname;
         this.parameters = new URLSearchParams(window.location.search);
         this.name = this.parameters.get('page');
         this.encryption = Session.encryption;
         this.encryptPrefix = Session.encryptPrefix;
         this.options = new Map();
-        this.local = (window.location.hostname == 'localhost');
         this.access = (pageStats === null) ? 0 : pageStats.access;
         this.revision = (pageStats === null) ? Session.built : pageStats.revision;
         this.header = document.createElement('div');
@@ -32,15 +33,15 @@ export class Page {
         body.append(this.header);
         body.append(this.content);
         body.append(this.footer);
-        /** We need a special origin when fetching raw files on GitHub Pages */
-        const repository = 'bait-4';
-        this.fetchOrigin = `${this.origin}/${repository}`;
-        if (!this.local) {
-            const rawServer = 'https://raw.githubusercontent.com';
-            const username = 'baitnickel';
-            const branch = 'main';
-            this.fetchOrigin = `${rawServer}/${username}/${repository}/${branch}`;
-        }
+        // /** We need a special origin when fetching raw files on GitHub Pages */
+        // const repository = 'bait-4';
+        // this.fetchOrigin = `${this.origin}/${repository}`;
+        // if (!this.local) {
+        // 	const rawServer = 'https://raw.githubusercontent.com';
+        // 	const username = 'baitnickel';
+        // 	const branch = 'main';
+        // 	this.fetchOrigin = `${rawServer}/${username}/${repository}/${branch}`;
+        // }
         /** Add test pages */
         if (this.local) {
             MenuItems.push({ module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: '' });

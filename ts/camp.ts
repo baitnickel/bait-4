@@ -12,9 +12,9 @@ export function render(pageStats: T.FileStats) {
 	const page = new Page(pageStats);
 	page.setTitle('Campsites', 2);
 
-	const campgroundsPath = `${page.fetchOrigin}/data/camp/campgrounds.yaml`;
-	const campersPath = `${page.fetchOrigin}/data/camp/campers.yaml`;
-	const reservationsPath = `${page.fetchOrigin}/data/camp/reservations.yaml`;
+	const campgroundsPath = `${page.contentOrigin}/data/camp/campgrounds.yaml`;
+	const campersPath = `${page.contentOrigin}/data/camp/campers.yaml`;
+	const reservationsPath = `${page.contentOrigin}/data/camp/reservations.yaml`;
 
 	const mapDiv = document.createElement('div');
 	const reservationsDiv = document.createElement('div');

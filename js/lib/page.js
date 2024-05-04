@@ -33,15 +33,6 @@ export class Page {
         body.append(this.header);
         body.append(this.content);
         body.append(this.footer);
-        // /** We need a special origin when fetching raw files on GitHub Pages */
-        // const repository = 'bait-4';
-        // this.fetchOrigin = `${this.origin}/${repository}`;
-        // if (!this.local) {
-        // 	const rawServer = 'https://raw.githubusercontent.com';
-        // 	const username = 'baitnickel';
-        // 	const branch = 'main';
-        // 	this.fetchOrigin = `${rawServer}/${username}/${repository}/${branch}`;
-        // }
         /** Add test pages */
         if (this.local) {
             MenuItems.push({ module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: '' });
@@ -55,7 +46,7 @@ export class Page {
         if (header)
             this.displayHeader();
         if (footer)
-            this.displayFooter();
+            this.displayFooter(this.revision);
     }
     /**
      * Retrieve cookies, if any, and display special menus (append them to
@@ -107,11 +98,14 @@ export class Page {
             // }
         }
     }
-    displayFooter() {
+    /**
+     * Given an `updated` date (as milliseconds since Jan 1, 1970), (over)write
+     * the page footer, showing the updated date and copyright year.
+     */
+    displayFooter(updated) {
         const footerLines = [];
-        // const buildDate = new Date(document.lastModified).toDateString(); /** HTML file modification date */
-        const revisionDate = new Date(this.revision);
-        footerLines.push(`Last updated <span id=footer-date>${revisionDate.toString()}</span>`);
+        const updatedDate = new Date(updated);
+        footerLines.push(`Last updated <span id=footer-date>${updatedDate.toString()}</span>`);
         footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
         this.footer.innerHTML = footerLines.join('<br>');
     }

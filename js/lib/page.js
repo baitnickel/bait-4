@@ -99,13 +99,13 @@ export class Page {
         }
     }
     /**
-     * Given an `updated` date (as milliseconds since Jan 1, 1970), (over)write
-     * the page footer, showing the updated date and copyright year.
+     * Given a `revision` date (as milliseconds since Jan 1, 1970), (over)write
+     * the page footer, showing the revision date and copyright year.
      */
-    displayFooter(updated) {
+    displayFooter(revision) {
         const footerLines = [];
-        const updatedDate = new Date(updated);
-        footerLines.push(`Last updated <span id=footer-date>${updatedDate.toString()}</span>`);
+        const revisionDate = new Date(revision);
+        footerLines.push(`Last updated <span id=footer-date>${revisionDate.toString()}</span>`);
         footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
         this.footer.innerHTML = footerLines.join('<br>');
     }

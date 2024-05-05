@@ -71,6 +71,26 @@ export function IsYamlFile(pathName: string) {
 // }
 
 /**
+ * File Information is read from the OS file data and YAML metadata. These are
+ * used determine how to sync files between the source and target systems.
+*/
+export type FileStats = {
+	access: number;
+	revision: number; /* Date.valueOf(); */
+}
+
+/**
+ * The ArticleProperties are the values that will be written to the articles
+ * index file.
+ */
+export type ArticleProperties = {
+	access: number;
+	revision: number;
+	aliases: string[];
+	tags: string[];
+}
+
+/**
  * Markdown files intended for website display will have most, if not all, of
  * the properties declared in this type. All values are strings to simplify
  * metadata preprocessing, though some may require string versions of other
@@ -82,15 +102,6 @@ export type Metadata = {
 	access: string;
 	title: string;
 	artist: string;
-}
-
-/**
- * File Information is read from the OS file data and YAML metadata. These are
- * used determine how to sync files between the source and target systems.
-*/
-export type FileStats = {
-	access: number;
-	revision: number; /* Date.valueOf(); */
 }
 
 /**

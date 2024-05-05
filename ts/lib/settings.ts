@@ -3,7 +3,7 @@ export const Session = {
 	username: 'baitnickel',
 	repository: 'bait-4',
 	branch: 'main',
-	built: (new Date('2023-09-21T19:05:15')).valueOf(),
+	built: Date.parse(document.lastModified), /** index.html modification date/time (milliseconds) */
 	encryption: 26,
 	encryptPrefix: 999,
 }

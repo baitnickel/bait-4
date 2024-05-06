@@ -42,6 +42,7 @@ export class Page {
             // MenuItems.push({module: 'test-svg', parameters: [], text: 'SVG', icon: ''});
             MenuItems.push({ module: 'test-yaml', parameters: [], text: 'YAML', icon: '' });
             MenuItems.push({ module: 'test-iching', parameters: [], text: '易經', icon: '' });
+            MenuItems.push({ module: 'test-load-data', parameters: [], text: 'Load Data', icon: '' });
         }
         if (header)
             this.displayHeader();

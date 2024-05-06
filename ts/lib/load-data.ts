@@ -1,26 +1,20 @@
 import * as T from './types.js';
+import { ContentOrigin } from './settings.js';
+import * as DB from './fetch.js';
 
 /**
- * Not currently in use. We might have a need at some point to load multiple
- * indices into memory.
+ * Load data maps from the Indices folder into memory constants. DB.fetchMap
+ * returns a Promise, and the `await` keyword ensures that the system waits for
+ * each map to be fully loaded before proceeding.
+ * 
+ * Modules that import this module can easily read map entries, e.g.:
+ * - import * as Index from './lib/load-data.js';
+ * - const properties = Index.Articles.get('README.md')!;
+ * 
+ * Note that top level 'await' keywords (where explicit 'async' keywords are not
+ * used) require minimal 'module' and 'target' settings in the project's
+ * tsconfig.json file--see error message TS 1378. 
  */
 
-/** maps to be filled through async calls */
-export const Pages = new Map<string, T.FileStats>();
-export const Articles = new Map<string, T.ArticleProperties>();
-
-// // see: https://atomizedobjects.com/blog/typescript/promises-and-async-await-in-typescript/
-// const promise = new Promise<number>((resolve, reject) => {
-// 	/**
-// 	 * Anonymous callback function (i.e., arrow function or lambda) with two
-// 	 * parameters: `resolve` and `reject`. Both parameters are functions. The
-// 	 * `resolve` function returns a value having the generic type named in the
-// 	 * Promise constructor above. The `reject` function returns an Error object.
-// 	 */
-// 	const success = true; // Asynchronous operation
-// 	if (success) {
-// 		resolve(42); // Resolving with a value
-// 	} else {
-// 		reject(new Error("Operation failed")); // Rejecting with an error
-// 	}
-// });
+export const Pages = await DB.fetchMap<T.FileStats>(`${ContentOrigin()}/Indices/pages.json`);
+export const Articles = await DB.fetchMap<T.ArticleProperties>(`${ContentOrigin()}/Indices/articles.json`);

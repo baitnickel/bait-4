@@ -8,8 +8,8 @@ import * as Reservations from './lib/reservations.js';
 const Park = 'smitty';
 const ThisYear = new Date().getFullYear();
 
-export function render(pageStats: T.FileStats) {
-	const page = new Page(pageStats);
+export function render() {
+	const page = new Page();
 	page.setTitle('Campsites', 2);
 
 	const campgroundsPath = `${page.contentOrigin}/data/camp/campgrounds.yaml`;

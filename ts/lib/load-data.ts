@@ -1,9 +1,9 @@
 import * as T from './types.js';
 import { ContentOrigin } from './settings.js';
-import * as DB from './fetch.js';
+import * as Fetch from './fetch.js';
 
 /**
- * Load data maps from the Indices folder into memory constants. DB.fetchMap
+ * Load data maps from the Indices folder into memory constants. Fetch.fetchMap
  * returns a Promise, and the `await` keyword ensures that the system waits for
  * each map to be fully loaded before proceeding.
  * 
@@ -16,5 +16,5 @@ import * as DB from './fetch.js';
  * tsconfig.json file--see error message TS 1378. 
  */
 
-export const Pages = await DB.fetchMap<T.FileStats>(`${ContentOrigin()}/Indices/pages.json`);
-export const Articles = await DB.fetchMap<T.ArticleProperties>(`${ContentOrigin()}/Indices/articles.json`);
+export const Pages = await Fetch.fetchMap<T.FileStats>(`${ContentOrigin()}/Indices/pages.json`);
+export const Articles = await Fetch.fetchMap<T.ArticleProperties>(`${ContentOrigin()}/Indices/articles.json`);

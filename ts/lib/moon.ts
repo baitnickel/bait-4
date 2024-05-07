@@ -12,10 +12,11 @@ type MoonData = {
 	posangle: number;
 }
 
-export function displayMoonData(element: HTMLElement) {
-	// const url = 'https://svs.gsfc.nasa.gov/vis/a000000/a005000/a005048/mooninfo_2023.json';
-	const url = 'data/moon.json'; /** relative to index.html directory */
-	Fetch.fetchData(url).then((records: MoonData[]) => {
+export async function displayMoonData(element: HTMLElement) {
+	const url = 'https://svs.gsfc.nasa.gov/vis/a000000/a005000/a005048/mooninfo_2023.json';
+	// const url = './data/moon.json'; /** relative to index.html directory */
+	// Fetch.fetchData(url).then((records: MoonData[]) => {
+		const records = await Fetch.fetchData(url);
 		let lines: string[] = [];
 		if (records === null) {
 			lines.push('error fetching JSON data');
@@ -89,7 +90,7 @@ export function displayMoonData(element: HTMLElement) {
 		let paragraph = document.createElement('p');
 		paragraph.innerHTML = lines.join('<br>');
 		element.append(paragraph);
-	});
+	// });
 }
 
 function datetime(dateTimeString: string) {

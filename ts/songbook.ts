@@ -1,6 +1,6 @@
 import * as T from './lib/types.js';
 import { Page } from './lib/page.js';
-import * as DB from './lib/fetch.js'
+import * as Fetch from './lib/fetch.js'
 import { FakesheetLookups } from './lib/types.js'
 import { MarkdownDocument } from './lib/md.js';
 import { FAKESHEET, FakeSheet, FakeLine } from './lib/fakesheet.js'
@@ -29,8 +29,10 @@ const ARTIST_SORT = 'a';
 const SONG_SORT = 's';
 
 const page = new Page();
-const dataPath = `${page.contentOrigin}/Content/fakesheets`;
+const fakeSheetsSubPath = 'Content/fakesheets';
+const fakeSheetsPath = `${page.contentOrigin}/${fakeSheetsSubPath}`;
 const indicesPath = `${page.contentOrigin}/Indices`;
+const articles = await Fetch.fetchMap<T.ArticleProperties>(`${indicesPath}/articles.json`);
 
 const errorBlock = document.createElement('div');
 errorBlock.id = CSS_ID.errorBlock;
@@ -41,98 +43,106 @@ sheetBlock.id = CSS_ID.sheetBlock;
 const diagramBlock = document.createElement('div');
 diagramBlock.id = CSS_ID.diagramBlock;
 
-export function render(pageStats: T.FileStats) {
+export async function render() {
 	const songQuery = page.parameters.get('song');
 	const sortQuery = page.parameters.get('sort');
 	
 	if (songQuery) {
 		/** Display the song's fakesheet */
-		const fakeSheetFilePath = `${dataPath}/${songQuery}`;
-		DB.fetchData(fakeSheetFilePath).then((fakeSheetText: string) => {
-			if (!fakeSheetText) {
-				const errorMessage = `The URL contains an invalid song file name: \`${songQuery}\``;
-				page.content.innerHTML = MarkupLine(errorMessage, 'etm');
+		const fakeSheetFilePath = `${fakeSheetsPath}/${songQuery}`;
+		const fakeSheetText: string = await Fetch.fetchData(fakeSheetFilePath);
+		if (!fakeSheetText) {
+			const errorMessage = `The URL contains an invalid song file name: \`${songQuery}\``;
+			page.content.innerHTML = MarkupLine(errorMessage, 'etm');
+		}
+		else {
+			/** get the fakesheet's revision date */
+			let revision: number|null = null;
+			let articleKey = `${fakeSheetsSubPath}/${songQuery}`;
+			if (articles.has(articleKey)) {
+				const fakeSheetProperties = articles.get(articleKey)!;
+				revision = fakeSheetProperties.revision;
 			}
+
+			const markdown = new MarkdownDocument(fakeSheetText);
+			if (markdown.errors) page.content.innerHTML = markdown.errorMessages();
 			else {
-				const markdown = new MarkdownDocument(fakeSheetText);
-				if (markdown.errors) page.content.innerHTML = markdown.errorMessages();
-				else {
-					const fakeSheet = new FakeSheet(markdown);
-					displaySheet(fakeSheet);
-				}
+				const fakeSheet = new FakeSheet(markdown);
+				displaySheet(fakeSheet, revision);
 			}
-		});
+		}
 	}
 	else {
 		/** Display a list of songs having fakesheets */
 		page.setTitle('Song Book');
+		page.displayFooter(); /* refresh default footer */
 		page.addHeading('List of Songs', 2);
 		const fakeSheetIndexPath = `${indicesPath}/fakesheets.json`;
-		DB.fetchData(fakeSheetIndexPath).then((songs: any) => {
-			const songMap = new Map<string, FakesheetLookups>(Object.entries(songs));
-			let sortOrder = ARTIST_SORT; /** @todo should be widget option */
-			if (sortQuery) {
-				const lowerCaseSortQuery = sortQuery.toLowerCase();
-				if (lowerCaseSortQuery[0] == ARTIST_SORT) sortOrder = ARTIST_SORT;
-				else if (lowerCaseSortQuery[0] == SONG_SORT) sortOrder = SONG_SORT;
-			}
-			const songKeys = sortedSongKeys(songMap, sortOrder); /** 'songKeys' are the fakesheet file names */
-			const pElement = document.createElement('p');
-			let artistDiv: HTMLDivElement|null = null; /** <div> to contain an artist's items */
-			let detailsElement: HTMLDetailsElement|null = null;
-			let previousArtist = '';
-			for (const songKey of songKeys) {
-				const song = songMap.get(songKey)!;
-				if (sortOrder == ARTIST_SORT) {
-					const songBookItem = song.title;
-					if (previousArtist != song.artist) {
-						if (previousArtist) { /** this is not the first song */
-							/** close the current <details> block and start a new one */
-							if (artistDiv && detailsElement) {
-								detailsElement.append(artistDiv);
-								page.content.append(detailsElement);
-							}
+		const songs: any = await Fetch.fetchData(fakeSheetIndexPath);
+		const songMap = new Map<string, FakesheetLookups>(Object.entries(songs));
+		let sortOrder = ARTIST_SORT; /** @todo should be widget option */
+		if (sortQuery) {
+			const lowerCaseSortQuery = sortQuery.toLowerCase();
+			if (lowerCaseSortQuery[0] == ARTIST_SORT) sortOrder = ARTIST_SORT;
+			else if (lowerCaseSortQuery[0] == SONG_SORT) sortOrder = SONG_SORT;
+		}
+		const songKeys = sortedSongKeys(songMap, sortOrder); /** 'songKeys' are the fakesheet file names */
+		const pElement = document.createElement('p');
+		let artistDiv: HTMLDivElement|null = null; /** <div> to contain an artist's items */
+		let detailsElement: HTMLDetailsElement|null = null;
+		let previousArtist = '';
+		for (const songKey of songKeys) {
+			const song = songMap.get(songKey)!;
+			if (sortOrder == ARTIST_SORT) {
+				const songBookItem = song.title;
+				if (previousArtist != song.artist) {
+					if (previousArtist) { /** this is not the first song */
+						/** close the current <details> block and start a new one */
+						if (artistDiv && detailsElement) {
+							detailsElement.append(artistDiv);
+							page.content.append(detailsElement);
 						}
-						detailsElement = document.createElement('details');
-						const summaryElement = document.createElement('summary');
-						summaryElement.innerHTML = MarkupLine(song.artist, 'et');
-						detailsElement.append(summaryElement);
-						artistDiv = document.createElement('div');
-						artistDiv.classList.add(CSS_CLASS.songTitleLink);
 					}
-					if (artistDiv && detailsElement) {
-						const anchorElement = document.createElement('a');
-						anchorElement.href = page.url + `?page=songbook&song=${songKey}`;
-						anchorElement.innerHTML = MarkupLine(songBookItem, 'et');
-						artistDiv.appendChild(anchorElement);
-						const breakElement = document.createElement('br');
-						artistDiv.appendChild(breakElement);
-						detailsElement.append(pElement);
-					}
+					detailsElement = document.createElement('details');
+					const summaryElement = document.createElement('summary');
+					summaryElement.innerHTML = MarkupLine(song.artist, 'et');
+					detailsElement.append(summaryElement);
+					artistDiv = document.createElement('div');
+					artistDiv.classList.add(CSS_CLASS.songTitleLink);
 				}
-				else { /** sortOrder == SONG_SORT */
-					const songBookItem = `${song.title} - ${song.artist}`;
+				if (artistDiv && detailsElement) {
 					const anchorElement = document.createElement('a');
 					anchorElement.href = page.url + `?page=songbook&song=${songKey}`;
 					anchorElement.innerHTML = MarkupLine(songBookItem, 'et');
-					pElement.appendChild(anchorElement);
+					artistDiv.appendChild(anchorElement);
 					const breakElement = document.createElement('br');
-					pElement.appendChild(breakElement);
-					page.content.append(pElement);
+					artistDiv.appendChild(breakElement);
+					detailsElement.append(pElement);
 				}
-				previousArtist = song.artist;
 			}
-			if (artistDiv && detailsElement) {
-				detailsElement.append(artistDiv);
-				page.content.append(detailsElement);
+			else { /** sortOrder == SONG_SORT */
+				const songBookItem = `${song.title} - ${song.artist}`;
+				const anchorElement = document.createElement('a');
+				anchorElement.href = page.url + `?page=songbook&song=${songKey}`;
+				anchorElement.innerHTML = MarkupLine(songBookItem, 'et');
+				pElement.appendChild(anchorElement);
+				const breakElement = document.createElement('br');
+				pElement.appendChild(breakElement);
+				page.content.append(pElement);
 			}
-		});
+			previousArtist = song.artist;
+		}
+		if (artistDiv && detailsElement) {
+			detailsElement.append(artistDiv);
+			page.content.append(detailsElement);
+		}
 	}
 }
 
-function displaySheet(fakesheet: FakeSheet) {
+function displaySheet(fakesheet: FakeSheet, revision: number|null) {
 	const title = (fakesheet.artist) ? `${fakesheet.title} - ${fakesheet.artist}` : fakesheet.title;
 	document.title = MarkupLine(title, 'ET');
+	page.displayFooter(revision); /* refresh footer */
 	page.addHeading(MarkupLine(title, 'ET'), 4);
 
 	/** Create placeholders for page content */

@@ -1,5 +1,6 @@
 import * as T from './types.js';
 import { Session, ContentOrigin } from './settings.js';
+import * as Fetch from './fetch.js';
 import { Markup, MarkupLine } from './markup.js';
 
 const NOW = new Date();
@@ -20,6 +21,8 @@ const MenuItems: MenuItem[] = [
 	{module: 'songbook', parameters: [], text: 'Song Book', icon: 'songbook.svg'},
 ];
 
+const Pages = await Fetch.fetchMap<T.FileStats>(`${ContentOrigin()}/Indices/pages.json`);
+
 export class Page {
 	name: string|null;                  /** name of requested page (via query 'page=<name>') */
 	encryption: number;
@@ -36,18 +39,23 @@ export class Page {
 	content: HTMLDivElement;
 	footer: HTMLDivElement;
 
-	constructor(pageStats: T.FileStats|null = null, header = true, footer = true) {
+	constructor(header = true, footer = true) {
 		this.origin = window.location.origin;
 		this.contentOrigin = ContentOrigin();
 		this.local = Session.local;
 		this.url = window.location.origin + window.location.pathname;
 		this.parameters = new URLSearchParams(window.location.search);
 		this.name = this.parameters.get('page');
+
+		/** get module file statistics from the Pages index map */
+		let fileStats: T.FileStats|null = null;
+		if (this.name !== null && Pages.has(this.name)) fileStats = Pages.get(this.name)!;
+
 		this.encryption= Session.encryption;
 		this.encryptPrefix = Session.encryptPrefix;
 		this.options = new Map<string, string>();
-		this.access = (pageStats === null) ? 0 : pageStats.access;
-		this.revision = (pageStats === null) ? Session.built : pageStats.revision;
+		this.access = (fileStats === null) ? 0 : fileStats.access;
+		this.revision = (fileStats === null) ? Session.built : fileStats.revision;
 		this.header = document.createElement('div');
 		this.header.id = 'header-menu';
 		this.content = document.createElement('div');
@@ -63,15 +71,15 @@ export class Page {
 		if (this.local) {
 			MenuItems.push({module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: ''});
 			// MenuItems.push({module: 'test-cookies', parameters: [], text: 'Cookies', icon: ''});
-			// MenuItems.push({module: 'test-lyrics', parameters: [], text: 'Lyrics', icon: ''});
-			// MenuItems.push({module: 'test-file-api', parameters: [], text: 'File API', icon: ''});
-			// MenuItems.push({module: 'test-svg', parameters: [], text: 'SVG', icon: ''});
+			MenuItems.push({module: 'test-lyrics', parameters: [], text: 'Lyrics', icon: ''});
+			MenuItems.push({module: 'test-file-api', parameters: [], text: 'File API', icon: ''});
+			MenuItems.push({module: 'test-svg', parameters: [], text: 'SVG', icon: ''});
 			MenuItems.push({module: 'test-yaml', parameters: [], text: 'YAML', icon: ''});
 			MenuItems.push({module: 'test-iching', parameters: [], text: '易經', icon: ''});
 			MenuItems.push({module: 'test-load-data', parameters: [], text: 'Load Data', icon: ''});
 		}
 		if (header) this.displayHeader();
-		if (footer) this.displayFooter(this.revision);
+		if (footer) this.displayFooter();
 	}
 
 	/**
@@ -130,9 +138,10 @@ export class Page {
 	 * Given a `revision` date (as milliseconds since Jan 1, 1970), (over)write
 	 * the page footer, showing the revision date and copyright year.
 	 */
-	displayFooter(revision: number) {
+	displayFooter(revision: number|null = null) {
+		this.footer.innerText = '';
 		const footerLines: string[] = [];
-		const revisionDate = new Date(revision);
+		const revisionDate = (revision === null) ? new Date(this.revision) : new Date(revision);
 		footerLines.push(`Last updated <span id=footer-date>${revisionDate.toString()}</span>`);
 		footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
 		this.footer.innerHTML = footerLines.join('<br>');

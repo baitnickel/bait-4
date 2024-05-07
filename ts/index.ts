@@ -13,18 +13,11 @@ import * as DB from './lib/fetch.js'
  * not found" (404) error. The URLs are not meant to be entered manually, but
  * constructed via menu selections in the `page` module.
  * 
- * The file containing page indices is fetched in order to retrieve page file
- * statistics (such as access code and revision date/time (in milliseconds),
- * then the selected page module is loaded dynamically in an async/await clause.
+ * The selected page module is loaded dynamically in an async/await clause.
  */
-const pagesIndexPath = `${ContentOrigin()}/Indices/pages.json`;
 const urlParameters = new URLSearchParams(document.location.search);
 const queryPage = (urlParameters.get('page')) ? urlParameters.get('page')! : 'home';
-DB.fetchMap<T.FileStats>(pagesIndexPath).then((pagesIndex: Map<string, T.FileStats>) => {
-	let pageStats: T.FileStats|null = null;
-	if (pagesIndex.has(queryPage)) pageStats = pagesIndex.get(queryPage)!;
-	(async () => {
-		const module = await import(`./${queryPage}.js`);
-		module.render(pageStats);
-	})();
-});
+(async () => {
+	const module = await import(`./${queryPage}.js`);
+	module.render();
+})();

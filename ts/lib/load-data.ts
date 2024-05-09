@@ -1,5 +1,5 @@
 import * as T from './types.js';
-import { ContentOrigin } from './settings.js';
+import { Site } from './settings.js';
 import * as Fetch from './fetch.js';
 
 /**
@@ -16,5 +16,5 @@ import * as Fetch from './fetch.js';
  * tsconfig.json file--see error message TS 1378. 
  */
 
-export const Pages = await Fetch.fetchMap<T.FileStats>(`${ContentOrigin()}/Indices/pages.json`);
-export const Articles = await Fetch.fetchMap<T.ArticleProperties>(`${ContentOrigin()}/Indices/articles.json`);
+export const Pages = await Fetch.fetchMap<T.FileStats>(`${Site()}/Indices/pages.json`);
+export const Articles = await Fetch.fetchMap<T.ArticleProperties>(`${Site()}/Indices/articles.json`);

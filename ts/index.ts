@@ -1,7 +1,3 @@
-import * as T from './lib/types.js';
-import { ContentOrigin } from './lib/settings.js';
-import * as DB from './lib/fetch.js'
-
 /**
  * This module is the first and only module called by index.html. We read the
  * URL query parameters, looking for the `page` key. The value of this key

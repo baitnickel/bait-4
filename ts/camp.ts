@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
-import * as DB from './lib/fetch.js';
+import * as Fetch from './lib/fetch.js';
 import { YAML } from './lib/yaml.js';
 import * as Table from './lib/table.js';
 import * as Reservations from './lib/reservations.js';
@@ -12,9 +12,9 @@ export function render() {
 	const page = new Page();
 	page.setTitle('Campsites', 2);
 
-	const campgroundsPath = `${page.contentOrigin}/data/camp/campgrounds.yaml`;
-	const campersPath = `${page.contentOrigin}/data/camp/campers.yaml`;
-	const reservationsPath = `${page.contentOrigin}/data/camp/reservations.yaml`;
+	const campgroundsPath = `${page.site}/data/camp/campgrounds.yaml`;
+	const campersPath = `${page.site}/data/camp/campers.yaml`;
+	const reservationsPath = `${page.site}/data/camp/reservations.yaml`;
 
 	const mapDiv = document.createElement('div');
 	const reservationsDiv = document.createElement('div');
@@ -25,7 +25,7 @@ export function render() {
 	page.content.append(sitesDiv);
 	page.content.append(commentsDiv);
 
-	DB.fetchData(campgroundsPath).then((campgroundsYaml: string) => {
+	Fetch.fetchData(campgroundsPath).then((campgroundsYaml: string) => {
 		const campgroundsData = new YAML(campgroundsYaml);
 		const campgrounds = campgroundsData.parse();
 		if (Park in campgrounds) {
@@ -55,11 +55,11 @@ export function render() {
 		}
 	});
 
-	DB.fetchData(reservationsPath).then((reservationsYaml: string) => {
+	Fetch.fetchData(reservationsPath).then((reservationsYaml: string) => {
 		const reservationsData = new YAML(reservationsYaml);
 		const reservations = reservationsData.parse();
 		if (Park in reservations) {
-			DB.fetchData(campersPath).then((campersYaml: string) => {
+			Fetch.fetchData(campersPath).then((campersYaml: string) => {
 				const campersData = new YAML(campersYaml);
 				const campers = campersData.parse();
 				/* display this year's campsite reservations */

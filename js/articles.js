@@ -1,10 +1,10 @@
 import { Page } from './lib/page.js';
-import * as DB from './lib/fetch.js';
+import * as Fetch from './lib/fetch.js';
 import { Markup } from './lib/markup.js';
 import { MarkdownDocument } from './lib/md.js';
 export function render() {
     const page = new Page();
-    const articlesIndex = `${page.contentOrigin}/Indices/articles.json`;
+    const articlesIndex = `${page.site}/Indices/articles.json`;
     /** @todo should support multiple paths */
     const pagePath = (page.parameters.get('path')) ? page.parameters.get('path') : '';
     const eligiblePaths = [pagePath];
@@ -49,10 +49,10 @@ export function render() {
      * the `paths` array. An index key contains the path to the markdown file.
      * Display the initial article, as referenced by `articleIndex` (usually 0).
      */
-    DB.fetchMap(articlesIndex).then((articles) => {
+    Fetch.fetchMap(articlesIndex).then((articles) => {
         for (const path of articles.keys()) {
             if (eligible(path, eligiblePaths))
-                paths.push(`${page.contentOrigin}/${path}`);
+                paths.push(`${page.site}/${path}`);
         }
         displayArticle(articleElement, paths[articleIndex]);
     });
@@ -84,7 +84,7 @@ function eligible(path, eligiblePaths) {
  * display the HTML in the given `targetElement`.
  */
 function displayArticle(targetElement, path) {
-    DB.fetchData(path).then((fileText) => {
+    Fetch.fetchData(path).then((fileText) => {
         const markdown = new MarkdownDocument(fileText);
         let title = '';
         if ('title' in markdown.metadata)

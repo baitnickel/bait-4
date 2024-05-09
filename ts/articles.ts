@@ -1,13 +1,13 @@
 import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
-import * as DB from './lib/fetch.js';
+import * as Fetch from './lib/fetch.js';
 import { Markup } from './lib/markup.js';
 import { MarkdownDocument } from './lib/md.js';
 
 export function render() {
 	const page = new Page();
 
-	const articlesIndex = `${page.contentOrigin}/Indices/articles.json`;
+	const articlesIndex = `${page.site}/Indices/articles.json`;
 	/** @todo should support multiple paths */
 	const pagePath = (page.parameters.get('path')) ? page.parameters.get('path') : ''; 
 	const eligiblePaths = [pagePath!];
@@ -55,9 +55,9 @@ export function render() {
 	 * the `paths` array. An index key contains the path to the markdown file.
 	 * Display the initial article, as referenced by `articleIndex` (usually 0).
 	 */
-	DB.fetchMap<T.FileStats>(articlesIndex).then((articles: Map<string, T.FileStats>) => {
+	Fetch.fetchMap<T.FileStats>(articlesIndex).then((articles: Map<string, T.FileStats>) => {
 		for (const path of articles.keys()) {
-			if (eligible(path, eligiblePaths)) paths.push(`${page.contentOrigin}/${path}`);
+			if (eligible(path, eligiblePaths)) paths.push(`${page.site}/${path}`);
 		}
 		displayArticle(articleElement, paths[articleIndex]);
 	});
@@ -91,7 +91,7 @@ function eligible(path: string, eligiblePaths: string[]) {
  * display the HTML in the given `targetElement`.
  */
 function displayArticle(targetElement: HTMLElement, path: string) {
-	DB.fetchData(path).then((fileText: string) => {
+	Fetch.fetchData(path).then((fileText: string) => {
 		const markdown = new MarkdownDocument(fileText);
 		let title = '';
 		if ('title' in markdown.metadata) title = markdown.metadata['title'];

@@ -1,5 +1,5 @@
 import { Page } from './lib/page.js';
-import * as DB from './lib/fetch.js';
+import * as Fetch from './lib/fetch.js';
 import { YAML } from './lib/yaml.js';
 import * as Table from './lib/table.js';
 import * as Reservations from './lib/reservations.js';
@@ -8,9 +8,9 @@ const ThisYear = new Date().getFullYear();
 export function render() {
     const page = new Page();
     page.setTitle('Campsites', 2);
-    const campgroundsPath = `${page.contentOrigin}/data/camp/campgrounds.yaml`;
-    const campersPath = `${page.contentOrigin}/data/camp/campers.yaml`;
-    const reservationsPath = `${page.contentOrigin}/data/camp/reservations.yaml`;
+    const campgroundsPath = `${page.site}/data/camp/campgrounds.yaml`;
+    const campersPath = `${page.site}/data/camp/campers.yaml`;
+    const reservationsPath = `${page.site}/data/camp/reservations.yaml`;
     const mapDiv = document.createElement('div');
     const reservationsDiv = document.createElement('div');
     const sitesDiv = document.createElement('div');
@@ -19,7 +19,7 @@ export function render() {
     page.content.append(reservationsDiv);
     page.content.append(sitesDiv);
     page.content.append(commentsDiv);
-    DB.fetchData(campgroundsPath).then((campgroundsYaml) => {
+    Fetch.fetchData(campgroundsPath).then((campgroundsYaml) => {
         const campgroundsData = new YAML(campgroundsYaml);
         const campgrounds = campgroundsData.parse();
         if (Park in campgrounds) {
@@ -48,11 +48,11 @@ export function render() {
             }
         }
     });
-    DB.fetchData(reservationsPath).then((reservationsYaml) => {
+    Fetch.fetchData(reservationsPath).then((reservationsYaml) => {
         const reservationsData = new YAML(reservationsYaml);
         const reservations = reservationsData.parse();
         if (Park in reservations) {
-            DB.fetchData(campersPath).then((campersYaml) => {
+            Fetch.fetchData(campersPath).then((campersYaml) => {
                 const campersData = new YAML(campersYaml);
                 const campers = campersData.parse();
                 /* display this year's campsite reservations */

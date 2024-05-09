@@ -1,3 +1,4 @@
+"use strict";
 /**
  * This module is the first and only module called by index.html. We read the
  * URL query parameters, looking for the `page` key. The value of this key
@@ -17,4 +18,3 @@ const queryPage = (urlParameters.get('page')) ? urlParameters.get('page') : 'hom
     const module = await import(`./${queryPage}.js`);
     module.render();
 })();
-export {};

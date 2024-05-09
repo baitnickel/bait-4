@@ -1,7 +1,7 @@
 import * as T from './types.js';
-import { Session, ContentOrigin } from './settings.js';
+import { Session, Site } from './settings.js';
 import * as Fetch from './fetch.js';
-import { Markup, MarkupLine } from './markup.js';
+import { MarkupLine } from './markup.js';
 
 const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
@@ -21,7 +21,7 @@ const MenuItems: MenuItem[] = [
 	{module: 'songbook', parameters: [], text: 'Song Book', icon: 'songbook.svg'},
 ];
 
-const Pages = await Fetch.fetchMap<T.FileStats>(`${ContentOrigin()}/Indices/pages.json`);
+const Pages = await Fetch.fetchMap<T.FileStats>(`${Site()}/Indices/pages.json`);
 
 export class Page {
 	name: string|null;                  /** name of requested page (via query 'page=<name>') */
@@ -34,14 +34,14 @@ export class Page {
 	local: boolean;                     /** is the server 'localhost'? */
 	access: number;                     /** access number (permission/authorization) */
 	revision: number;                   /** revision date (milliseconds since 1/1/1970 UTC) */
-	contentOrigin: string;              /** root URL for content fetch operations */
+	site: string;              /** root URL for content fetch operations */
 	header: HTMLDivElement;
 	content: HTMLDivElement;
 	footer: HTMLDivElement;
 
 	constructor(header = true, footer = true) {
 		this.origin = window.location.origin;
-		this.contentOrigin = ContentOrigin();
+		this.site = Site();
 		this.local = Session.local;
 		this.url = window.location.origin + window.location.pathname;
 		this.parameters = new URLSearchParams(window.location.search);
@@ -139,7 +139,6 @@ export class Page {
 	 * the page footer, showing the revision date and copyright year.
 	 */
 	displayFooter(revision: number|null = null) {
-		this.footer.innerText = '';
 		const footerLines: string[] = [];
 		const revisionDate = (revision === null) ? new Date(this.revision) : new Date(revision);
 		footerLines.push(`Last updated <span id=footer-date>${revisionDate.toString()}</span>`);
@@ -147,11 +146,11 @@ export class Page {
 		this.footer.innerHTML = footerLines.join('<br>');
 	}
 
+	/**
+	 * (Re)set the title in the HTML head. Optionally, also use the title as
+	 * a heading line with the specified level.
+	 */
 	setTitle(title: string, asHeadingLevel: number = 0) {
-		/**
-		 * (Re)set the title in the HTML head. Optionally, also use the title as
-		 * a heading line with the specified level.
-		 */
 		document.title = MarkupLine(title, 'et');
 		if (asHeadingLevel >= 1 && asHeadingLevel <= 6) this.addHeading(document.title, asHeadingLevel);
 	}
@@ -199,7 +198,6 @@ export class Page {
 	 * Entry result object.
 	 */
 	renderCollection(folders: string[], root: string = '') {
-
 	}
 
 	/**

@@ -1,4 +1,4 @@
-import { Session, ContentOrigin } from './settings.js';
+import { Session, Site } from './settings.js';
 import * as Fetch from './fetch.js';
 import { MarkupLine } from './markup.js';
 const NOW = new Date();
@@ -10,11 +10,11 @@ const MenuItems = [
     { module: 'articles', parameters: ['path=Content/drafts'], text: 'Drafts', icon: '' },
     { module: 'songbook', parameters: [], text: 'Song Book', icon: 'songbook.svg' },
 ];
-const Pages = await Fetch.fetchMap(`${ContentOrigin()}/Indices/pages.json`);
+const Pages = await Fetch.fetchMap(`${Site()}/Indices/pages.json`);
 export class Page {
     constructor(header = true, footer = true) {
         this.origin = window.location.origin;
-        this.contentOrigin = ContentOrigin();
+        this.site = Site();
         this.local = Session.local;
         this.url = window.location.origin + window.location.pathname;
         this.parameters = new URLSearchParams(window.location.search);
@@ -110,18 +110,17 @@ export class Page {
      * the page footer, showing the revision date and copyright year.
      */
     displayFooter(revision = null) {
-        this.footer.innerText = '';
         const footerLines = [];
         const revisionDate = (revision === null) ? new Date(this.revision) : new Date(revision);
         footerLines.push(`Last updated <span id=footer-date>${revisionDate.toString()}</span>`);
         footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
         this.footer.innerHTML = footerLines.join('<br>');
     }
+    /**
+     * (Re)set the title in the HTML head. Optionally, also use the title as
+     * a heading line with the specified level.
+     */
     setTitle(title, asHeadingLevel = 0) {
-        /**
-         * (Re)set the title in the HTML head. Optionally, also use the title as
-         * a heading line with the specified level.
-         */
         document.title = MarkupLine(title, 'et');
         if (asHeadingLevel >= 1 && asHeadingLevel <= 6)
             this.addHeading(document.title, asHeadingLevel);

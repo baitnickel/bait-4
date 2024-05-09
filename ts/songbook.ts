@@ -30,8 +30,8 @@ const SONG_SORT = 's';
 
 const page = new Page();
 const fakeSheetsSubPath = 'Content/fakesheets';
-const fakeSheetsPath = `${page.contentOrigin}/${fakeSheetsSubPath}`;
-const indicesPath = `${page.contentOrigin}/Indices`;
+const fakeSheetsPath = `${page.site}/${fakeSheetsSubPath}`;
+const indicesPath = `${page.site}/Indices`;
 const articles = await Fetch.fetchMap<T.ArticleProperties>(`${indicesPath}/articles.json`);
 
 const errorBlock = document.createElement('div');
@@ -56,14 +56,14 @@ export async function render() {
 			page.content.innerHTML = MarkupLine(errorMessage, 'etm');
 		}
 		else {
-			/** get the fakesheet's revision date */
+			/** get the file's revision date */
 			let revision: number|null = null;
 			let articleKey = `${fakeSheetsSubPath}/${songQuery}`;
 			if (articles.has(articleKey)) {
 				const fakeSheetProperties = articles.get(articleKey)!;
 				revision = fakeSheetProperties.revision;
 			}
-
+			/** convert the text to fakesheet and display it */
 			const markdown = new MarkdownDocument(fakeSheetText);
 			if (markdown.errors) page.content.innerHTML = markdown.errorMessages();
 			else {

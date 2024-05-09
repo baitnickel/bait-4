@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
-import * as DB from './lib/fetch.js'
+import * as Fetch from './lib/fetch.js'
 import * as Data from './lib/datasets.js';
 import { MarkdownDocument } from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
@@ -16,7 +16,7 @@ export function render() {
 	const Photo = page.appendContent('#Photo');
 	const Video = page.appendContent('#Video');
 
-	DB.fetchData(`${page.contentOrigin}/Content/data/quotes.json`).then((quotes: T.Quote[]) => {
+	Fetch.fetchData(`${page.site}/Content/data/quotes.json`).then((quotes: T.Quote[]) => {
 		const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 		page.appendQuote(Quote, randomQuote);
 
@@ -34,8 +34,8 @@ export function render() {
 		const testMarkdown = true;
 
 		if (testCollection) {
-			const songsIndexFile = `${page.contentOrigin}/Indices/fakesheets.json`;
-			DB.fetchCollection<T.FakesheetLookups>(songsIndexFile).then((songs) => {
+			const songsIndexFile = `${page.site}/Indices/fakesheets.json`;
+			Fetch.fetchCollection<T.FakesheetLookups>(songsIndexFile).then((songs) => {
 				const dataLines: string[] = [];
 				songs.sort('dt:artist');
 				// songs.shuffle();
@@ -70,8 +70,8 @@ export function render() {
 		}
 
 		if (testMap) {
-			const songsIndexFile = `${page.contentOrigin}/Indices/fakesheets.json`;
-			DB.fetchMap<T.FakesheetLookups>(songsIndexFile).then((songsMap) => {
+			const songsIndexFile = `${page.site}/Indices/fakesheets.json`;
+			Fetch.fetchMap<T.FakesheetLookups>(songsIndexFile).then((songsMap) => {
 				const dataLines: string[] = [];
 				const collection = new Data.Collection<T.FakesheetLookups>(songsMap);
 				let entry = collection.first();
@@ -85,8 +85,8 @@ export function render() {
 		}
 
 		if (testMarkdown) {
-			const testMarkdownFile = `${page.contentOrigin}/data/test-markdown.md`;
-			DB.fetchData(testMarkdownFile).then((fileContent: string) => {
+			const testMarkdownFile = `${page.site}/data/test-markdown.md`;
+			Fetch.fetchData(testMarkdownFile).then((fileContent: string) => {
 				if (!fileContent) {
 					const errorMessage = `Cannot read file: ${testMarkdownFile}`;
 					page.appendParagraph(TestMarkdown, errorMessage);

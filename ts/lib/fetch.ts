@@ -1,4 +1,70 @@
-import * as Datasets from './datasets.js';
+import { YAML } from './yaml.js';
+
+const JsonFile = /\.json$/i;
+const YamlFile = /\.ya?ml$/i;
+
+export async function text(uri: string) {
+	let text = '';
+	const response = await getResponse(uri);
+	if (response !== null) text = await response.text();
+	return text;
+}
+
+export async function array<Type>(uri: string, convertYamlStrings = true) {
+	let array = new Array<Type>(); /* empty array */
+	const response = await getResponse(uri);
+	const data = await getData(uri, response, convertYamlStrings);
+	if (Array.isArray(data)) array = data;
+	else console.error('cannot convert data to array');
+	return array;
+}
+
+export async function map<Type>(uri: string, convertYamlStrings = true) {
+	let map: Map<string, Type>;
+	const response = await getResponse(uri);
+	const data = await getData(uri, response, convertYamlStrings);
+	try { map = new Map<string, Type>(Object.entries(data)); }
+	catch {
+		console.error('cannot convert data to map');
+		map = new Map<string, Type>(); /* empty Map */
+	}
+	return map;
+}
+
+export async function blob(uri: string) {
+	let blob = null;
+	const response = await getResponse(uri);
+	if (response !== null) blob = await response.blob();
+	return blob;
+}
+
+async function getResponse(uri: string) {
+	try {
+		const request = new Request(uri);
+		const response = await fetch(request);
+		if (!response.ok) return null;
+		return response;
+	}
+	catch(error) {
+		console.error(error); 
+		return null;
+	}
+}
+
+async function getData(uri: string, response: Response | null, convertYamlStrings: boolean) {
+	let data = null;
+	if (response !== null) {
+		if (JsonFile.test(uri)) data = await response.json();
+		else if (YamlFile.test(uri)) {
+			const text = await response.text();
+			const yaml = new YAML(text);
+			data = yaml.parse(convertYamlStrings);
+		}
+	}
+	return data;
+}
+
+/** --------------- deprecated functions --------------- */
 
 /**
  * Read the file given in `path` containing data of `type` (default is 'text').
@@ -49,19 +115,19 @@ export async function fetchMap<Value>(path: string) {
  * custom Datasets module) with string keys and values of type `Value`. On
  * errors, return an empty Collection.
  */
-export async function fetchCollection<Value>(path: string) {
-	try {
-		const uri = new Request(path);
-		const response = await fetch(uri);
-		if (!response.ok) throw `cannot fetch ${path}`;
-		if (!path.toLowerCase().endsWith('.json')) throw `${path} is not a JSON file`;
-		const data: any = await response.json();
-		const collection = new Datasets.Collection<Value>(data);
-		return collection;
-	}
-	catch(error) {
-		console.error(error);
-		let collection = new Datasets.Collection<Value>(); /* empty Collection */
-		return collection;
-	}
-}
+// export async function fetchCollection<Value>(path: string) {
+// 	try {
+// 		const uri = new Request(path);
+// 		const response = await fetch(uri);
+// 		if (!response.ok) throw `cannot fetch ${path}`;
+// 		if (!path.toLowerCase().endsWith('.json')) throw `${path} is not a JSON file`;
+// 		const data: any = await response.json();
+// 		const collection = new Datasets.Collection<Value>(data);
+// 		return collection;
+// 	}
+// 	catch(error) {
+// 		console.error(error);
+// 		let collection = new Datasets.Collection<Value>(); /* empty Collection */
+// 		return collection;
+// 	}
+// }

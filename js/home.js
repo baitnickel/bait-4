@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
-import * as Data from './lib/datasets.js';
+import * as Datasets from './lib/datasets.js';
 import { MarkdownDocument } from './lib/md.js';
 import { Markup } from './lib/markup.js';
 export function render() {
@@ -12,8 +12,11 @@ export function render() {
     const Lorem = page.appendContent('#Lorem .blue');
     const Photo = page.appendContent('#Photo');
     const Video = page.appendContent('#Video');
-    Fetch.fetchData(`${page.site}/Content/data/quotes.json`).then((quotes) => {
-        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    const quotesPath = `${page.site}/Indices/quotes.json`;
+    Fetch.map(quotesPath).then((quotes) => {
+        const keys = Array.from(quotes.keys());
+        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        const randomQuote = quotes.get(randomKey);
         page.appendQuote(Quote, randomQuote);
         const lorem = `Aliquip deserunt adipisicing id labore nisi ipsum aliqua sunt ex adipisicing velit sint quis nulla. Non ea irure voluptate non. Pariatur proident eu sunt non ullamco excepteur enim in enim reprehenderit eu occaecat occaecat tempor. Veniam aute non dolore tempor ex dolor tempor sint enim proident. Reprehenderit ex anim magna tempor adipisicing consequat ipsum exercitation laborum duis sunt fugiat nostrud. Excepteur aute commodo laboris qui ad enim amet velit. Nulla ex do labore anim ut commodo amet laboris eu dolore est. Ut sunt fugiat labore in sit id qui. Minim voluptate irure ea ea deserunt aliquip eiusmod commodo. Reprehenderit id ex amet quis elit labore et ad amet consequat deserunt anim. Anim ullamco sint elit veniam.`;
         page.appendParagraph(Lorem, lorem);
@@ -27,11 +30,12 @@ export function render() {
         const testMarkdown = true;
         if (testCollection) {
             const songsIndexFile = `${page.site}/Indices/fakesheets.json`;
-            Fetch.fetchCollection(songsIndexFile).then((songs) => {
+            Fetch.map(songsIndexFile).then((songsMap) => {
+                const songs = new Datasets.Collection(songsMap);
                 const dataLines = [];
                 songs.sort('dt:artist');
                 // songs.shuffle();
-                const randomKey = Data.RandomKey(songs.keys);
+                const randomKey = Datasets.RandomKey(songs.keys);
                 if (randomKey) {
                     let randomSong = songs.record(randomKey);
                     dataLines.push(`Random Song: ==${randomSong.title}==`);
@@ -59,9 +63,9 @@ export function render() {
         }
         if (testMap) {
             const songsIndexFile = `${page.site}/Indices/fakesheets.json`;
-            Fetch.fetchMap(songsIndexFile).then((songsMap) => {
+            Fetch.map(songsIndexFile).then((songsMap) => {
                 const dataLines = [];
-                const collection = new Data.Collection(songsMap);
+                const collection = new Datasets.Collection(songsMap);
                 let entry = collection.first();
                 while (entry !== null) {
                     const record = collection.record(entry);
@@ -73,7 +77,7 @@ export function render() {
         }
         if (testMarkdown) {
             const testMarkdownFile = `${page.site}/data/test-markdown.md`;
-            Fetch.fetchData(testMarkdownFile).then((fileContent) => {
+            Fetch.text(testMarkdownFile).then((fileContent) => {
                 if (!fileContent) {
                     const errorMessage = `Cannot read file: ${testMarkdownFile}`;
                     page.appendParagraph(TestMarkdown, errorMessage);

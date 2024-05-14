@@ -13,7 +13,9 @@ export class Collection<Structure> {
 	get succeeding() { return this.index !== null && this.index < (this.size - 1) }
 
 	constructor(data: any = {}) {
-		this.map = new Map<string, Structure>(Object.entries(data));
+		// this.map = new Map<string, Structure>(Object.entries(data));
+		/* now expecting `data` to be a Map */
+		this.map = new Map<string, Structure>(data);
 		this.originalKeys = Array.from(this.map.keys());
 		this.index = (this.size !== 0) ? 0 : null;
 	}

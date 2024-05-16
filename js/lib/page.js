@@ -10,7 +10,7 @@ const MenuItems = [
     { module: 'articles', parameters: ['path=Content/drafts'], text: 'Drafts', icon: '' },
     { module: 'songbook', parameters: [], text: 'Song Book', icon: 'songbook.svg' },
 ];
-const Pages = await Fetch.fetchMap(`${Site()}/Indices/pages.json`);
+const Pages = await Fetch.map(`${Site()}/Indices/pages.json`);
 export class Page {
     constructor(header = true, footer = true) {
         this.origin = window.location.origin;

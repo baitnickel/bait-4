@@ -32,7 +32,7 @@ const page = new Page();
 const fakeSheetsSubPath = 'Content/fakesheets';
 const fakeSheetsPath = `${page.site}/${fakeSheetsSubPath}`;
 const indicesPath = `${page.site}/Indices`;
-const articles = await Fetch.fetchMap<T.ArticleProperties>(`${indicesPath}/articles.json`);
+const articles = await Fetch.map<T.ArticleProperties>(`${indicesPath}/articles.json`);
 
 const errorBlock = document.createElement('div');
 errorBlock.id = CSS_ID.errorBlock;
@@ -50,7 +50,7 @@ export async function render() {
 	if (songQuery) {
 		/** Display the song's fakesheet */
 		const fakeSheetFilePath = `${fakeSheetsPath}/${songQuery}`;
-		const fakeSheetText: string = await Fetch.fetchData(fakeSheetFilePath);
+		const fakeSheetText: string = await Fetch.text(fakeSheetFilePath);
 		if (!fakeSheetText) {
 			const errorMessage = `The URL contains an invalid song file name: \`${songQuery}\``;
 			page.content.innerHTML = MarkupLine(errorMessage, 'etm');
@@ -78,8 +78,7 @@ export async function render() {
 		page.displayFooter(); /* refresh default footer */
 		page.addHeading('List of Songs', 2);
 		const fakeSheetIndexPath = `${indicesPath}/fakesheets.json`;
-		const songs: any = await Fetch.fetchData(fakeSheetIndexPath);
-		const songMap = new Map<string, FakesheetLookups>(Object.entries(songs));
+		const songMap = await Fetch.map<FakesheetLookups>(fakeSheetIndexPath);
 		let sortOrder = ARTIST_SORT; /** @todo should be widget option */
 		if (sortQuery) {
 			const lowerCaseSortQuery = sortQuery.toLowerCase();

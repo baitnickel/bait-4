@@ -3,6 +3,18 @@
 		"access": 0,
 		"revision": 1705684222960
 	},
+	"Content/drafts/Lindaire.md": {
+		"access": 0,
+		"revision": 1715809815180,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/drafts/Memory Stories.md": {
+		"access": 0,
+		"revision": 1715809785835,
+		"aliases": [],
+		"tags": []
+	},
 	"Content/drafts/Santa Cruz.md": {
 		"access": 0,
 		"revision": 1714171703730,
@@ -10,6 +22,24 @@
 		"tags": [
 			"blog"
 		]
+	},
+	"Content/drafts/The Mudra In My Hands.md": {
+		"access": 0,
+		"revision": 1715810119809,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/drafts/Time Ruts.md": {
+		"access": 0,
+		"revision": 1715809760575,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/drafts/Upgrade.md": {
+		"access": 0,
+		"revision": 1715809980986,
+		"aliases": [],
+		"tags": []
 	},
 	"Content/fakesheets/a-meeting-of-the-minds.md": {
 		"access": 0,

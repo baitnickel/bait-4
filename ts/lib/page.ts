@@ -21,7 +21,7 @@ const MenuItems: MenuItem[] = [
 	{module: 'songbook', parameters: [], text: 'Song Book', icon: 'songbook.svg'},
 ];
 
-const Pages = await Fetch.fetchMap<T.FileStats>(`${Site()}/Indices/pages.json`);
+const Pages = await Fetch.map<T.FileStats>(`${Site()}/Indices/pages.json`);
 
 export class Page {
 	name: string|null;                  /** name of requested page (via query 'page=<name>') */

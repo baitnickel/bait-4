@@ -55,7 +55,7 @@ export function render() {
 	 * the `paths` array. An index key contains the path to the markdown file.
 	 * Display the initial article, as referenced by `articleIndex` (usually 0).
 	 */
-	Fetch.fetchMap<T.FileStats>(articlesIndex).then((articles: Map<string, T.FileStats>) => {
+	Fetch.map<T.FileStats>(articlesIndex).then((articles) => {
 		for (const path of articles.keys()) {
 			if (eligible(path, eligiblePaths)) paths.push(`${page.site}/${path}`);
 		}
@@ -91,7 +91,7 @@ function eligible(path: string, eligiblePaths: string[]) {
  * display the HTML in the given `targetElement`.
  */
 function displayArticle(targetElement: HTMLElement, path: string) {
-	Fetch.fetchData(path).then((fileText: string) => {
+	Fetch.text(path).then((fileText) => {
 		const markdown = new MarkdownDocument(fileText);
 		let title = '';
 		if ('title' in markdown.metadata) title = markdown.metadata['title'];

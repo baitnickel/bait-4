@@ -1,7 +1,7 @@
 import { Site } from './settings.js';
 import * as Fetch from './fetch.js';
 /**
- * Load data maps from the Indices folder into memory constants. Fetch.fetchMap
+ * Load data maps from the Indices folder into memory constants. Fetch.map
  * returns a Promise, and the `await` keyword ensures that the system waits for
  * each map to be fully loaded before proceeding.
  *
@@ -13,5 +13,5 @@ import * as Fetch from './fetch.js';
  * used) require minimal 'module' and 'target' settings in the project's
  * tsconfig.json file--see error message TS 1378.
  */
-export const Pages = await Fetch.fetchMap(`${Site()}/Indices/pages.json`);
-export const Articles = await Fetch.fetchMap(`${Site()}/Indices/articles.json`);
+export const Pages = await Fetch.map(`${Site()}/Indices/pages.json`);
+export const Articles = await Fetch.map(`${Site()}/Indices/articles.json`);

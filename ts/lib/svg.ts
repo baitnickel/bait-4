@@ -3,7 +3,7 @@ import * as Fetch from '../lib/fetch.js';
 export const W3NameSpace = 'http://www.w3.org/2000/svg';
 
 export async function appendSVG(targetElement: HTMLElement, svgFile: string, reservedSites: string[] = []) {
-	let svgText = await Fetch.fetchData(svgFile);
+	let svgText = await Fetch.text(svgFile);
 	/**
 	 * As a test, replace blue site numbers ('#0000FF') with red ones ('red').
 	 * A regex like /fill="(.+)">.*</ or /fill="(.+)">J105</ returns jmap7 site colors.
@@ -27,7 +27,7 @@ export async function appendSVG(targetElement: HTMLElement, svgFile: string, res
 }
 
 	// let mapFile = `data/${obsidian.metadata['map']}`;
-	// Fetch.fetchData(mapFile).then((SVGText: string) => {
+	// Fetch.text(mapFile).then((SVGText) => {
 	// /* manipulate SVGText string here */
 	// 	mapDiv.append(SVG.imageElement(SVGText, 700));
 	// });

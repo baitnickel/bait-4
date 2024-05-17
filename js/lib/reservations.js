@@ -1,18 +1,16 @@
-/**
- * Special module to support Campsite Reservation tables
- */
-export function table(thisYear, reservations, accountColors) {
-    let tableElement = document.createElement('table');
-    const accountColorsMap = new Map(Object.entries(accountColors));
-    return tableElement;
-}
-function writeRows(tableElement, siteReservations, accountColorsMap) {
-    const reservations = [];
-    for (let reservation of siteReservations) {
-        let map = new Map(Object.entries(reservation));
-        reservations.push(map);
-    }
-}
+// these two functions are not used
+// export function table(thisYear: number, reservations: T.Reservation[], accountColors: any ) {
+// 	let tableElement = document.createElement('table');
+// 	const accountColorsMap = new Map<string,string>(Object.entries(accountColors));
+// 	return tableElement;
+// }
+// function writeRows(tableElement: HTMLTableElement, siteReservations: any, accountColorsMap: Map<string,string>) {
+// 	const reservations: Map<string, string>[] = [];
+// 	for (let reservation of siteReservations) {
+// 		let map = new Map<string, string>(Object.entries(reservation));
+// 		reservations.push(map);
+// 	}
+// }
 export function displayReservationTable(tableElement, thisYear, reservations, accountColors) {
     let siteReservations = {};
     let beginDate = null;
@@ -89,8 +87,9 @@ function writeTableRows(tableElement, siteReservations, accountColors) {
             let account = siteReservations[site][reservation].account;
             let days = siteReservations[site][reservation].days;
             let color = 'lightgray'; /** default color when account color is not found */
-            if (accountColors[account])
-                color = accountColors[account];
+            const accountColor = accountColors.get(account);
+            if (accountColor !== undefined)
+                color = accountColor;
             /** insert a (spanned) column representing unreserved date(s) before this reservation */
             if (column > nextColumn) {
                 let unreservedDays = column - nextColumn;

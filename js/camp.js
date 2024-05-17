@@ -1,6 +1,5 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
-import { YAML } from './lib/yaml.js';
 import * as Table from './lib/table.js';
 import * as Reservations from './lib/reservations.js';
 const Park = 'smitty';
@@ -19,43 +18,38 @@ export function render() {
     page.content.append(reservationsDiv);
     page.content.append(sitesDiv);
     page.content.append(commentsDiv);
-    Fetch.fetchData(campgroundsPath).then((campgroundsYaml) => {
-        const campgroundsData = new YAML(campgroundsYaml);
-        const campgrounds = campgroundsData.parse();
-        if (Park in campgrounds) {
-            const campground = campgrounds[Park];
-            if ('map' in campground && 'sites' in campground && 'comments' in campground) {
-                /* display the SVG map */
-                const mapElement = document.createElement('img');
-                mapElement.setAttribute('src', `images/camp/${campground['map']}`);
-                mapElement.width = 666;
-                mapDiv.append(mapElement);
-                /* display the sites table */
-                const tableRows = [];
-                for (const site of campground['sites']) {
-                    const map = new Map(Object.entries(site));
-                    tableRows.push(map);
-                }
-                const tableElements = ['site', 'type', 'size', 'tents', 'table', 'comment'];
-                const tableOptions = {
-                    headingColumns: ['site'],
-                    classPrefix: 'campsite-',
-                    classElement: 'category',
-                };
-                sitesDiv.append(Table.createTable(tableRows, tableElements, tableOptions));
-                /* display the park comments */
-                commentsDiv.append(createParagraphs(campground['comments']));
+    Fetch.map(campgroundsPath).then((campgrounds) => {
+        const campground = campgrounds.get(Park);
+        if (campground !== undefined) {
+            const map = campground.map;
+            const comments = campground.comments;
+            const sites = campground.sites;
+            const mapElement = document.createElement('img');
+            mapElement.setAttribute('src', `images/camp/${map}`);
+            mapElement.width = 666;
+            mapDiv.append(mapElement);
+            /* display the sites table */
+            const tableRows = [];
+            for (const site of sites) {
+                const map = new Map(Object.entries(site));
+                tableRows.push(map);
             }
+            const tableElements = ['site', 'type', 'size', 'tents', 'table', 'comment'];
+            const tableOptions = {
+                headingColumns: ['site'],
+                classPrefix: 'campsite-',
+                classElement: 'category',
+            };
+            sitesDiv.append(Table.createTable(tableRows, tableElements, tableOptions));
+            /* display the park comments */
+            commentsDiv.append(createParagraphs(comments));
         }
     });
-    Fetch.fetchData(reservationsPath).then((reservationsYaml) => {
-        const reservationsData = new YAML(reservationsYaml);
-        const reservations = reservationsData.parse();
-        if (Park in reservations) {
-            Fetch.fetchData(campersPath).then((campersYaml) => {
-                const campersData = new YAML(campersYaml);
-                const campers = campersData.parse();
-                /* display this year's campsite reservations */
+    Fetch.map(reservationsPath).then((parkReservations) => {
+        const parkReservation = parkReservations.get(Park);
+        if (parkReservation !== undefined) {
+            const reservations = parkReservation;
+            Fetch.map(campersPath).then((campers) => {
                 const reservationParagraph = document.createElement('p');
                 const detailsElement = document.createElement('details');
                 const summaryElement = document.createElement('summary');
@@ -65,7 +59,8 @@ export function render() {
                 detailsElement.append(reservationsTableElement);
                 reservationParagraph.append(detailsElement);
                 reservationsDiv.append(reservationParagraph);
-                Reservations.displayReservationTable(reservationsTableElement, ThisYear, reservations[Park], campers);
+                /* display this year's campsite reservations */
+                Reservations.displayReservationTable(reservationsTableElement, ThisYear, reservations, campers);
             });
         }
     });

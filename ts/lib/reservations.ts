@@ -1,20 +1,11 @@
+import * as T from './types.js';
+
 /**
  * Special module to support Campsite Reservation tables
  */
 
-export type Reservation = {
-	site: string;
-	arrival: string;
-	days: number;
-	account: string;
-};
-
-export type AccountColors = {
-	[account: string]: string;
-};
-
 type ExpandedReservation = {
-	site: number;
+	site: number|string;
 	arrivalDate: Date;
 	days: number;
 	account: string;
@@ -25,25 +16,27 @@ type SiteReservations = {
 	[site: string]: ExpandedReservation[];
 };	
 
-export function table(thisYear: number, reservations: Reservation[], accountColors: any ) {
-	let tableElement = document.createElement('table');
-	const accountColorsMap = new Map<string,string>(Object.entries(accountColors));
-	return tableElement;
-}
+// these two functions are not used
 
-function writeRows(tableElement: HTMLTableElement, siteReservations: any, accountColorsMap: Map<string,string>) {
-	const reservations: Map<string, string>[] = [];
-	for (let reservation of siteReservations) {
-		let map = new Map<string, string>(Object.entries(reservation));
-		reservations.push(map);
-	}
-}
+// export function table(thisYear: number, reservations: T.Reservation[], accountColors: any ) {
+// 	let tableElement = document.createElement('table');
+// 	const accountColorsMap = new Map<string,string>(Object.entries(accountColors));
+// 	return tableElement;
+// }
+
+// function writeRows(tableElement: HTMLTableElement, siteReservations: any, accountColorsMap: Map<string,string>) {
+// 	const reservations: Map<string, string>[] = [];
+// 	for (let reservation of siteReservations) {
+// 		let map = new Map<string, string>(Object.entries(reservation));
+// 		reservations.push(map);
+// 	}
+// }
 
 export function displayReservationTable(
 	tableElement: HTMLTableElement,
 	thisYear: number,
-	reservations: Reservation[],
-	accountColors: AccountColors
+	reservations: T.Reservation[],
+	accountColors: Map<string, string>
 ) {
 	let siteReservations: SiteReservations = {};
 	let beginDate: Date|null = null;
@@ -108,7 +101,7 @@ function writeTableHeadings(tableElement: HTMLTableElement, beginDate: Date, end
 	tableElement.appendChild(headingRowElement);
 }
 
-function writeTableRows(tableElement: HTMLTableElement, siteReservations: SiteReservations, accountColors: AccountColors) {
+function writeTableRows(tableElement: HTMLTableElement, siteReservations: SiteReservations, accountColors: Map<string, string>) {
 	let sites = sortSiteReservations(siteReservations);
 	for (let site of sites) {
 
@@ -124,7 +117,8 @@ function writeTableRows(tableElement: HTMLTableElement, siteReservations: SiteRe
 			let account = siteReservations[site][reservation].account;
 			let days = siteReservations[site][reservation].days;
 			let color = 'lightgray'; /** default color when account color is not found */
-			if (accountColors[account]) color = accountColors[account];
+			const accountColor = accountColors.get(account);
+			if (accountColor !== undefined) color = accountColor;
 
 			/** insert a (spanned) column representing unreserved date(s) before this reservation */
 			if (column > nextColumn) {
@@ -157,7 +151,7 @@ function numericSite(site: string) {
 	return siteNumber;
 }
 
-function sortReservations(reservations: Reservation[]){
+function sortReservations(reservations: T.Reservation[]){
 	/** sort by arrival date, days */
 	reservations.sort((a, b) => {
 		if (a.arrival < b.arrival) return -1;

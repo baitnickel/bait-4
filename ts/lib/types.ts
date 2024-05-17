@@ -288,16 +288,19 @@ type Journal /* JournalEntry */ = { /* keyed by uri */
 // type ParkAccount = {
 // 	account: { color: string };
 // }
-type Camper = { /* keyed by camper name */
+export type Camper = { /* keyed by camper name */
 	color: string;
 }
-type ParkReservation = { /* keyed by Park name */
+export type Reservation = { 
 	site: string|number;
 	arrival: string; /* pseudo Date: YYYY-MM-DD */
 	days: number; /* or `nights` */
 	account: string; /* key for Camper record */
 }
-type Campsite = { /* array structure under Campground.sites */
+export type ParkReservations = { /* keyed by Park name */
+	reservations: Reservation[];
+}
+export type Campsite = { /* array structure under Campground.sites */
 	site: string|number;
 	category: string;
 	type: string;
@@ -306,15 +309,15 @@ type Campsite = { /* array structure under Campground.sites */
 	table: string;
 	comment: string;
 }
-type Campground = { /* structure keyed by Park name */
+export type Campground = { /* structure keyed by Park name */
 	map: string; /* uri */
 	comments: string[];
 	sites: Campsite[];
 }
-/* currently only one Park (smitty) */
-type Park = {
-	campground: Campground;
-}
+// /* currently only one Park (smitty) */
+// export type Park = {
+// 	campground: Campground;
+// }
 
 export type Quote = {
 	text: string;

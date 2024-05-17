@@ -25,44 +25,39 @@ export function render() {
 	page.content.append(sitesDiv);
 	page.content.append(commentsDiv);
 
-	Fetch.fetchData(campgroundsPath).then((campgroundsYaml: string) => {
-		const campgroundsData = new YAML(campgroundsYaml);
-		const campgrounds = campgroundsData.parse();
-		if (Park in campgrounds) {
-			const campground = campgrounds[Park];
-			if ('map' in campground && 'sites' in campground && 'comments' in campground) {
-				/* display the SVG map */
-				const mapElement = document.createElement('img');
-				mapElement.setAttribute('src', `images/camp/${campground['map']}`);
-				mapElement.width=666;
-				mapDiv.append(mapElement);
-				/* display the sites table */
-				const tableRows: Table.RowData[] = [];
-				for (const site of campground['sites']) {
-					const map: Table.RowData = new Map(Object.entries(site));
-					tableRows.push(map);
-				}
-				const tableElements = ['site', 'type', 'size', 'tents', 'table', 'comment'];
-				const tableOptions: Table.Options = {
-					headingColumns: ['site'],
-					classPrefix: 'campsite-',
-					classElement: 'category',
-				};
-				sitesDiv.append(Table.createTable(tableRows, tableElements, tableOptions));
-				/* display the park comments */
-				commentsDiv.append(createParagraphs(campground['comments']));
+	Fetch.map<T.Campground>(campgroundsPath).then((campgrounds) => {
+		const campground = campgrounds.get(Park);
+		if (campground !== undefined) {
+			const map = campground.map;
+			const comments = campground.comments;
+			const sites = campground.sites;
+			const mapElement = document.createElement('img');
+			mapElement.setAttribute('src', `images/camp/${map}`);
+			mapElement.width=666;
+			mapDiv.append(mapElement);
+			/* display the sites table */
+			const tableRows: Table.RowData[] = [];
+			for (const site of sites) {
+				const map: Table.RowData = new Map(Object.entries(site));
+				tableRows.push(map);
 			}
+			const tableElements = ['site', 'type', 'size', 'tents', 'table', 'comment'];
+			const tableOptions: Table.Options = {
+				headingColumns: ['site'],
+				classPrefix: 'campsite-',
+				classElement: 'category',
+			};
+			sitesDiv.append(Table.createTable(tableRows, tableElements, tableOptions));
+			/* display the park comments */
+			commentsDiv.append(createParagraphs(comments));
 		}
 	});
 
-	Fetch.fetchData(reservationsPath).then((reservationsYaml: string) => {
-		const reservationsData = new YAML(reservationsYaml);
-		const reservations = reservationsData.parse();
-		if (Park in reservations) {
-			Fetch.fetchData(campersPath).then((campersYaml: string) => {
-				const campersData = new YAML(campersYaml);
-				const campers = campersData.parse();
-				/* display this year's campsite reservations */
+	Fetch.map<T.Reservation[]>(reservationsPath).then((parkReservations) => {
+		const parkReservation = parkReservations.get(Park);
+		if (parkReservation !== undefined) {
+			const reservations = parkReservation;
+			Fetch.map<string>(campersPath).then((campers) => {
 				const reservationParagraph = document.createElement('p');
 				const detailsElement = document.createElement('details');
 				const summaryElement = document.createElement('summary');
@@ -72,11 +67,12 @@ export function render() {
 				detailsElement.append(reservationsTableElement);
 				reservationParagraph.append(detailsElement);
 				reservationsDiv.append(reservationParagraph);
-
+				
+				/* display this year's campsite reservations */
 				Reservations.displayReservationTable(
 					reservationsTableElement,
 					ThisYear,
-					reservations[Park],
+					reservations,
 					campers
 				);
 			});

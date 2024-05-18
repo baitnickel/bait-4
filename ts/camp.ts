@@ -1,7 +1,6 @@
 import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
-import { YAML } from './lib/yaml.js';
 import * as Table from './lib/table.js';
 import * as Reservations from './lib/reservations.js';
 

@@ -3,7 +3,7 @@ export async function displayMoonData(element) {
     const url = 'https://svs.gsfc.nasa.gov/vis/a000000/a005000/a005048/mooninfo_2023.json';
     // const url = './data/moon.json'; /** relative to index.html directory */
     // Fetch.fetchData(url).then((records: MoonData[]) => {
-    const records = await Fetch.fetchData(url);
+    const records = await Fetch.array(url);
     let lines = [];
     if (records === null) {
         lines.push('error fetching JSON data');

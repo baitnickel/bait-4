@@ -232,35 +232,36 @@ type SongSheet = {
 	copyright: string;
 }
 
-type HexagramText = {
+export type HexagramText = {     // bait-3: IChingTexts
 	commentary: string[];
 	verse: string[];
 }
-type IChingName = {
+export type IChingName = {      // bait-3: Descriptor
 	chinese: string;
 	english: string;
 	script: string;
 }
-type Hexagram = {
+export type Hexagram = {
 	chapter: number;
-	character: string;
+	character: string; /** unicode character representing hexagram lines */
 	commentary: string[];
 	image: HexagramText;
 	judgment: HexagramText;
 	lines: HexagramText[];
 	name: IChingName;
 }
-type IChing = {
+export type IChing = {            // bait-3: IChingData
 	attribution: string;
 	hexagrams: Hexagram[];
 	trigrams: IChingName[];
 }
-type Radical = {
+export type Radical = {
 	unicode: number;
-	character_name: string;
+	character_name: string;  // bait-3: characterName
 	definitions: string[];
-	positive: boolean|null;
+	positive: boolean|null;  // bait-3: boolean only
 }
+
 type Images = {
 	file: string;
 	created: string; /* Date */

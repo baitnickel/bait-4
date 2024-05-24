@@ -8,6 +8,12 @@ export async function text(uri) {
         text = await response.text();
     return text;
 }
+export async function object(uri, convertYamlStrings = true) {
+    let data = {}; /* empty object */
+    const response = await getResponse(uri);
+    data = await getData(uri, response, convertYamlStrings);
+    return data;
+}
 export async function array(uri, convertYamlStrings = true) {
     let array = new Array(); /* empty array */
     const response = await getResponse(uri);

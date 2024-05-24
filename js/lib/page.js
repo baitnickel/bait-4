@@ -6,6 +6,7 @@ const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
 const MenuItems = [
     { module: 'home', parameters: [], text: 'Home', icon: 'home.svg' },
+    { module: 'iching', parameters: [], text: 'I Ching', icon: '' },
     { module: 'camp', parameters: [], text: 'Camping', icon: 'camp.svg' },
     { module: 'articles', parameters: ['path=Content/drafts'], text: 'Drafts', icon: '' },
     { module: 'songbook', parameters: [], text: 'Song Book', icon: 'songbook.svg' },
@@ -47,7 +48,6 @@ export class Page {
             MenuItems.push({ module: 'test-file-api', parameters: [], text: 'File API', icon: '' });
             MenuItems.push({ module: 'test-svg', parameters: [], text: 'SVG', icon: '' });
             MenuItems.push({ module: 'test-yaml', parameters: [], text: 'YAML', icon: '' });
-            MenuItems.push({ module: 'test-iching', parameters: [], text: '易經', icon: '' });
             MenuItems.push({ module: 'test-load-data', parameters: [], text: 'Load Data', icon: '' });
         }
         if (header)

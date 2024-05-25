@@ -423,7 +423,8 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 }
 .iching-hexagram {
 	font-family: serif;
-	font-size: 4em;
+	font-size: 2em;
+	/* bottom: 3em;  how do I get spacing below? */
 }
 .iching-heading {
 	font-family: sans-serif;

@@ -32,13 +32,15 @@ function dieElement(dice, index, displayDiv, hexagramDiv) {
     }
     selectElement.addEventListener('change', (e) => {
         let result = displayDice(dice, displayDiv);
-        if (result >= 0)
+        if (result === null)
+            hexagramDiv.innerHTML = '';
+        else
             displayHexagram(result, hexagramDiv);
     });
     return selectElement;
 }
 function displayDice(dice, displayDiv) {
-    let result = -1;
+    let result = null;
     displayDiv.innerHTML = '';
     for (let die of dice) {
         let characterCode = Number(die.value) + 9855;
@@ -49,12 +51,15 @@ function displayDice(dice, displayDiv) {
     const dice0 = Number(dice[0].value);
     const dice1 = Number(dice[1].value);
     const dice2 = Number(dice[2].value);
-    const high = ((dice0 - 1) % 2) ? 0 : 36;
-    const mid = (dice1 - 1) * 6;
-    const low = (dice2 - 1);
-    if (dice1 && dice2 && dice2) {
+    if (dice0 && dice1 && dice2) {
+        const high = ((dice0 - 1) % 2) ? 0 : 36;
+        const mid = (dice1 - 1) * 6;
+        const low = (dice2 - 1);
         result = high + mid + low;
-        displayDiv.innerHTML += (result > 63) ? 'overflow - roll again' : `${high} + ${mid} + ${low} = ${result}`;
+        if (result > 63)
+            result = Math.floor(Math.random() * 64);
+        // displayDiv.innerHTML += `${high} + ${mid} + ${low} = ${result}`;
+        // displayDiv.innerHTML += `${result}`;
     }
     return result;
 }
@@ -69,7 +74,7 @@ function displayHexagram(hexagramNumber, hexagramDiv) {
         const hexagram = IChing.hexagrams[hexagramNumber];
         const hexagramGlyph = document.createElement('span');
         hexagramGlyph.classList.add('iching-hexagram');
-        hexagramGlyph.innerText = hexagram.character;
+        hexagramGlyph.innerText = `${hexagram.character} Chapter ${hexagram.chapter}`;
         hexagramSummary.append(hexagramGlyph);
         const breakElement = document.createElement('br');
         hexagramSummary.append(breakElement);

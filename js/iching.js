@@ -74,8 +74,13 @@ function displayHexagram(hexagramNumber, hexagramDiv) {
         const hexagram = IChing.hexagrams[hexagramNumber];
         const hexagramGlyph = document.createElement('span');
         hexagramGlyph.classList.add('iching-hexagram');
-        hexagramGlyph.innerText = `${hexagram.character} Chapter ${hexagram.chapter}`;
+        // hexagramGlyph.innerText = `${hexagram.character} chapter ${hexagram.chapter}`;
+        hexagramGlyph.innerText = `${hexagram.character}`;
+        const hexagramChapterName = document.createElement('span');
+        hexagramChapterName.classList.add('iching-hexagram-chapter-name');
+        hexagramChapterName.innerText = ` Chapter ${hexagram.chapter}`;
         hexagramSummary.append(hexagramGlyph);
+        hexagramSummary.append(hexagramChapterName);
         const breakElement = document.createElement('br');
         hexagramSummary.append(breakElement);
         const hexagramChapter = document.createElement('span');

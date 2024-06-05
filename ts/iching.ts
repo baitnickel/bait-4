@@ -9,20 +9,58 @@ const ThisPage = new Page();
 const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
 const IChing = await Fetch.object<T.IChing>(IChingPath);
 
+/** Supported Input Methods */
+const InputMethods = ['Dice', 'Coins', 'Direct', 'Random'];
+
 export function render() {
+	/** Create a div for the input method selection */
+	const inputMethodDiv = document.createElement('div');
+	inputMethodDiv.id = 'iching-method';
+	ThisPage.content.append(inputMethodDiv);
+	inputMethodSelection(inputMethodDiv);
+
 	const selectionsDiv = document.createElement('div');
 	selectionsDiv.className = 'dice-selection';
 	ThisPage.content.append(selectionsDiv);
+
 	const diceDisplayDiv = document.createElement('div');
 	diceDisplayDiv.className = 'dice-display';
 	ThisPage.content.append(diceDisplayDiv);
+
 	const hexagramDiv = document.createElement('div');
 	ThisPage.content.append(hexagramDiv);
+
 	const dice: HTMLSelectElement[] = [];
 	for (let i = 0; i < 3; i += 1) {
 		dice[i] = dieElement(dice, i, diceDisplayDiv, hexagramDiv);
 		selectionsDiv.append(dice[i]);
 	}
+}
+
+/**
+ * Set up the drop-down selection at the top of the page that will be used to
+ * choose the I Ching chpater selection.
+ */
+function inputMethodSelection(division: HTMLDivElement) {
+	const selectElement = document.createElement('select');
+	for (let inputMethod of InputMethods) {
+		const displayedOption = inputMethod;
+		const option = new Option(displayedOption, inputMethod);
+		selectElement.add(option);
+	}
+	selectElement.addEventListener('change', (e: Event) => {
+		let value = selectElement.value
+		initializeInput(value);
+	});
+	division.append(selectElement);
+}
+
+/**
+ * Initialize the divisions in the page that are used for input selection and
+ * display, and I Ching texts.
+ */
+function initializeInput(value: string) {
+	console.log(`value selected: ${value}`);
 }
 
 function dieElement(dice: HTMLSelectElement[], index: number, displayDiv: HTMLDivElement, hexagramDiv: HTMLDivElement) {
@@ -46,23 +84,66 @@ function dieElement(dice: HTMLSelectElement[], index: number, displayDiv: HTMLDi
 
 function displayDice(dice: HTMLSelectElement[], displayDiv: HTMLDivElement) {
 	let result: number|null = null;
+	const rejectOverflow = true;
 	displayDiv.innerHTML = '';
+	const diceValues = [0, 0, 0];
+	let dieIndex = 0;
 	for (let die of dice) {
-		let characterCode = Number(die.value) + 9855;
+		const dieValue = Number(die.value);
+		let characterCode = dieValue + 9855;
 		if (characterCode < 9856 || characterCode > 9861) characterCode = 9866; /* represents no die value */
 		displayDiv.innerHTML += `${String.fromCharCode(characterCode)} `;
+		diceValues[dieIndex] = dieValue;
+		dieIndex += 1;
+		dieIndex %= 3; /* force index into diceValues range (0...2) */
 	}
-	const dice0 = Number(dice[0].value);
-	const dice1 = Number(dice[1].value);
-	const dice2 = Number(dice[2].value);
-	if (dice0 && dice1 && dice2) {
-		const high = ((dice0 - 1) % 2) ? 0 : 36;
-		const mid = (dice1 - 1) * 6;
-		const low = (dice2 - 1);
-		result = high + mid + low;
-		if (result > 63) result = Math.floor(Math.random() * 64);
+	// const dice0 = Number(dice[0].value);
+	// const dice1 = Number(dice[1].value);
+	// const dice2 = Number(dice[2].value);
+	// if (dice0 && dice1 && dice2) {
+	// 	const high = ((dice0 - 1) % 2) ? 0 : 36;
+	// 	const mid = (dice1 - 1) * 6;
+	// 	const low = (dice2 - 1);
+	// 	result = high + mid + low;
+	result = diceResult(diceValues);
+	if (result !== null && result > 63) {
+		if (rejectOverflow) {
+			displayDiv.innerHTML += 'overflow - roll again';
+			result = null;
+		}
+		else result = Math.floor(Math.random() * 64);
+	}
 		// displayDiv.innerHTML += `${high} + ${mid} + ${low} = ${result}`;
 		// displayDiv.innerHTML += `${result}`;
+	// }
+	return result;
+}
+
+/**
+ * Given an array of three dice values, return a result between 0 and 63
+ * inclusive, or null if the result is out of range.
+ */
+function diceResult(diceValues: number[]) {
+	let result: number|null = null;
+	if (diceValues[0] && diceValues[1] && diceValues[2]) { /* all die values are valid non-zero numbers */
+		for (let i = 0; i < 3; i += 1) {
+			const dice0 = diceValues[i % 3];
+			const dice1 = diceValues[(i + 1) % 3];
+			const dice2 = diceValues[(i + 2) % 3];
+			const high = ((dice0 - 1) % 2) ? 0 : 36;
+			const mid = (dice1 - 1) * 6;
+			const low = (dice2 - 1);
+			result = high + mid + low;
+			if (result < 64) break;
+		}
+		/*
+		0 1 2
+		0 2 1
+		1 0 2
+		1 2 0
+		2 0 1
+		2 1 0
+		*/
 	}
 	return result;
 }
@@ -81,7 +162,6 @@ function displayHexagram(hexagramNumber: number, hexagramDiv: HTMLDivElement) {
 
 		const hexagramGlyph = document.createElement('span');
 		hexagramGlyph.classList.add('iching-hexagram');
-		// hexagramGlyph.innerText = `${hexagram.character} chapter ${hexagram.chapter}`;
 		hexagramGlyph.innerText = `${hexagram.character}`;
 		const hexagramChapterName = document.createElement('span');
 		hexagramChapterName.classList.add('iching-hexagram-chapter-name');

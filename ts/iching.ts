@@ -19,10 +19,12 @@ export function render() {
 	ThisPage.content.append(inputMethodDiv);
 	inputMethodSelection(inputMethodDiv);
 
-	const selectionsDiv = document.createElement('div');
-	selectionsDiv.className = 'dice-selection';
-	ThisPage.content.append(selectionsDiv);
-
+	/** this should be handled in the divination */
+	const inputDiv = document.createElement('div');
+	inputDiv.className = 'dice-selection';
+	ThisPage.content.append(inputDiv);
+	
+	/** this should be handled in the divination */
 	const diceDisplayDiv = document.createElement('div');
 	diceDisplayDiv.className = 'dice-display';
 	ThisPage.content.append(diceDisplayDiv);
@@ -30,10 +32,14 @@ export function render() {
 	const hexagramDiv = document.createElement('div');
 	ThisPage.content.append(hexagramDiv);
 
+	/**
+	 * This code doesn't belong in the main function--it should be part of the
+	 * divination constructor (whichever divination is initially selected).
+	 */
 	const dice: HTMLSelectElement[] = [];
 	for (let i = 0; i < 3; i += 1) {
 		dice[i] = dieElement(dice, i, diceDisplayDiv, hexagramDiv);
-		selectionsDiv.append(dice[i]);
+		inputDiv.append(dice[i]);
 	}
 }
 
@@ -63,6 +69,17 @@ function initializeInput(value: string) {
 	console.log(`value selected: ${value}`);
 }
 
+/**
+ * Given an array of HTMLSelectElements (`dice`) and an index number, create a
+ * drop-down element and return it. For a 6-sided die, there will be 6 options
+ * (1...6) in the drop-down, plus a "none selected" option (the default).
+ * Options here are the numbers 1...6, but could be icons. The calling code
+ * creates one drop-down for each of the 3 dice (in this case).
+ * 
+ * Define an event listener associated with this drop-down. The listener is
+ * triggered whenever the drop-down value changes, causing the `displayDice`
+ * function, and possibly the `displayHexagram` function, to be called.
+ */
 function dieElement(dice: HTMLSelectElement[], index: number, displayDiv: HTMLDivElement, hexagramDiv: HTMLDivElement) {
 	const selectElement = document.createElement('select');
 	selectElement.id = `die-${index}`;
@@ -81,6 +98,7 @@ function dieElement(dice: HTMLSelectElement[], index: number, displayDiv: HTMLDi
 
 	return selectElement;
 }
+
 
 function displayDice(dice: HTMLSelectElement[], displayDiv: HTMLDivElement) {
 	let result: number|null = null;

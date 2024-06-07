@@ -20,30 +20,82 @@
  * and 2x6x6, none of which produce a usable result--but the calling program can
  * also "divine" additional results to refine the dice result, e.g., get a
  * "seasonal" result using the earth's orbit, moon phases, sun time, etc.
+ * 
+ * Subclasses may have methods that return one or more HTMLElements, e.g.,
+ * elements that the calling program can insert into a DIV to create buttons,
+ * drop-downs, etc. for entry of the results of a dice roll or series of coins
+ * tosses.
  */
 
-class Chance {
+export class Random {
 	elements: number; /** number of elements, e.g., 3 dice*/
-	facets: number[]; /** number of facets/faces of each element, e.g., 6 die faces (facets.length is 1 if all alike) */
-	limit: number; /** divination should result in an integer >= 0 and < limit, e.g., 64 */
-	workspace: HTMLElement; /** HTML element where drop-down selection, selected values, etc. may be displayed */
+	faces: number[]; /** number of faces of each element, e.g., 6 die faces (faces.length is 1 if all alike) */
+	limit: number; /** number of possible results */
+	minimum: number /** minimum result */
 
-	constructor(elements: number, facets: number[], limit: number, workspace: HTMLElement) {
-		this.elements = elements;
-		this.facets = facets;
+	constructor(limit = 1) {
+		this.elements = 0;
+		this.faces = [0];
 		this.limit = limit;
-		this.workspace = workspace;
+		this.minimum = 0;
+	}
+
+	result() {
+		return Math.floor(Math.random() * this.limit);
 	}
 }
 
-export class Dice extends Chance {
+export class Dice extends Random {
 
 }
 
-export class Coins extends Chance {
+export class Coins extends Random {
 	
 }
 
-export class Orbitals extends Chance {
+export class Seasonal extends Random {
+
+	constructor(limit = 4) {
+		super(limit);
+	}
 	
+	result() {
+		const now = new Date();
+		const dailyMilliseconds = 24 * 60 * 60 * 1000;
+		const utcNow = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+		const winterSolstice = Date.UTC(now.getFullYear(), 11, 21);
+		const utcStartOfYear = Date.UTC(now.getFullYear(), 0, 0);
+		const utcEndOfYear = Date.UTC(now.getFullYear(), 11, 31);
+		const daysInYear = (utcEndOfYear - utcStartOfYear) / dailyMilliseconds;
+		const dayOfYear = (utcNow - utcStartOfYear) / dailyMilliseconds;
+		const dayOfSolstice = (winterSolstice - utcStartOfYear) / dailyMilliseconds;
+		/** 
+		 * The day of orbit is 0 on the day of the winter solstice (we assume
+		 * Dec 21), and 364 (or 365 in a leap year) on the day before the winter
+		 * solstice. We're ignoring the fact that the solstice and equinox dates
+		 * can shift about a day due to leap years, and assuming the winter
+		 * solstice occurs on Dec 21. For our purposes, the imprecision is not
+		 * critical.
+		 * 
+		 * Math.round(dayOfOrbit / (daysInYear / 4)) % 4 should give you:
+		 * - 0 near winter solstice
+		 * - 1 near spring equinox
+		 * - 2 near summer solstice
+		 * - 3 near autumn equinox
+		 */
+		const dayOfOrbit = (dayOfYear >= dayOfSolstice) ? dayOfYear -  dayOfSolstice : (daysInYear - dayOfSolstice) + dayOfYear;
+		/**
+		 * season calculation (when this.limit == 4) gives you:
+		 * - 0 near winter solstice
+		 * - 1 near spring equinox
+		 * - 2 near summer solstice
+		 * - 3 near autumn equinox
+		 */
+		const season = Math.round(dayOfOrbit / (daysInYear / this.limit)) % this.limit;
+		/**
+		 * changing this.limit can give us many different "seasonal segments",
+		 * e.g., 2, 4, 8, 12, 16, 32, 64
+		 */
+		return season;
+	}
 }

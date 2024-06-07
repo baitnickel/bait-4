@@ -1,5 +1,6 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
+import * as Chance from './lib/chance.js';
 import { Markup } from './lib/markup.js';
 const ThisPage = new Page();
 /** load all the I Ching texts */
@@ -7,6 +8,9 @@ const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
 const IChing = await Fetch.object(IChingPath);
 /** Supported Input Methods */
 const InputMethods = ['Dice', 'Coins', 'Direct', 'Random'];
+const segment = 16;
+const d = new Chance.Seasonal(segment);
+console.log(`seasonal segment (0...${segment - 1}): ${d.result()}`);
 export function render() {
     /** Create a div for the input method selection */
     const inputMethodDiv = document.createElement('div');

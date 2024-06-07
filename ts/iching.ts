@@ -1,6 +1,7 @@
 import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
+import * as Chance from './lib/chance.js';
 import { Markup } from './lib/markup.js';
 
 const ThisPage = new Page();
@@ -11,6 +12,9 @@ const IChing = await Fetch.object<T.IChing>(IChingPath);
 
 /** Supported Input Methods */
 const InputMethods = ['Dice', 'Coins', 'Direct', 'Random'];
+const segment = 16
+const d = new Chance.Seasonal(segment);
+console.log(`seasonal segment (0...${segment - 1}): ${d.result()}`);
 
 export function render() {
 	/** Create a div for the input method selection */

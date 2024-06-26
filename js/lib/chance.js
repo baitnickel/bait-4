@@ -25,10 +25,17 @@
  * elements that the calling program can insert into a DIV to create buttons,
  * drop-downs, etc. for entry of the results of a dice roll or series of coins
  * tosses.
+ *
+ * What is the best term for "evenly distributed probablity" (or something like
+ * that) ... the `result` method should take an argument indicating the user's
+ * desired "fairness". If I want every integer in a range to have an equal
+ * chance of appearing, that would be 100% fair. If 90% of the integers had
+ * equal weight, we would only see 10% of integers being selected more or less
+ * often. Etc.
  */
-export class Random {
+export class Chance {
     constructor(limit = 1) {
-        this.elements = 0;
+        this.items = 0;
         this.faces = [0];
         this.limit = limit;
         this.minimum = 0;
@@ -37,11 +44,11 @@ export class Random {
         return Math.floor(Math.random() * this.limit);
     }
 }
-export class Dice extends Random {
+export class Dice extends Chance {
 }
-export class Coins extends Random {
+export class Coins extends Chance {
 }
-export class Seasonal extends Random {
+export class Seasonal extends Chance {
     constructor(limit = 4) {
         super(limit);
     }

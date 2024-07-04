@@ -1,86 +1,94 @@
 {
-	"a-meeting-of-the-minds.md": {
-		"title": "A Meeting of the Minds",
-		"artist": "The Baitnickels"
-	},
-	"a-wake-in-time.md": {
-		"title": "A Wake In Time",
-		"artist": "The Baitnickels"
-	},
-	"all-i-know.md": {
-		"title": "All I Know",
-		"artist": "The Baitnickels"
-	},
-	"all-the-time.md": {
+	"ants/all-the-time.md": {
 		"title": "All the Time",
 		"artist": "The Baitnickels"
 	},
-	"i-knew-the-moment.md": {
-		"title": "I Knew the Moment",
-		"artist": "The Baitnickels"
-	},
-	"i-think-im-falling-in-love-again.md": {
-		"title": "I Think I'm Falling In Love Again",
-		"artist": "The Volumes"
-	},
-	"lasting-impression.md": {
-		"title": "Lasting Impression",
-		"artist": "The Baitnickels"
-	},
-	"matthew-and-erin.md": {
-		"title": "Matthew and Erin",
-		"artist": "The Baitnickels"
-	},
-	"melon-seller.md": {
-		"title": "Melon Seller",
-		"artist": "The Volumes"
-	},
-	"miracles.md": {
-		"title": "Miracles",
-		"artist": "The Baitnickels"
-	},
-	"mitchell.md": {
-		"title": "Mitchell",
-		"artist": "The Baitnickels"
-	},
-	"monterey.md": {
-		"title": "Monterey",
-		"artist": "Elle Dickinson"
-	},
-	"nobody-needs-to-know.md": {
-		"title": "Nobody Needs to Know",
-		"artist": "The Baitnickels"
-	},
-	"one-is-fine.md": {
-		"title": "One Is Fine",
-		"artist": "The Baitnickels"
-	},
-	"promises-we-make.md": {
-		"title": "Promises We Make",
-		"artist": "The Baitnickels"
-	},
-	"rabbit-and-the-white-fish.md": {
-		"title": "Rabbit and the White Fish",
-		"artist": "The Baitnickels"
-	},
-	"same-way-too.md": {
-		"title": "Same Way Too",
-		"artist": "The Baitnickels"
-	},
-	"she-left-me-last-night.md": {
-		"title": "She Left Me Last Night",
-		"artist": "The Volumes"
-	},
-	"torn-apart.md": {
-		"title": "Torn Apart",
-		"artist": "The Baitnickels"
-	},
-	"wholly-the-changes-come.md": {
+	"eighties/wholly-the-changes-come.md": {
 		"title": "Wholly the Changes Come",
 		"artist": "Dan"
 	},
-	"zacharys-song.md": {
+	"eighties/zacharys-song.md": {
 		"title": "Zachary's Song",
 		"artist": "Dan"
+	},
+	"elle/monterey.md": {
+		"title": "Monterey",
+		"artist": "Elle Dickinson"
+	},
+	"psyche/lasting-impression.md": {
+		"title": "Lasting Impression",
+		"artist": "The Baitnickels"
+	},
+	"psyche/matthew-and-erin.md": {
+		"title": "Matthew and Erin",
+		"artist": "The Baitnickels"
+	},
+	"psyche/miracles.md": {
+		"title": "Miracles",
+		"artist": "The Baitnickels"
+	},
+	"psyche/mitchell.md": {
+		"title": "Mitchell",
+		"artist": "The Baitnickels"
+	},
+	"psyche/nobody-needs-to-know.md": {
+		"title": "Nobody Needs to Know",
+		"artist": "The Baitnickels"
+	},
+	"psyche/same-way-too.md": {
+		"title": "Same Way Too",
+		"artist": "The Baitnickels"
+	},
+	"psyche/torn-apart.md": {
+		"title": "Torn Apart",
+		"artist": "The Baitnickels"
+	},
+	"test-fakes/hello-hello.md": {
+		"title": "Hello, Hello",
+		"artist": "Sopwith Camel"
+	},
+	"test-fakes/into-white.md": {
+		"title": "Into White",
+		"artist": "Cat Stevens"
+	},
+	"volumes/i-think-im-falling-in-love-again.md": {
+		"title": "I Think I'm Falling In Love Again",
+		"artist": "The Volumes"
+	},
+	"volumes/melon-seller.md": {
+		"title": "Melon Seller",
+		"artist": "The Volumes"
+	},
+	"volumes/she-left-me-last-night.md": {
+		"title": "She Left Me Last Night",
+		"artist": "The Volumes"
+	},
+	"wake/a-meeting-of-the-minds.md": {
+		"title": "A Meeting of the Minds",
+		"artist": "The Baitnickels"
+	},
+	"wake/a-wake-in-time.md": {
+		"title": "A Wake In Time",
+		"artist": "The Baitnickels"
+	},
+	"wake/all-i-know.md": {
+		"title": "All I Know",
+		"artist": "The Baitnickels"
+	},
+	"wake/i-knew-the-moment.md": {
+		"title": "I Knew the Moment",
+		"artist": "The Baitnickels"
+	},
+	"wake/one-is-fine.md": {
+		"title": "One Is Fine",
+		"artist": "The Baitnickels"
+	},
+	"wake/promises-we-make.md": {
+		"title": "Promises We Make",
+		"artist": "The Baitnickels"
+	},
+	"wake/rabbit-and-the-white-fish.md": {
+		"title": "Rabbit and the White Fish",
+		"artist": "The Baitnickels"
 	}
 }

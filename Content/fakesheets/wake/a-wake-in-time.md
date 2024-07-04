@@ -2,9 +2,10 @@
 access: 0
 title: A Wake In Time
 artist: The Baitnickels
-composers: [Dan]
+composers:
+  - Dan
 key: A
-capo: 3
+capo: 4
 tempo: 74
 chords:
   - Amaj7! 006650

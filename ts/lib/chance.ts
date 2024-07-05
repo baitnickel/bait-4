@@ -41,23 +41,95 @@ export class Chance {
 	minimum: number /** minimum result */
 
 	constructor(limit = 1) {
-		this.items = 0;
-		this.faces = [0];
-		this.limit = limit;
-		this.minimum = 0;
+		this.items = 0;      /* how many items (coins, dice, etc) will be tossed? */
+		this.faces = [0];    /* how many different faces does each item have? 2? 6? */
+		this.limit = limit;  /* how many different integers do we want? */
+		this.minimum = 0;    /* what is our starting integer? */
 	}
 
-	result() {
+	result(values: number|number[] = 0) {
 		return Math.floor(Math.random() * this.limit);
 	}
 }
 
 export class Dice extends Chance {
 
+	constructor(items: number, faces: number|number[], limit: number) {
+		super();
+		this.items = items;
+		this.limit = limit;
+		this.faces = (Array.isArray(faces)) ? faces : [faces];
+		let lastFace = this.faces[this.faces.length - 1];
+		while (this.items > this.faces.length) {
+			this.faces.push(lastFace);
+		}
+	}
+
+	result(values: number|number[]) {
+		let result = super.result(values);
+		const valuesArray = (Array.isArray(values)) ? values : [values];
+		const lastValue = valuesArray[valuesArray.length - 1];
+		while (this.faces.length > valuesArray.length) {
+			valuesArray.push(lastValue);
+		}
+		/** ### our special case ... needs to be generalized */
+		if (this.items == 3 && this.faces[0] == 12) {
+			const base = 4;
+			const values: number[] = [];
+			result = 0;
+			for (let i in valuesArray) {
+				/**
+				 * valuesArray[i] contains a number 1...12
+				 * power is 1, 4, 16
+				 * value is face value - 1 raised to the power
+				 */
+				const power = base ** Number(i);
+				let value = (valuesArray[i] - 1) % base; /* 1...12 becomes 0...3 */
+				value = value * power;
+				result += value;
+			}
+		}
+		return result;
+	}
 }
 
 export class Coins extends Chance {
 	
+	constructor(items: number, limit: number) {
+		super();
+		this.items = items;
+		this.limit = limit;
+		this.faces = [2];
+		let lastFace = this.faces[this.faces.length - 1];
+		while (this.items > this.faces.length) {
+			this.faces.push(lastFace);
+		}
+	}
+
+	result(values: number|number[]) {
+		let result = super.result(values);
+		const valuesArray = (Array.isArray(values)) ? values : [values];
+		const lastValue = valuesArray[valuesArray.length - 1];
+		while (this.faces.length > valuesArray.length) {
+			valuesArray.push(lastValue);
+		}
+		const base = 2;
+		// const values: number[] = [];
+		result = 0;
+		for (let i in valuesArray) {
+			/**
+			 * valuesArray[i] contains a number 1...12
+			 * power is 1, 4, 16
+			 * value is face value - 1 raised to the power
+			 */
+			const power = base ** Number(i);
+			let value = (valuesArray[i] - 1) % base; /* 1...2 becomes 0...1 */
+			value = value * power;
+			result += value;
+		}
+		return result;
+	}
+
 }
 
 export class Seasonal extends Chance {

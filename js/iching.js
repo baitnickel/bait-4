@@ -1,35 +1,52 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
-import * as Chance from './lib/chance.js';
+import { Dice, Coins } from './lib/chance.js';
 import { Markup } from './lib/markup.js';
 const ThisPage = new Page();
 /** load all the I Ching texts */
 const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
 const IChing = await Fetch.object(IChingPath);
 /** Supported Input Methods */
-const InputMethods = ['Dice', 'Coins', 'Direct', 'Random'];
-const segment = 16;
-const d = new Chance.Seasonal(segment);
-console.log(`seasonal segment (0...${segment - 1}): ${d.result()}`);
+const ChanceMethods = new Map();
+ChanceMethods.set('D12', { text: '3 Dice (12-sided)', items: 3, faces: 12 });
+ChanceMethods.set('D6', { text: '3 Dice (Standard)', items: 3, faces: 6 });
+ChanceMethods.set('C', { text: '8 Coins', items: 8, faces: 2 });
+const InputMethods = Array.from(ChanceMethods.keys()); // ['D12', 'D6', 'C'];
+const Limit = 64; /* number of Chance values to be returned */
+let ChanceMethodKey = initializeInput(InputMethods[0]); /** initialize input method */
+let ChanceMethod = ChanceMethods.get(ChanceMethodKey);
+let Chance = new Coins(8, Limit);
+if (ChanceMethodKey.startsWith('D')) {
+    Chance = new Dice(3, 12, Limit);
+}
+const values = [12, 12, 12];
+console.log(`dice: ${Chance.result(values)}`);
 export function render() {
-    /** Create a div for the input method selection */
+    /** Create a div for the input type selection (Dice, Coins, etc) */
     const inputMethodDiv = document.createElement('div');
     inputMethodDiv.id = 'iching-method';
     ThisPage.content.append(inputMethodDiv);
     inputMethodSelection(inputMethodDiv);
-    /** this should be handled in the divination */
+    /** Create a div for the input option selections */
+    /** this should be handled in the Chance object */
     const inputDiv = document.createElement('div');
     inputDiv.className = 'dice-selection';
     ThisPage.content.append(inputDiv);
-    /** this should be handled in the divination */
+    /** Create a div for the display of the selected input values */
+    /** this should be handled in the Chance object */
     const diceDisplayDiv = document.createElement('div');
     diceDisplayDiv.className = 'dice-display';
     ThisPage.content.append(diceDisplayDiv);
+    /** Create a div for the I Ching text */
     const hexagramDiv = document.createElement('div');
     ThisPage.content.append(hexagramDiv);
     /**
-     * This code doesn't belong in the main function--it should be part of the
-     * divination constructor (whichever divination is initially selected).
+     * For each item (Die, Coin, etc) append a Select Element to the Input
+     * Options Selection div created above to allow the user to select the
+     * values found after rolling the dice or tossing the coins, etc.
+     *
+     * This code might not belong in the main function--it should be part of the
+     * Chance constructor (whichever Chance is initially selected).
      */
     const dice = [];
     for (let i = 0; i < 3; i += 1) {
@@ -39,18 +56,20 @@ export function render() {
 }
 /**
  * Set up the drop-down selection at the top of the page that will be used to
- * choose the I Ching chpater selection.
+ * choose the I Ching chapter selection.
  */
 function inputMethodSelection(division) {
     const selectElement = document.createElement('select');
     for (let inputMethod of InputMethods) {
-        const displayedOption = inputMethod;
+        const method = ChanceMethods.get(inputMethod);
+        const displayedOption = method.text;
         const option = new Option(displayedOption, inputMethod);
         selectElement.add(option);
     }
     selectElement.addEventListener('change', (e) => {
-        let value = selectElement.value;
-        initializeInput(value);
+        let inputMethod = selectElement.value;
+        // console.log(`Input Method: ${inputMethod}`);
+        ChanceMethodKey = initializeInput(inputMethod);
     });
     division.append(selectElement);
 }
@@ -58,14 +77,21 @@ function inputMethodSelection(division) {
  * Initialize the divisions in the page that are used for input selection and
  * display, and I Ching texts.
  */
-function initializeInput(value) {
-    console.log(`value selected: ${value}`);
+function initializeInput(inputMethod) {
+    let chance;
+    if (ChanceMethods.has(inputMethod)) {
+        chance = ChanceMethods.get(inputMethod);
+        console.log(`inputMethod selected: ${chance.text}`);
+    }
+    else
+        console.log(`Invalid inputMethod selected: ${inputMethod}`);
+    return inputMethod;
 }
 /**
  * Given an array of HTMLSelectElements (`dice`) and an index number, create a
- * drop-down element and return it. For a 6-sided die, there will be 6 options
- * (1...6) in the drop-down, plus a "none selected" option (the default).
- * Options here are the numbers 1...6, but could be icons. The calling code
+ * drop-down element and return it. For a 12-sided die, there will be 12 options
+ * (1...12) in the drop-down, plus a "none selected" option (the default).
+ * Options here are the numbers 1...12, but could be icons. The calling code
  * creates one drop-down for each of the 3 dice (in this case).
  *
  * Define an event listener associated with this drop-down. The listener is
@@ -77,7 +103,7 @@ function dieElement(dice, index, displayDiv, hexagramDiv) {
     selectElement.id = `die-${index}`;
     selectElement.className = 'die-select';
     /* character codes 9856-9861: ⚀ ⚁ ⚂ ⚃ ⚄ ⚅ */
-    for (let die = 0; die <= 6; die += 1) {
+    for (let die = 0; die <= 12; die += 1) { /* ### hardcoding 12 here! */
         const displayedOption = (die == 0) ? '-' : `${die}`;
         const option = new Option(`${displayedOption}`, `${die}`);
         selectElement.add(option);

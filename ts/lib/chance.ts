@@ -132,7 +132,7 @@ export class Coins extends Chance {
 
 }
 
-export class Seasonal extends Chance {
+export class Seasonal extends Chance { /** ### Calendric? */
 
 	constructor(limit = 4) {
 		super(limit);

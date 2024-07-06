@@ -16,17 +16,44 @@ const ThisPage = new Page();
 const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
 const IChing = await Fetch.object<T.IChing>(IChingPath);
 
+/** ###
+ * Terminology needs to be corrected as it's the source of a lot of confused
+ * logic here.
+ * 
+ * Divination Methods. Cast Off. Cleromancy. Sortition. Oracle. Oracle Bones. 50
+ * Yarrow Stalks. Coins. Dice. Playing Cards. Seasonal (Calendric) Time. Place.
+ * Position.
+ * 
+ * see: 
+ * - https://en.wikipedia.org/wiki/I_Ching_divination#Coins
+ * - https://en.wikipedia.org/wiki/Yarrow_algorithm
+ * 
+ * 12 * 12 = 144
+ * 144 * 4 = 576
+ * 576 / 64 = 9
+ */
+
 /** Supported Input Methods */
 const ChanceMethods = new Map<string, ChanceMethod>();
 ChanceMethods.set('D12', {text: '3 Dice (12-sided)', items: 3, faces: 12});
 ChanceMethods.set('D6', {text: '3 Dice (Standard)', items: 3, faces: 6});
-ChanceMethods.set('C', {text: '8 Coins', items: 8, faces: 2});
+ChanceMethods.set('C', {text: '6 Coins', items: 6, faces: 2});
 
+/**
+ * Using the first ChanceMethod in the list above as the default, we instantiate
+ * a Chance object (in this case, a 12-sided Dice object). This object will
+ * contain properties that define how a "toss" is recorded and displayed, as
+ * well as how a toss identifies the corresponding I Ching chapter.
+ * 
+ * The Chance object is global, and will be used in the Initialize method below,
+ * in both the render function and in appropriate event listeners (changing the
+ * input "token" type, clicking a reset button, etc.).
+ */
 const InputMethods = Array.from(ChanceMethods.keys()); // ['D12', 'D6', 'C'];
 const Limit = 64; /* number of Chance values to be returned */
 let ChanceMethodKey = initializeInput(InputMethods[0]); /** initialize input method */
 let ChanceMethod = ChanceMethods.get(ChanceMethodKey);
-let Chance = new Coins(8, Limit);
+let Chance = new Coins(6, Limit);
 if (ChanceMethodKey.startsWith('D')) {
 	Chance = new Dice(3, 12, Limit);
 }
@@ -34,6 +61,13 @@ if (ChanceMethodKey.startsWith('D')) {
 const values = [12,12,12];
 console.log(`dice: ${Chance.result(values)}`);
 
+/**
+ * Render 4 divisions:
+ * - Input Type selection (Dice, Coins, etc.)
+ * - Dice/Coin toss recording (select values from dropdowns to match each tossed item)
+ * - Display recorded item values (e.g., Dice/Coin face images or numerals)
+ * - I Ching text
+ */
 export function render() {
 	/** Create a div for the input type selection (Dice, Coins, etc) */
 	const inputMethodDiv = document.createElement('div');
@@ -62,8 +96,7 @@ export function render() {
 	 * Options Selection div created above to allow the user to select the
 	 * values found after rolling the dice or tossing the coins, etc.
 	 *
-	 * This code might not belong in the main function--it should be part of the
-	 * Chance constructor (whichever Chance is initially selected).
+	 * 
 	 */
 	const dice: HTMLSelectElement[] = [];
 	for (let i = 0; i < 3; i += 1) {
@@ -93,8 +126,10 @@ function inputMethodSelection(division: HTMLDivElement) {
 }
 
 /**
- * Initialize the divisions in the page that are used for input selection and
- * display, and I Ching texts.
+ * Initialize the divisions in the page that are used for:
+ * - input type selection (dice, coins, 12-sided dice, etc.)
+ * - display
+ * - I Ching texts.
  */
 function initializeInput(inputMethod: string) {
 	let chance: ChanceMethod;

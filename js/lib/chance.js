@@ -6,7 +6,7 @@
  * create their own divs within this workspace, and must provide methods for
  * initialization, display, etc.
  *
- * Creating a Chance object should be rarely done--this is why we have
+ * Creating a Random object should be rarely done--this is why we have
  * subclasses. Constructors probably don't need arguments--use setters instead.
  * The superclass object is completely dumb, it won't do anything much for you,
  * unless you just want a random number >= 0 and < 1. Each subclass establishes
@@ -33,7 +33,7 @@
  * equal weight, we would only see 10% of integers being selected more or less
  * often. Etc.
  */
-export class Chance {
+export class Random {
     constructor(limit = 1) {
         this.items = 0; /* how many items (coins, dice, etc) will be tossed? */
         this.faces = [0]; /* how many different faces does each item have? 2? 6? */
@@ -44,7 +44,7 @@ export class Chance {
         return Math.floor(Math.random() * this.limit);
     }
 }
-export class Dice extends Chance {
+export class Dice extends Random {
     constructor(items, faces, limit) {
         super();
         this.items = items;
@@ -82,7 +82,7 @@ export class Dice extends Chance {
         return result;
     }
 }
-export class Coins extends Chance {
+export class Coins extends Random {
     constructor(items, limit) {
         super();
         this.items = items;
@@ -117,7 +117,7 @@ export class Coins extends Chance {
         return result;
     }
 }
-export class Seasonal extends Chance {
+export class Seasonal extends Random {
     constructor(limit = 4) {
         super(limit);
     }
@@ -161,3 +161,16 @@ export class Seasonal extends Chance {
         return season;
     }
 }
+// produces 16 invalid out of 144 total (11%)
+/*
+    const die1 = [0,1,2,3,4,5,6,7,8,9,10,11];
+    const die2 = [0,1,2,3,4,5,6,7,8,9,10,11];
+    for (let i in die1) {
+        for (let j in die2) {
+            const product = (die1[i] * 12) + die2[j];
+            const result = product % 64;
+            console.log(`${result} (${die1[i]}, ${die2[j]})`);
+            console.log(`${result} (${die1[i]}, ${die2[j]})`);
+        }
+    }
+*/ 

@@ -1,10 +1,10 @@
 import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
-import { Dice, Coins } from './lib/chance.js';
+import { Random, Dice, Coins } from './lib/chance.js';
 import { Markup } from './lib/markup.js';
 
-type ChanceMethod = {
+type LotType = {
 	text: string;
 	items: number;
 	faces: number;
@@ -17,55 +17,57 @@ const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
 const IChing = await Fetch.object<T.IChing>(IChingPath);
 
 /** ###
- * Terminology needs to be corrected as it's the source of a lot of confused
- * logic here.
+ * Sortition: the action of selecting or determining something by the casting or
+ * drawing of lots.
  * 
  * Divination Methods. Cast Off. Cleromancy. Sortition. Oracle. Oracle Bones. 50
  * Yarrow Stalks. Coins. Dice. Playing Cards. Seasonal (Calendric) Time. Place.
  * Position.
  * 
+ * 
  * see: 
  * - https://en.wikipedia.org/wiki/I_Ching_divination#Coins
  * - https://en.wikipedia.org/wiki/Yarrow_algorithm
  * 
- * 12 * 12 = 144
- * 144 * 4 = 576
- * 576 / 64 = 9
+ * 12 * 12 produces a valid answer 89% of the time. 11% of the time, would need
+ * to roll a third 12-sided die. 16 invalid: 11 with 9,10,11,12 or 12 with any.
+ * 
+ * nutty: 12 * 12 = 144; 144 * 4 = 576; 576 / 64 = 9
  */
 
-/** Supported Input Methods */
-const ChanceMethods = new Map<string, ChanceMethod>();
-ChanceMethods.set('D12', {text: '3 Dice (12-sided)', items: 3, faces: 12});
-ChanceMethods.set('D6', {text: '3 Dice (Standard)', items: 3, faces: 6});
-ChanceMethods.set('C', {text: '6 Coins', items: 6, faces: 2});
+/** Supported Lot Types */
+const LotTypes = new Map<string, LotType>();
+LotTypes.set('D12', {text: '3 Dice (12-sided)', items: 3, faces: 12});
+LotTypes.set('D6', {text: '3 Dice (Standard)', items: 3, faces: 6});
+LotTypes.set('C', {text: '6 Coins', items: 6, faces: 2});
 
 /**
- * Using the first ChanceMethod in the list above as the default, we instantiate
- * a Chance object (in this case, a 12-sided Dice object). This object will
+ * Using the first LotType in the list above as the default, we instantiate
+ * a Random object (in this case, a 12-sided Dice object). This object will
  * contain properties that define how a "toss" is recorded and displayed, as
  * well as how a toss identifies the corresponding I Ching chapter.
  * 
- * The Chance object is global, and will be used in the Initialize method below,
+ * The Random object is global, and will be used in the Initialize method below,
  * in both the render function and in appropriate event listeners (changing the
  * input "token" type, clicking a reset button, etc.).
  */
-const InputMethods = Array.from(ChanceMethods.keys()); // ['D12', 'D6', 'C'];
-const Limit = 64; /* number of Chance values to be returned */
-let ChanceMethodKey = initializeInput(InputMethods[0]); /** initialize input method */
-let ChanceMethod = ChanceMethods.get(ChanceMethodKey);
-let Chance = new Coins(6, Limit);
-if (ChanceMethodKey.startsWith('D')) {
-	Chance = new Dice(3, 12, Limit);
+const LotTypeKeys = Array.from(LotTypes.keys()); // ['D12', 'D6', 'C'];
+const Limit = 64; /* number of Random values to be returned */
+let LotTypeKey = initializeInput(LotTypeKeys[0]); /** initialize input method */
+let LotType = LotTypes.get(LotTypeKey);
+let Lot: Random = new Coins(6, Limit); /* Lot will usually be a Random subclass */
+if (LotTypeKey.startsWith('D')) {
+	Lot = new Dice(3, 12, Limit);
 }
 
 const values = [12,12,12];
-console.log(`dice: ${Chance.result(values)}`);
+console.log(`dice: ${Lot.result(values)}`);
 
 /**
  * Render 4 divisions:
- * - Input Type selection (Dice, Coins, etc.)
- * - Dice/Coin toss recording (select values from dropdowns to match each tossed item)
- * - Display recorded item values (e.g., Dice/Coin face images or numerals)
+ * - Lot Type selection (Dice, Coins, etc.)
+ * - Entry of Lot Casting (select values from dropdowns to match each cast item)
+ * - Display Lot values (e.g., Dice/Coin face images or numerals)
  * - I Ching text
  */
 export function render() {
@@ -76,15 +78,15 @@ export function render() {
 	inputMethodSelection(inputMethodDiv);
 
 	/** Create a div for the input option selections */
-	/** this should be handled in the Chance object */
+	/** this should be handled in the Random object */
 	const inputDiv = document.createElement('div');
-	inputDiv.className = 'dice-selection';
+	inputDiv.className = 'dice-selection'; /* ### use Lot.selection if available or default to 'lot-selection' */
 	ThisPage.content.append(inputDiv);
 	
 	/** Create a div for the display of the selected input values */
-	/** this should be handled in the Chance object */
+	/** this should be handled in the Random object */
 	const diceDisplayDiv = document.createElement('div');
-	diceDisplayDiv.className = 'dice-display';
+	diceDisplayDiv.className = 'dice-display'; /* ### use Lot.display if available or default to 'lot-display' */
 	ThisPage.content.append(diceDisplayDiv);
 
 	/** Create a div for the I Ching text */
@@ -95,8 +97,6 @@ export function render() {
 	 * For each item (Die, Coin, etc) append a Select Element to the Input
 	 * Options Selection div created above to allow the user to select the
 	 * values found after rolling the dice or tossing the coins, etc.
-	 *
-	 * 
 	 */
 	const dice: HTMLSelectElement[] = [];
 	for (let i = 0; i < 3; i += 1) {
@@ -111,16 +111,16 @@ export function render() {
  */
 function inputMethodSelection(division: HTMLDivElement) {
 	const selectElement = document.createElement('select');
-	for (let inputMethod of InputMethods) {
-		const method = ChanceMethods.get(inputMethod)!;
+	for (let lotTypeKey of LotTypeKeys) {
+		const method = LotTypes.get(lotTypeKey)!;
 		const displayedOption = method.text;
-		const option = new Option(displayedOption, inputMethod);
+		const option = new Option(displayedOption, lotTypeKey);
 		selectElement.add(option);
 	}
 	selectElement.addEventListener('change', (e: Event) => {
-		let inputMethod = selectElement.value
-		// console.log(`Input Method: ${inputMethod}`);
-		ChanceMethodKey = initializeInput(inputMethod);
+		let lotTypeKey = selectElement.value
+		// console.log(`Input Method: ${lotTypeKey}`);
+		LotTypeKey = initializeInput(lotTypeKey);
 	});
 	division.append(selectElement);
 }
@@ -131,14 +131,14 @@ function inputMethodSelection(division: HTMLDivElement) {
  * - display
  * - I Ching texts.
  */
-function initializeInput(inputMethod: string) {
-	let chance: ChanceMethod;
-	if (ChanceMethods.has(inputMethod)) {
-		chance = ChanceMethods.get(inputMethod)!
-		console.log(`inputMethod selected: ${chance.text}`);
+function initializeInput(lotTypeKey: string) {
+	let chance: LotType;
+	if (LotTypes.has(lotTypeKey)) {
+		chance = LotTypes.get(lotTypeKey)!
+		console.log(`lotTypeKey selected: ${chance.text}`);
 	}
-	else console.log(`Invalid inputMethod selected: ${inputMethod}`);
-	return inputMethod;
+	else console.log(`Invalid lotTypeKey selected: ${lotTypeKey}`);
+	return lotTypeKey;
 }
 
 /**

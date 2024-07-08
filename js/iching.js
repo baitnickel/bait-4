@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
-import { Dice, Coins } from './lib/chance.js';
+import { Random, Dice, Coins } from './lib/chance.js';
 import { Markup } from './lib/markup.js';
 const ThisPage = new Page();
 /** load all the I Ching texts */
@@ -14,7 +14,6 @@ const IChing = await Fetch.object(IChingPath);
  * Yarrow Stalks. Coins. Dice. Playing Cards. Seasonal (Calendric) Time. Place.
  * Position.
  *
- *
  * see:
  * - https://en.wikipedia.org/wiki/I_Ching_divination#Coins
  * - https://en.wikipedia.org/wiki/Yarrow_algorithm
@@ -24,31 +23,23 @@ const IChing = await Fetch.object(IChingPath);
  *
  * nutty: 12 * 12 = 144; 144 * 4 = 576; 576 / 64 = 9
  */
-/** Supported Lot Types */
+/**
+ * Supported Lot Types. If this list is modified, it might also be necessary to
+ * modify the `createLot` function as well.
+ */
 const LotTypes = new Map();
 LotTypes.set('D12', { text: '3 Dice (12-sided)', items: 3, faces: 12 });
 LotTypes.set('D6', { text: '3 Dice (Standard)', items: 3, faces: 6 });
 LotTypes.set('C', { text: '6 Coins', items: 6, faces: 2 });
 /**
- * Using the first LotType in the list above as the default, we instantiate
- * a Random object (in this case, a 12-sided Dice object). This object will
- * contain properties that define how a "toss" is recorded and displayed, as
- * well as how a toss identifies the corresponding I Ching chapter.
- *
- * The Random object is global, and will be used in the Initialize method below,
- * in both the render function and in appropriate event listeners (changing the
- * input "token" type, clicking a reset button, etc.).
+ * Using the first LotType in the list above as the default, we instantiate a
+ * Lot object. This object will contain properties that define how "casting the
+ * lot" is recorded and displayed, as well as how the cast identifies the
+ * corresponding I Ching chapter.
  */
-const LotTypeKeys = Array.from(LotTypes.keys()); // ['D12', 'D6', 'C'];
-const Limit = 64; /* number of Random values to be returned */
-let LotTypeKey = initializeInput(LotTypeKeys[0]); /** initialize input method */
-let LotType = LotTypes.get(LotTypeKey);
-let Lot = new Coins(6, Limit); /* Lot will usually be a Random subclass */
-if (LotTypeKey.startsWith('D')) {
-    Lot = new Dice(3, 12, Limit);
-}
-const values = [12, 12, 12];
-console.log(`dice: ${Lot.result(values)}`);
+const Limit = 64; /* number of Random values needed */
+let Lot = createLot(Array.from(LotTypes.keys())[0], Limit);
+console.log(`Initialized Lot: ${Lot.items} x ${Lot.faces}`);
 /**
  * Render 4 divisions:
  * - Lot Type selection (Dice, Coins, etc.)
@@ -87,28 +78,46 @@ export function render() {
     }
 }
 /**
+ * Given a `lotTypeKey` (the key to a `LotType`) and the required `limit`
+ * (number of random values needed--64 for I Ching), return an initialized Lot
+ * object (Random if the `lotTypeKey` is invalid). This function might need to
+ * be modified if the global `LotTypes` map is changed.
+ */
+function createLot(lotTypeKey, limit) {
+    let lot = new Random(limit);
+    let lotType = LotTypes.get(lotTypeKey);
+    if (lotType !== undefined) {
+        if (lotTypeKey.startsWith('D'))
+            lot = new Dice(lotType.items, lotType.faces, limit);
+        else
+            lot = new Coins(lotType.items, limit);
+    }
+    return lot;
+}
+/**
  * Set up the drop-down selection at the top of the page that will be used to
  * choose the I Ching chapter selection.
  */
 function inputMethodSelection(division) {
     const selectElement = document.createElement('select');
-    for (let lotTypeKey of LotTypeKeys) {
-        const method = LotTypes.get(lotTypeKey);
-        const displayedOption = method.text;
+    for (let lotTypeKey of Array.from(LotTypes.keys())) {
+        const lotType = LotTypes.get(lotTypeKey);
+        const displayedOption = lotType.text;
         const option = new Option(displayedOption, lotTypeKey);
         selectElement.add(option);
     }
     selectElement.addEventListener('change', (e) => {
         let lotTypeKey = selectElement.value;
-        // console.log(`Input Method: ${lotTypeKey}`);
-        LotTypeKey = initializeInput(lotTypeKey);
+        // LotTypeKey = initializeInput(lotTypeKey);
+        Lot = createLot(lotTypeKey, Limit);
+        console.log(`Updated Lot: ${Lot.items} x ${Lot.faces}`);
     });
     division.append(selectElement);
 }
 /**
  * Initialize the divisions in the page that are used for:
- * - input type selection (dice, coins, 12-sided dice, etc.)
- * - display
+ * - LotType selection (dice, coins, 12-sided dice, etc.)
+ * - display of Lot entries
  * - I Ching texts.
  */
 function initializeInput(lotTypeKey) {

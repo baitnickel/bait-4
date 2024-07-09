@@ -11,32 +11,29 @@ type LotType = {
 }
 
 const ThisPage = new Page();
-
-/** load all the I Ching texts */
-const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
-const IChing = await Fetch.object<T.IChing>(IChingPath);
+let LotTypeSelection: HTMLDivElement;
+let LotValueSelection: HTMLDivElement;
+let LotValueDisplay: HTMLDivElement;
+let IChingDisplay: HTMLDivElement;
 
 /** ###
  * Sortition: the action of selecting or determining something by the casting or
- * drawing of lots.
- * 
- * Divination Methods. Cast Off. Cleromancy. Sortition. Oracle. Oracle Bones. 50
- * Yarrow Stalks. Coins. Dice. Playing Cards. Seasonal (Calendric) Time. Place.
- * Position.
- * 
- * see: 
+ * drawing of lots. See: 
  * - https://en.wikipedia.org/wiki/I_Ching_divination#Coins
  * - https://en.wikipedia.org/wiki/Yarrow_algorithm
  * 
  * 12 * 12 produces a valid answer 89% of the time. 11% of the time, would need
  * to roll a third 12-sided die. 16 invalid: 11 with 9,10,11,12 or 12 with any.
- * 
- * nutty: 12 * 12 = 144; 144 * 4 = 576; 576 / 64 = 9
  */
+
+/** load all the I Ching texts */
+const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
+const IChing = await Fetch.object<T.IChing>(IChingPath);
+const NumberOfChapters = 64; /* number of Random values needed (number of I Ching chapters) */
 
 /**
  * Supported Lot Types. If this list is modified, it might also be necessary to
- * modify the `createLot` function as well.
+ * modify the `newLot` function as well.
  */
 const LotTypes = new Map<string, LotType>();
 LotTypes.set('D12', {text: '3 Dice (12-sided)', items: 3, faces: 12});
@@ -49,50 +46,45 @@ LotTypes.set('C', {text: '6 Coins', items: 6, faces: 2});
  * lot" is recorded and displayed, as well as how the cast identifies the
  * corresponding I Ching chapter.
  */
-const Limit = 64; /* number of Random values needed */
-let Lot = createLot(Array.from(LotTypes.keys())[0], Limit);
+let Lot = newLot(Array.from(LotTypes.keys())[0], NumberOfChapters);
 console.log(`Initialized Lot: ${Lot.items} x ${Lot.faces}`);
 
+
 /**
- * Render 4 divisions:
+ * Render the 4 global divisions:
  * - Lot Type selection (Dice, Coins, etc.)
- * - Entry of Lot Casting (select values from dropdowns to match each cast item)
- * - Display Lot values (e.g., Dice/Coin face images or numerals)
- * - I Ching text
+ * - Lot Value Selection (entry of values from Dice, Coin, etc. casting)
+ * - Lot Value Display (Dice, Coin, etc. face images or numerals)
+ * - I Ching Display (texts from chosen I Ching chapter)
  */
 export function render() {
-	/** Create a div for the input type selection (Dice, Coins, etc) */
-	const inputMethodDiv = document.createElement('div');
-	inputMethodDiv.id = 'iching-method';
-	ThisPage.content.append(inputMethodDiv);
-	inputMethodSelection(inputMethodDiv);
+	LotTypeSelection = document.createElement('div');
+	LotTypeSelection.id = 'iching-lot-type';
+	ThisPage.content.append(LotTypeSelection);
+	initializeLotTypeSelection();
 
-	/** Create a div for the input option selections */
-	/** this should be handled in the Random object */
-	const inputDiv = document.createElement('div');
-	inputDiv.className = 'dice-selection'; /* ### use Lot.selection if available or default to 'lot-selection' */
-	ThisPage.content.append(inputDiv);
+	LotValueSelection = document.createElement('div');
+	LotValueSelection.className = 'iching-lot-values';
+	ThisPage.content.append(LotValueSelection);
 	
-	/** Create a div for the display of the selected input values */
-	/** this should be handled in the Random object */
-	const diceDisplayDiv = document.createElement('div');
-	diceDisplayDiv.className = 'dice-display'; /* ### use Lot.display if available or default to 'lot-display' */
-	ThisPage.content.append(diceDisplayDiv);
+	LotValueDisplay = document.createElement('div');
+	LotValueDisplay.className = 'iching-lot-display';
+	ThisPage.content.append(LotValueDisplay);
 
-	/** Create a div for the I Ching text */
-	const hexagramDiv = document.createElement('div');
-	ThisPage.content.append(hexagramDiv);
+	IChingDisplay = document.createElement('div');
+	ThisPage.content.append(IChingDisplay);
 
 	/**
-	 * For each item (Die, Coin, etc) append a Select Element to the Input
-	 * Options Selection div created above to allow the user to select the
-	 * values found after rolling the dice or tossing the coins, etc.
+	 * Append Select Element(s) to the Input Options Selection div created above
+	 * to allow the user to select the values found after rolling the dice or
+	 * tossing the coins, etc.
 	 */
-	const dice: HTMLSelectElement[] = [];
-	for (let i = 0; i < 3; i += 1) {
-		dice[i] = dieElement(dice, i, diceDisplayDiv, hexagramDiv);
-		inputDiv.append(dice[i]);
-	}
+	initializeLot(Lot);
+	// const dice: HTMLSelectElement[] = [];
+	// for (let i = 0; i < 3; i += 1) {
+	// 	dice[i] = lotElement(dice, i);
+	// 	LotValueSelection.append(dice[i]);
+	// }
 }
 
 /**
@@ -101,7 +93,7 @@ export function render() {
  * object (Random if the `lotTypeKey` is invalid). This function might need to
  * be modified if the global `LotTypes` map is changed.
  */
-function createLot(lotTypeKey: string, limit: number) {
+function newLot(lotTypeKey: string, limit: number) {
 	let lot = new Random(limit);
 	let lotType = LotTypes.get(lotTypeKey);
 	if (lotType !== undefined) {
@@ -115,7 +107,7 @@ function createLot(lotTypeKey: string, limit: number) {
  * Set up the drop-down selection at the top of the page that will be used to
  * choose the I Ching chapter selection.
  */
-function inputMethodSelection(division: HTMLDivElement) {
+function initializeLotTypeSelection() {
 	const selectElement = document.createElement('select');
 	for (let lotTypeKey of Array.from(LotTypes.keys())) {
 		const lotType = LotTypes.get(lotTypeKey)!;
@@ -125,11 +117,11 @@ function inputMethodSelection(division: HTMLDivElement) {
 	}
 	selectElement.addEventListener('change', (e: Event) => {
 		let lotTypeKey = selectElement.value
-		// LotTypeKey = initializeInput(lotTypeKey);
-		Lot = createLot(lotTypeKey, Limit);
+		Lot = newLot(lotTypeKey, NumberOfChapters);
+		initializeLot(Lot);
 		console.log(`Updated Lot: ${Lot.items} x ${Lot.faces}`);
 	});
-	division.append(selectElement);
+	LotTypeSelection.append(selectElement);
 }
 
 /**
@@ -138,14 +130,18 @@ function inputMethodSelection(division: HTMLDivElement) {
  * - display of Lot entries
  * - I Ching texts.
  */
-function initializeInput(lotTypeKey: string) {
-	let chance: LotType;
-	if (LotTypes.has(lotTypeKey)) {
-		chance = LotTypes.get(lotTypeKey)!
-		console.log(`lotTypeKey selected: ${chance.text}`);
+function initializeLot(lot: Random) {
+	/* clear page divisions */
+	LotValueSelection.innerHTML = '';
+	LotValueDisplay.innerHTML = '';
+	IChingDisplay.innerHTML = '';
+
+	/* create Lot Value Selection dropdowns */
+	const dropdowns: HTMLSelectElement[] = [];
+	for (let i = 0; i < lot.items; i += 1) {
+		dropdowns[i] = lotElement(lot, dropdowns, i);
+		LotValueSelection.append(dropdowns[i]);
 	}
-	else console.log(`Invalid lotTypeKey selected: ${lotTypeKey}`);
-	return lotTypeKey;
 }
 
 /**
@@ -156,40 +152,40 @@ function initializeInput(lotTypeKey: string) {
  * creates one drop-down for each of the 3 dice (in this case).
  * 
  * Define an event listener associated with this drop-down. The listener is
- * triggered whenever the drop-down value changes, causing the `displayDice`
+ * triggered whenever the drop-down value changes, causing the `displayLot`
  * function, and possibly the `displayHexagram` function, to be called.
  */
-function dieElement(dice: HTMLSelectElement[], index: number, displayDiv: HTMLDivElement, hexagramDiv: HTMLDivElement) {
+function lotElement(lot: Random, dropdowns: HTMLSelectElement[], index: number) {
 	const selectElement = document.createElement('select');
-	selectElement.id = `die-${index}`;
-	selectElement.className = 'die-select';
+	selectElement.id = `die-${index}`; // ### rename - shouldn't use "die" ... lot-item-${index}?
+	selectElement.className = 'die-select'; // ### rename - shouldn't use "die" ... lot-item-select?
 	/* character codes 9856-9861: ⚀ ⚁ ⚂ ⚃ ⚄ ⚅ */
-	for (let die = 0; die <= 12; die += 1) { /* ### hardcoding 12 here! */
-		const displayedOption = (die == 0) ? '-' : `${die}`;
-		const option = new Option(`${displayedOption}`, `${die}`);
+	for (let face = 0; face <= lot.faces[index]; face += 1) {
+		const displayedOption = (face == 0) ? '-' : `${face}`;
+		const option = new Option(`${displayedOption}`, `${face}`);
 		selectElement.add(option);
 	}
 	selectElement.addEventListener('change', (e: Event) => {
-		let result = displayDice(dice, displayDiv);
-		if (result === null) hexagramDiv.innerHTML = '';
-		else displayHexagram(result, hexagramDiv);
+		let result = displayLot(dropdowns);
+		if (result === null) IChingDisplay.innerHTML = '';
+		else displayHexagram(result);
 	});
 
 	return selectElement;
 }
 
 
-function displayDice(dice: HTMLSelectElement[], displayDiv: HTMLDivElement) {
+function displayLot(dropdowns: HTMLSelectElement[]) {
 	let result: number|null = null;
 	const rejectOverflow = true;
-	displayDiv.innerHTML = '';
+	LotValueDisplay.innerHTML = '';
 	const diceValues = [0, 0, 0];
 	let dieIndex = 0;
-	for (let die of dice) {
+	for (let die of dropdowns) {
 		const dieValue = Number(die.value);
 		let characterCode = dieValue + 9855;
 		if (characterCode < 9856 || characterCode > 9861) characterCode = 9866; /* represents no die value */
-		displayDiv.innerHTML += `${String.fromCharCode(characterCode)} `;
+		LotValueDisplay.innerHTML += `${String.fromCharCode(characterCode)} `;
 		diceValues[dieIndex] = dieValue;
 		dieIndex += 1;
 		dieIndex %= 3; /* force index into diceValues range (0...2) */
@@ -202,16 +198,16 @@ function displayDice(dice: HTMLSelectElement[], displayDiv: HTMLDivElement) {
 	// 	const mid = (dice1 - 1) * 6;
 	// 	const low = (dice2 - 1);
 	// 	result = high + mid + low;
-	result = diceResult(diceValues);
+	result = lotResult(diceValues); // ## instead, get result from Lot.result()
 	if (result !== null && result > 63) {
 		if (rejectOverflow) {
-			displayDiv.innerHTML += 'overflow - roll again';
+			LotValueDisplay.innerHTML += 'overflow - roll again';
 			result = null;
 		}
 		else result = Math.floor(Math.random() * 64);
 	}
-		// displayDiv.innerHTML += `${high} + ${mid} + ${low} = ${result}`;
-		// displayDiv.innerHTML += `${result}`;
+		// LotValueDisplay.innerHTML += `${high} + ${mid} + ${low} = ${result}`;
+		// LotValueDisplay.innerHTML += `${result}`;
 	// }
 	return result;
 }
@@ -220,7 +216,7 @@ function displayDice(dice: HTMLSelectElement[], displayDiv: HTMLDivElement) {
  * Given an array of three dice values, return a result between 0 and 63
  * inclusive, or null if the result is out of range.
  */
-function diceResult(diceValues: number[]) {
+function lotResult(diceValues: number[]) {
 	let result: number|null = null;
 	if (diceValues[0] && diceValues[1] && diceValues[2]) { /* all die values are valid non-zero numbers */
 		for (let i = 0; i < 3; i += 1) {
@@ -245,10 +241,10 @@ function diceResult(diceValues: number[]) {
 	return result;
 }
 
-function displayHexagram(hexagramNumber: number, hexagramDiv: HTMLDivElement) {
+function displayHexagram(hexagramNumber: number) {
 	// ThisPage.fadeOut(ThisPage.table, 100)
 
-	hexagramDiv.innerHTML = '';
+	IChingDisplay.innerHTML = '';
 	const hexagramSummary = document.createElement('div');
 	const hexagramCommentary = document.createElement('div');
 	const hexagramImage = document.createElement('div');
@@ -305,9 +301,9 @@ function displayHexagram(hexagramNumber: number, hexagramDiv: HTMLDivElement) {
 		hexagramJudgment.append(judgmentCommentary);
 		ThisPage.content.append(hexagramJudgment);
 
-		hexagramDiv.append(hexagramSummary);
-		hexagramDiv.append(hexagramCommentary);
-		hexagramDiv.append(hexagramImage);
-		hexagramDiv.append(hexagramJudgment);
+		IChingDisplay.append(hexagramSummary);
+		IChingDisplay.append(hexagramCommentary);
+		IChingDisplay.append(hexagramImage);
+		IChingDisplay.append(hexagramJudgment);
 	}
 }

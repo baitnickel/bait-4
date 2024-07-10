@@ -3,6 +3,10 @@
 		"title": "All the Time",
 		"artist": "The Baitnickels"
 	},
+	"covers/hello-hello.md": {
+		"title": "Hello, Hello",
+		"artist": "Sopwith Camel"
+	},
 	"eighties/wholly-the-changes-come.md": {
 		"title": "Wholly the Changes Come",
 		"artist": "Dan"
@@ -42,10 +46,6 @@
 	"psyche/torn-apart.md": {
 		"title": "Torn Apart",
 		"artist": "The Baitnickels"
-	},
-	"test-fakes/hello-hello.md": {
-		"title": "Hello, Hello",
-		"artist": "Sopwith Camel"
 	},
 	"test-fakes/into-white.md": {
 		"title": "Into White",

@@ -47,6 +47,12 @@
 		"aliases": [],
 		"tags": []
 	},
+	"Content/fakesheets/covers/hello-hello.md": {
+		"access": 0,
+		"revision": 1720570386726,
+		"aliases": [],
+		"tags": []
+	},
 	"Content/fakesheets/eighties/wholly-the-changes-come.md": {
 		"access": 0,
 		"revision": 1706053870997,
@@ -104,12 +110,6 @@
 	"Content/fakesheets/psyche/torn-apart.md": {
 		"access": 0,
 		"revision": 1706053915000,
-		"aliases": [],
-		"tags": []
-	},
-	"Content/fakesheets/test-fakes/hello-hello.md": {
-		"access": 0,
-		"revision": 1716845445326,
 		"aliases": [],
 		"tags": []
 	},

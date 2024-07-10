@@ -36,9 +36,15 @@
 export class Random {
     constructor(limit = 1) {
         this.items = 0; /* how many items (coins, dice, etc) will be tossed? */
-        this.faces = [0]; /* how many different faces does each item have? 2? 6? */
+        this.faces = 0; /* how many different faces does each item have? 2? 6? */
         this.limit = limit; /* how many different integers do we want? */
         this.minimum = 0; /* what is our starting integer? */
+    }
+    displayOption(option) {
+        return `${option}`;
+    }
+    displayValue(value) {
+        return `${value}`;
     }
     result(values = 0) {
         return Math.floor(Math.random() * this.limit);
@@ -49,21 +55,35 @@ export class Dice extends Random {
         super();
         this.items = items;
         this.limit = limit;
-        this.faces = (Array.isArray(faces)) ? faces : [faces];
-        let lastFace = this.faces[this.faces.length - 1];
-        while (this.items > this.faces.length) {
-            this.faces.push(lastFace);
+        this.faces = faces;
+    }
+    displayValue(value) {
+        let displayValue = `${value}`;
+        if (this.faces == 6) {
+            /* character codes 9856-9861: ⚀ ⚁ ⚂ ⚃ ⚄ ⚅ */
+            let characterCode = value + 9855;
+            if (characterCode < 9856 || characterCode > 9861)
+                characterCode = 9866; /* represents no die value */
+            displayValue = `${String.fromCharCode(characterCode)}`;
         }
+        return displayValue;
     }
     result(values) {
-        let result = super.result(values);
+        let result = null;
         const valuesArray = (Array.isArray(values)) ? values : [values];
         const lastValue = valuesArray[valuesArray.length - 1];
-        while (this.faces.length > valuesArray.length) {
+        while (this.faces > valuesArray.length) {
             valuesArray.push(lastValue);
         }
-        /** ### our special case ... needs to be generalized */
-        if (this.items == 3 && this.faces[0] == 12) {
+        /**
+         * ### our special case ... needs to be generalized
+         *
+         * I think the only thing that is special about this case is that we are
+         * using base 4 instead of base 12 (reducing 12). We might find a
+         * formula that does such transformations based on the desired limit and
+         * the items and faces.
+         */
+        if (this.items == 3 && this.faces == 12 && this.limit == 64) {
             const base = 4;
             const values = [];
             result = 0;
@@ -79,6 +99,26 @@ export class Dice extends Random {
                 result += value;
             }
         }
+        else {
+            if ((this.faces ** this.items) < this.limit) {
+                /* values cannot express all results in range 0 ... this.limit - 1 */
+                result = null;
+            }
+            else {
+                const base = this.faces;
+                result = 0;
+                for (let i in valuesArray) {
+                    const power = base ** Number(i);
+                    let value = (valuesArray[i] - 1) % base; /* 1...12 becomes 0...11 */
+                    value = value * power;
+                    result += value;
+                }
+                if (result >= this.items * this.limit)
+                    result = null;
+                else
+                    result %= this.limit;
+            }
+        }
         return result;
     }
 }
@@ -87,28 +127,31 @@ export class Coins extends Random {
         super();
         this.items = items;
         this.limit = limit;
-        this.faces = [2];
-        let lastFace = this.faces[this.faces.length - 1];
-        while (this.items > this.faces.length) {
-            this.faces.push(lastFace);
-        }
+        this.faces = 2;
+    }
+    displayOption(option) {
+        let alternate = `${option}`;
+        const alternates = ['HEADS', 'TAILS'];
+        if (option >= 1 && option <= alternates.length)
+            alternate = alternates[option - 1];
+        return alternate;
+    }
+    displayValue(value) {
+        let alternate = `${value}`;
+        const alternates = ['HEADS', 'TAILS'];
+        if (value >= 1 && value <= alternates.length)
+            alternate = alternates[value - 1];
+        return `${value}`;
     }
     result(values) {
-        let result = super.result(values);
         const valuesArray = (Array.isArray(values)) ? values : [values];
         const lastValue = valuesArray[valuesArray.length - 1];
-        while (this.faces.length > valuesArray.length) {
+        while (this.faces > valuesArray.length) {
             valuesArray.push(lastValue);
         }
-        const base = 2;
-        // const values: number[] = [];
-        result = 0;
+        const base = this.faces;
+        let result = 0;
         for (let i in valuesArray) {
-            /**
-             * valuesArray[i] contains a number 1...12
-             * power is 1, 4, 16
-             * value is face value - 1 raised to the power
-             */
             const power = base ** Number(i);
             let value = (valuesArray[i] - 1) % base; /* 1...2 becomes 0...1 */
             value = value * power;

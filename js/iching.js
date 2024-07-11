@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
-import { Random, Dice, Coins } from './lib/chance.js';
+import { Lot, Dice, Coins } from './lib/chance.js';
 import { Markup } from './lib/markup.js';
 const ThisPage = new Page();
 let LotTypeSelection;
@@ -19,7 +19,7 @@ let IChingDisplay;
 /** load all the I Ching texts */
 const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
 const IChing = await Fetch.object(IChingPath);
-const NumberOfChapters = 64; /* number of Random values needed (number of I Ching chapters) */
+const NumberOfChapters = 64; /* number of Lot values needed (number of I Ching chapters) */
 /**
  * Supported Lot Types. If this list is modified, it might also be necessary to
  * modify the `newLot` function as well.
@@ -35,8 +35,8 @@ LotTypes.set('C', { text: '6 Coins', items: 6, faces: 2 });
  * lot" is recorded and displayed, as well as how the cast identifies the
  * corresponding I Ching chapter.
  */
-let Lot = newLot(Array.from(LotTypes.keys())[0], NumberOfChapters);
-console.log(`Initialized Lot: ${Lot.items} x ${Lot.faces}`);
+let lot = newLot(Array.from(LotTypes.keys())[0], NumberOfChapters);
+console.log(`Initialized Lot: ${lot.items} x ${lot.faces}`);
 /**
  * Render the 4 global divisions:
  * - Lot Type selection (Dice, Coins, etc.)
@@ -62,16 +62,16 @@ export function render() {
      * divisions, and create the widgets in `LotValueSelection` that will be
      * used to record the results of the Dice rolls, Coin tosses, etc.
      */
-    initializeLot(Lot);
+    initializeLot(lot);
 }
 /**
  * Given a `lotTypeKey` (the key to a `LotType`) and the required `limit`
  * (number of random values needed--64 for I Ching), return an initialized Lot
- * object (Random if the `lotTypeKey` is invalid). This function might need to
+ * object (Lot if the `lotTypeKey` is invalid). This function might need to
  * be modified if the global `LotTypes` map is changed.
  */
 function newLot(lotTypeKey, limit) {
-    let lot = new Random(limit);
+    let lot = new Lot(limit);
     let lotType = LotTypes.get(lotTypeKey);
     if (lotType !== undefined) {
         if (lotTypeKey.startsWith('D'))
@@ -95,9 +95,9 @@ function initializeLotTypeSelection() {
     }
     selectElement.addEventListener('change', (e) => {
         let lotTypeKey = selectElement.value;
-        Lot = newLot(lotTypeKey, NumberOfChapters);
-        initializeLot(Lot);
-        console.log(`Updated Lot: ${Lot.items} x ${Lot.faces}`);
+        lot = newLot(lotTypeKey, NumberOfChapters);
+        initializeLot(lot);
+        console.log(`Updated Lot: ${lot.items} x ${lot.faces}`);
     });
     LotTypeSelection.append(selectElement);
 }
@@ -153,66 +153,71 @@ function lotValueChangeEvent(lot, dropdowns) {
         // }
     }
 }
-/**
- * Executed after the one-time rendering of the main page divisions, and
- * whenever the Lot Type is changed, clear the contents of `LotValueDisplay` and
- * `IChingDisplay` and initialize the Lot Value dropdowns. The dropdown event
- * listeners are defined here, which can trigger `LotValueDisplay` and
- * `IChingDisplay` updates.
- *
- * ### way too complicated! break it up
- */
-// function initializeLot1(lot: Random) {
-// 	LotValueDisplay.innerHTML = '';
-// 	IChingDisplay.innerHTML = '';
-// 	LotValueSelection.innerHTML = ''; /* clear previous selection options, if any */
-// 	/* create Lot Value Selection dropdowns and add them to `LotValueSelection` */
-// 	const dropdowns: HTMLSelectElement[] = [];
-// 	for (let lotItem = 0; lotItem < lot.items; lotItem += 1) {
-// 		// dropdowns[lotItem] = lotDropDown(lot, dropdowns, lotItem);
-// 		// LotValueSelection.append(dropdowns[lotItem]);
-// 		const selectElement = document.createElement('select');
-// 		selectElement.id = `iching-lot-item-${lotItem}`;
-// 		selectElement.className = 'iching-lot-item-select';
-// 		for (let option = 0; option <= lot.faces; option += 1) {
-// 			const displayedOption = (option == 0) ? '-' : `${option}`;
-// 			const selectOption = new Option(`${displayedOption}`, `${option}`);
-// 			selectElement.add(selectOption);
-// 		}
-// 		// ### dropdowns isn't being updated!
-// 		dropdowns.push(selectElement);
-// 		LotValueSelection.append(selectElement);
-// 		selectElement.addEventListener('change', (e: Event) => {
-// 			const values = dropDownValues(dropdowns);
-// 			const nonZeroValues = values.some((value) => value != 0);
-// 			if (nonZeroValues) {
-// 				displayLotValues(dropdowns);
-// 				const zeroValues = values.includes(0);
-// 				if (!zeroValues) {
-// 					const result: number|null = lot.result(values);
-// 					if (result === null) {
-// 						LotValueDisplay.innerHTML += 'invalid roll, try again';
-// 						IChingDisplay.innerHTML = '';
-// 					}
-// 					else displayHexagram(result);
-// 				}
-// 			}
-// 			else {
-// 				LotValueDisplay.innerHTML = '';
-// 				IChingDisplay.innerHTML = '';
-// 			}
-// 			// let result = displayLotValues(dropdowns);
-// 			// if (result === null) IChingDisplay.innerHTML = '';
-// 			// else displayHexagram(result);
-// 		});
-// 	}
-// }
 function dropDownValues(dropdowns) {
     const values = [];
     for (let dropdown of dropdowns) {
         values.push(Number(dropdown.value));
     }
     return values;
+}
+function displayHexagram(hexagramNumber) {
+    // ThisPage.fadeOut(ThisPage.table, 100)
+    IChingDisplay.innerHTML = '';
+    const hexagramSummary = document.createElement('div');
+    const hexagramCommentary = document.createElement('div');
+    const hexagramImage = document.createElement('div');
+    const hexagramJudgment = document.createElement('div');
+    if (hexagramNumber >= 0 && hexagramNumber < 64) {
+        const hexagram = IChing.hexagrams[hexagramNumber];
+        const hexagramGlyph = document.createElement('span');
+        hexagramGlyph.classList.add('iching-hexagram');
+        hexagramGlyph.innerText = `${hexagram.character}`;
+        const hexagramChapterName = document.createElement('span');
+        hexagramChapterName.classList.add('iching-hexagram-chapter-name');
+        hexagramChapterName.innerText = ` Chapter ${hexagram.chapter}`;
+        hexagramSummary.append(hexagramGlyph);
+        hexagramSummary.append(hexagramChapterName);
+        const breakElement = document.createElement('br');
+        hexagramSummary.append(breakElement);
+        const hexagramChapter = document.createElement('span');
+        hexagramChapter.classList.add('iching-heading');
+        hexagramChapter.innerText = `${hexagram.name.chinese} (${hexagram.name.english})`;
+        hexagramSummary.append(hexagramChapter);
+        ThisPage.content.append(hexagramSummary);
+        /** Main Commentary */
+        hexagramCommentary.innerHTML = Markup(hexagram.commentary.join('\n\n'));
+        ThisPage.content.append(hexagramCommentary);
+        /** Image: Verse, Commentary */
+        const imageHeading = document.createElement('p');
+        imageHeading.classList.add('iching-heading');
+        imageHeading.innerText = 'Image';
+        hexagramImage.append(imageHeading);
+        const imageVerse = document.createElement('div');
+        imageVerse.classList.add('iching-verse');
+        imageVerse.innerHTML = Markup(hexagram.image.verse.join('\n'));
+        hexagramImage.append(imageVerse);
+        const imageCommentary = document.createElement('div');
+        imageCommentary.innerHTML = Markup(hexagram.image.commentary.join('\n\n'));
+        hexagramImage.append(imageCommentary);
+        ThisPage.content.append(hexagramImage);
+        /** Judgment: Verse, Commentary */
+        const judgmentHeading = document.createElement('p');
+        judgmentHeading.classList.add('iching-heading');
+        judgmentHeading.innerText = 'Judgment';
+        hexagramJudgment.append(judgmentHeading);
+        const judgmentVerse = document.createElement('div');
+        judgmentVerse.classList.add('iching-verse');
+        judgmentVerse.innerHTML = Markup(hexagram.judgment.verse.join('\n'));
+        hexagramJudgment.append(judgmentVerse);
+        const judgmentCommentary = document.createElement('div');
+        judgmentCommentary.innerHTML = Markup(hexagram.judgment.commentary.join('\n\n'));
+        hexagramJudgment.append(judgmentCommentary);
+        ThisPage.content.append(hexagramJudgment);
+        IChingDisplay.append(hexagramSummary);
+        IChingDisplay.append(hexagramCommentary);
+        IChingDisplay.append(hexagramImage);
+        IChingDisplay.append(hexagramJudgment);
+    }
 }
 /**
  * Given an array of HTMLSelectElements (`dropdowns`) and an index number, create a
@@ -225,7 +230,7 @@ function dropDownValues(dropdowns) {
  * triggered whenever the dropdown value changes, causing the `displayLotValues`
  * function, and possibly the `displayHexagram` function, to be called.
  */
-// function lotDropDown(lot: Random, dropdowns: HTMLSelectElement[], index: number) {
+// function lotDropDown(lot: Lot, dropdowns: HTMLSelectElement[], index: number) {
 // 	const selectElement = document.createElement('select');
 // 	selectElement.id = `iching-lot-item-${index}`;
 // 	selectElement.className = 'iching-lot-item-select';
@@ -298,62 +303,57 @@ function dropDownValues(dropdowns) {
 // 	}
 // 	return result;
 // }
-function displayHexagram(hexagramNumber) {
-    // ThisPage.fadeOut(ThisPage.table, 100)
-    IChingDisplay.innerHTML = '';
-    const hexagramSummary = document.createElement('div');
-    const hexagramCommentary = document.createElement('div');
-    const hexagramImage = document.createElement('div');
-    const hexagramJudgment = document.createElement('div');
-    if (hexagramNumber >= 0 && hexagramNumber < 64) {
-        const hexagram = IChing.hexagrams[hexagramNumber];
-        const hexagramGlyph = document.createElement('span');
-        hexagramGlyph.classList.add('iching-hexagram');
-        hexagramGlyph.innerText = `${hexagram.character}`;
-        const hexagramChapterName = document.createElement('span');
-        hexagramChapterName.classList.add('iching-hexagram-chapter-name');
-        hexagramChapterName.innerText = ` Chapter ${hexagram.chapter}`;
-        hexagramSummary.append(hexagramGlyph);
-        hexagramSummary.append(hexagramChapterName);
-        const breakElement = document.createElement('br');
-        hexagramSummary.append(breakElement);
-        const hexagramChapter = document.createElement('span');
-        hexagramChapter.classList.add('iching-heading');
-        hexagramChapter.innerText = `${hexagram.name.chinese} (${hexagram.name.english})`;
-        hexagramSummary.append(hexagramChapter);
-        ThisPage.content.append(hexagramSummary);
-        /** Main Commentary */
-        hexagramCommentary.innerHTML = Markup(hexagram.commentary.join('\n\n'));
-        ThisPage.content.append(hexagramCommentary);
-        /** Image: Verse, Commentary */
-        const imageHeading = document.createElement('p');
-        imageHeading.classList.add('iching-heading');
-        imageHeading.innerText = 'Image';
-        hexagramImage.append(imageHeading);
-        const imageVerse = document.createElement('div');
-        imageVerse.classList.add('iching-verse');
-        imageVerse.innerHTML = Markup(hexagram.image.verse.join('\n'));
-        hexagramImage.append(imageVerse);
-        const imageCommentary = document.createElement('div');
-        imageCommentary.innerHTML = Markup(hexagram.image.commentary.join('\n\n'));
-        hexagramImage.append(imageCommentary);
-        ThisPage.content.append(hexagramImage);
-        /** Judgment: Verse, Commentary */
-        const judgmentHeading = document.createElement('p');
-        judgmentHeading.classList.add('iching-heading');
-        judgmentHeading.innerText = 'Judgment';
-        hexagramJudgment.append(judgmentHeading);
-        const judgmentVerse = document.createElement('div');
-        judgmentVerse.classList.add('iching-verse');
-        judgmentVerse.innerHTML = Markup(hexagram.judgment.verse.join('\n'));
-        hexagramJudgment.append(judgmentVerse);
-        const judgmentCommentary = document.createElement('div');
-        judgmentCommentary.innerHTML = Markup(hexagram.judgment.commentary.join('\n\n'));
-        hexagramJudgment.append(judgmentCommentary);
-        ThisPage.content.append(hexagramJudgment);
-        IChingDisplay.append(hexagramSummary);
-        IChingDisplay.append(hexagramCommentary);
-        IChingDisplay.append(hexagramImage);
-        IChingDisplay.append(hexagramJudgment);
-    }
-}
+/**
+ * Executed after the one-time rendering of the main page divisions, and
+ * whenever the Lot Type is changed, clear the contents of `LotValueDisplay` and
+ * `IChingDisplay` and initialize the Lot Value dropdowns. The dropdown event
+ * listeners are defined here, which can trigger `LotValueDisplay` and
+ * `IChingDisplay` updates.
+ *
+ * ### way too complicated! break it up
+ */
+// function initializeLot1(lot: Lot) {
+// 	LotValueDisplay.innerHTML = '';
+// 	IChingDisplay.innerHTML = '';
+// 	LotValueSelection.innerHTML = ''; /* clear previous selection options, if any */
+// 	/* create Lot Value Selection dropdowns and add them to `LotValueSelection` */
+// 	const dropdowns: HTMLSelectElement[] = [];
+// 	for (let lotItem = 0; lotItem < lot.items; lotItem += 1) {
+// 		// dropdowns[lotItem] = lotDropDown(lot, dropdowns, lotItem);
+// 		// LotValueSelection.append(dropdowns[lotItem]);
+// 		const selectElement = document.createElement('select');
+// 		selectElement.id = `iching-lot-item-${lotItem}`;
+// 		selectElement.className = 'iching-lot-item-select';
+// 		for (let option = 0; option <= lot.faces; option += 1) {
+// 			const displayedOption = (option == 0) ? '-' : `${option}`;
+// 			const selectOption = new Option(`${displayedOption}`, `${option}`);
+// 			selectElement.add(selectOption);
+// 		}
+// 		// ### dropdowns isn't being updated!
+// 		dropdowns.push(selectElement);
+// 		LotValueSelection.append(selectElement);
+// 		selectElement.addEventListener('change', (e: Event) => {
+// 			const values = dropDownValues(dropdowns);
+// 			const nonZeroValues = values.some((value) => value != 0);
+// 			if (nonZeroValues) {
+// 				displayLotValues(dropdowns);
+// 				const zeroValues = values.includes(0);
+// 				if (!zeroValues) {
+// 					const result: number|null = lot.result(values);
+// 					if (result === null) {
+// 						LotValueDisplay.innerHTML += 'invalid roll, try again';
+// 						IChingDisplay.innerHTML = '';
+// 					}
+// 					else displayHexagram(result);
+// 				}
+// 			}
+// 			else {
+// 				LotValueDisplay.innerHTML = '';
+// 				IChingDisplay.innerHTML = '';
+// 			}
+// 			// let result = displayLotValues(dropdowns);
+// 			// if (result === null) IChingDisplay.innerHTML = '';
+// 			// else displayHexagram(result);
+// 		});
+// 	}
+// }

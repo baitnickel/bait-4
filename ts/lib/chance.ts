@@ -1,14 +1,14 @@
 /**
  * Each subclass should define the values of each of its elements, icons
  * (button/drop-down option images), and the method for deriving a result within
- * the defined limit (e.g., 64--0...63). On instantiation, the caller must
+ * the defined size (e.g., 64--0...63). On instantiation, the caller must
  * provide an HTML workspace (i.e., an HTMLDivElement). The subclasses may
  * create their own divs within this workspace, and must provide methods for
  * initialization, display, etc.
  * 
- * Creating a Random object should be rarely done--this is why we have
- * subclasses. Constructors probably don't need arguments--use setters instead.
- * The superclass object is completely dumb, it won't do anything much for you,
+ * Creating a Lot object should be rarely done--this is why we have subclasses.
+ * Constructors probably don't need arguments--use setters instead. The
+ * superclass object is completely dumb, it won't do anything much for you,
  * unless you just want a random number >= 0 and < 1. Each subclass establishes
  * its default behavior, its icons, its input process. Every object must return
  * a result constrained by its unique parameters/properties.
@@ -34,17 +34,17 @@
  * often. Etc.
  */
 
-export class Random {
+export class Lot {
 	items: number; /** number of items, e.g., 3 dice, 6 coins, etc. */
 	faces: number; /** number of faces on each item, e.g., 6 die faces, 2 coin faces */
-	limit: number; /** number of possible results */
-	minimum: number /** minimum result */
+	size: number; /** number of possible results */
+	offset: number /** starting number */
 
-	constructor(limit = 1) {
+	constructor(size = 1) {
 		this.items = 0;      /* how many items (coins, dice, etc) will be tossed? */
 		this.faces = 0;    /* how many different faces does each item have? 2? 6? */
-		this.limit = limit;  /* how many different integers do we want? */
-		this.minimum = 0;    /* what is our starting integer? */
+		this.size = size;  /* how many different integers do we want? */
+		this.offset = 0;    /* what is our starting integer? */
 	}
 
 	displayOption(option: number) {
@@ -55,26 +55,28 @@ export class Random {
 		return `${value}`;
 	}
 
+	// ### create super using base (or bases)
+	// ### first dice should be high order, not low -- fix it in subclasses too
 	result(values: number|number[] = 0): number|null {
-		return Math.floor(Math.random() * this.limit);
+		return Math.floor(Math.random() * this.size);
 	}
 
 	/**
 	 * In addition to `result`, we should have a `returnCode` method that can be
 	 * called when `result` returns null. Possible return codes: 0 (all good),
-	 * 1: (insufficient items * faces for limit) 2: (result out of bounds).
+	 * 1: (insufficient items * faces for size) 2: (result out of bounds).
 	 * 
 	 * Maybe we can avoid null returns by returning 0 on errors and setting
 	 * returnCode!
 	 */
 }
 
-export class Dice extends Random {
+export class Dice extends Lot {
 
-	constructor(items: number, faces: number, limit: number) {
+	constructor(items: number, faces: number, size: number) {
 		super();
 		this.items = items;
-		this.limit = limit;
+		this.size = size;
 		this.faces = faces;
 	}
 
@@ -92,19 +94,19 @@ export class Dice extends Random {
 	result(values: number|number[]) {
 		let result: number|null = null;
 		const valuesArray = (Array.isArray(values)) ? values : [values];
-		const lastValue = valuesArray[valuesArray.length - 1];
-		while (this.faces > valuesArray.length) {
-			valuesArray.push(lastValue);
-		}
+		// const lastValue = valuesArray[valuesArray.length - 1];
+		// while (this.faces > valuesArray.length) {
+		// 	valuesArray.push(lastValue);
+		// }
 		/**
 		 * ### our special case ... needs to be generalized
 		 * 
 		 * I think the only thing that is special about this case is that we are
 		 * using base 4 instead of base 12 (reducing 12). We might find a
-		 * formula that does such transformations based on the desired limit and
+		 * formula that does such transformations based on the desired size and
 		 * the items and faces.
 		 */
-		if (this.items == 3 && this.faces == 12 && this.limit == 64) {
+		if (this.items == 3 && this.faces == 12 && this.size == 64) {
 			const base = 4;
 			const values: number[] = [];
 			result = 0;
@@ -121,8 +123,8 @@ export class Dice extends Random {
 			}
 		}
 		else {
-			if ((this.faces ** this.items) < this.limit) {
-				/* values cannot express all results in range 0 ... this.limit - 1 */
+			if ((this.faces ** this.items) < this.size) {
+				/* values cannot express all results in range 0 ... this.size - 1 */
 				result = null;
 			}
 			else {
@@ -134,20 +136,20 @@ export class Dice extends Random {
 					value = value * power;
 					result += value;
 				}
-				if (result >= this.items * this.limit) result = null;
-				else result %= this.limit;
+				if (result >= this.items * this.size) result = null;
+				else result %= this.size;
 			}
 		}
 		return result;
 	}
 }
 
-export class Coins extends Random {
+export class Coins extends Lot {
 	
-	constructor(items: number, limit: number) {
+	constructor(items: number, size: number) {
 		super();
 		this.items = items;
-		this.limit = limit;
+		this.size = size;
 		this.faces = 2;
 	}
 
@@ -165,12 +167,13 @@ export class Coins extends Random {
 		return `${value}`;
 	}
 
+	// ### need to swap heads and tails to make meanings more intuitive
 	result(values: number|number[]): number|null {
 		const valuesArray = (Array.isArray(values)) ? values : [values];
-		const lastValue = valuesArray[valuesArray.length - 1];
-		while (this.faces > valuesArray.length) {
-			valuesArray.push(lastValue);
-		}
+		// const lastValue = valuesArray[valuesArray.length - 1];
+		// while (this.faces > valuesArray.length) {
+		// 	valuesArray.push(lastValue);
+		// }
 		const base = this.faces;
 		let result = 0;
 		for (let i in valuesArray) {
@@ -183,10 +186,10 @@ export class Coins extends Random {
 	}
 }
 
-export class Seasonal extends Random { /** ### Calendric? */
+export class Seasonal extends Lot { /** ### Calendric? */
 
-	constructor(limit = 4) {
-		super(limit);
+	constructor(size = 4) {
+		super(size);
 	}
 	
 	result() {
@@ -215,15 +218,15 @@ export class Seasonal extends Random { /** ### Calendric? */
 		 */
 		const dayOfOrbit = (dayOfYear >= dayOfSolstice) ? dayOfYear -  dayOfSolstice : (daysInYear - dayOfSolstice) + dayOfYear;
 		/**
-		 * season calculation (when this.limit == 4) gives you:
+		 * season calculation (when this.size == 4) gives you:
 		 * - 0 near winter solstice
 		 * - 1 near spring equinox
 		 * - 2 near summer solstice
 		 * - 3 near autumn equinox
 		 */
-		const season = Math.round(dayOfOrbit / (daysInYear / this.limit)) % this.limit;
+		const season = Math.round(dayOfOrbit / (daysInYear / this.size)) % this.size;
 		/**
-		 * changing this.limit can give us many different "seasonal segments",
+		 * changing this.size can give us many different "seasonal segments",
 		 * e.g., 2, 4, 8, 12, 16, 32, 64
 		 */
 		return season;

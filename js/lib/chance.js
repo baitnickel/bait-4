@@ -33,12 +33,18 @@
  * equal weight, we would only see 10% of integers being selected more or less
  * often. Etc.
  */
+/**
+ * By default, a Lot object is a coin toss returning one of two results:
+ * - 0 (yin, broken line)
+ * - 1 (yang, solid line)
+ */
 export class Lot {
-    constructor(size = 1) {
-        this.items = 0; /* how many items (coins, dice, etc) will be tossed? */
-        this.faces = 0; /* how many different faces does each item have? 2? 6? */
-        this.size = size; /* how many different integers do we want? */
-        this.offset = 0; /* what is our starting integer? */
+    get size() { return this.range.high - this.range.low + 1; }
+    ;
+    constructor(high = 1, low = 0) {
+        this.items = 1; /* how many items (coins, dice, etc) will be tossed? */
+        this.faces = 2; /* how many different faces does each item have? 2? 6? */
+        this.range = { high: high, low: low };
     }
     displayOption(option) {
         return `${option}`;
@@ -46,18 +52,24 @@ export class Lot {
     displayValue(value) {
         return `${value}`;
     }
-    // ### create super using base (or bases)
-    // ### first dice should be high order, not low -- fix it in subclasses too
+    /** ###
+     * create super `result` method using base (or bases)
+     */
+    /** ###
+     * first dice should be high order, not low -- fix it in subclasses too.
+     * Process `valueArray` in a while loop (until valueArray is empty), doing
+     * value = valueArray.pop().
+     */
     result(values = 0) {
         return Math.floor(Math.random() * this.size);
     }
 }
 export class Dice extends Lot {
-    constructor(items, faces, size) {
-        super();
+    constructor(items, faces, high, low = 0) {
+        super(high, low);
         this.items = items;
-        this.size = size;
         this.faces = faces;
+        this.range = { high: high, low: low };
     }
     displayValue(value) {
         let displayValue = `${value}`;
@@ -125,11 +137,11 @@ export class Dice extends Lot {
     }
 }
 export class Coins extends Lot {
-    constructor(items, size) {
-        super();
+    constructor(items, high = 1, low = 0) {
+        super(high, low);
         this.items = items;
-        this.size = size;
         this.faces = 2;
+        this.range = { high: high, low: low };
     }
     displayOption(option) {
         let alternate = `${option}`;
@@ -146,6 +158,13 @@ export class Coins extends Lot {
         return `${value}`;
     }
     // ### need to swap heads and tails to make meanings more intuitive
+    /** ###
+     * We need some sort of `transform` method ... object could name a
+     * function to be called between certain steps in calculating the result.
+     * The function could do such things as flip coin faces--make all heads
+     * tails and vice versa. But don't get too fancy--why not just have some
+     * class methods?
+     */
     result(values) {
         const valuesArray = (Array.isArray(values)) ? values : [values];
         // const lastValue = valuesArray[valuesArray.length - 1];
@@ -164,8 +183,8 @@ export class Coins extends Lot {
     }
 }
 export class Seasonal extends Lot {
-    constructor(size = 4) {
-        super(size);
+    constructor(high = 3, low = 0) {
+        super(high, low);
     }
     result() {
         const now = new Date();

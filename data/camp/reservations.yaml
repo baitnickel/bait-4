@@ -13,7 +13,7 @@ smitty:
   - { site: 85,   arrival: 2024-07-27, days: 7, account: Dan }
   - { site: 86,   arrival: 2024-07-20, days: 7, account: Becca }
   - { site: 86,   arrival: 2024-07-27, days: 7, account: Laurel }
-  - { site: 88,   arrival: 2024-07-22, days: 7, account: Becca }
+  # - { site: 88,   arrival: 2024-07-22, days: 7, account: Becca }
   - { site: 89,   arrival: 2024-07-20, days: 7, account: James }
   - { site: 89,   arrival: 2024-07-27, days: 7, account: James }
   - { site: 98,   arrival: 2024-07-21, days: 7, account: Pete }

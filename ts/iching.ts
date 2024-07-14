@@ -1,19 +1,19 @@
 import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
-import { Lot, Dice, Coins } from './lib/chance.js';
+import { Range, Dice, Coins } from './lib/ranges.js';
 import { Markup } from './lib/markup.js';
 
-type LotType = {
+type RangeType = {
 	text: string;
 	items: number;
 	faces: number;
 }
 
 const ThisPage = new Page();
-let LotTypeSelection: HTMLDivElement;
-let LotValueSelection: HTMLDivElement;
-let LotValueDisplay: HTMLDivElement;
+let RangeTypeSelection: HTMLDivElement;
+let RangeValueSelection: HTMLDivElement;
+let RangeValueDisplay: HTMLDivElement;
 let IChingDisplay: HTMLDivElement;
 
 /** ###
@@ -29,145 +29,145 @@ let IChingDisplay: HTMLDivElement;
 /** load all the I Ching texts */
 const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
 const IChing = await Fetch.object<T.IChing>(IChingPath);
-const NumberOfChapters = 64; /* number of Lot values needed (number of I Ching chapters) */
+const NumberOfChapters = 64; /* number of Range values needed (number of I Ching chapters) */
 
 /**
- * Supported Lot Types. If this list is modified, it might also be necessary to
- * modify the `newLot` function as well.
+ * Supported Range Types. If this list is modified, it might also be necessary to
+ * modify the `newRange` function as well.
  */
-const LotTypes = new Map<string, LotType>();
-LotTypes.set('D12X2', {text: '2 Dice (12-sided)', items: 2, faces: 12});
-LotTypes.set('D12X3', {text: '3 Dice (12-sided)', items: 3, faces: 12});
-LotTypes.set('D6', {text: '3 Dice (Standard)', items: 3, faces: 6});
-LotTypes.set('C', {text: '6 Coins', items: 6, faces: 2});
+const RangeTypes = new Map<string, RangeType>();
+RangeTypes.set('D12X2', {text: '2 Dice (12-sided)', items: 2, faces: 12});
+RangeTypes.set('D12X3', {text: '3 Dice (12-sided)', items: 3, faces: 12});
+RangeTypes.set('D6', {text: '3 Dice (Standard)', items: 3, faces: 6});
+RangeTypes.set('C', {text: '6 Coins', items: 6, faces: 2});
 
 /**
- * Using the first LotType in the list above as the default, we instantiate a
- * Lot object. This object will contain properties that define how "casting the
+ * Using the first RangeType in the list above as the default, we instantiate a
+ * Range object. This object will contain properties that define how "casting the
  * lot" is recorded and displayed, as well as how the cast identifies the
  * corresponding I Ching chapter.
  */
-let lot = newLot(Array.from(LotTypes.keys())[0], NumberOfChapters);
-console.log(`Initialized Lot: ${lot.items} x ${lot.faces}`);
+let range = newRange(Array.from(RangeTypes.keys())[0], NumberOfChapters);
+console.log(`Initialized Range: ${range.items} x ${range.faces}`);
 
 
 /**
  * Render the 4 global divisions:
- * - Lot Type selection (Dice, Coins, etc.)
- * - Lot Value Selection (entry of values from Dice, Coin, etc. casting)
- * - Lot Value Display (Dice, Coin, etc. face images or numerals)
+ * - Range Type selection (Dice, Coins, etc.)
+ * - Range Value Selection (entry of values from Dice, Coin, etc. casting)
+ * - Range Value Display (Dice, Coin, etc. face images or numerals)
  * - I Ching Display (texts from chosen I Ching chapter)
  */
 export function render() {
-	LotTypeSelection = document.createElement('div');
-	LotTypeSelection.id = 'iching-lot-type';
-	ThisPage.content.append(LotTypeSelection);
-	initializeLotTypeSelection();
+	RangeTypeSelection = document.createElement('div');
+	RangeTypeSelection.id = 'iching-range-type';
+	ThisPage.content.append(RangeTypeSelection);
+	initializeRangeTypeSelection();
 
-	LotValueSelection = document.createElement('div');
-	LotValueSelection.className = 'iching-lot-values';
-	ThisPage.content.append(LotValueSelection);
+	RangeValueSelection = document.createElement('div');
+	RangeValueSelection.className = 'iching-range-values';
+	ThisPage.content.append(RangeValueSelection);
 	
-	LotValueDisplay = document.createElement('div');
-	LotValueDisplay.className = 'iching-lot-display';
-	ThisPage.content.append(LotValueDisplay);
+	RangeValueDisplay = document.createElement('div');
+	RangeValueDisplay.className = 'iching-range-display';
+	ThisPage.content.append(RangeValueDisplay);
 
 	IChingDisplay = document.createElement('div');
 	ThisPage.content.append(IChingDisplay);
 
 	/**
-	 * Clear the `LotValueSelection`, `LotValueDisplay`, and `IChingDisplay`
-	 * divisions, and create the widgets in `LotValueSelection` that will be
+	 * Clear the `RangeValueSelection`, `RangeValueDisplay`, and `IChingDisplay`
+	 * divisions, and create the widgets in `RangeValueSelection` that will be
 	 * used to record the results of the Dice rolls, Coin tosses, etc.
 	 */
-	initializeLot(lot);
+	initializeRange(range);
 }
 
 /**
- * Given a `lotTypeKey` (the key to a `LotType`) and the required `limit`
- * (number of random values needed--64 for I Ching), return an initialized Lot
- * object (Lot if the `lotTypeKey` is invalid). This function might need to
- * be modified if the global `LotTypes` map is changed.
+ * Given a `rangeTypeKey` (the key to a `RangeType`) and the required `limit`
+ * (number of random values needed--64 for I Ching), return an initialized Range
+ * object (Range if the `rangeTypeKey` is invalid). This function might need to
+ * be modified if the global `RangeTypes` map is changed.
  */
-function newLot(lotTypeKey: string, limit: number) {
-	let lot = new Lot(limit);
-	let lotType = LotTypes.get(lotTypeKey);
-	if (lotType !== undefined) {
-		if (lotTypeKey.startsWith('D')) lot = new Dice(lotType.items, lotType.faces, limit);
-		else lot = new Coins(lotType.items, limit);
+function newRange(rangeTypeKey: string, limit: number) {
+	let range = new Range(limit);
+	let rangeType = RangeTypes.get(rangeTypeKey);
+	if (rangeType !== undefined) {
+		if (rangeTypeKey.startsWith('D')) range = new Dice(rangeType.items, rangeType.faces, limit);
+		else range = new Coins(rangeType.items);
 	}
-	return lot;
+	return range;
 }
 
 /**
  * Set up the dropdown selection at the top of the page that will be used to
- * choose the Lot Type (Dice, Coins, etc.) for selecting an I Ching chapter.
+ * choose the Range Type (Dice, Coins, etc.) for selecting an I Ching chapter.
  */
-function initializeLotTypeSelection() {
+function initializeRangeTypeSelection() {
 	const selectElement = document.createElement('select');
-	for (let lotTypeKey of Array.from(LotTypes.keys())) {
-		const lotType = LotTypes.get(lotTypeKey)!;
-		const displayedOption = lotType.text;
-		const selectOption = new Option(displayedOption, lotTypeKey);
+	for (let rangeTypeKey of Array.from(RangeTypes.keys())) {
+		const rangeType = RangeTypes.get(rangeTypeKey)!;
+		const displayedOption = rangeType.text;
+		const selectOption = new Option(displayedOption, rangeTypeKey);
 		selectElement.add(selectOption);
 	}
 	selectElement.addEventListener('change', (e: Event) => {
-		let lotTypeKey = selectElement.value
-		lot = newLot(lotTypeKey, NumberOfChapters);
-		initializeLot(lot);
-		console.log(`Updated Lot: ${lot.items} x ${lot.faces}`);
+		let rangeTypeKey = selectElement.value
+		range = newRange(rangeTypeKey, NumberOfChapters);
+		initializeRange(range);
+		console.log(`Updated Range: ${range.items} x ${range.faces}`);
 	});
-	LotTypeSelection.append(selectElement);
+	RangeTypeSelection.append(selectElement);
 }
 
-function initializeLot(lot: Lot) {
-	LotValueDisplay.innerHTML = '';
+function initializeRange(range: Range) {
+	RangeValueDisplay.innerHTML = '';
 	IChingDisplay.innerHTML = '';
-	LotValueSelection.innerHTML = ''; /* clear previous selection options, if any */
-	/* create Lot Value Selection dropdowns and add them to `LotValueSelection` */
+	RangeValueSelection.innerHTML = ''; /* clear previous selection options, if any */
+	/* create Range Value Selection dropdowns and add them to `RangeValueSelection` */
 	const dropdowns: HTMLSelectElement[] = [];
-	for (let lotItem = 0; lotItem < lot.items; lotItem += 1) {
+	for (let rangeItem = 0; rangeItem < range.items; rangeItem += 1) {
 		const selectElement = document.createElement('select');
-		selectElement.id = `iching-lot-item-${lotItem}`;
-		selectElement.className = 'iching-lot-item-select';
+		selectElement.id = `iching-range-item-${rangeItem}`;
+		selectElement.className = 'iching-range-item-select';
 		/* define one dropdown option per Dice/Coin face, plus the "none selected" default: '-' */
-		for (let option = 0; option <= lot.faces; option += 1) {
-			const displayedOption = (option == 0) ? '-' : lot.displayOption(option);
+		for (let option = 0; option <= range.faces; option += 1) {
+			const displayedOption = (option == 0) ? '-' : range.displayOption(option);
 			const selectOption = new Option(`${displayedOption}`, `${option}`);
 			selectElement.add(selectOption);
 		}
 		dropdowns.push(selectElement);
-		LotValueSelection.append(selectElement);
+		RangeValueSelection.append(selectElement);
 
 		selectElement.addEventListener('change', (e: Event) => {
-			lotValueChangeEvent(lot, dropdowns);
+			rangeValueChangeEvent(range, dropdowns);
 		});
 	}
 }
 
-function lotValueChangeEvent(lot: Lot, dropdowns: HTMLSelectElement[]) {
+function rangeValueChangeEvent(range: Range, dropdowns: HTMLSelectElement[]) {
 	const values = dropDownValues(dropdowns);
 	const someZeroValues = values.includes(0);
 	const somePositiveValues = values.some((value) => value != 0);
 	if (!somePositiveValues) {
-		LotValueDisplay.innerHTML = '';
+		RangeValueDisplay.innerHTML = '';
 		IChingDisplay.innerHTML = '';
 	}
 	if (someZeroValues) IChingDisplay.innerHTML = '';
 	else {
 		/* all positive values are supplied */
-		let result = lot.result(values);
-		LotValueDisplay.innerHTML = `Result: ${result}`;
-		// (re)display LotValueDisplay using Lot methods
-		// get result using Lot method
-		// on invalid result, append message to LotValueDisplay
+		let result = range.result(values);
+		RangeValueDisplay.innerHTML = `Result: ${result}`;
+		// (re)display RangeValueDisplay using Range methods
+		// get result using Range method
+		// on invalid result, append message to RangeValueDisplay
 		// on valid result displayHexagram(result);
 
-		// displayLotValues(dropdowns);
+		// displayRangeValues(dropdowns);
 		// if (!someZeroValues) {
-		// 	const result: number|null = lot.result(values);
+		// 	const result: number|null = range.result(values);
 		// 	if (result === null) {
-		// 		LotValueDisplay.innerHTML += 'invalid roll, try again';
+		// 		RangeValueDisplay.innerHTML += 'invalid roll, try again';
 		// 		IChingDisplay.innerHTML = '';
 		// 	}
 		// 	else displayHexagram(result);
@@ -261,20 +261,20 @@ function displayHexagram(hexagramNumber: number) {
  * creates one dropdown for each of the 3 dice (in this case).
  * 
  * Define an event listener associated with this dropdown. The listener is
- * triggered whenever the dropdown value changes, causing the `displayLotValues`
+ * triggered whenever the dropdown value changes, causing the `displayRangeValues`
  * function, and possibly the `displayHexagram` function, to be called.
  */
-// function lotDropDown(lot: Lot, dropdowns: HTMLSelectElement[], index: number) {
+// function rangeDropDown(range: Range, dropdowns: HTMLSelectElement[], index: number) {
 // 	const selectElement = document.createElement('select');
-// 	selectElement.id = `iching-lot-item-${index}`;
-// 	selectElement.className = 'iching-lot-item-select';
-// 	for (let option = 0; option <= lot.faces; option += 1) {
+// 	selectElement.id = `iching-range-item-${index}`;
+// 	selectElement.className = 'iching-range-item-select';
+// 	for (let option = 0; option <= range.faces; option += 1) {
 // 		const displayedOption = (option == 0) ? '-' : `${option}`;
 // 		const selectOption = new Option(`${displayedOption}`, `${option}`);
 // 		selectElement.add(selectOption);
 // 	}
 // 	selectElement.addEventListener('change', (e: Event) => {
-// 		let result = displayLotValues(dropdowns);
+// 		let result = displayRangeValues(dropdowns);
 // 		if (result === null) IChingDisplay.innerHTML = '';
 // 		else displayHexagram(result);
 // 	});
@@ -282,10 +282,10 @@ function displayHexagram(hexagramNumber: number) {
 // }
 
 
-// function displayLotValues(dropdowns: HTMLSelectElement[]) {
+// function displayRangeValues(dropdowns: HTMLSelectElement[]) {
 // 	let result: number|null = null;
 // 	const rejectOverflow = true;
-// 	LotValueDisplay.innerHTML = '';
+// 	RangeValueDisplay.innerHTML = '';
 // 	const diceValues = [0, 0, 0];
 // 	let dieIndex = 0;
 // 	for (let dropdown of dropdowns) {
@@ -293,7 +293,7 @@ function displayHexagram(hexagramNumber: number) {
 // 		/* character codes 9856-9861: ⚀ ⚁ ⚂ ⚃ ⚄ ⚅ */
 // 		let characterCode = dieValue + 9855;
 // 		if (characterCode < 9856 || characterCode > 9861) characterCode = 9866; /* represents no dropdown value */
-// 		LotValueDisplay.innerHTML += `${String.fromCharCode(characterCode)} `;
+// 		RangeValueDisplay.innerHTML += `${String.fromCharCode(characterCode)} `;
 // 		diceValues[dieIndex] = dieValue;
 // 		dieIndex += 1;
 // 		dieIndex %= 3; /* force index into diceValues range (0...2) */
@@ -306,16 +306,16 @@ function displayHexagram(hexagramNumber: number) {
 // 	// 	const mid = (dice1 - 1) * 6;
 // 	// 	const low = (dice2 - 1);
 // 	// 	result = high + mid + low;
-// 	result = lotResult(diceValues); // ## instead, get result from Lot.result()
+// 	result = rangeResult(diceValues); // ## instead, get result from Range.result()
 // 	if (result !== null && result > 63) {
 // 		if (rejectOverflow) {
-// 			LotValueDisplay.innerHTML += 'overflow - roll again';
+// 			RangeValueDisplay.innerHTML += 'overflow - roll again';
 // 			result = null;
 // 		}
 // 		else result = Math.floor(Math.random() * 64);
 // 	}
-// 		// LotValueDisplay.innerHTML += `${high} + ${mid} + ${low} = ${result}`;
-// 		// LotValueDisplay.innerHTML += `${result}`;
+// 		// RangeValueDisplay.innerHTML += `${high} + ${mid} + ${low} = ${result}`;
+// 		// RangeValueDisplay.innerHTML += `${result}`;
 // 	// }
 // 	return result;
 // }
@@ -324,7 +324,7 @@ function displayHexagram(hexagramNumber: number) {
  * Given an array of three dice values, return a result between 0 and 63
  * inclusive, or null if the result is out of range.
  */
-// function lotResult(diceValues: number[]) {
+// function rangeResult(diceValues: number[]) {
 // 	let result: number|null = null;
 // 	if (diceValues[0] && diceValues[1] && diceValues[2]) { /* all dice values are valid non-zero numbers */
 // 		for (let i = 0; i < 3; i += 1) {
@@ -343,53 +343,53 @@ function displayHexagram(hexagramNumber: number) {
 
 /**
  * Executed after the one-time rendering of the main page divisions, and
- * whenever the Lot Type is changed, clear the contents of `LotValueDisplay` and
- * `IChingDisplay` and initialize the Lot Value dropdowns. The dropdown event
- * listeners are defined here, which can trigger `LotValueDisplay` and
+ * whenever the Range Type is changed, clear the contents of `RangeValueDisplay` and
+ * `IChingDisplay` and initialize the Range Value dropdowns. The dropdown event
+ * listeners are defined here, which can trigger `RangeValueDisplay` and
  * `IChingDisplay` updates.
  * 
  * ### way too complicated! break it up
  */
-// function initializeLot1(lot: Lot) {
-// 	LotValueDisplay.innerHTML = '';
+// function initializeRange1(range: Range) {
+// 	RangeValueDisplay.innerHTML = '';
 // 	IChingDisplay.innerHTML = '';
-// 	LotValueSelection.innerHTML = ''; /* clear previous selection options, if any */
-// 	/* create Lot Value Selection dropdowns and add them to `LotValueSelection` */
+// 	RangeValueSelection.innerHTML = ''; /* clear previous selection options, if any */
+// 	/* create Range Value Selection dropdowns and add them to `RangeValueSelection` */
 // 	const dropdowns: HTMLSelectElement[] = [];
-// 	for (let lotItem = 0; lotItem < lot.items; lotItem += 1) {
-// 		// dropdowns[lotItem] = lotDropDown(lot, dropdowns, lotItem);
-// 		// LotValueSelection.append(dropdowns[lotItem]);
+// 	for (let rangeItem = 0; rangeItem < range.items; rangeItem += 1) {
+// 		// dropdowns[rangeItem] = rangeDropDown(range, dropdowns, rangeItem);
+// 		// RangeValueSelection.append(dropdowns[rangeItem]);
 // 		const selectElement = document.createElement('select');
-// 		selectElement.id = `iching-lot-item-${lotItem}`;
-// 		selectElement.className = 'iching-lot-item-select';
-// 		for (let option = 0; option <= lot.faces; option += 1) {
+// 		selectElement.id = `iching-range-item-${rangeItem}`;
+// 		selectElement.className = 'iching-range-item-select';
+// 		for (let option = 0; option <= range.faces; option += 1) {
 // 			const displayedOption = (option == 0) ? '-' : `${option}`;
 // 			const selectOption = new Option(`${displayedOption}`, `${option}`);
 // 			selectElement.add(selectOption);
 // 		}
 // 		// ### dropdowns isn't being updated!
 // 		dropdowns.push(selectElement);
-// 		LotValueSelection.append(selectElement);
+// 		RangeValueSelection.append(selectElement);
 // 		selectElement.addEventListener('change', (e: Event) => {
 // 			const values = dropDownValues(dropdowns);
 // 			const nonZeroValues = values.some((value) => value != 0);
 // 			if (nonZeroValues) {
-// 				displayLotValues(dropdowns);
+// 				displayRangeValues(dropdowns);
 // 				const zeroValues = values.includes(0);
 // 				if (!zeroValues) {
-// 					const result: number|null = lot.result(values);
+// 					const result: number|null = range.result(values);
 // 					if (result === null) {
-// 						LotValueDisplay.innerHTML += 'invalid roll, try again';
+// 						RangeValueDisplay.innerHTML += 'invalid roll, try again';
 // 						IChingDisplay.innerHTML = '';
 // 					}
 // 					else displayHexagram(result);
 // 				}
 // 			}
 // 			else {
-// 				LotValueDisplay.innerHTML = '';
+// 				RangeValueDisplay.innerHTML = '';
 // 				IChingDisplay.innerHTML = '';
 // 			}
-// 			// let result = displayLotValues(dropdowns);
+// 			// let result = displayRangeValues(dropdowns);
 // 			// if (result === null) IChingDisplay.innerHTML = '';
 // 			// else displayHexagram(result);
 // 		});

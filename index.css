@@ -235,12 +235,12 @@ pre code { /* fenced code blocks */
 	margin-top: .5em;
 }
 
-.iching-lot-item-select {
+.iching-range-item-select {
 	margin-left: .5em;
 	/* margin-right: 1em; */
 	/* font-size: 32px; */
 }
-.iching-lot-display {
+.iching-range-display {
 	font-size: 48px;
 }
 /* .die-select-group {
@@ -421,7 +421,7 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	width: 50px; /* 114px; */
 	height: 50px; /* 114px; */
 }
-#iching-lot-type {
+#iching-range-type {
 	font-family: sans-serif;
 	/* font-size: 1em; */
 	/* line-height: 2em; */

@@ -6,7 +6,7 @@
  * create their own divs within this workspace, and must provide methods for
  * initialization, display, etc.
  *
- * Creating a Lot object should be rarely done--this is why we have subclasses.
+ * Creating a Range object should be rarely done--this is why we have subclasses.
  * Constructors probably don't need arguments--use setters instead. The
  * superclass object is completely dumb, it won't do anything much for you,
  * unless you just want a random number >= 0 and < 1. Each subclass establishes
@@ -21,11 +21,6 @@
  * also "divine" additional results to refine the dice result, e.g., get a
  * "seasonal" result using the earth's orbit, moon phases, sun time, etc.
  *
- * Subclasses may have methods that return one or more HTMLElements, e.g.,
- * elements that the calling program can insert into a DIV to create buttons,
- * drop-downs, etc. for entry of the results of a dice roll or series of coins
- * tosses.
- *
  * What is the best term for "evenly distributed probablity" (or something like
  * that) ... the `result` method should take an argument indicating the user's
  * desired "fairness". If I want every integer in a range to have an equal
@@ -34,17 +29,24 @@
  * often. Etc.
  */
 /**
- * By default, a Lot object is a coin toss returning one of two results:
+ * By default, a Range object is a coin toss returning one of two results:
  * - 0 (yin, broken line)
  * - 1 (yang, solid line)
  */
-export class Lot {
-    get size() { return this.range.high - this.range.low + 1; }
-    ;
-    constructor(high = 1, low = 0) {
-        this.items = 1; /* how many items (coins, dice, etc) will be tossed? */
-        this.faces = 2; /* how many different faces does each item have? 2? 6? */
-        this.range = { high: high, low: low };
+export class Range {
+    get size() { return (this.limit - this.start); }
+    constructor(items = 1, faces = 2, limit = 2, start = 0, step = 1) {
+        this.items = items; /* how many items (coins, dice, etc) will be tossed? */
+        this.faces = faces; /* how many different faces does each item have? 2? 6? */
+        this.limit = limit; /* non-inclusive integer boundary */
+        this.start = start; /* integer */
+        this.step = (step >= 1) ? step : 1; // integer--### not implemented yet!
+        /**
+         * By default, values are shifted by 1. This is because dropdown option
+         * 0 typically signifies "no value selected", making actual option
+         * values start with 1.
+         */
+        this.valueOffset = 1;
     }
     displayOption(option) {
         return `${option}`;
@@ -53,23 +55,36 @@ export class Lot {
         return `${value}`;
     }
     /** ###
-     * create super `result` method using base (or bases)
-     */
-    /** ###
      * first dice should be high order, not low -- fix it in subclasses too.
      * Process `valueArray` in a while loop (until valueArray is empty), doing
-     * value = valueArray.pop().
+     * value = valueArray.pop(). 3 2 1 -> 3**3 + 2**2 + 1**1
+     *
+     * should be determining underflows and overflows here, instead of in Dice.
+     * How do we return values for these error conditions? If they are both
+     * null, we might have to set a property to hold an error code (text or
+     * number).
      */
-    result(values = 0) {
-        return Math.floor(Math.random() * this.size);
+    result(values = [], bases = []) {
+        /* by default (when no values are supplied), return a random number in range */
+        if (!values.length)
+            return Math.floor(Math.random() * this.size) + this.start;
+        let result = 0;
+        console.log(`Values: ${values}`);
+        for (let i in values) {
+            const position = values.length - 1 - Number(i);
+            const base = (bases.length == values.length) ? bases[position] : this.faces;
+            const power = base ** position;
+            let value = (values[i] - this.valueOffset) % base;
+            value = value * power;
+            console.log(`i: ${i} Position: ${position} Base: ${base} Power: ${power} Value: ${value}`);
+            result += value;
+        }
+        return result;
     }
 }
-export class Dice extends Lot {
-    constructor(items, faces, high, low = 0) {
-        super(high, low);
-        this.items = items;
-        this.faces = faces;
-        this.range = { high: high, low: low };
+export class Dice extends Range {
+    constructor(items, faces, limit, start = 0) {
+        super(items, faces, limit, start);
     }
     displayValue(value) {
         let displayValue = `${value}`;
@@ -83,65 +98,53 @@ export class Dice extends Lot {
         return displayValue;
     }
     result(values) {
-        let result = null;
-        const valuesArray = (Array.isArray(values)) ? values : [values];
-        // const lastValue = valuesArray[valuesArray.length - 1];
-        // while (this.faces > valuesArray.length) {
-        // 	valuesArray.push(lastValue);
-        // }
-        /**
-         * ### our special case ... needs to be generalized
-         *
-         * I think the only thing that is special about this case is that we are
-         * using base 4 instead of base 12 (reducing 12). We might find a
-         * formula that does such transformations based on the desired size and
-         * the items and faces.
-         */
+        let result = 0;
+        /* ### our special cases ... generalize? */
         if (this.items == 3 && this.faces == 12 && this.size == 64) {
-            const base = 4;
-            const values = [];
-            result = 0;
-            for (let i in valuesArray) {
-                /**
-                 * valuesArray[i] contains a number 1...12
-                 * power is 1, 4, 16
-                 * value is face value - 1 raised to the power
-                 */
-                const power = base ** Number(i);
-                let value = (valuesArray[i] - 1) % base; /* 1...12 becomes 0...3 */
-                value = value * power;
-                result += value;
-            }
+            const bases = [4, 4, 4];
+            result = super.result(values, bases);
+        }
+        else if (this.items == 3 && this.faces == 6 && this.size == 64) {
+            const bases = [6, 6, 2]; // ### shouldn't be backwards ... doesn't work either way
+            result = super.result(values, bases);
         }
         else {
-            if ((this.faces ** this.items) < this.size) {
-                /* values cannot express all results in range 0 ... this.size - 1 */
-                result = null;
-            }
+            // ### all a big mess ... what's wrong?
+            const maximumResult = this.faces ** this.items;
+            if (maximumResult < this.size)
+                result = null; /* can't cover range */
             else {
-                const base = this.faces;
-                result = 0;
-                for (let i in valuesArray) {
-                    const power = base ** Number(i);
-                    let value = (valuesArray[i] - 1) % base; /* 1...12 becomes 0...11 */
-                    value = value * power;
-                    result += value;
-                }
-                if (result >= this.items * this.size)
-                    result = null;
+                const groupings = Math.floor(maximumResult / this.size);
+                const maximumValidResult = groupings * this.size - 1;
+                result = super.result(values);
+                if (result > maximumValidResult)
+                    result = null; /* overflows range */
                 else
                     result %= this.size;
             }
+            // if ((this.faces ** this.items) < this.size) {
+            // 	/* values cannot express all results in range 0 ... this.size - 1 */
+            // 	result = null;
+            // }
+            // else {
+            // 	const base = this.faces;
+            // 	result = 0;
+            // 	for (let i in values) {
+            // 		const power = base ** Number(i);
+            // 		let value = (values[i] - 1) % base; /* 1...12 becomes 0...11 */
+            // 		value = value * power;
+            // 		result += value;
+            // 	}
+            // 	if (result >= this.items * this.size) result = null;
+            // 	else result %= this.size;
+            // }
         }
         return result;
     }
 }
-export class Coins extends Lot {
-    constructor(items, high = 1, low = 0) {
-        super(high, low);
-        this.items = items;
-        this.faces = 2;
-        this.range = { high: high, low: low };
+export class Coins extends Range {
+    constructor(items) {
+        super(items);
     }
     displayOption(option) {
         let alternate = `${option}`;
@@ -157,34 +160,23 @@ export class Coins extends Lot {
             alternate = alternates[value - 1];
         return `${value}`;
     }
-    // ### need to swap heads and tails to make meanings more intuitive
-    /** ###
-     * We need some sort of `transform` method ... object could name a
-     * function to be called between certain steps in calculating the result.
-     * The function could do such things as flip coin faces--make all heads
-     * tails and vice versa. But don't get too fancy--why not just have some
-     * class methods?
+    /**
+     * Swap HEADS and TAILS values and call the superclass method. The swap is
+     * necessary to make the result intuitive--HEADS is positive and TAILS is
+     * negative. We are relying on the fact that, by default, HEADS is 1 and
+     * TAILS is 2.
      */
     result(values) {
-        const valuesArray = (Array.isArray(values)) ? values : [values];
-        // const lastValue = valuesArray[valuesArray.length - 1];
-        // while (this.faces > valuesArray.length) {
-        // 	valuesArray.push(lastValue);
-        // }
-        const base = this.faces;
-        let result = 0;
-        for (let i in valuesArray) {
-            const power = base ** Number(i);
-            let value = (valuesArray[i] - 1) % base; /* 1...2 becomes 0...1 */
-            value = value * power;
-            result += value;
+        const valuesCopy = Array.from(values);
+        for (let i in valuesCopy) {
+            valuesCopy[i] = (valuesCopy[i] == 1) ? 2 : 1; /* swap values */
         }
-        return result;
+        return super.result(valuesCopy);
     }
 }
-export class Seasonal extends Lot {
-    constructor(high = 3, low = 0) {
-        super(high, low);
+export class Seasonal extends Range {
+    constructor(limit) {
+        super(1, 2, limit);
     }
     result() {
         const now = new Date();
@@ -238,4 +230,4 @@ export class Seasonal extends Lot {
             console.log(`${result} (${die1[i]}, ${die2[j]})`);
         }
     }
-*/ 
+*/

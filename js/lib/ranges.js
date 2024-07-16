@@ -72,7 +72,7 @@ export class Range {
         console.log(`Values: ${values}`);
         for (let i in values) {
             const position = values.length - 1 - Number(i);
-            const base = (bases.length == values.length) ? bases[position] : this.faces;
+            const base = (bases.length == values.length) ? bases[i] : this.faces;
             const power = base ** position;
             let value = (values[i] - this.valueOffset) % base;
             value = value * power;
@@ -80,6 +80,37 @@ export class Range {
             result += value;
         }
         return result;
+    }
+    spin(values = []) {
+        let spinResult = '';
+        const maximumResult = this.faces ** this.items;
+        if (maximumResult < this.size)
+            spinResult = '-'; /* can't cover range--underflow */
+        else {
+            const groupings = Math.floor(maximumResult / this.size);
+            const spinLimit = (groupings * this.size) - 1;
+            let sum = 0;
+            for (let i in values) {
+                const position = values.length - 1 - Number(i); // if 3 values, position is 2, 1, 0
+                const base = this.faces;
+                const power = base ** position; // if 6 faces, power is 36, 6, 1
+                // let value = (values[i] - this.valueOffset) % base;
+                let value = (values[i] - this.valueOffset) * power;
+                console.log(`i: ${i} Position: ${position} Base: ${base} Power: ${power} Value: ${value}`);
+                sum += value;
+            }
+            if (sum > spinLimit)
+                spinResult = '+'; /* overflows range */
+            else {
+                // ### what is wrong here??????
+                if (sum > this.size)
+                    spinResult = (sum % this.size);
+                else
+                    spinResult = sum;
+                spinResult += this.start;
+            }
+        }
+        return spinResult;
     }
 }
 export class Dice extends Range {
@@ -105,8 +136,9 @@ export class Dice extends Range {
             result = super.result(values, bases);
         }
         else if (this.items == 3 && this.faces == 6 && this.size == 64) {
-            const bases = [6, 6, 2]; // ### shouldn't be backwards ... doesn't work either way
-            result = super.result(values, bases);
+            // const bases = [6,6,6];
+            // result = super.result(values, bases);
+            result = super.result(values);
         }
         else {
             // ### all a big mess ... what's wrong?
@@ -166,12 +198,12 @@ export class Coins extends Range {
      * negative. We are relying on the fact that, by default, HEADS is 1 and
      * TAILS is 2.
      */
-    result(values) {
+    spin(values) {
         const valuesCopy = Array.from(values);
         for (let i in valuesCopy) {
             valuesCopy[i] = (valuesCopy[i] == 1) ? 2 : 1; /* swap values */
         }
-        return super.result(valuesCopy);
+        return super.spin(valuesCopy);
     }
 }
 export class Seasonal extends Range {

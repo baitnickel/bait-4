@@ -156,7 +156,8 @@ function rangeValueChangeEvent(range: Range, dropdowns: HTMLSelectElement[]) {
 	if (someZeroValues) IChingDisplay.innerHTML = '';
 	else {
 		/* all positive values are supplied */
-		let result = range.result(values);
+		// let result = range.result(values);
+		let result = range.spin(values);
 		RangeValueDisplay.innerHTML = `Result: ${result}`;
 		// (re)display RangeValueDisplay using Range methods
 		// get result using Range method

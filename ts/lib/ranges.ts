@@ -1,32 +1,18 @@
 /**
  * Each subclass should define the values of each of its elements, icons
  * (button/drop-down option images), and the method for deriving a result within
- * the defined size (e.g., 64--0...63). On instantiation, the caller must
- * provide an HTML workspace (i.e., an HTMLDivElement). The subclasses may
- * create their own divs within this workspace, and must provide methods for
- * initialization, display, etc.
+ * the defined size (e.g., 64--0...63).
  * 
- * Creating a Range object should be rarely done--this is why we have subclasses.
- * Constructors probably don't need arguments--use setters instead. The
- * superclass object is completely dumb, it won't do anything much for you,
- * unless you just want a random number >= 0 and < 1. Each subclass establishes
- * its default behavior, its icons, its input process. Every object must return
- * a result constrained by its unique parameters/properties.
+ * Each subclass establishes its default behavior, its icons, its input process.
+ * Every object must return a result constrained by its unique
+ * parameters/properties.
  * 
- * Calling programs may influence any object by altering its properties to suit
- * their needs. The calling program may, for instance, create multiple objects
- * and blend their results. For example, you want a result 0...63 by rolling
- * three normal dice. The three dice can return such results as 6x6x6 and 3x6x6
- * and 2x6x6, none of which produce a usable result--but the calling program can
- * also "divine" additional results to refine the dice result, e.g., get a
- * "seasonal" result using the earth's orbit, moon phases, sun time, etc.
- * 
- * What is the best term for "evenly distributed probablity" (or something like
- * that) ... the `result` method should take an argument indicating the user's
- * desired "fairness". If I want every integer in a range to have an equal
- * chance of appearing, that would be 100% fair. If 90% of the integers had
- * equal weight, we would only see 10% of integers being selected more or less
- * often. Etc.
+ * The calling program may create multiple objects and blend their results. For
+ * example, you want a result 0...63 by rolling three normal dice. The three
+ * dice can return such results as 6x6x6 and 3x6x6 and 2x6x6, none of which
+ * produce a usable result--but the calling program can also "divine" additional
+ * results to refine the dice result, e.g., get a "seasonal" result using the
+ * earth's orbit, moon phases, sun time, etc.
  */
 
 /**
@@ -65,76 +51,58 @@ export class Range {
 		return `${value}`;
 	}
 
-	/** ###
-	 * first dice should be high order, not low -- fix it in subclasses too.
-	 * Process `valueArray` in a while loop (until valueArray is empty), doing
-	 * value = valueArray.pop(). 3 2 1 -> 3**3 + 2**2 + 1**1
+	/**
+	 * Given item values (e.g., numbers on each die, HEADS or TAILS on each
+	 * coin, etc.) return the `tally`. The tally will be a single number greater
+	 * than or equal to 0 and less than this.limit (though this range may be
+	 * offset by the value of `this.start`) which the item values represent.
 	 * 
-	 * should be determining underflows and overflows here, instead of in Dice.
-	 * How do we return values for these error conditions? If they are both
-	 * null, we might have to set a property to hold an error code (text or
-	 * number).
+	 * If `this.items` and `this.faces` are inadequate to cover the 0...limit
+	 * range, return '-'. If the item values produce multiple sets of tallies,
+	 * and the tally falls in a set which is incomplete (containing less than
+	 * the whole range), return '+'. Otherwise, return the tally as a number.
 	 */
-	result(values: number[] = [], bases: number[] = []): number|null {
-		/* by default (when no values are supplied), return a random number in range */
-		if (!values.length) return Math.floor(Math.random() * this.size) + this.start;
-		let result = 0;
-		console.log(`Values: ${values}`);
-		for (let i in values) {
-			const position = values.length - 1 - Number(i);
-			const base = (bases.length == values.length) ? bases[i] : this.faces;
-			const power = base ** position;
-			let value = (values[i] - this.valueOffset) % base;
-			value = value * power;
-			console.log(`i: ${i} Position: ${position} Base: ${base} Power: ${power} Value: ${value}`);
-			result += value;
-		}
-		return result;
-	}
-
-	spin(values: number[] = []): number|string {
-		let spinResult: number|string = '';
+	tally(values: number[] = []): number|string {
+		let tally: number|string;
 		const maximumResult = this.faces ** this.items;
-		if (maximumResult < this.size) spinResult = '-'; /* can't cover range--underflow */
+		if (maximumResult < this.limit) tally = '-'; /* can't cover range--underflow */
 		else {
-			const groupings = Math.floor(maximumResult / this.size);
-			const spinLimit = (groupings * this.size) - 1;
+			const excess = maximumResult % this.limit
+			const largestValidSum = maximumResult - excess - 1;
 			let sum = 0;
 			for (let i in values) {
 				const position = values.length - 1 - Number(i); // if 3 values, position is 2, 1, 0
 				const base = this.faces;
 				const power = base ** position;                 // if 6 faces, power is 36, 6, 1
-				// let value = (values[i] - this.valueOffset) % base;
 				let value = (values[i] - this.valueOffset) * power;
-				console.log(`i: ${i} Position: ${position} Base: ${base} Power: ${power} Value: ${value}`);
 				sum += value;
 			}
-			if (sum > spinLimit) spinResult = '+'; /* overflows range */
-			else {
-				// ### what is wrong here??????
-				if (sum > this.size) spinResult = (sum % this.size);
-				else spinResult = sum;
-				spinResult += this.start;
-			}
-
+			if (sum > largestValidSum) tally = '+'; /* overflows range */
+			else tally = sum % this.limit;
 		}
-		return spinResult;
+		return tally;
 	}
 
 	/**
-	 * In addition to `result`, we should have a `returnCode` method that can be
-	 * called when `result` returns null. Possible return codes: 0 (all good),
-	 * 1: (insufficient items * faces for size) 2: (result out of bounds).
-	 * 
-	 * Maybe we can avoid null returns by returning 0 on errors and setting
-	 * returnCode!
+	 * ### todo
+	 * Given items, faces, and limit, report all possible outcomes by looping
+	 * over each combination. Report can be written as an array of strings which
+	 * is returned to the caller.
 	 */
+	dump() {
+		const outcomes: string[] = [];
+		/**
+		 * for each possible set of item values, call tally and push string on `outcomes`.
+		 */
+		outcomes.push('not yet implemented');
+		return outcomes;
+	}
 }
 
 export class Dice extends Range {
 
-	constructor(items: number, faces: number, limit: number, start = 0) {
-		super(items, faces, limit, start);
+	constructor(items: number, faces: number, limit: number) {
+		super(items, faces, limit);
 	}
 
 	displayValue(value: number) {
@@ -148,57 +116,12 @@ export class Dice extends Range {
 		return displayValue;
 	}
 
-	result(values: number[]) {
-		let result: number|null = 0;
-
-		/* ### our special cases ... generalize? */
-		if (this.items == 3 && this.faces == 12 && this.size == 64) {
-			const bases = [4,4,4];
-			result = super.result(values, bases);
-		}
-		else if (this.items == 3 && this.faces == 6 && this.size == 64) {
-			// const bases = [6,6,6];
-			// result = super.result(values, bases);
-			result = super.result(values);
-		}
-
-		else {
-			// ### all a big mess ... what's wrong?
-			const maximumResult = this.faces ** this.items
-			if (maximumResult < this.size) result = null; /* can't cover range */
-			else {
-				const groupings = Math.floor(maximumResult / this.size);
-				const maximumValidResult = groupings * this.size - 1;
-				result = super.result(values)!;
-				if (result > maximumValidResult) result = null; /* overflows range */
-				else result %= this.size;
-
-			}
-			// if ((this.faces ** this.items) < this.size) {
-			// 	/* values cannot express all results in range 0 ... this.size - 1 */
-			// 	result = null;
-			// }
-			// else {
-			// 	const base = this.faces;
-			// 	result = 0;
-			// 	for (let i in values) {
-			// 		const power = base ** Number(i);
-			// 		let value = (values[i] - 1) % base; /* 1...12 becomes 0...11 */
-			// 		value = value * power;
-			// 		result += value;
-			// 	}
-			// 	if (result >= this.items * this.size) result = null;
-			// 	else result %= this.size;
-			// }
-		}
-		return result;
-	}
 }
 
 export class Coins extends Range {
 	
-	constructor(items: number) {
-		super(items);
+	constructor(items: number, limit: number) {
+		super(items, 2, limit);
 	}
 
 	displayOption(option: number) {
@@ -221,12 +144,12 @@ export class Coins extends Range {
 	 * negative. We are relying on the fact that, by default, HEADS is 1 and
 	 * TAILS is 2.
 	 */
-	spin(values: number[]) {
+	tally(values: number[]) {
 		const valuesCopy = Array.from(values);
 		for (let i in valuesCopy) {
 			valuesCopy[i] = (valuesCopy[i] == 1) ? 2 : 1; /* swap values */
 		}
-		return super.spin(valuesCopy);
+		return super.tally(valuesCopy);
 	}
 }
 
@@ -236,7 +159,7 @@ export class Seasonal extends Range { /** ### Calendric? */
 		super(1, 2, limit);
 	}
 	
-	result() {
+	tally() {
 		const now = new Date();
 		const dailyMilliseconds = 24 * 60 * 60 * 1000;
 		const utcNow = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
@@ -276,17 +199,3 @@ export class Seasonal extends Range { /** ### Calendric? */
 		return season;
 	}
 }
-
-// produces 16 invalid out of 144 total (11%)
-/*
-	const die1 = [0,1,2,3,4,5,6,7,8,9,10,11];
-	const die2 = [0,1,2,3,4,5,6,7,8,9,10,11];
-	for (let i in die1) {
-		for (let j in die2) {
-			const product = (die1[i] * 12) + die2[j];
-			const result = product % 64;
-			console.log(`${result} (${die1[i]}, ${die2[j]})`);
-			console.log(`${result} (${die1[i]}, ${die2[j]})`);
-		}
-	}
-*/

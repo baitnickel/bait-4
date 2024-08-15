@@ -2,15 +2,42 @@ import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
 import { Markup } from './lib/markup.js';
 import { MarkdownDocument } from './lib/md.js';
+/**
+ * Example: http://localhost/bait-4/index.html?page=articles&path=Content/drafts
+ *
+ * The `path` argument should be a list of URIs. (Advice to user: simplify your
+ * content file structure before complicating the value of `path`.) Each URI
+ * represents a single Article document or a folder; if it's a folder, add all
+ * the (eligible) Article documents to the Batch list. When the Batch contains
+ * multiple Articles, add navigation elements to the page.
+ *
+ * Optionally, render a "feedback" button--email link; include article metadata
+ * in email subject/body (article URI, revision, etc.).
+ */
+/**
+ * Define the Page object, and global types required, and any global objects
+ * required. For example:
+ *		type RangeType = {
+ *			text: string;
+ *			items: number;
+ *			faces: number;
+ *		}
+ *		const ThisPage = new Page();
+ *		let RangeTypeSelection: HTMLDivElement;
+ *		let RangeValueSelection: HTMLDivElement;
+ *		let RangeValueDisplay: HTMLDivElement;
+ *		let IChingDisplay: HTMLDivElement;
+ */
+const ThisPage = new Page();
 export function render() {
-    const page = new Page();
-    const articlesIndex = `${page.site}/Indices/articles.json`;
+    // const page = new Page();
+    const articlesIndex = `${ThisPage.site}/Indices/articles.json`;
     /** @todo should support multiple paths */
-    const pagePath = (page.parameters.get('path')) ? page.parameters.get('path') : '';
+    const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path') : '';
     const eligiblePaths = [pagePath];
     /** @todo Should float top navigation (buttons) at the top of the window */
-    const topNavigation = page.appendContent('#top-navigation');
-    const articleElement = page.appendContent('#main-article article');
+    const topNavigation = ThisPage.appendContent('#top-navigation');
+    const articleElement = ThisPage.appendContent('#main-article article');
     const firstButton = addButton(topNavigation, 'First');
     const previousButton = addButton(topNavigation, 'Previous');
     const nextButton = addButton(topNavigation, 'Next');
@@ -19,6 +46,14 @@ export function render() {
     let articleIndex = 0;
     /**
      * Define the button 'click' event listeners
+     *
+     * These buttons are quite simple and primitive--there's room for much improvement here, in terms of a nice UI.
+     *
+     * The buttons need to be more readily available--maybe a mouse-over/popup
+     * menu somewhere, maybe just appearing both above and below the article.
+     *
+     * We need to simplify the structures here--can we create a Map of button
+     * objects, with keys such as 'first', 'previous', etc.?
      */
     firstButton.addEventListener('click', () => {
         if (paths.length) {
@@ -52,7 +87,7 @@ export function render() {
     Fetch.map(articlesIndex).then((articles) => {
         for (const path of articles.keys()) {
             if (eligible(path, eligiblePaths))
-                paths.push(`${page.site}/${path}`);
+                paths.push(`${ThisPage.site}/${path}`);
         }
         displayArticle(articleElement, paths[articleIndex]);
     });

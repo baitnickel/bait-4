@@ -314,6 +314,10 @@ pre code { /* fenced code blocks */
 	background-color: #5480df;
 }
 
+.article-navigation-button {
+	margin: 0 .3em;
+}
+
 /* audio */
 #controls-block {
 	padding: .5em 0;

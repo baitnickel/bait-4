@@ -33,89 +33,115 @@ import { MarkdownDocument } from './lib/md.js';
  */
 
 const ThisPage = new Page();
+const ArticlesIndex = `${ThisPage.site}/Indices/articles.json`;
+const Articles = await Fetch.map<T.FileStats>(ArticlesIndex);
 
 export function render() {
-	// const page = new Page();
-
-	const articlesIndex = `${ThisPage.site}/Indices/articles.json`;
 	/** @todo should support multiple paths */
 	const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path') : ''; 
 	const eligiblePaths = [pagePath!];
 	/** @todo Should float top navigation (buttons) at the top of the window */
 	const topNavigation = ThisPage.appendContent('#top-navigation'); 
 	const articleElement = ThisPage.appendContent('#main-article article');
-	const firstButton = addButton(topNavigation, 'First');
-	const previousButton = addButton(topNavigation, 'Previous');
-	const nextButton = addButton(topNavigation, 'Next');
-	const lastButton = addButton(topNavigation, 'Last');
-
-	const paths: string[] = []; /* will contain a list of eligible map keys */
-	let articleIndex = 0;
-	
-	/**
-	 * Define the button 'click' event listeners
-	 * 
-	 * These buttons are quite simple and primitive--there's room for much improvement here, in terms of a nice UI.
-	 * 
-	 * The buttons need to be more readily available--maybe a mouse-over/popup
-	 * menu somewhere, maybe just appearing both above and below the article.
-	 * 
-	 * We need to simplify the structures here--can we create a Map of button
-	 * objects, with keys such as 'first', 'previous', etc.?
-	 */
-	firstButton.addEventListener('click', () => {
-		if (paths.length) {
-			articleIndex = 0;
-			displayArticle(articleElement, paths[articleIndex]);
-		}
-	});
-	previousButton.addEventListener('click', () => {
-		if (articleIndex > 0) {
-			articleIndex -= 1;
-			displayArticle(articleElement, paths[articleIndex]);
-		}
-	});
-	nextButton.addEventListener('click', () => {
-		if (articleIndex < paths.length - 1) {
-			articleIndex += 1;
-			displayArticle(articleElement, paths[articleIndex]);
-		}
-	});
-	lastButton.addEventListener('click', () => {
-		if (articleIndex < paths.length - 1) {
-			articleIndex = paths.length - 1;
-			displayArticle(articleElement, paths[articleIndex]);
-		}
-	});
 
 	/**
 	 * Read the `articles` index file and add the keys of eligible entries into
 	 * the `paths` array. An index key contains the path to the markdown file.
 	 * Display the initial article, as referenced by `articleIndex` (usually 0).
 	 */
-	Fetch.map<T.FileStats>(articlesIndex).then((articles) => {
-		for (const path of articles.keys()) {
-			if (eligible(path, eligiblePaths)) paths.push(`${ThisPage.site}/${path}`);
-		}
-		displayArticle(articleElement, paths[articleIndex]);
-	});
+	const paths: string[] = []; /* will contain a list of eligible article URIs */
+	let articleIndex = 0;
+	for (const path of Articles.keys()) {
+		if (eligible(path, eligiblePaths)) paths.push(`${ThisPage.site}/${path}`);
+	}
+	displayArticle(articleElement, paths[articleIndex]);
+
+	if (paths.length > 1) {
+		/**
+		 * Define article navigation buttons and their 'click' event listeners.
+		 * 
+		 * This section of code needs access to:
+		 * - articleIndex - is this a showstopper? it must be updated globally in the click listener
+		 * - topNavigation
+		 * - articleElement
+		 * - paths
+		 * - displayArticle()
+		 * 
+		 * Instead of each listener calling `displayArticle`, could they not
+		 * just return a new `articleIndex`?
+		 */
+		const firstButton = addButton(topNavigation, 'First', false);
+		const previousButton = addButton(topNavigation, 'Previous', false);
+		const nextButton = addButton(topNavigation, 'Next');
+		const lastButton = addButton(topNavigation, 'Last');
+
+		firstButton.addEventListener('click', () => {
+			if (paths.length) {
+				articleIndex = 0;
+				firstButton.disabled = true;
+				previousButton.disabled = true;
+				lastButton.disabled = false;
+				nextButton.disabled = false;
+				displayArticle(articleElement, paths[articleIndex]);
+			}
+		});
+		previousButton.addEventListener('click', () => {
+			if (paths.length && articleIndex > 0) {
+				articleIndex -= 1;
+				lastButton.disabled = false;
+				nextButton.disabled = false;
+				if (articleIndex == 0) {
+					firstButton.disabled = true;
+					previousButton.disabled = true;
+				}
+				displayArticle(articleElement, paths[articleIndex]);
+			}
+		});
+		nextButton.addEventListener('click', () => {
+			if (paths.length && articleIndex < paths.length - 1) {
+				articleIndex += 1;
+				firstButton.disabled = false;
+				previousButton.disabled = false;
+				if (articleIndex == paths.length - 1) {
+					lastButton.disabled = true;
+					nextButton.disabled = true;
+				}
+				displayArticle(articleElement, paths[articleIndex]);
+			}
+		});
+		lastButton.addEventListener('click', () => {
+			if (paths.length && articleIndex < paths.length - 1) {
+				articleIndex = paths.length - 1;
+				firstButton.disabled = false;
+				previousButton.disabled = false;
+				lastButton.disabled = true;
+				nextButton.disabled = true;
+				displayArticle(articleElement, paths[articleIndex]);
+			}
+		});
+	}
 }
 
-function addButton(targetElements: HTMLElement, label: string) {
+function addButton(targetElement: HTMLElement, label: string, enabled = true) {
 	const button = document.createElement("button");
+	button.disabled = !enabled;
+	button.className = 'article-navigation-button';
 	button.innerText = label;
-	targetElements.append(button);
+	targetElement.append(button);
 	return button;
 }
 
 /**
  * A given `path` is eligible if it begins with any of the paths listed in the
  * given `eligiblePaths` array. Returns true or false.
+ * 
+ * For now, we assume that a path that does not end with ".md" or "/" is a
+ * directory, and we add a trailing "/".
  */
 function eligible(path: string, eligiblePaths: string[]) {
 	let eligible = false;
 	for (let eligiblePath of eligiblePaths) {
-		if (!eligiblePath.endsWith('/')) eligiblePath += '/';
+		if (!(eligiblePath.endsWith('.md') || eligiblePath.endsWith('/'))) eligiblePath += '/';
 		if (path.startsWith(eligiblePath)) {
 			eligible = true;
 			break;

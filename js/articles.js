@@ -2,6 +2,7 @@ import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
 import { Markup } from './lib/markup.js';
 import { MarkdownDocument } from './lib/md.js';
+import * as Widget from './lib/widgits.js';
 /**
  * Example: http://localhost/bait-4/index.html?page=articles&path=Content/drafts
  *
@@ -31,6 +32,7 @@ import { MarkdownDocument } from './lib/md.js';
 const ThisPage = new Page();
 const ArticlesIndex = `${ThisPage.site}/Indices/articles.json`;
 const Articles = await Fetch.map(ArticlesIndex);
+let Counter = 0;
 export function render() {
     /** @todo should support multiple paths */
     const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path') : '';
@@ -64,27 +66,30 @@ export function render() {
          * Instead of each listener calling `displayArticle`, could they not
          * just return a new `articleIndex`?
          */
-        const firstButton = addButton(topNavigation, 'First', false);
+        // const firstButton = addButton(topNavigation, 'First', false);
+        const firstButton = new Widget.FirstButton(topNavigation);
         const previousButton = addButton(topNavigation, 'Previous', false);
         const nextButton = addButton(topNavigation, 'Next');
         const lastButton = addButton(topNavigation, 'Last');
-        firstButton.addEventListener('click', () => {
-            if (paths.length) {
-                articleIndex = 0;
-                firstButton.disabled = true;
-                previousButton.disabled = true;
-                lastButton.disabled = false;
-                nextButton.disabled = false;
-                displayArticle(articleElement, paths[articleIndex]);
-            }
-        });
+        // firstButton.addEventListener('click', () => {
+        // 	Counter += 1;
+        // 	console.log(Counter);
+        // 	if (paths.length) {
+        // 		articleIndex = 0;
+        // 		firstButton.disabled = true;
+        // 		previousButton.disabled = true;
+        // 		lastButton.disabled = false;
+        // 		nextButton.disabled = false;
+        // 		displayArticle(articleElement, paths[articleIndex]);
+        // 	}
+        // });
         previousButton.addEventListener('click', () => {
             if (paths.length && articleIndex > 0) {
                 articleIndex -= 1;
                 lastButton.disabled = false;
                 nextButton.disabled = false;
                 if (articleIndex == 0) {
-                    firstButton.disabled = true;
+                    // firstButton.disabled = true;
                     previousButton.disabled = true;
                 }
                 displayArticle(articleElement, paths[articleIndex]);
@@ -93,7 +98,7 @@ export function render() {
         nextButton.addEventListener('click', () => {
             if (paths.length && articleIndex < paths.length - 1) {
                 articleIndex += 1;
-                firstButton.disabled = false;
+                // firstButton.disabled = false;
                 previousButton.disabled = false;
                 if (articleIndex == paths.length - 1) {
                     lastButton.disabled = true;
@@ -105,7 +110,7 @@ export function render() {
         lastButton.addEventListener('click', () => {
             if (paths.length && articleIndex < paths.length - 1) {
                 articleIndex = paths.length - 1;
-                firstButton.disabled = false;
+                // firstButton.disabled = false;
                 previousButton.disabled = false;
                 lastButton.disabled = true;
                 nextButton.disabled = true;

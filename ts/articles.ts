@@ -3,7 +3,7 @@ import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import { Markup } from './lib/markup.js';
 import { MarkdownDocument } from './lib/md.js';
-import * as Widget from './lib/widgits.js';
+import * as Widget from './lib/widgets.js';
 
 /**
  * Example: http://localhost/bait-4/index.html?page=articles&path=Content/drafts
@@ -33,107 +33,51 @@ import * as Widget from './lib/widgits.js';
  *		let IChingDisplay: HTMLDivElement;
  */
 
+/** @todo perhaps support multiple paths in the URL query? */
+/** @todo perhaps float top navigation (buttons) at the top of the window? */
+
 const ThisPage = new Page();
 const ArticlesIndex = `${ThisPage.site}/Indices/articles.json`;
 const Articles = await Fetch.map<T.FileStats>(ArticlesIndex);
-let Counter = 0;
+const SelectedArticles: string[] = []; /* will contain a list of eligible article URIs */
+let ArticleElement: HTMLElement; 
 
 export function render() {
-	/** @todo should support multiple paths */
 	const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path') : ''; 
 	const eligiblePaths = [pagePath!];
-	/** @todo Should float top navigation (buttons) at the top of the window */
 	const topNavigation = ThisPage.appendContent('#top-navigation'); 
-	const articleElement = ThisPage.appendContent('#main-article article');
+	ArticleElement = ThisPage.appendContent('#main-article article');
 
 	/**
 	 * Read the `articles` index file and add the keys of eligible entries into
-	 * the `paths` array. An index key contains the path to the markdown file.
+	 * the `SelectedArticles` array. An index key contains the path to the markdown file.
 	 * Display the initial article, as referenced by `articleIndex` (usually 0).
 	 */
-	const paths: string[] = []; /* will contain a list of eligible article URIs */
-	let articleIndex = 0;
 	for (const path of Articles.keys()) {
-		if (eligible(path, eligiblePaths)) paths.push(`${ThisPage.site}/${path}`);
+		if (eligible(path, eligiblePaths)) SelectedArticles.push(`${ThisPage.site}/${path}`);
 	}
-	displayArticle(articleElement, paths[articleIndex]);
+	if (SelectedArticles.length > 0) displayArticle(0);
 
-	if (paths.length > 1) {
-		/**
-		 * Define article navigation buttons and their 'click' event listeners.
-		 * 
-		 * This section of code needs access to:
-		 * - articleIndex - is this a showstopper? it must be updated globally in the click listener
-		 * - topNavigation
-		 * - articleElement
-		 * - paths
-		 * - displayArticle()
-		 * 
-		 * Instead of each listener calling `displayArticle`, could they not
-		 * just return a new `articleIndex`?
-		 */
-		// const firstButton = addButton(topNavigation, 'First', false);
-		const firstButton = new Widget.FirstButton(topNavigation)
-		const previousButton = addButton(topNavigation, 'Previous', false);
-		const nextButton = addButton(topNavigation, 'Next');
-		const lastButton = addButton(topNavigation, 'Last');
-
-		// firstButton.addEventListener('click', () => {
-		// 	Counter += 1;
-		// 	console.log(Counter);
-		// 	if (paths.length) {
-		// 		articleIndex = 0;
-		// 		firstButton.disabled = true;
-		// 		previousButton.disabled = true;
-		// 		lastButton.disabled = false;
-		// 		nextButton.disabled = false;
-		// 		displayArticle(articleElement, paths[articleIndex]);
-		// 	}
-		// });
-		previousButton.addEventListener('click', () => {
-			if (paths.length && articleIndex > 0) {
-				articleIndex -= 1;
-				lastButton.disabled = false;
-				nextButton.disabled = false;
-				if (articleIndex == 0) {
-					// firstButton.disabled = true;
-					previousButton.disabled = true;
-				}
-				displayArticle(articleElement, paths[articleIndex]);
-			}
-		});
-		nextButton.addEventListener('click', () => {
-			if (paths.length && articleIndex < paths.length - 1) {
-				articleIndex += 1;
-				// firstButton.disabled = false;
-				previousButton.disabled = false;
-				if (articleIndex == paths.length - 1) {
-					lastButton.disabled = true;
-					nextButton.disabled = true;
-				}
-				displayArticle(articleElement, paths[articleIndex]);
-			}
-		});
-		lastButton.addEventListener('click', () => {
-			if (paths.length && articleIndex < paths.length - 1) {
-				articleIndex = paths.length - 1;
-				// firstButton.disabled = false;
-				previousButton.disabled = false;
-				lastButton.disabled = true;
-				nextButton.disabled = true;
-				displayArticle(articleElement, paths[articleIndex]);
-			}
-		});
+	/**
+	 * Define article navigation buttons and their 'click' event listeners.
+	 */
+	if (SelectedArticles.length > 1) {
+		const navigator = new Widget.Navigator(SelectedArticles.length, displayArticle);
+		addButton(navigator.firstButton, topNavigation, '|<');
+		addButton(navigator.previousButton, topNavigation, '<');
+		addButton(navigator.nextButton, topNavigation, '>');
+		addButton(navigator.lastButton, topNavigation, '>|');
 	}
 }
 
-function addButton(targetElement: HTMLElement, label: string, enabled = true) {
-	const button = document.createElement("button");
-	button.disabled = !enabled;
+/**
+ * Add the given `button` to the `targetElement`, assigning the given `label` to
+ * the button.
+ */
+function addButton(button: HTMLButtonElement, targetElement: HTMLElement, label: string) {
 	button.className = 'article-navigation-button';
 	button.innerText = label;
 	targetElement.append(button);
-	return button;
 }
 
 /**
@@ -156,10 +100,13 @@ function eligible(path: string, eligiblePaths: string[]) {
 }
 
 /**
- * Given a `path`, fetch the corresponding markdown file, mark it up, and
- * display the HTML in the given `targetElement`.
+ * Given the global `SelectedArticles` array and the `index` of the selected
+ * article, fetch the corresponding markdown file, mark it up, and display the
+ * HTML in the global `ArticleElement`. This function is called by the
+ * Widget.Navigator object.
  */
-function displayArticle(targetElement: HTMLElement, path: string) {
+function displayArticle(index: number) {
+	const path = SelectedArticles[index];
 	Fetch.text(path).then((fileText) => {
 		const markdown = new MarkdownDocument(fileText);
 		let title = '';
@@ -170,6 +117,6 @@ function displayArticle(targetElement: HTMLElement, path: string) {
 		}
 		const heading = (title) ? `# ${title}\n` : ''
 		const article = Markup(heading + markdown.text);
-		targetElement.innerHTML = article;
+		ArticleElement.innerHTML = article;
 	});
 }

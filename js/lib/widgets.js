@@ -1,3 +1,4 @@
+/** @todo add a `counter` widget property, being a "1 of N" text counter */
 export class Navigator {
     constructor(displayFunction, documents, target) {
         this.index = 0;
@@ -56,7 +57,7 @@ export class Navigator {
     }
     /**
      * Add the given `button` to the `targetElement`, assigning the given
-     * `label` and class name to the button.
+     * `label` and `className` to the button.
      */
     addButton(button, targetElement, label, className) {
         button.innerText = label;

@@ -1,3 +1,5 @@
+/** @todo add a `counter` widget property, being a "1 of N" text counter */
+
 export type DisplayFunction = (documents: string[], index: number, target: HTMLElement) => void;
 
 export class Navigator {
@@ -72,7 +74,7 @@ export class Navigator {
 
 	/**
 	 * Add the given `button` to the `targetElement`, assigning the given
-	 * `label` and class name to the button.
+	 * `label` and `className` to the button.
 	 */
 	addButton(button: HTMLButtonElement, targetElement: HTMLElement, label: string, className: string) {
 		button.innerText = label;

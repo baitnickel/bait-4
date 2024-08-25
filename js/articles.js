@@ -40,23 +40,17 @@ export function render() {
     const topNavigation = ThisPage.appendContent('#top-navigation');
     const articleElement = ThisPage.appendContent('#main-article article');
     /**
-     * Read the `articles` index file and add the keys of eligible entries into
-     * the `selectedArticles` array. An index key contains the path to the markdown file.
-     * Display the initial article, as referenced by `articleIndex` (usually 0).
+     * Select Articles (documents) from the full list of Articles. If at least
+     * one Article is selected, display the first article.
      */
-    const selectedArticles = [];
-    for (const path of Articles.keys()) {
-        if (eligible(path, eligiblePaths))
-            selectedArticles.push(`${ThisPage.site}/${path}`);
-    }
+    const selectedArticles = selectDocuments(Array.from(Articles.keys()), eligiblePaths);
     if (selectedArticles.length > 0)
-        displayArticle(selectedArticles, 0, articleElement);
+        displayDocument(selectedArticles, 0, articleElement);
     /**
-     * Define article navigation buttons and their 'click'
-     * event listeners.
+     * When there are multiple Articles to be displayed, define navigation buttons.
      */
     if (selectedArticles.length > 1) {
-        const navigator = new Widget.Navigator(displayArticle, selectedArticles, articleElement);
+        const navigator = new Widget.Navigator(displayDocument, selectedArticles, articleElement);
         navigator.addButton(navigator.firstButton, topNavigation, '|<', 'article-navigation-button');
         navigator.addButton(navigator.previousButton, topNavigation, '<', 'article-navigation-button');
         navigator.addButton(navigator.nextButton, topNavigation, '>', 'article-navigation-button');
@@ -64,30 +58,28 @@ export function render() {
     }
 }
 /**
- * A given `path` is eligible if it begins with any of the paths listed in the
- * given `eligiblePaths` array. Returns true or false.
- *
- * For now, we assume that a path that does not end with ".md" or "/" is a
- * directory, and we add a trailing "/".
+ * Only markdown (`.md`) files and directories (folders) are eligible, and only
+ * those whose path names start with one of the given `eligiblePaths`.
  */
-function eligible(path, eligiblePaths) {
-    let eligible = false;
-    for (let eligiblePath of eligiblePaths) {
-        if (!(eligiblePath.endsWith('.md') || eligiblePath.endsWith('/')))
-            eligiblePath += '/';
-        if (path.startsWith(eligiblePath)) {
-            eligible = true;
-            break;
+function selectDocuments(paths, eligiblePaths) {
+    const selectedDocuments = [];
+    for (let path of paths) {
+        for (let eligiblePath of eligiblePaths) {
+            if (!(path.endsWith('.md') || path.endsWith('/')))
+                path += '/';
+            if (path.startsWith(eligiblePath))
+                selectedDocuments.push(`${ThisPage.site}/${path}`);
         }
     }
-    return eligible;
+    return selectedDocuments;
 }
 /**
- * Given the `selectedArticles` array and the `index` of the selected article,
- * fetch the corresponding markdown file, mark it up, and display the HTML in
- * the `articleElement`. This function is called by the Widget.Navigator object.
+ * Given the `documents` array and the `index` of a selected document, fetch the
+ * corresponding markdown file, mark it up, and display the HTML in the `target`
+ * HTML element. This function is most often called by the event listeners in
+ * the Widget.Navigator object.
  */
-function displayArticle(documents, index, target) {
+function displayDocument(documents, index, target) {
     const path = documents[index];
     Fetch.text(path).then((fileText) => {
         const markdown = new MarkdownDocument(fileText);
@@ -100,7 +92,7 @@ function displayArticle(documents, index, target) {
                 title = matches[1];
         }
         const heading = (title) ? `# ${title}\n` : '';
-        const article = Markup(heading + markdown.text);
-        target.innerHTML = article;
+        const markedUpText = Markup(heading + markdown.text);
+        target.innerHTML = markedUpText;
     });
 }

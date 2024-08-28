@@ -32,36 +32,36 @@ import * as Widget from './lib/widgets.js';
 /** @todo perhaps support multiple paths in the URL query? */
 /** @todo perhaps float top navigation (buttons) at the top of the window? */
 const ThisPage = new Page();
+const NavigationElement = ThisPage.appendContent('#top-navigation');
+const ArticleElement = ThisPage.appendContent('#main-article article');
+const ProgressElement = document.createElement('span');
+ProgressElement.className = 'article-navigation-progress';
 const ArticlesIndex = `${ThisPage.site}/Indices/articles.json`;
 const Articles = await Fetch.map(ArticlesIndex);
 export function render() {
     const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path') : '';
     const eligiblePaths = [pagePath];
-    const topNavigation = ThisPage.appendContent('#top-navigation');
-    const articleElement = ThisPage.appendContent('#main-article article');
     /**
-     * Select Articles (documents) from the full list of Articles. If at least
-     * one Article is selected, display the first article.
+     * Select Articles (markdown documents) from the full list of Articles. If
+     * at least one Article is selected, display the first article.
      */
-    const selectedArticles = selectDocuments(Array.from(Articles.keys()), eligiblePaths);
+    const selectedArticles = selectArticles(Array.from(Articles.keys()), eligiblePaths);
     if (selectedArticles.length > 0)
-        displayDocument(selectedArticles, 0, articleElement);
+        displayArticle(selectedArticles, 0);
     /**
      * When there are multiple Articles to be displayed, define navigation buttons.
      */
     if (selectedArticles.length > 1) {
-        const navigator = new Widget.Navigator(displayDocument, selectedArticles, articleElement);
-        navigator.addButton(navigator.firstButton, topNavigation, '|<', 'article-navigation-button');
-        navigator.addButton(navigator.previousButton, topNavigation, '<', 'article-navigation-button');
-        navigator.addButton(navigator.nextButton, topNavigation, '>', 'article-navigation-button');
-        navigator.addButton(navigator.lastButton, topNavigation, '>|', 'article-navigation-button');
+        const navigator = new Widget.Navigator(selectedArticles, displayArticle);
+        navigator.addButtons(NavigationElement, 'article-navigation-button');
+        NavigationElement.append(ProgressElement);
     }
 }
 /**
  * Only markdown (`.md`) files and directories (folders) are eligible, and only
  * those whose path names start with one of the given `eligiblePaths`.
  */
-function selectDocuments(paths, eligiblePaths) {
+function selectArticles(paths, eligiblePaths) {
     const selectedDocuments = [];
     for (let path of paths) {
         for (let eligiblePath of eligiblePaths) {
@@ -74,25 +74,26 @@ function selectDocuments(paths, eligiblePaths) {
     return selectedDocuments;
 }
 /**
- * Given the `documents` array and the `index` of a selected document, fetch the
- * corresponding markdown file, mark it up, and display the HTML in the `target`
- * HTML element. This function is most often called by the event listeners in
- * the Widget.Navigator object.
+ * Given the `articles` array and the `index` of a selected article, fetch the
+ * corresponding markdown file, mark it up, and display the HTML in the target
+ * HTML element. This function is usually called by the event listeners in the
+ * Widget.Navigator object.
  */
-function displayDocument(documents, index, target) {
-    const path = documents[index];
-    Fetch.text(path).then((fileText) => {
+function displayArticle(articles, index) {
+    const articlePath = articles[index];
+    Fetch.text(articlePath).then((fileText) => {
         const markdown = new MarkdownDocument(fileText);
         let title = '';
         if ('title' in markdown.metadata)
             title = markdown.metadata['title'];
         else { /* use file name as title */
-            const matches = path.match(/.*\/(.*)\..*$/);
+            const matches = articlePath.match(/.*\/(.*)\..*$/);
             if (matches !== null)
                 title = matches[1];
         }
         const heading = (title) ? `# ${title}\n` : '';
         const markedUpText = Markup(heading + markdown.text);
-        target.innerHTML = markedUpText;
+        ArticleElement.innerHTML = markedUpText;
+        ProgressElement.innerText = `${index + 1} of ${articles.length}`;
     });
 }

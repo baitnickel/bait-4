@@ -20,6 +20,7 @@ export class Page {
         this.url = window.location.origin + window.location.pathname;
         this.parameters = new URLSearchParams(window.location.search);
         this.name = this.parameters.get('page');
+        this.feedback = '';
         /** get module file statistics from the Pages index map */
         let fileStats = null;
         if (this.name !== null && Pages.has(this.name))
@@ -81,7 +82,13 @@ export class Page {
         inputElement.size = 30;
         // inputElement.height = 15;
         /* Event listener */
-        inputElement.addEventListener('change', processInputText);
+        // inputElement.addEventListener('change', processInputText);
+        inputElement.addEventListener('change', (e) => {
+            this.feedback = inputElement.value;
+            if (this.feedback)
+                alert(`Feedback will be sent to: ${this.feedback}`);
+            inputElement.value = '';
+        });
         this.header.append(inputElement);
         /* Event Listener */
         function processInputText() {
@@ -89,10 +96,10 @@ export class Page {
              * Remove non-word and non-whitespace characters, trim both ends,
              * and replace all whitespace strings with a single space.
              */
-            let cleanText = inputElement.value.replace(/[^\w\s]/gi, '');
-            cleanText = cleanText.trim();
-            cleanText = cleanText.replace(/\s+/gi, ' ');
-            alert(`Clean Text: ${cleanText}`);
+            // let cleanText = inputElement.value.replace(/[^\w\s]/gi, '');
+            // cleanText = cleanText.trim();
+            // cleanText = cleanText.replace(/\s+/gi, ' ');
+            // alert(`Clean Text: ${cleanText}`);
             /**
              * Rather than simply display an alert, what we need to do here is
              * write cookies containing the encrypted version of the text

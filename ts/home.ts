@@ -35,6 +35,7 @@ export function render() {
 		const testCollection = true;
 		const testMap = false;
 		const testMarkdown = true;
+		const testEmail = true;
 
 		if (testCollection) {
 			const songsIndexFile = `${page.site}/Indices/fakesheets.json`;
@@ -102,6 +103,18 @@ export function render() {
 					const paragraph = page.appendParagraph(TestMarkdown, '');
 					paragraph.innerHTML = html;
 				}
+			});
+		}
+
+		if (testEmail) {
+			const division = page.appendContent();
+			const emailButton = document.createElement('button');
+			emailButton.innerText = 'Send Feedback';
+			division.append(emailButton);
+
+			emailButton.addEventListener('click', (e) => {
+				if (!page.feedback) alert('Don\'t know who to send feedback to!');
+				else window.location.href = `mailto:${page.feedback}?subject=${page.url}`;
 			});
 		}
 	}

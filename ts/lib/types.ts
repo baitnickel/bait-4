@@ -289,14 +289,28 @@ type Journal /* JournalEntry */ = { /* keyed by uri */
 // type ParkAccount = {
 // 	account: { color: string };
 // }
-export type Camper = { /* keyed by camper name */
-	color: string;
+// export type Camper = { /* keyed by camper name */
+// 	color: string;
+// }
+
+export type CampCosts = {
+	site: number; /* per-night campsite cost */
+	cabin: number; /* per-night cabin cost */
+	storage: number; /* per-year storage unit cost */
+	reservation: number; /* per-site reservation fee */
+	cancellation: number; /* per-site cancellation fee */
+}
+export type CampAccount = {
+	name: string; /* name of reservation account holder */
+	color: string; /* color associated with account */
 }
 export type Reservation = { 
 	site: string|number;
 	arrival: string; /* pseudo Date: YYYY-MM-DD */
-	days: number; /* or `nights` */
-	account: string; /* key for Camper record */
+	reserved: number; /* nights reserved */
+	cancelled: number; /* nights cancelled */
+	purchaser: string; /* key for Account record, optionally followed by "/<alias>" */
+	occupants: string; /* "<account-key>/<occupant-names>" or "?", "none", "main site", etc. */
 }
 export type ParkReservations = { /* keyed by Park name */
 	reservations: Reservation[];

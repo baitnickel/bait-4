@@ -1,41 +1,58 @@
-# The account names below must match the camper names in "campers.yaml",
-# and upper/lowercase is significant.
+# Add one row for each campsite reservation.
+#
+# Rows can be added in any order, but by convention we are keeping reservations
+# for the same year grouped together (with comments such as "# 2024" separating
+# the years), and it can make maintenance easier if rows within each year are
+# sorted by site and arrival date.
+
+# Field Values:
+# -------------
+# site: campsite number (must include the "J" prefix for cabins)
+# arrival: date in "YYYY-MM-DD" format
+# reserved: number of nights reserved
+# cancelled: number of nights cancelled (defaults to 0)
+# purchaser: key from accounts.yaml; may be followed by a slash and the actual
+#    reservation account name
+# occupants: key from accounts.yaml representing the family group occupying
+#    the site, followed by a slash and one or more occupant names. When the
+#    value of this field does not contain a slash, the whole value of this
+#    field is for info only, e.g., "?", "Base Camp", etc. (defaults to "?").
 
 smitty:
   # 2024
-  - { site: 12,   arrival: 2024-07-19, days: 6, account: Pete }
-  - { site: 12,   arrival: 2024-07-25, days: 7, account: Paul }
-  - { site: 43,   arrival: 2024-07-25, days: 7, account: Duck }
-  - { site: 47,   arrival: 2024-07-21, days: 7, account: Andrew }
-  - { site: 47,   arrival: 2024-07-28, days: 6, account: PWesley }
-  - { site: 58,   arrival: 2024-07-21, days: 7, account: James }
-  - { site: 85,   arrival: 2024-07-20, days: 7, account: Zach }
-  - { site: 85,   arrival: 2024-07-27, days: 7, account: Dan }
-  - { site: 86,   arrival: 2024-07-20, days: 7, account: Becca }
-  - { site: 86,   arrival: 2024-07-27, days: 7, account: Laurel }
-  # - { site: 88,   arrival: 2024-07-22, days: 7, account: Becca }
-  - { site: 89,   arrival: 2024-07-20, days: 7, account: James }
-  - { site: 89,   arrival: 2024-07-27, days: 7, account: James }
-  # - { site: 98,   arrival: 2024-07-21, days: 7, account: Pete }
-  - { site: J30,   arrival: 2024-07-27, days: 7, account: PWesley }
-  - { site: J105,   arrival: 2024-07-27, days: 7, account: Joni }
+  - { site: 12,   arrival: 2024-07-19, reserved: 6, cancelled: 0, purchaser: P, occupants: D/Zach Wei }
+  - { site: 12,   arrival: 2024-07-25, reserved: 7, cancelled: 4, purchaser: P/Paul, occupants: D/Zach Wei }
+  - { site: 43,   arrival: 2024-07-25, reserved: 7, cancelled: 4, purchaser: P/Duck, occupants: D/Anne Richard }
+  - { site: 47,   arrival: 2024-07-21, reserved: 7, cancelled: 0, purchaser: J/Andrew, occupants: Main Site }
+  - { site: 47,   arrival: 2024-07-28, reserved: 6, cancelled: 0, purchaser: P/PWesley, occupants: Main Site }
+  - { site: 58,   arrival: 2024-07-21, reserved: 7, cancelled: 0, purchaser: J, occupants: J/James Kristin }
+  - { site: 85,   arrival: 2024-07-20, reserved: 7, cancelled: 0, purchaser: D/Zach, occupants: J/Mycah Sarah }
+  - { site: 85,   arrival: 2024-07-27, reserved: 7, cancelled: 7, purchaser: D, occupants: ? }
+  - { site: 86,   arrival: 2024-07-20, reserved: 7, cancelled: 4, purchaser: D/Becca, occupants: ? }
+  - { site: 86,   arrival: 2024-07-27, reserved: 7, cancelled: 7, purchaser: D/Laurel, occupants: ? }
+  - { site: 88,   arrival: 2024-07-22, reserved: 7, cancelled: 7, purchaser: D/Becca, occupants: ? }
+  - { site: 89,   arrival: 2024-07-20, reserved: 7, cancelled: 0, purchaser: J, occupants: D/Dan Laurel }
+  - { site: 89,   arrival: 2024-07-27, reserved: 7, cancelled: 0, purchaser: J, occupants: D/Dan Laurel }
+  - { site: 98,   arrival: 2024-07-21, reserved: 7, cancelled: 7, purchaser: P, occupants: ? }
+  - { site: J30,  arrival: 2024-07-27, reserved: 7, cancelled: 0, purchaser: P/PWesley, occupants: J/James Kristin }
+  - { site: J105, arrival: 2024-07-27, reserved: 7, cancelled: 0, purchaser: P/Joni, occupants: P/Pete Joni Carisa }
   # 2023
-  - { site: 40,   arrival: 2023-07-22, days: 7, account: Andrew }
-  - { site: 103,  arrival: 2023-07-22, days: 7, account: Joni }
-  - { site: 95,   arrival: 2023-07-22, days: 7, account: Pete }
-  - { site: 93,   arrival: 2023-07-22, days: 7, account: Laurel }
-  - { site: 99,   arrival: 2023-07-22, days: 7, account: James }
-  - { site: 97,   arrival: 2023-07-23, days: 7, account: Becca }
-  - { site: 36,   arrival: 2023-07-23, days: 7, account: Paul }
-  - { site: J26,  arrival: 2023-07-24, days: 6, account: Becca }
-  - { site: 15,   arrival: 2023-07-28, days: 7, account: Andrew }
-  - { site: 59,   arrival: 2023-07-28, days: 7, account: Corin }
-  - { site: 95,   arrival: 2023-07-29, days: 7, account: Dan }
-  - { site: 99,   arrival: 2023-07-29, days: 7, account: PWesley }
-  - { site: 104,  arrival: 2023-07-29, days: 7, account: PWesley }
-  - { site: J105, arrival: 2023-07-29, days: 7, account: Duck }
-  - { site: 103,  arrival: 2023-07-29, days: 7, account: Carisa }
-  - { site: 40,   arrival: 2023-07-29, days: 7, account: Joni }
-  - { site: 36,   arrival: 2023-07-30, days: 6, account: Corin }
-  - { site: 97,   arrival: 2023-07-30, days: 6, account: Dan }
+  - { site: 15,   arrival: 2023-07-28, reserved: 7, cancelled: 7, purchaser: J/Andrew, occupants: ? }
+  - { site: 36,   arrival: 2023-07-23, reserved: 7, cancelled: 3, purchaser: P/Paul, occupants: D/Becca Chris }
+  - { site: 36,   arrival: 2023-07-30, reserved: 6, cancelled: 6, purchaser: J/Corin, occupants: ? }
+  - { site: 40,   arrival: 2023-07-22, reserved: 7, cancelled: 5, purchaser: J/Andrew, occupants: P/Pete Joni }
+  - { site: 40,   arrival: 2023-07-29, reserved: 7, cancelled: 7, purchaser: P/Joni, occupants: ? }
+  - { site: 59,   arrival: 2023-07-28, reserved: 7, cancelled: 0, purchaser: J/Corin, occupants: J/James Corin }
+  - { site: 93,   arrival: 2023-07-22, reserved: 7, cancelled: 0, purchaser: D/Laurel, occupants: J/James Corin }
+  - { site: 95,   arrival: 2023-07-22, reserved: 7, cancelled: 0, purchaser: P, occupants: D/Dan Laurel }
+  - { site: 95,   arrival: 2023-07-29, reserved: 7, cancelled: 0, purchaser: D, occupants: D/Dan Laurel }
+  - { site: 97,   arrival: 2023-07-23, reserved: 7, cancelled: 0, purchaser: D/Becca, occupants: all }
+  - { site: 97,   arrival: 2023-07-30, reserved: 6, cancelled: 0, purchaser: D, occupants: all }
+  - { site: 99,   arrival: 2023-07-22, reserved: 7, cancelled: 0, purchaser: J, occupants: D/Zach Wei }
+  - { site: 99,   arrival: 2023-07-29, reserved: 7, cancelled: 7, purchaser: P/PWesley, occupants: ? }
+  - { site: 103,  arrival: 2023-07-22, reserved: 7, cancelled: 2, purchaser: P/Joni, occupants: P/Carisa }
+  - { site: 103,  arrival: 2023-07-29, reserved: 7, cancelled: 7, purchaser: P/Carisa, occupants: P/Carisa }
+  - { site: 104,  arrival: 2023-07-29, reserved: 7, cancelled: 7, purchaser: P/PWesley, occupants: ? }
+  - { site: J105, arrival: 2023-07-29, reserved: 7, cancelled: 0, purchaser: P/Duck, occupants: P/Pete Joni }
+  - { site: J26,  arrival: 2023-07-24, reserved: 6, cancelled: 0, purchaser: D/Becca, occupants: P/Pete Joni }
  

@@ -1,0 +1,10 @@
+# The Account key ("P", "D", and "J" here) identifies a family group,
+# used in calculating shared expenses as well as identifying which
+# group is responsible for managing reservations.
+#
+# Color names must be official CSS color names;
+# see: https://drafts.csswg.org/css-color/#named-colors
+
+P: { name: Pete, color: skyblue }
+D: { name: Dan, color: palegreen }
+J: { name: James, color: khaki }

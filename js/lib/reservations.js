@@ -1,17 +1,6 @@
-// these two functions are not used
-// export function table(thisYear: number, reservations: T.Reservation[], accountColors: any ) {
-// 	let tableElement = document.createElement('table');
-// 	const accountColorsMap = new Map<string,string>(Object.entries(accountColors));
-// 	return tableElement;
-// }
-// function writeRows(tableElement: HTMLTableElement, siteReservations: any, accountColorsMap: Map<string,string>) {
-// 	const reservations: Map<string, string>[] = [];
-// 	for (let reservation of siteReservations) {
-// 		let map = new Map<string, string>(Object.entries(reservation));
-// 		reservations.push(map);
-// 	}
-// }
-export function displayReservationTable(tableElement, thisYear, reservations, accountColors) {
+export function displayReservationTable(tableElement, thisYear, reservations, 
+// accountColors: Map<string, string>
+accounts) {
     let siteReservations = {};
     let beginDate = null;
     let endDate = null;
@@ -27,7 +16,7 @@ export function displayReservationTable(tableElement, thisYear, reservations, ac
         let arrivalYear = arrival.getFullYear();
         if (arrivalYear == thisYear) { /** selection criteria */
             let lastDay = new Date(arrival);
-            lastDay.setDate(lastDay.getDate() + (reservation.days - 1));
+            lastDay.setDate(lastDay.getDate() + (reservation.reserved - 1));
             if (beginDate === null || beginDate > arrival)
                 beginDate = new Date(arrival.getTime());
             if (endDate === null || endDate < lastDay)
@@ -35,8 +24,10 @@ export function displayReservationTable(tableElement, thisYear, reservations, ac
             let expandedReservation = {
                 site: numericSite(`${reservation.site}`),
                 arrivalDate: new Date(arrival.getTime()),
-                days: reservation.days,
-                account: reservation.account,
+                nightsReserved: reservation.reserved,
+                nightsCancelled: reservation.cancelled,
+                purchaser: reservation.purchaser,
+                occupants: reservation.occupants,
                 /** because we've sorted reservations by arrival date above, we
                  * know that 'beginDate' has been set and can already calculate
                  * the table column in which this reservation belongs
@@ -51,7 +42,8 @@ export function displayReservationTable(tableElement, thisYear, reservations, ac
         }
     }
     writeTableHeadings(tableElement, beginDate, endDate);
-    writeTableRows(tableElement, siteReservations, accountColors);
+    // writeTableRows(tableElement, siteReservations, accountColors);
+    writeTableRows(tableElement, siteReservations, accounts);
 }
 function writeTableHeadings(tableElement, beginDate, endDate) {
     const Days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -73,7 +65,8 @@ function writeTableHeadings(tableElement, beginDate, endDate) {
     }
     tableElement.appendChild(headingRowElement);
 }
-function writeTableRows(tableElement, siteReservations, accountColors) {
+// function writeTableRows(tableElement: HTMLTableElement, siteReservations: SiteReservations, accountColors: Map<string, string>) {
+function writeTableRows(tableElement, siteReservations, accounts) {
     let sites = sortSiteReservations(siteReservations);
     for (let site of sites) {
         /** add a row for the site and its reservations, with the site number in the first column */
@@ -84,12 +77,23 @@ function writeTableRows(tableElement, siteReservations, accountColors) {
         let nextColumn = 0; /** use to create empty spanned columns where there are gaps before/after/between reservations */
         for (let reservation in siteReservations[site]) {
             let column = siteReservations[site][reservation].column;
-            let account = siteReservations[site][reservation].account;
-            let days = siteReservations[site][reservation].days;
-            let color = 'lightgray'; /** default color when account color is not found */
-            const accountColor = accountColors.get(account);
-            if (accountColor !== undefined)
-                color = accountColor;
+            let nightsReserved = siteReservations[site][reservation].nightsReserved;
+            let purchaser = siteReservations[site][reservation].purchaser;
+            let occupants = siteReservations[site][reservation].occupants;
+            /** interpret slash-separated values in purchaser and occupants */
+            const purchaserValues = slashedValues(purchaser);
+            const accountKey = purchaserValues[0];
+            const account = accounts.get(accountKey);
+            let accountName = '';
+            let accountColor = 'lightgray'; /* default color when account is unknown */
+            if (account !== undefined) {
+                accountName = account.name;
+                accountColor = account.color;
+            }
+            if (purchaserValues[1].length)
+                accountName = purchaserValues[1];
+            const occupantValues = slashedValues(occupants, false);
+            const occupantNames = (occupantValues[1].length) ? occupantValues[1] : '';
             /** insert a (spanned) column representing unreserved date(s) before this reservation */
             if (column > nextColumn) {
                 let unreservedDays = column - nextColumn;
@@ -102,13 +106,14 @@ function writeTableRows(tableElement, siteReservations, accountColors) {
             }
             /** add reservation item */
             siteItemElement = document.createElement('td');
-            siteItemElement.innerText = account;
-            if (days > 1)
-                siteItemElement.colSpan = days;
-            siteItemElement.style.backgroundColor = color;
+            // siteItemElement.innerText = purchaser;
+            siteItemElement.innerText = `[${accountName}] ${occupantNames}`;
+            if (nightsReserved > 1)
+                siteItemElement.colSpan = nightsReserved;
+            siteItemElement.style.backgroundColor = accountColor;
             siteItemElement.style.textAlign = 'center';
             siteRowElement.append(siteItemElement);
-            nextColumn += days;
+            nextColumn += nightsReserved;
         }
         tableElement.append(siteRowElement);
     }
@@ -122,30 +127,30 @@ function numericSite(site) {
     return siteNumber;
 }
 function sortReservations(reservations) {
-    /** sort by arrival date, days */
+    /** sort by arrival date, nightsReserved */
     reservations.sort((a, b) => {
         if (a.arrival < b.arrival)
             return -1;
         else if (a.arrival > b.arrival)
             return 1;
-        else if (a.days < b.days)
+        else if (a.reserved < b.reserved)
             return -1;
-        else if (a.days > b.days)
+        else if (a.reserved > b.reserved)
             return 1;
         return 0;
     });
 }
 function sortSiteReservations(siteReservations) {
-    /** sort by arrival date, days, site number */
+    /** sort by arrival date, nightsReserved, site number */
     let siteKeys = Object.keys(siteReservations);
     siteKeys.sort((a, b) => {
         if (siteReservations[a][0].arrivalDate < siteReservations[b][0].arrivalDate)
             return -1;
         else if (siteReservations[a][0].arrivalDate > siteReservations[b][0].arrivalDate)
             return 1;
-        else if (siteReservations[a][0].days < siteReservations[b][0].days)
+        else if (siteReservations[a][0].nightsReserved < siteReservations[b][0].nightsReserved)
             return -1;
-        else if (siteReservations[a][0].days > siteReservations[b][0].days)
+        else if (siteReservations[a][0].nightsReserved > siteReservations[b][0].nightsReserved)
             return 1;
         else if (siteReservations[a][0].site < siteReservations[b][0].site)
             return -1;
@@ -154,4 +159,42 @@ function sortSiteReservations(siteReservations) {
         return 0;
     });
     return siteKeys;
+}
+/**
+ * In the Reservation Purchaser and Occupants fields, the strings are typically
+ * two values separated by a slash. In both cases, the first value is an Account
+ * key. For Purchaser, the second value is a Reservation Account alias (one
+ * person may have multiple reservation accounts). For Occupants, the second
+ * value is a free-form list of occupant names.
+ *
+ * When a Purchaser field has only one value (no slash), it is taken as an
+ * Account key. When an Occupants field has only one value (no slash), it is
+ * taken as a free-form list of occupant names (or "Main Site", etc.).
+ *
+ * Given a Purchaser or Occupants string, return a two-element array. Element 0
+ * contains an Account key or an empty string. For a Purchaser field, Element 1
+ * will contain a reservation alias or an empty string. For an Occupants field,
+ * Element 1 will contain a free-form string or an empty string. By default, we
+ * assume the string is a Purchaser; set the optional `purchaser` parameter to
+ * false when processing Occupants.
+ */
+export function slashedValues(value, purchaser = true) {
+    const values = [];
+    const separator = '/';
+    let accountKey = '';
+    let freeForm = '';
+    const i = value.indexOf(separator);
+    if (i < 0) { /* no slash */
+        if (purchaser)
+            accountKey = value;
+        else
+            freeForm = value;
+    }
+    else {
+        accountKey = value.slice(0, i);
+        freeForm = value.slice(i + 1);
+    }
+    values.push(accountKey.trim());
+    values.push(freeForm.trim());
+    return values;
 }

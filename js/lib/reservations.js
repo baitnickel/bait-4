@@ -14,7 +14,7 @@ accounts) {
     for (let reservation of reservations) {
         let arrival = new Date(reservation.arrival + TwoPM);
         let arrivalYear = arrival.getFullYear();
-        if (arrivalYear == thisYear) { /** selection criteria */
+        if (arrivalYear == thisYear && reservation.reserved > reservation.cancelled) { /** selection criteria */
             let lastDay = new Date(arrival);
             lastDay.setDate(lastDay.getDate() + (reservation.reserved - 1));
             if (beginDate === null || beginDate > arrival)

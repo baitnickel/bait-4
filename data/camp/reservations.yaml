@@ -23,8 +23,8 @@ smitty:
   - { site: 12,   arrival: 2024-07-19, reserved: 6, cancelled: 0, purchaser: P, occupants: D/Zach Wei }
   - { site: 12,   arrival: 2024-07-25, reserved: 7, cancelled: 4, purchaser: P/Paul, occupants: D/Zach Wei }
   - { site: 43,   arrival: 2024-07-25, reserved: 7, cancelled: 4, purchaser: P/Duck, occupants: D/Anne Richard }
-  - { site: 47,   arrival: 2024-07-21, reserved: 7, cancelled: 0, purchaser: J/Andrew, occupants: Main Site }
-  - { site: 47,   arrival: 2024-07-28, reserved: 6, cancelled: 0, purchaser: P/PWesley, occupants: Main Site }
+  - { site: 47,   arrival: 2024-07-21, reserved: 7, cancelled: 0, purchaser: J/Andrew, occupants: Main }
+  - { site: 47,   arrival: 2024-07-28, reserved: 6, cancelled: 0, purchaser: P/PWesley, occupants: Main }
   - { site: 58,   arrival: 2024-07-21, reserved: 7, cancelled: 0, purchaser: J, occupants: J/James Kristin }
   - { site: 85,   arrival: 2024-07-20, reserved: 7, cancelled: 0, purchaser: D/Zach, occupants: J/Mycah Sarah }
   - { site: 85,   arrival: 2024-07-27, reserved: 7, cancelled: 7, purchaser: D, occupants: ? }
@@ -46,8 +46,8 @@ smitty:
   - { site: 93,   arrival: 2023-07-22, reserved: 7, cancelled: 0, purchaser: D/Laurel, occupants: J/James Corin }
   - { site: 95,   arrival: 2023-07-22, reserved: 7, cancelled: 0, purchaser: P, occupants: D/Dan Laurel }
   - { site: 95,   arrival: 2023-07-29, reserved: 7, cancelled: 0, purchaser: D, occupants: D/Dan Laurel }
-  - { site: 97,   arrival: 2023-07-23, reserved: 7, cancelled: 0, purchaser: D/Becca, occupants: all }
-  - { site: 97,   arrival: 2023-07-30, reserved: 6, cancelled: 0, purchaser: D, occupants: all }
+  - { site: 97,   arrival: 2023-07-23, reserved: 7, cancelled: 0, purchaser: D/Becca, occupants: Main }
+  - { site: 97,   arrival: 2023-07-30, reserved: 6, cancelled: 0, purchaser: D, occupants: Main }
   - { site: 99,   arrival: 2023-07-22, reserved: 7, cancelled: 0, purchaser: J, occupants: D/Zach Wei }
   - { site: 99,   arrival: 2023-07-29, reserved: 7, cancelled: 7, purchaser: P/PWesley, occupants: ? }
   - { site: 103,  arrival: 2023-07-22, reserved: 7, cancelled: 2, purchaser: P/Joni, occupants: P/Carisa }

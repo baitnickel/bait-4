@@ -4,6 +4,7 @@ import * as Fetch from './lib/fetch.js'
 import * as Datasets from './lib/datasets.js';
 import { MarkdownDocument } from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
+import * as Widgets from './lib/widgets.js';
 
 export function render() {
 	const page = new Page();
@@ -12,6 +13,8 @@ export function render() {
 	const TestCollection = page.appendContent('#TestCollection');
 	const TestMap = page.appendContent('#TestMap');
 	const TestMarkdown = page.appendContent('#TestMarkdown');
+	const TestYaml = page.appendContent('#TestYaml');
+	const TestRadio = page.appendContent('#TestRadio');
 	const Lorem = page.appendContent('#Lorem .blue');
 	const Photo = page.appendContent('#Photo');
 	const Video = page.appendContent('#Video');
@@ -32,9 +35,11 @@ export function render() {
 	// page.appendVideo(Video, '9MtLIkk2ihw', 400, 220);
 
 	if (page.local) {
-		const testCollection = true;
+		const testCollection = false;
 		const testMap = false;
 		const testMarkdown = true;
+		const testYaml = false;
+		const testRadio = true;
 		const testEmail = true;
 
 		if (testCollection) {
@@ -104,6 +109,73 @@ export function render() {
 					paragraph.innerHTML = html;
 				}
 			});
+		}
+
+		if (testYaml) {
+			const ReservationsPath = `${page.site}/data/camp/reservations.yaml`;
+			Fetch.map<T.Reservation[]>(ReservationsPath).then((reservations) => {
+				const dataLines: string[] = [];
+				const reserved = reservations.get('smitty');
+				if (reserved !== undefined) {
+					let limit = 7;
+					for (let reservation of reserved) {
+						dataLines.push(reservation.occupants);
+						limit -= 1;
+						if (!limit) break;
+					}
+				}
+				page.appendParagraph(TestYaml, dataLines);
+			});
+		}
+
+		if (testRadio) {
+			const division = page.appendContent();
+			const radioSelection: Widgets.RadioSelection = ((activeButton) => {
+				division.append(activeButton);
+			});
+			const radioButtons = new Widgets.RadioButtons('radio-button', 'active', radioSelection);
+			radioButtons.addButton('Purchasers');
+			radioButtons.addButton('Occupants');
+			radioButtons.addButton('None');
+			for (let button of radioButtons.buttons) division.append(button);
+			division.append(radioButtons.activeButton);
+
+			/*
+			// https://www.youtube.com/watch?v=DzZXRvk3EGg
+			const myEvent = new Event('myCustomEvent');
+			document.addEventListener('myCustomEvent', e => {
+				console.log(e);
+			});
+			document.dispatchEvent(myEvent);
+
+			// with CustomEvents, you can pass data from one place to another
+			const myCustomEvent = new CustomEvent('myCustomEvent', { detail: { hello: 'World' }});
+			document.addEventListener('myCustomEvent', e => {
+				console.log(e.detail);
+			});
+			document.dispatchEvent(myEvent);
+			*/
+			
+			// /* https://www.techiedelight.com/create-radio-button-dynamically-javascript/ */
+			// const division = page.appendContent();
+			// const purchaserType = document.createElement('input');
+			// purchaserType.type = 'radio';
+			// purchaserType.id = 'purchaser';
+			// purchaserType.name = 'camperTypes'
+			// const purchaserLabel = document.createElement('label');
+			// purchaserLabel.htmlFor = 'purchaser';
+			// purchaserLabel.innerText = 'Purchasers ';
+			// division.append(purchaserType);
+			// division.append(purchaserLabel);
+			// const occupantsType = document.createElement('input');
+			// occupantsType.type = 'radio';
+			// occupantsType.id = 'occupants';
+			// occupantsType.name = 'camperTypes'
+			// const occupantsLabel = document.createElement('label');
+			// occupantsLabel.htmlFor = 'occupants';
+			// occupantsLabel.innerText = 'Occupants';
+			// division.append(occupantsType);
+			// division.append(occupantsLabel);
 		}
 
 		if (testEmail) {

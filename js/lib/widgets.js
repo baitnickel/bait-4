@@ -76,3 +76,43 @@ export class Navigator {
         }
     }
 }
+export class RadioButtons {
+    constructor(classNames, activeClass, radioSelection) {
+        this.buttons = [];
+        if (Array.isArray(classNames))
+            this.classNames = classNames;
+        else
+            this.classNames = [classNames];
+        this.activeClass = activeClass;
+        this.activeButton = '';
+        this.radioSelection = radioSelection;
+    }
+    addButton(text, active = false) {
+        const button = document.createElement('button');
+        button.innerText = text;
+        button.value = text;
+        /** always activate the first button added (will be overridden if
+         * subsequent buttons are explicitly made active)
+         */
+        if (!this.buttons.length) {
+            button.classList.add(this.activeClass);
+            this.activeButton = button.value;
+        }
+        if (active) {
+            /** make previously added buttons inactive and activate this button */
+            for (let button of this.buttons)
+                button.classList.remove(this.activeClass);
+            button.classList.add(this.activeClass);
+        }
+        for (let className of this.classNames)
+            button.classList.add(className);
+        this.buttons.push(button);
+        button.addEventListener('click', () => {
+            for (let button of this.buttons)
+                button.classList.remove(this.activeClass);
+            button.classList.add(this.activeClass);
+            this.activeButton = button.value;
+            this.radioSelection(button.value);
+        });
+    }
+}

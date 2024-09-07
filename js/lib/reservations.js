@@ -1,6 +1,6 @@
 export function displayReservationTable(tableElement, thisYear, reservations, 
 // accountColors: Map<string, string>
-accounts) {
+accounts, radioButtons) {
     let siteReservations = {};
     let beginDate = null;
     let endDate = null;
@@ -43,7 +43,7 @@ accounts) {
     }
     writeTableHeadings(tableElement, beginDate, endDate);
     // writeTableRows(tableElement, siteReservations, accountColors);
-    writeTableRows(tableElement, siteReservations, accounts);
+    writeTableRows(tableElement, siteReservations, accounts, radioButtons);
 }
 function writeTableHeadings(tableElement, beginDate, endDate) {
     const Days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -66,7 +66,7 @@ function writeTableHeadings(tableElement, beginDate, endDate) {
     tableElement.appendChild(headingRowElement);
 }
 // function writeTableRows(tableElement: HTMLTableElement, siteReservations: SiteReservations, accountColors: Map<string, string>) {
-function writeTableRows(tableElement, siteReservations, accounts) {
+function writeTableRows(tableElement, siteReservations, accounts, radioButtons) {
     let sites = sortSiteReservations(siteReservations);
     for (let site of sites) {
         /** add a row for the site and its reservations, with the site number in the first column */
@@ -107,7 +107,9 @@ function writeTableRows(tableElement, siteReservations, accounts) {
             /** add reservation item */
             siteItemElement = document.createElement('td');
             // siteItemElement.innerText = purchaser;
-            siteItemElement.innerText = `[${accountName}] ${occupantNames}`;
+            const camperName = (radioButtons.activeButton == 'Purchasers') ? accountName : occupantNames;
+            // siteItemElement.innerText = `[${accountName}] ${occupantNames}`;
+            siteItemElement.innerText = camperName;
             if (nightsReserved > 1)
                 siteItemElement.colSpan = nightsReserved;
             siteItemElement.style.backgroundColor = accountColor;

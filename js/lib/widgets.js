@@ -77,7 +77,7 @@ export class Navigator {
     }
 }
 export class RadioButtons {
-    constructor(classNames, activeClass, radioSelection) {
+    constructor(classNames, activeClass, event) {
         this.buttons = [];
         if (Array.isArray(classNames))
             this.classNames = classNames;
@@ -85,7 +85,7 @@ export class RadioButtons {
             this.classNames = [classNames];
         this.activeClass = activeClass;
         this.activeButton = '';
-        this.radioSelection = radioSelection;
+        this.event = event;
     }
     addButton(text, active = false) {
         const button = document.createElement('button');
@@ -108,11 +108,13 @@ export class RadioButtons {
             button.classList.add(className);
         this.buttons.push(button);
         button.addEventListener('click', () => {
-            for (let button of this.buttons)
-                button.classList.remove(this.activeClass);
-            button.classList.add(this.activeClass);
-            this.activeButton = button.value;
-            this.radioSelection(button.value);
+            if (button.value != this.activeButton) {
+                for (let button of this.buttons)
+                    button.classList.remove(this.activeClass);
+                button.classList.add(this.activeClass);
+                this.activeButton = button.value;
+                document.dispatchEvent(this.event); /* a button has become active */
+            }
         });
     }
 }

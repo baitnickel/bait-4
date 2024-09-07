@@ -116,16 +116,17 @@ export function render() {
         }
         if (testRadio) {
             const division = page.appendContent();
-            const radioSelection = ((activeButton) => {
-                division.append(activeButton);
-            });
-            const radioButtons = new Widgets.RadioButtons('radio-button', 'active', radioSelection);
+            const anotherDivision = page.appendContent();
+            const event = new Event('change-camper');
+            const radioButtons = new Widgets.RadioButtons('radio-button', 'active', event);
             radioButtons.addButton('Purchasers');
             radioButtons.addButton('Occupants');
             radioButtons.addButton('None');
             for (let button of radioButtons.buttons)
                 division.append(button);
-            division.append(radioButtons.activeButton);
+            document.addEventListener('change-camper', () => {
+                anotherDivision.innerText = radioButtons.activeButton;
+            });
             /*
             // https://www.youtube.com/watch?v=DzZXRvk3EGg
             const myEvent = new Event('myCustomEvent');

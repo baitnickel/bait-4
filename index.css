@@ -561,6 +561,7 @@ font-family: sans-serif;
 .radio-button {
 	/* background-color: lightgray; */
 	color: black;
+	margin: .3em;
 }
 .radio-button.active {
 	color: black;

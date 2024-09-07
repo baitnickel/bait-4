@@ -1,4 +1,5 @@
 import * as T from './types.js';
+import * as Widgets from './widgets.js';
 
 /**
  * Special module to support Campsite Reservation tables
@@ -23,7 +24,8 @@ export function displayReservationTable(
 	thisYear: number,
 	reservations: T.Reservation[],
 	// accountColors: Map<string, string>
-	accounts: Map<string, T.CampAccount>
+	accounts: Map<string, T.CampAccount>,
+	radioButtons: Widgets.RadioButtons,
 ) {
 	let siteReservations: SiteReservations = {};
 	let beginDate: Date|null = null;
@@ -67,7 +69,7 @@ export function displayReservationTable(
 
 	writeTableHeadings(tableElement, beginDate!, endDate!)
 	// writeTableRows(tableElement, siteReservations, accountColors);
-	writeTableRows(tableElement, siteReservations, accounts);
+	writeTableRows(tableElement, siteReservations, accounts, radioButtons);
 }
 
 function writeTableHeadings(tableElement: HTMLTableElement, beginDate: Date, endDate: Date) {
@@ -92,7 +94,7 @@ function writeTableHeadings(tableElement: HTMLTableElement, beginDate: Date, end
 }
 
 // function writeTableRows(tableElement: HTMLTableElement, siteReservations: SiteReservations, accountColors: Map<string, string>) {
-function writeTableRows(tableElement: HTMLTableElement, siteReservations: SiteReservations, accounts: Map<string, T.CampAccount>) {
+function writeTableRows(tableElement: HTMLTableElement, siteReservations: SiteReservations, accounts: Map<string, T.CampAccount>, radioButtons: Widgets.RadioButtons) {
 	let sites = sortSiteReservations(siteReservations);
 	for (let site of sites) {
 
@@ -136,7 +138,9 @@ function writeTableRows(tableElement: HTMLTableElement, siteReservations: SiteRe
 			/** add reservation item */
 			siteItemElement = document.createElement('td');
 			// siteItemElement.innerText = purchaser;
-			siteItemElement.innerText = `[${accountName}] ${occupantNames}`;
+			const camperName = (radioButtons.activeButton == 'Purchasers') ? accountName : occupantNames;
+			// siteItemElement.innerText = `[${accountName}] ${occupantNames}`;
+			siteItemElement.innerText = camperName;
 			if (nightsReserved > 1) siteItemElement.colSpan = nightsReserved;
 			siteItemElement.style.backgroundColor = accountColor;
 			siteItemElement.style.textAlign = 'center';

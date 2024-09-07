@@ -4,6 +4,7 @@ import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as Table from './lib/table.js';
 import * as Reservations from './lib/reservations.js';
+import * as Widgets from './lib/widgets.js';
 
 const Park = 'smitty';
 const ThisYear = new Date().getFullYear();
@@ -74,17 +75,41 @@ export function render() {
 		const summaryElement = document.createElement('summary');
 		summaryElement.innerText = `${ThisYear} Reservations`;
 		detailsElement.append(summaryElement);
+		
+		const event = new Event('change-camper');
+		const radioButtons = new Widgets.RadioButtons('radio-button', 'active', event);
+		radioButtons.addButton('Purchasers');
+		radioButtons.addButton('Occupants');
+		const buttonsElement = document.createElement('div');
+		for (let button of radioButtons.buttons) buttonsElement.append(button);
+		detailsElement.append(buttonsElement);
+
 		const reservationsTableElement = document.createElement('table');
 		detailsElement.append(reservationsTableElement);
 		reservationParagraph.append(detailsElement);
 		reservationsDiv.append(reservationParagraph);
+
+
 		/* display this year's campsite reservations */
 		Reservations.displayReservationTable(
 			reservationsTableElement,
 			ThisYear,
 			reservations,
 			Accounts,
+			radioButtons,
 		);
+		/* redisplay campsite reservations on Purchasers/Occupants change */
+		document.addEventListener('change-camper', () => {
+			reservationsTableElement.innerHTML = '';
+			Reservations.displayReservationTable(
+				reservationsTableElement,
+				ThisYear,
+				reservations,
+				Accounts,
+				radioButtons,
+			);
+		});
+
 	}
 }
 

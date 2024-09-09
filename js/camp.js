@@ -11,11 +11,12 @@ const CampgroundsPath = `${Site}/data/camp/campgrounds.yaml`;
 const ReservationsPath = `${Site}/data/camp/reservations.yaml`;
 const CampersPath = `${Site}/data/camp/campers.yaml`;
 const AccountsPath = `${Site}/data/camp/accounts.yaml`;
+const CostsPath = `${Site}/data/camp/costs.yaml`;
 /** Fetch all the data we'll need before rendering the page */
 const Campgrounds = await Fetch.map(CampgroundsPath);
 const ParkReservations = await Fetch.map(ReservationsPath);
-const Campers = await Fetch.map(CampersPath);
 const Accounts = await Fetch.map(AccountsPath);
+const Costs = await Fetch.map(CostsPath);
 export function render() {
     const page = new Page();
     page.setTitle('Campsites', 2);
@@ -86,6 +87,8 @@ export function render() {
             reservationsTableElement.innerHTML = '';
             Reservations.displayReservationTable(reservationsTableElement, ThisYear, reservations, Accounts, radioButtons);
         });
+        /* display campsite reservation accounting */
+        Reservations.accounting(ThisYear, reservations, Accounts, Costs);
     }
 }
 function createParagraphs(lines) {

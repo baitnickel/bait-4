@@ -1,12 +1,10 @@
-export function displayReservationTable(tableElement, thisYear, reservations, 
-// accountColors: Map<string, string>
-accounts, radioButtons) {
-    let siteReservations = {};
+export function displayReservationTable(tableElement, thisYear, reservations, accounts, radioButtons) {
+    let adjustedReservations = {};
     let beginDate = null;
     let endDate = null;
     /**
      * Initially, sort reservations chronologically, so that the array of
-     * reservations in the 'siteReservations' objects will be chronological.
+     * reservations in the 'adjustedReservations' objects will be chronological.
      * Later, we can re-sort the sites if necessary for display.
      */
     sortReservations(reservations);
@@ -16,16 +14,15 @@ accounts, radioButtons) {
         let arrivalYear = arrival.getFullYear();
         if (arrivalYear == thisYear && reservation.reserved > reservation.cancelled) { /** selection criteria */
             let lastDay = new Date(arrival);
-            lastDay.setDate(lastDay.getDate() + (reservation.reserved - 1));
+            lastDay.setDate(lastDay.getDate() + (reservation.reserved - reservation.cancelled - 1));
             if (beginDate === null || beginDate > arrival)
                 beginDate = new Date(arrival.getTime());
             if (endDate === null || endDate < lastDay)
                 endDate = new Date(lastDay.getTime());
-            let expandedReservation = {
+            let adjustedReservation = {
                 site: numericSite(`${reservation.site}`),
                 arrivalDate: new Date(arrival.getTime()),
-                nightsReserved: reservation.reserved,
-                nightsCancelled: reservation.cancelled,
+                nightsReserved: reservation.reserved - reservation.cancelled,
                 purchaser: reservation.purchaser,
                 occupants: reservation.occupants,
                 /** because we've sorted reservations by arrival date above, we
@@ -34,16 +31,15 @@ accounts, radioButtons) {
                  */
                 column: Math.round((arrival.getTime() - beginDate.getTime()) / (1000 * 60 * 60 * 24)),
             };
-            if (!siteReservations[reservation.site]) {
-                /** initialize siteReservations entry */
-                siteReservations[reservation.site] = [];
+            if (!adjustedReservations[reservation.site]) {
+                /** initialize adjustedReservations entry */
+                adjustedReservations[reservation.site] = [];
             }
-            siteReservations[reservation.site].push(expandedReservation);
+            adjustedReservations[reservation.site].push(adjustedReservation);
         }
     }
     writeTableHeadings(tableElement, beginDate, endDate);
-    // writeTableRows(tableElement, siteReservations, accountColors);
-    writeTableRows(tableElement, siteReservations, accounts, radioButtons);
+    writeTableRows(tableElement, adjustedReservations, accounts, radioButtons);
 }
 function writeTableHeadings(tableElement, beginDate, endDate) {
     const Days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -65,9 +61,8 @@ function writeTableHeadings(tableElement, beginDate, endDate) {
     }
     tableElement.appendChild(headingRowElement);
 }
-// function writeTableRows(tableElement: HTMLTableElement, siteReservations: SiteReservations, accountColors: Map<string, string>) {
-function writeTableRows(tableElement, siteReservations, accounts, radioButtons) {
-    let sites = sortSiteReservations(siteReservations);
+function writeTableRows(tableElement, adjustedReservations, accounts, radioButtons) {
+    let sites = sortAdjustedReservations(adjustedReservations);
     for (let site of sites) {
         /** add a row for the site and its reservations, with the site number in the first column */
         let siteRowElement = document.createElement('tr');
@@ -75,11 +70,11 @@ function writeTableRows(tableElement, siteReservations, accounts, radioButtons) 
         siteItemElement.innerText = site;
         siteRowElement.append(siteItemElement);
         let nextColumn = 0; /** use to create empty spanned columns where there are gaps before/after/between reservations */
-        for (let reservation in siteReservations[site]) {
-            let column = siteReservations[site][reservation].column;
-            let nightsReserved = siteReservations[site][reservation].nightsReserved;
-            let purchaser = siteReservations[site][reservation].purchaser;
-            let occupants = siteReservations[site][reservation].occupants;
+        for (let reservation in adjustedReservations[site]) {
+            let column = adjustedReservations[site][reservation].column;
+            let nightsReserved = adjustedReservations[site][reservation].nightsReserved;
+            let purchaser = adjustedReservations[site][reservation].purchaser;
+            let occupants = adjustedReservations[site][reservation].occupants;
             /** interpret slash-separated values in purchaser and occupants */
             const purchaserValues = slashedValues(purchaser);
             const accountKey = purchaserValues[0];
@@ -106,9 +101,7 @@ function writeTableRows(tableElement, siteReservations, accounts, radioButtons) 
             }
             /** add reservation item */
             siteItemElement = document.createElement('td');
-            // siteItemElement.innerText = purchaser;
             const camperName = (radioButtons.activeButton == 'Purchasers') ? accountName : occupantNames;
-            // siteItemElement.innerText = `[${accountName}] ${occupantNames}`;
             siteItemElement.innerText = camperName;
             if (nightsReserved > 1)
                 siteItemElement.colSpan = nightsReserved;
@@ -135,28 +128,28 @@ function sortReservations(reservations) {
             return -1;
         else if (a.arrival > b.arrival)
             return 1;
-        else if (a.reserved < b.reserved)
+        else if ((a.reserved - a.cancelled) < (b.reserved - b.cancelled))
             return -1;
-        else if (a.reserved > b.reserved)
+        else if ((a.reserved - a.cancelled) > (b.reserved - b.cancelled))
             return 1;
         return 0;
     });
 }
-function sortSiteReservations(siteReservations) {
+function sortAdjustedReservations(adjustedReservations) {
     /** sort by arrival date, nightsReserved, site number */
-    let siteKeys = Object.keys(siteReservations);
+    let siteKeys = Object.keys(adjustedReservations);
     siteKeys.sort((a, b) => {
-        if (siteReservations[a][0].arrivalDate < siteReservations[b][0].arrivalDate)
+        if (adjustedReservations[a][0].arrivalDate < adjustedReservations[b][0].arrivalDate)
             return -1;
-        else if (siteReservations[a][0].arrivalDate > siteReservations[b][0].arrivalDate)
+        else if (adjustedReservations[a][0].arrivalDate > adjustedReservations[b][0].arrivalDate)
             return 1;
-        else if (siteReservations[a][0].nightsReserved < siteReservations[b][0].nightsReserved)
+        else if (adjustedReservations[a][0].nightsReserved < adjustedReservations[b][0].nightsReserved)
             return -1;
-        else if (siteReservations[a][0].nightsReserved > siteReservations[b][0].nightsReserved)
+        else if (adjustedReservations[a][0].nightsReserved > adjustedReservations[b][0].nightsReserved)
             return 1;
-        else if (siteReservations[a][0].site < siteReservations[b][0].site)
+        else if (adjustedReservations[a][0].site < adjustedReservations[b][0].site)
             return -1;
-        else if (siteReservations[a][0].site > siteReservations[b][0].site)
+        else if (adjustedReservations[a][0].site > adjustedReservations[b][0].site)
             return 1;
         return 0;
     });
@@ -199,4 +192,39 @@ export function slashedValues(value, purchaser = true) {
     values.push(accountKey.trim());
     values.push(freeForm.trim());
     return values;
+}
+/*
+cost = 0
+if (site is 'storage') cost = cost.storage
+else {
+   // ensure that nights.reserved and nights.cancelled are logical
+   nights = nights-reserved - nights-cancelled
+   cost += cost.reservation
+   cost += cost.site x nights
+   if (nights-canceled > 0) cost += cost.cancellation
+}
+if (cost is 0) raise error
+
+*/
+export function accounting(year, reservations, accounts, costs) {
+    console.log(`${year} Accounting Report`);
+    /* determine method--shared-equally vs account-occupants (default is shared-equally)
+    /* get array of accountKeys */
+    /* get cost record for this year--most recent not greater than this year */
+    const cost = costs.get('2023'); // hardcoding for now, but: costs.get(`${year}`);
+    if (cost === undefined)
+        console.error(`cannot get ${year} Cost record`);
+    else {
+        let sharedCost = cost.storage;
+        /* loop over reservations: */
+        for (let reservation of reservations) {
+            if (reservation.arrival.startsWith(`${year}`)) {
+                sharedCost += cost.reservation;
+                if (reservation.cancelled > 0)
+                    sharedCost += cost.cancellation;
+                sharedCost += cost.site * (reservation.reserved - reservation.cancelled);
+            }
+        }
+        console.log(`Total shared cost: ${sharedCost}`); // round this amount xxxx.xx
+    }
 }

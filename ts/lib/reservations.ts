@@ -220,19 +220,10 @@ export function slashedValues(value: string, purchaser = true) {
 	return values;
 }
 
-/*
-cost = 0
-if (site is 'storage') cost = cost.storage
-else {
-   // ensure that nights.reserved and nights.cancelled are logical
-   nights = nights-reserved - nights-cancelled
-   cost += cost.reservation
-   cost += cost.site x nights
-   if (nights-canceled > 0) cost += cost.cancellation
-}
-if (cost is 0) raise error
-
-*/
+type DirectPayment = {from: string, to: string, amount: number};
+/**
+ * 
+ */
 export function accounting(
 	year: number,
 	reservations: T.Reservation[],
@@ -241,21 +232,71 @@ export function accounting(
 ) {
 	console.log(`${year} Accounting Report`);
 
-	/* determine method--shared-equally vs account-occupants (default is shared-equally)
-	/* get array of accountKeys */
+	/* determine method--shared-equally vs account-occupants (default is shared-equally) */
+	const accountKeys = Array.from(accounts.keys());
+	const cabinPrefix = 'J';
 	/* get cost record for this year--most recent not greater than this year */
 	const cost = costs.get('2023') // hardcoding for now, but: costs.get(`${year}`);
+	const payments = new Map<string, number>();
+	let sharedCosts = 0;
+	const directPayments: DirectPayment[] = [];
+	for (let accountKey of accountKeys) payments.set(accountKey, 0); /* initialize all account payments */
 	if (cost === undefined) console.error(`cannot get ${year} Cost record`);
 	else {
-		let sharedCost = cost.storage;
+		const storagePurchaser = 'P'; //### obviously, shouldn't be hardcoded--how should we store in reservations?
+		const storageCost = cost.storage;
+		accumulate(storagePurchaser, payments, cost.storage);
+		sharedCosts += storageCost;
 		/* loop over reservations: */
 		for (let reservation of reservations) {
 			if (reservation.arrival.startsWith(`${year}`)) {
-				sharedCost += cost.reservation;
-				if (reservation.cancelled > 0) sharedCost += cost.cancellation;
-				sharedCost += cost.site * (reservation.reserved - reservation.cancelled);
+				const purchaser = slashedValues(reservation.purchaser)[0];
+				const occupant = slashedValues(reservation.occupants, false)[0];
+				accumulate(purchaser, payments, cost.reservation);
+				sharedCosts += cost.reservation;
+				if (reservation.cancelled > 0) {
+					accumulate(purchaser, payments, cost.cancellation);
+					sharedCosts += cost.cancellation;
+				}
+				const costOfSite = cost.site * (reservation.reserved - reservation.cancelled)
+				accumulate(purchaser, payments, costOfSite);
+				sharedCosts += costOfSite;
+				/* add any direct payments (e.g., cabin surcharge) */
+				if (reservation.site.toString().startsWith(cabinPrefix) && occupant != purchaser) {
+					const amount = (cost.cabin - cost.site) * (reservation.reserved - reservation.cancelled);
+					const directPayment = { from: occupant, to: purchaser, amount: amount };
+					directPayments.push(directPayment);
+				}
 			}
 		}
-		console.log(`Total shared cost: ${sharedCost}`); // round this amount xxxx.xx
+		const perPersonCost = sharedCosts / accountKeys.length;
+		console.log(`Total shared cost: ${sharedCosts.toFixed(2)} Per person: ${perPersonCost.toFixed(2)}`);
+		console.log('Payments:');
+		for (let accountKey of accountKeys) {
+			const account = accounts.get(accountKey)!;
+			const totalPayments = payments.get(accountKey)!;
+			const overpaid = totalPayments - perPersonCost;
+			const label = (totalPayments <= perPersonCost) ? 'underpaid' : 'overpaid';
+			console.log(`  ${account.name}: ${totalPayments.toFixed(2)} (${label}: ${Math.abs(overpaid).toFixed(2)})`);
+		}
+		if (directPayments.length) {
+			console.log('Cabin Compensations:');
+			for (let directPayment of directPayments) {
+				const from = accounts.get(directPayment.from);
+				const to = accounts.get(directPayment.to);
+				if (from !== undefined && to !== undefined) {
+					console.log(`  ${from.name} owes ${to.name} ${directPayment.amount.toFixed(2)}`);
+				}
+			}
+		}
+
+
+	}
+}
+
+function accumulate(key: string, map: Map<string, number>, amount: number) {
+	const currentAmount = map.get(key);
+	if (currentAmount !== undefined) {
+		map.set(key, currentAmount + amount);
 	}
 }

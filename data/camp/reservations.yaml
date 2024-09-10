@@ -24,6 +24,8 @@
 
 ### 12 and 43 were actually cancelled 3, not 4. Was 86 cancelled at all on the first week?
 
+hooch: 
+  - { year: 2023, product: STORAGE, purchaser: P, cost: 356 }
 smitty:
   # 2024
   - { site: 12,   arrival: 2024-07-19, reserved: 6, cancelled: 0, purchaser: P, occupants: D/Zach & Wei }

@@ -231,19 +231,20 @@ export function accounting(year, reservations, accounts, costs) {
                 /* add any direct payments (e.g., cabin surcharge) */
                 if (reservation.site.toString().startsWith(cabinPrefix) && occupant != purchaser) {
                     const amount = (cost.cabin - cost.site) * (reservation.reserved - reservation.cancelled);
-                    const directPayment = { from: occupant, to: purchaser, amount: amount, purpose: 'Cabin Surcharge' };
-                    directPayments.push(directPayment);
+                    // const directPayment = { from: occupant, to: purchaser, amount: amount, purpose: 'Cabin Surcharge' };
+                    // directPayments.push(directPayment);
+                    directPayments.push({ from: occupant, to: purchaser, amount: amount, purpose: 'Cabin Surcharge' });
                 }
             }
         }
-        const perPersonCost = sharedCosts / accountKeys.length;
-        console.log(`Total shared cost: ${sharedCosts.toFixed(2)} Per person: ${perPersonCost.toFixed(2)}`);
+        const perAccountShare = sharedCosts / accountKeys.length;
+        console.log(`Total shared cost: ${sharedCosts.toFixed(2)} Per account: ${perAccountShare.toFixed(2)}`);
         console.log('Payments:');
         for (let accountKey of accountKeys) {
             const account = accounts.get(accountKey);
             const totalPayments = payments.get(accountKey);
-            const overpaid = totalPayments - perPersonCost;
-            const label = (totalPayments <= perPersonCost) ? 'underpaid' : 'overpaid';
+            const overpaid = totalPayments - perAccountShare;
+            const label = (totalPayments <= perAccountShare) ? 'underpaid' : 'overpaid';
             console.log(`  ${account.name}: ${totalPayments.toFixed(2)} (${label}: ${Math.abs(overpaid).toFixed(2)})`);
         }
         /** At this point, the only `directPayments` are cabin surcharge payments */
@@ -257,61 +258,48 @@ export function accounting(year, reservations, accounts, costs) {
                 }
             }
         }
-        /*
-            + + -
-            Dp(c, a, a.overpayment)
-            Dp(c, b, b.overpayment)
-
-            + - -
-            Dp(b, a, b.underpayment)
-            Dp(c, a, c.underpayment)
-        */
+        /**
+         * We will only perform this bit of accounting when there are exactly 3
+         * accounts involved. Writing a generic function may be very complex,
+         * and our 3-account assumption is pretty safe for now.
+         */
         if (payments.size == 3) {
-            /**
-             * We will only perform this bit of accounting when there are
-             * exactly 3 accounts involved. Writing a generic function may be
-             * very complex, and our 3-account assumption is pretty safe for
-             * now.
-             */
-            const underpaying = []; /* underpaying account keys */
-            const overpaying = []; /* overpaying account keys */
+            const underpayers = []; /* underpayer account keys */
+            const overpayers = []; /* overpayer account keys */
             for (const [account, payment] of payments) {
-                if (payment < 0)
-                    underpaying.push(account);
+                if (payment - perAccountShare < 0)
+                    underpayers.push(account);
                 else
-                    overpaying.push(account);
+                    overpayers.push(account);
             }
-            if (underpaying.length == 1) {
-                /* underpaying account owes each overpaying account each overpaying amount */
-                /*
-                    const directPayment = { from: c, to: a, amount: a.amount, purpose: '' };
-                    directPayments.push(directPayment);
-                    const directPayment = { from: c, to: b, amount: b.amount, purpose: '' };
-                    directPayments.push(directPayment);
-                */
-                /* from underpayer to overpayer[0] amount overpaid[0]
-                /* from underpayer to overpayer[1] amount overpaid[1]
+            if (underpayers.length == 1) { /*   + + -: Dp(c, a, a.overpayment); Dp(c, b, b.overpayment); */
+                /* underpayer account owes each overpayer account each overpayer amount */
+                for (const overpayer of overpayers) {
+                    const overpaidAmount = payments.get(overpayer) - perAccountShare;
+                    directPayments.push({ from: underpayers[0], to: overpayer, amount: overpaidAmount, purpose: '' });
+                }
             }
-            else if (underpaying.length == 2) {
-                /* each underpaying account owes the overpaying account each underpayment amount */
-                /*
-                    const directPayment = { from: b, to: a, amount: b.amount, purpose: '' };
-                    directPayments.push(directPayment);
-                    const directPayment = { from: c, to: a, amount: c.amount, purpose: '' };
-                    directPayments.push(directPayment);
-                */
-                /* from underpayer[0] to overpayer amount underpaid[0]
-                /* from underpayer[1] to overpayer amount underpaid[1]
+            else if (underpayers.length == 2) { /*   + - -: Dp(b, a, b.underpayment); Dp(c, a, c.underpayment); */
+                /* each underpayer account owes the overpayer account each underpayment amount */
+                for (const underpayer of underpayers) {
+                    const underpaidAmount = perAccountShare - payments.get(underpayer);
+                    directPayments.push({ from: underpayer, to: overpayers[0], amount: underpaidAmount, purpose: '' });
+                }
             }
-            else {
-                /* each account owes 0 */
-            }
+            // else { /* each account owes 0 */ }
             /**
              * write "Bottom Line" heading line
              * sort directPayments by from/to
              * loop over and accumulate amounts for same from/to
              *     report each from/to
              */
+            console.log('Reimbursements:');
+            for (const directPayment of directPayments) {
+                const fromAccount = accounts.get(directPayment.from);
+                const toAccount = accounts.get(directPayment.to);
+                const purpose = (directPayment.purpose) ? ` (${directPayment.purpose})` : '';
+                console.log(`  ${fromAccount.name} owes ${toAccount.name} ${directPayment.amount.toFixed(2)}${purpose}`);
+            }
         }
     }
 }

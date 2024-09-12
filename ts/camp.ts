@@ -7,12 +7,11 @@ import * as Reservations from './lib/reservations.js';
 import * as Widgets from './lib/widgets.js';
 
 const Park = 'smitty';
-const ThisYear = new Date().getFullYear();
+const ThisYear = 2023; //new Date().getFullYear();
 const Site = Settings.Site();
 
 const CampgroundsPath = `${Site}/data/camp/campgrounds.yaml`;
 const ReservationsPath = `${Site}/data/camp/reservations.yaml`;
-const CampersPath = `${Site}/data/camp/campers.yaml`;
 const AccountsPath = `${Site}/data/camp/accounts.yaml`;
 const CostsPath = `${Site}/data/camp/costs.yaml`;
 
@@ -21,6 +20,7 @@ const Campgrounds = await Fetch.map<T.Campground>(CampgroundsPath);
 const ParkReservations = await Fetch.map<T.Reservation[]>(ReservationsPath);
 const Accounts = await Fetch.map<T.CampAccount>(AccountsPath);
 const Costs = await Fetch.map<T.CampCosts>(CostsPath);
+const ReservationYears = reservationYears(Park, ParkReservations);
 
 export function render() {
 	const page = new Page();
@@ -74,14 +74,30 @@ export function render() {
 		const reservationParagraph = document.createElement('p');
 		const detailsElement = document.createElement('details');
 		const summaryElement = document.createElement('summary');
-		summaryElement.innerText = `${ThisYear} Reservations`;
+		summaryElement.innerText = 'Reservations';
 		detailsElement.append(summaryElement);
+		const buttonsElement = document.createElement('div');
+
+		/* drop down for reservation year selection */
+		const yearSelection = document.createElement('select');
+		for (const year of ReservationYears) yearSelection.add(new Option(`${year}`, `${year}`));
+		buttonsElement.append(yearSelection);
+		yearSelection.addEventListener('change', (e: Event) => {
+			reservationsTableElement.innerHTML = '';
+			Reservations.displayReservationTable(
+				reservationsTableElement,
+				Number(yearSelection.value),
+				reservations,
+				Accounts,
+				radioButtons,
+			);
+		});
 		
+		/* "radio" buttons to switch between Purchasers and Occupants view */
 		const event = new Event('change-camper');
 		const radioButtons = new Widgets.RadioButtons('radio-button', 'active', event);
 		radioButtons.addButton('Purchasers');
 		radioButtons.addButton('Occupants');
-		const buttonsElement = document.createElement('div');
 		for (let button of radioButtons.buttons) buttonsElement.append(button);
 		detailsElement.append(buttonsElement);
 
@@ -93,7 +109,7 @@ export function render() {
 		/* display this year's campsite reservations */
 		Reservations.displayReservationTable(
 			reservationsTableElement,
-			ThisYear,
+			Number(yearSelection.value),
 			reservations,
 			Accounts,
 			radioButtons,
@@ -103,7 +119,7 @@ export function render() {
 			reservationsTableElement.innerHTML = '';
 			Reservations.displayReservationTable(
 				reservationsTableElement,
-				ThisYear,
+				Number(yearSelection.value),
 				reservations,
 				Accounts,
 				radioButtons,
@@ -111,7 +127,7 @@ export function render() {
 		});
 
 		/* display campsite reservation accounting */
-		Reservations.accounting(ThisYear, reservations, Accounts, Costs);
+		Reservations.accounting(Number(yearSelection.value), reservations, Accounts, Costs);
 	}
 }
 
@@ -125,4 +141,8 @@ function createParagraphs(lines: string[]) {
 		divElement.append(paragraphElements[paragraphElements.length - 1]);
 	}
 	return divElement;
+}
+
+function reservationYears(park: string, parkReservations: Map<string, T.Reservation[]>) {
+	return [2024, 2023]; //### to be completed later
 }

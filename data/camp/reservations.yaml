@@ -29,8 +29,8 @@ hooch:
 smitty:
   # 2024
   - { site: 12,   arrival: 2024-07-19, reserved: 6, cancelled: 0, purchaser: P, occupants: D/Zach & Wei }
-  - { site: 12,   arrival: 2024-07-25, reserved: 7, cancelled: 3, purchaser: P/Paul, occupants: D/Zach & Wei }
-  - { site: 43,   arrival: 2024-07-25, reserved: 7, cancelled: 3, purchaser: P/Duck, occupants: D/Anne & Richard }
+  - { site: 12,   arrival: 2024-07-25, reserved: 7, cancelled: 4, purchaser: P/Paul, occupants: D/Zach & Wei }
+  - { site: 43,   arrival: 2024-07-25, reserved: 7, cancelled: 4, purchaser: P/Duck, occupants: D/Anne & Richard }
   - { site: 47,   arrival: 2024-07-21, reserved: 7, cancelled: 0, purchaser: J/Andrew, occupants: MAIN SITE }
   - { site: 47,   arrival: 2024-07-28, reserved: 6, cancelled: 0, purchaser: P/PWesley, occupants: MAIN SITE }
   - { site: 58,   arrival: 2024-07-21, reserved: 7, cancelled: 0, purchaser: J, occupants: J/James & Kristin }

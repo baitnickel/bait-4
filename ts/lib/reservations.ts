@@ -188,7 +188,10 @@ function sortAdjustedReservations(adjustedReservations: AdjustedReservations) {
  * two values separated by a slash. In both cases, the first value is an Account
  * key. For Purchaser, the second value is a Reservation Account alias (one
  * person may have multiple reservation accounts). For Occupants, the second
- * value is a free-form list of occupant names.
+ * value is a free-form list of occupant names. (Storing two different values in
+ * a single field is very bad coding practice! It's being done here merely to
+ * simplify the YAML data entry, and might be abandoned once we provide a
+ * suitable data entry UI--a rather difficult challenge in static website.)
  * 
  * When a Purchaser field has only one value (no slash), it is taken as an
  * Account key. When an Occupants field has only one value (no slash), it is
@@ -220,10 +223,11 @@ export function slashedValues(value: string, purchaser = true) {
 	return values;
 }
 
-/* from accountKey to accountKey */
-type DirectPayment = {from: string, to: string, amount: number; purpose: string };
+type Transaction = {from: string, to: string, amount: number; purpose: string };
 /**
- * 
+ * Given the 4-digit `year`, an array of `reservations` for that year, an
+ * `accounts` map, and a `costs` map, return an array of plain text lines
+ * representing an accounting report.
  */
 export function accounting(
 	year: number,
@@ -231,17 +235,45 @@ export function accounting(
 	accounts: Map<string, T.CampAccount>,
 	costs: Map<string, T.CampCosts>,
 ) {
-	console.log(`${year} Accounting Report`);
+	const reportLines: string[] = [];
+	// reportLines.push(`${year} Accounting Report\n\n`);
 
-	/* determine method--shared-equally vs account-occupants (default is shared-equally) */
+	/** 
+	 * Determine method--equal shares vs weight of account-occupants (default is
+	 * equal shares). This might be determined by a UI switch, so that users can
+	 * compare results of each method.
+	 * 
+	 * This suggests the need for an `{account: ID, share: percentage}`
+	 * object, where entries are set dynamically once the method is
+	 * determined and the purchaser/occupants is known.
+	 * 
+	 * There are probably too many different maps keyed by account ID; it might
+	 * make sense to create one dynamic object representing all the account data
+	 * we collect here: name, share, payments, receipts, etc. It might be nice
+	 * to create multiple functions to fill in these various data--modularize to
+	 * simplify the main thread here.
+	 */
 	const accountKeys = Array.from(accounts.keys());
 	const cabinPrefix = 'J';
 	const cost = currentCosts(year.toString(), costs);
 	const payments = new Map<string, number>(); /* key is accounts.key */
 	let sharedCosts = 0;
-	const directPayments: DirectPayment[] = [];
+	const directPayments: Transaction[] = [];
+	const directReceipts: Transaction[] = [];
+	/**
+	 * In addition to directPayments, we need directReceipts. If I invite some
+	 * of my friends to join us in a site I haven't booked myself, and I am
+	 * reimbursed directly by my friends, what is the proper accounting here,
+	 * what are the options? In any case, we need a transaction for receipts.
+	 * 
+	 * Under a weighted-share approach, when a site is purchased by A and
+	 * occupied by B's family/friends, the fees should be shared across all
+	 * accounts, but the number of nights should be added to B's weight. In this
+	 * scenario, B's receipts might nullify the shared expenses and lessen B's
+	 * weight?
+	 */
 	for (let accountKey of accountKeys) payments.set(accountKey, 0); /* initialize all account payments */
-	if (cost === undefined) console.error(`cannot get ${year} Cost record`);
+	if (cost === undefined) reportLines.push(`cannot get ${year} Cost record\n`);
 	else {
 		const storagePurchaser = 'P'; //### obviously, shouldn't be hardcoded--how should we store in reservations?
 		const storageCost = cost.storage;
@@ -271,31 +303,42 @@ export function accounting(
 			}
 		}
 		const perAccountShare = sharedCosts / accountKeys.length;
-		console.log(`Total shared cost: ${sharedCosts.toFixed(2)} Per account: ${perAccountShare.toFixed(2)}`);
-		console.log('Payments:');
+		reportLines.push(`Total shared cost: ${sharedCosts.toFixed(2)} Per account: ${perAccountShare.toFixed(2)}\n`);
+		reportLines.push('\nPayments:\n');
 		for (let accountKey of accountKeys) {
 			const account = accounts.get(accountKey)!;
 			const totalPayments = payments.get(accountKey)!;
 			const overpaid = totalPayments - perAccountShare;
 			const label = (totalPayments <= perAccountShare) ? 'underpaid' : 'overpaid';
-			console.log(`  ${account.name}: ${totalPayments.toFixed(2)} (${label}: ${Math.abs(overpaid).toFixed(2)})`);
+			reportLines.push(`  ${account.name}: ${totalPayments.toFixed(2)} (${label}: ${Math.abs(overpaid).toFixed(2)})\n`);
 		}
-		/** At this point, the only `directPayments` are cabin surcharge payments */
-		if (directPayments.length) {
-			console.log('Cabin Compensations:');
-			for (let directPayment of directPayments) {
-				const from = accounts.get(directPayment.from);
-				const to = accounts.get(directPayment.to);
-				if (from !== undefined && to !== undefined) {
-					console.log(`  ${from.name} owes ${to.name} ${directPayment.amount.toFixed(2)}`);
-				}
-			}
-		}
+
+		// /** At this point, the only `directPayments` are cabin surcharge payments */
+		// if (directPayments.length) {
+		// 	reportLines.push('Cabin Compensations:\n');
+		// 	for (let directPayment of directPayments) {
+		// 		const from = accounts.get(directPayment.from);
+		// 		const to = accounts.get(directPayment.to);
+		// 		if (from !== undefined && to !== undefined) {
+		// 			reportLines.push(`  ${from.name} owes ${to.name} ${directPayment.amount.toFixed(2)}\n`);
+		// 		}
+		// 	}
+		// }
 
 		/**
 		 * We will only perform this bit of accounting when there are exactly 3
 		 * accounts involved. Writing a generic function may be very complex,
 		 * and our 3-account assumption is pretty safe for now.
+		 * 
+		 * One possibility: use a bubble-up algorithm. sort underpayers by
+		 * amount ascending (Fred 1.99, Mary 11.99, Daisy 55.00 ...). Fred sends
+		 * all of his underpayment to Mary, Mary sends all of her own
+		 * underpayment plus the amount received from Fred to Daisy, Daisy
+		 * follows the same approach. When the last underpayer is reached, he or
+		 * she pays each of the overpayers' their overpayment amount. Only the
+		 * last underpayer needs to make multiple payments, which could be seen
+		 * as fitting, since they apparently carried the lightest load in the
+		 * reservation process.
 		 */
 		if (payments.size == 3) {
 			const underpayers: string[] = []/* underpayer account keys */
@@ -326,15 +369,16 @@ export function accounting(
 			 * loop over and accumulate amounts for same from/to
 			 *     report each from/to
 			 */
-			console.log('Reimbursements:');
+			reportLines.push('\nReimbursements:\n');
 			for (const directPayment of directPayments) {
 				const fromAccount = accounts.get(directPayment.from)!;
 				const toAccount = accounts.get(directPayment.to)!;
-				const purpose = (directPayment.purpose) ? ` (${directPayment.purpose})` : ''
-				console.log(`  ${fromAccount.name} owes ${toAccount.name} ${directPayment.amount.toFixed(2)}${purpose}`);
+				const purpose = (directPayment.purpose) ? ` (includes ${directPayment.purpose})` : ''
+				reportLines.push(`  ${fromAccount.name} owes ${toAccount.name} ${directPayment.amount.toFixed(2)}${purpose}\n`);
 			}
 		}
 	}
+	return reportLines;
 }
 
 /**

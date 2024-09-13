@@ -568,3 +568,9 @@ font-family: sans-serif;
 	/* font-weight: bold; */
 	background-color: lightblue;
 }
+.box-text {
+	border: 1px solid black;
+}
+.indent-text {
+	margin: .5rem 1rem;
+}

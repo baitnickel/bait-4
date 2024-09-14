@@ -63,19 +63,17 @@ export function render() {
      * Display the current year's campsite reservation table.
      */
     if (ParkReservations !== undefined && ReservationYears[0]) {
-        const newView = new Event(NewViewEvent);
+        const newReservationsView = new Event(NewViewEvent);
         const reservationParagraph = document.createElement('p');
         const detailsElement = document.createElement('details');
         const summaryElement = document.createElement('summary');
         const reservationsTableElement = document.createElement('table');
         const buttonsElement = document.createElement('div');
         const yearSelection = document.createElement('select');
-        const radioButtons = new Widgets.RadioButtons('radio-button', 'active', newView);
+        const radioButtons = new Widgets.RadioButtons('radio-button', 'active', newReservationsView);
         const accountingDiv = document.createElement('div');
         const reportParagraph = document.createElement('p');
-        const reportSection = document.createElement('pre');
-        reportParagraph.classList.add('box-text');
-        reportSection.classList.add('indent-text');
+        accountingDiv.classList.add('framed-text');
         /* render the Details/Summary elements */
         summaryElement.innerText = 'Reservations';
         detailsElement.append(summaryElement);
@@ -86,15 +84,15 @@ export function render() {
             Reservations.displayReservationTable(reservationsTableElement, Number(yearSelection.value), ParkReservations, Accounts, radioButtons);
             /* Generate campsite accounting report */
             const reportLines = Reservations.accounting(Number(yearSelection.value), ParkReservations, Accounts, Costs);
-            reportSection.innerText = '';
+            reportParagraph.innerText = '';
             for (const reportLine of reportLines)
-                reportSection.append(reportLine);
+                reportParagraph.append(reportLine);
         });
         /* drop down selection for reservation year */
         for (const year of ReservationYears)
             yearSelection.add(new Option(`${year}`, `${year}`));
         buttonsElement.append(yearSelection);
-        yearSelection.addEventListener('change', () => { document.dispatchEvent(newView); });
+        yearSelection.addEventListener('change', () => { document.dispatchEvent(newReservationsView); });
         /* radio buttons to switch between Purchasers and Occupants view */
         radioButtons.addButton('Purchasers');
         radioButtons.addButton('Occupants');
@@ -104,11 +102,10 @@ export function render() {
         detailsElement.append(reservationsTableElement);
         reservationParagraph.append(detailsElement);
         reservationsDiv.append(reservationParagraph);
-        reportParagraph.append(reportSection);
         accountingDiv.append(reportParagraph);
         detailsElement.append(accountingDiv);
-        /* on initial rendering, display campsite reservation info */
-        document.dispatchEvent(newView);
+        /* on initial rendering, trigger display of campsite reservation info */
+        document.dispatchEvent(newReservationsView);
     }
 }
 function createParagraphs(lines) {

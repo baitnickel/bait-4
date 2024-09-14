@@ -120,9 +120,10 @@ summary {
 }
 */
 
-p {
+/* removed for camp page ... what else is affected?? */
+/* p {
 	font-family: serif;
-}
+} */
 
 .italic {
 	font-style: italic;
@@ -568,9 +569,14 @@ font-family: sans-serif;
 	/* font-weight: bold; */
 	background-color: lightblue;
 }
-.box-text {
+.framed-text {
+	/* font-family: monospace; */
+	font-family: sans-serif;
+	font-size: smaller;
+	white-space: pre;
 	border: 1px solid black;
+	margin: .5rem 0 1rem 0;
+	padding: 0 .5rem;
 }
-.indent-text {
-	margin: .5rem 1rem;
-}
+/* .indent-text {
+} */

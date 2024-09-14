@@ -1,0 +1,72 @@
+# Add one row for each campsite reservation.
+#
+# Rows can be added in any order, but by convention we are keeping reservations
+# for the same year grouped together (with comments such as "# 2024" separating
+# the years), and it can make maintenance easier if rows within each year are
+# sorted by site and arrival date.
+
+# Field Values:
+# -------------
+# site: campsite number (must include the "J" prefix for cabins)
+# arrival: date in "(M)M-DD" format
+# reserved: number of nights reserved
+# cancelled: number of nights cancelled (or 0)
+# purchaser: key from accounts.yaml; may be followed by a slash and the actual
+#    reservation account name
+# occupants: key from accounts.yaml representing the family group occupying
+#    the site, followed by a slash and one or more occupant names. When the
+#    value of this field does not contain a slash, the whole value of this
+#    field is for info only, e.g., "?", "Base Camp", etc. (defaults to "?").
+
+# Every field must have a value (cannot be left empty). Enter something like a question
+# mark ("?") when the value is not known. Commas are not allowed in a field value, such
+# as occupants; other special characters (e.g., "&", "+", ";" are OK).
+
+### 12 and 43 were actually cancelled 3, not 4. Was 86 cancelled at all on the first week?
+
+smitty:
+  - 2024:
+    final: false
+    adjustments:
+      - { group: P, amount: -356, for: Storage Unit }
+      - { group: D, amount: 105, for: Reimbursement }
+    reservations:
+      - { site: 12,   arrival: 7-19, reserved: 6, cancelled: 0, purchaser: P, occupants: D/Zach & Wei }
+      - { site: 12,   arrival: 7-25, reserved: 7, cancelled: 3, purchaser: P/Paul, occupants: D/Zach & Wei }
+      - { site: 43,   arrival: 7-25, reserved: 7, cancelled: 3, purchaser: P/Duck, occupants: D/Anne & Richard }
+      - { site: 47,   arrival: 7-21, reserved: 7, cancelled: 0, purchaser: J/Andrew, occupants: MAIN SITE }
+      - { site: 47,   arrival: 7-28, reserved: 6, cancelled: 0, purchaser: P/PWesley, occupants: MAIN SITE }
+      - { site: 58,   arrival: 7-21, reserved: 7, cancelled: 0, purchaser: J, occupants: J/James & Kristin }
+      - { site: 85,   arrival: 7-20, reserved: 7, cancelled: 0, purchaser: D/Zach, occupants: J/Mycah & Sarah }
+      - { site: 85,   arrival: 7-27, reserved: 7, cancelled: 7, purchaser: D, occupants: ? }
+      - { site: 86,   arrival: 7-20, reserved: 7, cancelled: 4, purchaser: D/Becca, occupants: ? }
+      - { site: 86,   arrival: 7-27, reserved: 7, cancelled: 7, purchaser: D/Laurel, occupants: ? }
+      - { site: 88,   arrival: 7-22, reserved: 7, cancelled: 7, purchaser: D/Becca, occupants: ? }
+      - { site: 89,   arrival: 7-20, reserved: 7, cancelled: 0, purchaser: J, occupants: D/Dan & Laurel }
+      - { site: 89,   arrival: 7-27, reserved: 7, cancelled: 0, purchaser: J, occupants: D/Dan & Laurel }
+      - { site: 98,   arrival: 7-21, reserved: 7, cancelled: 7, purchaser: P, occupants: ? }
+      - { site: J30,  arrival: 7-27, reserved: 7, cancelled: 0, purchaser: P/PWesley, occupants: J/James & Kristin }
+      - { site: J105, arrival: 7-27, reserved: 7, cancelled: 0, purchaser: P/Joni, occupants: P/Pete & Joni & Carisa }
+  - 2023:
+    final: true
+    adjustments:
+      - { group: P, amount: -356, for: Storage Unit }
+    reservations:
+      - { site: 15,   arrival: 7-28, reserved: 7, cancelled: 7, purchaser: J/Andrew, occupants: ? }
+      - { site: 36,   arrival: 7-23, reserved: 7, cancelled: 3, purchaser: P/Paul, occupants: D/Becca & Chris }
+      - { site: 36,   arrival: 7-30, reserved: 6, cancelled: 6, purchaser: J/Corin, occupants: ? }
+      - { site: 40,   arrival: 7-22, reserved: 7, cancelled: 5, purchaser: J/Andrew, occupants: P/Pete & Joni }
+      - { site: 40,   arrival: 7-29, reserved: 7, cancelled: 7, purchaser: P/Joni, occupants: ? }
+      - { site: 59,   arrival: 7-28, reserved: 7, cancelled: 0, purchaser: J/Corin, occupants: J/James & Corin }
+      - { site: 93,   arrival: 7-22, reserved: 7, cancelled: 0, purchaser: D/Laurel, occupants: J/James & Corin }
+      - { site: 95,   arrival: 7-22, reserved: 7, cancelled: 0, purchaser: P, occupants: D/Dan & Laurel }
+      - { site: 95,   arrival: 7-29, reserved: 7, cancelled: 0, purchaser: D, occupants: D/Dan & Laurel }
+      - { site: 97,   arrival: 7-23, reserved: 7, cancelled: 0, purchaser: D/Becca, occupants: MAIN SITE }
+      - { site: 97,   arrival: 7-30, reserved: 6, cancelled: 0, purchaser: D, occupants: MAIN SITE }
+      - { site: 99,   arrival: 7-22, reserved: 7, cancelled: 0, purchaser: J, occupants: D/Zach & Wei }
+      - { site: 99,   arrival: 7-29, reserved: 7, cancelled: 7, purchaser: P/PWesley, occupants: ? }
+      - { site: 103,  arrival: 7-22, reserved: 7, cancelled: 2, purchaser: P/Joni, occupants: P/Carisa }
+      - { site: 103,  arrival: 7-29, reserved: 7, cancelled: 7, purchaser: P/Carisa, occupants: P/Carisa }
+      - { site: 104,  arrival: 7-29, reserved: 7, cancelled: 7, purchaser: P/PWesley, occupants: ? }
+      - { site: J105, arrival: 7-29, reserved: 7, cancelled: 0, purchaser: P/Duck, occupants: P/Pete & Joni }
+      - { site: J26,  arrival: 7-24, reserved: 6, cancelled: 0, purchaser: D/Becca, occupants: P/Pete & Joni }

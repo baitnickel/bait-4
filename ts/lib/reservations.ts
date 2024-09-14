@@ -254,10 +254,11 @@ export function accounting(
 	 * simplify the main thread here.
 	 */
 	const accountKeys = Array.from(accounts.keys());
+	const participants: string[] = []; /* keys of valid account groups present as purchasers and/or occupants */
 	const cabinPrefix = 'J';
 	const cost = currentCosts(year.toString(), costs);
 	const payments = new Map<string, number>(); /* key is accounts.key */
-	let sharedCosts = 0;
+	let sharedExpenses = 0;
 	const directPayments: Transaction[] = [];
 	const directReceipts: Transaction[] = [];
 	/**
@@ -275,24 +276,29 @@ export function accounting(
 	for (let accountKey of accountKeys) payments.set(accountKey, 0); /* initialize all account payments */
 	if (cost === undefined) reportLines.push(`cannot get ${year} Cost record\n`);
 	else {
+
 		const storagePurchaser = 'P'; //### obviously, shouldn't be hardcoded--how should we store in reservations?
 		const storageCost = cost.storage;
+		addParticipant(storagePurchaser, participants, accountKeys);
 		accumulate(storagePurchaser, payments, cost.storage);
-		sharedCosts += storageCost;
+		sharedExpenses += storageCost;
+
 		/* loop over reservations: */ //### sort by account/site/arrival so we can report transactions here
 		for (let reservation of reservations) {
 			if (reservation.arrival.startsWith(`${year}`)) {
 				const purchaser = slashedValues(reservation.purchaser)[0];
 				const occupant = slashedValues(reservation.occupants, false)[0];
+				addParticipant(purchaser, participants, accountKeys);
+				addParticipant(occupant, participants, accountKeys);
 				accumulate(purchaser, payments, cost.reservation);
-				sharedCosts += cost.reservation;
+				sharedExpenses += cost.reservation;
 				if (reservation.cancelled > 0) {
 					accumulate(purchaser, payments, cost.cancellation);
-					sharedCosts += cost.cancellation;
+					sharedExpenses += cost.cancellation;
 				}
 				const costOfSite = cost.site * (reservation.reserved - reservation.cancelled);
 				accumulate(purchaser, payments, costOfSite);
-				sharedCosts += costOfSite;
+				sharedExpenses += costOfSite;
 				/* add any direct payments (e.g., cabin surcharge) */
 				if (reservation.site.toString().startsWith(cabinPrefix) && occupant != purchaser) {
 					const amount = (cost.cabin - cost.site) * (reservation.reserved - reservation.cancelled);
@@ -302,15 +308,17 @@ export function accounting(
 				}
 			}
 		}
-		const perAccountShare = sharedCosts / accountKeys.length;
-		reportLines.push(`Total shared cost: ${sharedCosts.toFixed(2)} Per account: ${perAccountShare.toFixed(2)}\n`);
+		const perAccountShare = sharedExpenses / accountKeys.length;
+		// reportLines.push(`Total shared expenses: ${sharedExpenses.toFixed(2)}\n`);
+		reportLines.push(`Total shared expenses: ${dollars(sharedExpenses)}\n`);
+		reportLines.push(`  1/${participants.length} share: ${dollars(perAccountShare)}\n`);
 		reportLines.push('\nPayments:\n');
 		for (let accountKey of accountKeys) {
 			const account = accounts.get(accountKey)!;
 			const totalPayments = payments.get(accountKey)!;
 			const overpaid = totalPayments - perAccountShare;
 			const label = (totalPayments <= perAccountShare) ? 'underpaid' : 'overpaid';
-			reportLines.push(`  ${account.name}: ${totalPayments.toFixed(2)} (${label}: ${Math.abs(overpaid).toFixed(2)})\n`);
+			reportLines.push(`  ${account.name}: ${dollars(totalPayments)} (${label}: ${dollars(Math.abs(overpaid))})\n`);
 		}
 
 		// /** At this point, the only `directPayments` are cabin surcharge payments */
@@ -374,7 +382,7 @@ export function accounting(
 				const fromAccount = accounts.get(directPayment.from)!;
 				const toAccount = accounts.get(directPayment.to)!;
 				const purpose = (directPayment.purpose) ? ` (includes ${directPayment.purpose})` : ''
-				reportLines.push(`  ${fromAccount.name} owes ${toAccount.name} ${directPayment.amount.toFixed(2)}${purpose}\n`);
+				reportLines.push(`  ${fromAccount.name} owes ${toAccount.name} ${dollars(directPayment.amount)}${purpose}\n`);
 			}
 		}
 	}
@@ -413,4 +421,20 @@ function accumulate(key: string, map: Map<string, number>, amount: number) {
 	if (currentAmount !== undefined) {
 		map.set(key, currentAmount + amount);
 	}
+}
+
+function addParticipant(groupKey: string, participants: string[], accountKeys: string[]) {
+	if (accountKeys.includes(groupKey) && !participants.includes(groupKey)) {
+		participants.push(groupKey);
+	}
+}
+
+/**
+ * Alternative to `number.toFixed(2)`. Use the host default language with
+ * options for number formatting.
+ */
+function dollars(number: number) {
+	// Might also use Unicode's small dollar sign ('\uFE69'),
+	// but this appears to force monospace fonts.
+	return '$' + number.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2,})
 }

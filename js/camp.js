@@ -6,6 +6,7 @@ import * as Reservations from './lib/reservations.js';
 import * as Widgets from './lib/widgets.js';
 const Site = Settings.Site();
 const NewViewEvent = 'bait:update-reservation-view';
+const AccountingOptionEvent = 'bait:update-accounting-option';
 const Park = 'smitty';
 const CampgroundsPath = `${Site}/data/camp/campgrounds.yaml`;
 const ReservationsPath = `${Site}/data/camp/reservations.yaml`;
@@ -63,7 +64,9 @@ export function render() {
      * Display the current year's campsite reservation table.
      */
     if (ParkReservations !== undefined && ReservationYears[0]) {
+        let showAccounting = false;
         const newReservationsView = new Event(NewViewEvent);
+        const accountingOptionChanged = new Event(AccountingOptionEvent);
         const reservationParagraph = document.createElement('p');
         const detailsElement = document.createElement('details');
         const summaryElement = document.createElement('summary');
@@ -71,6 +74,7 @@ export function render() {
         const buttonsElement = document.createElement('div');
         const yearSelection = document.createElement('select');
         const radioButtons = new Widgets.RadioButtons('radio-button', 'active', newReservationsView);
+        const accountingOption = new Widgets.Checkbox('accounting', 'Show Accounting: ', accountingOptionChanged, showAccounting);
         const accountingDiv = document.createElement('div');
         const reportParagraph = document.createElement('p');
         accountingDiv.classList.add('framed-text');
@@ -80,13 +84,19 @@ export function render() {
         /* listen for reservation view changes and (re)display campsite reservations on change */
         document.addEventListener(NewViewEvent, () => {
             reservationsTableElement.innerHTML = '';
+            reportParagraph.innerText = '';
             /* Generate campsite reservation table */
             Reservations.displayReservationTable(reservationsTableElement, Number(yearSelection.value), ParkReservations, Accounts, radioButtons);
-            /* Generate campsite accounting report */
-            const reportLines = Reservations.accounting(Number(yearSelection.value), ParkReservations, Accounts, Costs);
-            reportParagraph.innerText = '';
-            for (const reportLine of reportLines)
-                reportParagraph.append(reportLine);
+            if (showAccounting) {
+                /* Generate campsite accounting report */
+                const reportLines = Reservations.accounting(Number(yearSelection.value), ParkReservations, Accounts, Costs);
+                for (const reportLine of reportLines)
+                    reportParagraph.append(reportLine);
+            }
+        });
+        document.addEventListener(AccountingOptionEvent, () => {
+            showAccounting = accountingOption.checkbox.checked;
+            document.dispatchEvent(newReservationsView);
         });
         /* drop down selection for reservation year */
         for (const year of ReservationYears)
@@ -98,6 +108,8 @@ export function render() {
         radioButtons.addButton('Occupants');
         for (let button of radioButtons.buttons)
             buttonsElement.append(button);
+        /* checkbox option */
+        // NOT READY FOR PRIMETIME ... buttonsElement.append(accountingOption.label);
         detailsElement.append(buttonsElement);
         detailsElement.append(reservationsTableElement);
         reservationParagraph.append(detailsElement);

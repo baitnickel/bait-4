@@ -1,21 +1,25 @@
-export type DisplayFunction = (documents: string[], index: number) => void;
+/**
+ * The Navigator class manages a set of buttons (First, Previous, Next, Last)
+ * for navigating through a set of documents (an array of file path names).
+ */
 export class Navigator {
 	index: number;
 	readonly documents: string[];
-	displayFunction: DisplayFunction;
 	firstButton: HTMLButtonElement;
 	previousButton: HTMLButtonElement;
 	nextButton: HTMLButtonElement;
 	lastButton: HTMLButtonElement;
+	event: Event;
 
-	constructor(documents: string[], displayFunction: DisplayFunction) {
+	constructor(documents: string[], event: Event) {
 		this.index = 0;
 		this.documents = documents;
-		this.displayFunction = displayFunction;
 		this.firstButton = document.createElement('button');
 		this.previousButton = document.createElement('button');
 		this.nextButton = document.createElement('button');
 		this.lastButton = document.createElement('button');
+		this.event = event;
+
 		/** default button texts */
 		this.firstButton.innerText = '|<';
 		this.previousButton.innerText = '<';
@@ -26,16 +30,16 @@ export class Navigator {
 			this.firstButton.disabled = true;
 			this.previousButton.disabled = true;
 
-			this.firstButton.addEventListener('click', (e) => {
+			this.firstButton.addEventListener('click', () => {
 				this.index = 0;
 				this.firstButton.disabled = true;
 				this.previousButton.disabled = true;
 				this.lastButton.disabled = false;
 				this.nextButton.disabled = false;
-				this.displayFunction(documents, this.index);
-			});
+				document.dispatchEvent(this.event);
+		});
 
-			this.previousButton.addEventListener('click', (e) => {
+			this.previousButton.addEventListener('click', () => {
 				if (this.index > 0) {
 					this.index -= 1;
 					if (this.index == 0) {
@@ -44,11 +48,11 @@ export class Navigator {
 					}
 					this.lastButton.disabled = false;
 					this.nextButton.disabled = false;
-					this.displayFunction(documents, this.index);
+					document.dispatchEvent(this.event);
 				}
 			});
 
-			this.nextButton.addEventListener('click', (e) => {
+			this.nextButton.addEventListener('click', () => {
 				if (this.index < this.documents.length - 1) {
 					this.index += 1;
 					this.firstButton.disabled = false;
@@ -57,18 +61,18 @@ export class Navigator {
 						this.lastButton.disabled = true;
 						this.nextButton.disabled = true;
 					}
-					this.displayFunction(documents, this.index);
+					document.dispatchEvent(this.event);
 				}
 			});
 
-			this.lastButton.addEventListener('click', (e) => {
+			this.lastButton.addEventListener('click', () => {
 				if (this.index < this.documents.length - 1) {
 					this.index = this.documents.length - 1;
 					this.firstButton.disabled = false;
 					this.previousButton.disabled = false;
 					this.lastButton.disabled = true;
 					this.nextButton.disabled = true;
-					this.displayFunction(documents, this.index);
+					document.dispatchEvent(this.event);
 				}
 			});
 		}
@@ -102,7 +106,7 @@ export class Navigator {
  * attribute is set to the value of the group (the currently active button's
  * value).
  */
-export type RadioSelection = (activeButton: string) => void;
+// export type RadioSelection = (activeButton: string) => void;
 export class RadioButtons {
 	buttons: HTMLButtonElement[];
 	classNames: string[];
@@ -146,5 +150,28 @@ export class RadioButtons {
 				document.dispatchEvent(this.event); /* a button has become active */
 			}
 		});
+	}
+}
+
+export class Checkbox {
+	checkbox: HTMLInputElement;
+	label: HTMLLabelElement;
+	event: Event;
+
+	constructor(id: string, label: string, event: Event, checked = false) {
+		this.checkbox = document.createElement('input');
+		this.label = document.createElement('label');
+		this.event = event;
+
+		this.checkbox.id = id;
+		this.checkbox.type = 'checkbox';
+		this.checkbox.checked = checked;
+		this.label.htmlFor = this.checkbox.id;
+		this.label.innerText = label;
+		this.label.append(this.checkbox);
+
+		this.checkbox.addEventListener('change', () => {
+			document.dispatchEvent(this.event);
+		})
 	}
 }

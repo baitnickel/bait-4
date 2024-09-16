@@ -1,12 +1,16 @@
+/**
+ * The Navigator class manages a set of buttons (First, Previous, Next, Last)
+ * for navigating through a set of documents (an array of file path names).
+ */
 export class Navigator {
-    constructor(documents, displayFunction) {
+    constructor(documents, event) {
         this.index = 0;
         this.documents = documents;
-        this.displayFunction = displayFunction;
         this.firstButton = document.createElement('button');
         this.previousButton = document.createElement('button');
         this.nextButton = document.createElement('button');
         this.lastButton = document.createElement('button');
+        this.event = event;
         /** default button texts */
         this.firstButton.innerText = '|<';
         this.previousButton.innerText = '<';
@@ -15,15 +19,15 @@ export class Navigator {
         if (this.documents.length > 1) {
             this.firstButton.disabled = true;
             this.previousButton.disabled = true;
-            this.firstButton.addEventListener('click', (e) => {
+            this.firstButton.addEventListener('click', () => {
                 this.index = 0;
                 this.firstButton.disabled = true;
                 this.previousButton.disabled = true;
                 this.lastButton.disabled = false;
                 this.nextButton.disabled = false;
-                this.displayFunction(documents, this.index);
+                document.dispatchEvent(this.event);
             });
-            this.previousButton.addEventListener('click', (e) => {
+            this.previousButton.addEventListener('click', () => {
                 if (this.index > 0) {
                     this.index -= 1;
                     if (this.index == 0) {
@@ -32,10 +36,10 @@ export class Navigator {
                     }
                     this.lastButton.disabled = false;
                     this.nextButton.disabled = false;
-                    this.displayFunction(documents, this.index);
+                    document.dispatchEvent(this.event);
                 }
             });
-            this.nextButton.addEventListener('click', (e) => {
+            this.nextButton.addEventListener('click', () => {
                 if (this.index < this.documents.length - 1) {
                     this.index += 1;
                     this.firstButton.disabled = false;
@@ -44,17 +48,17 @@ export class Navigator {
                         this.lastButton.disabled = true;
                         this.nextButton.disabled = true;
                     }
-                    this.displayFunction(documents, this.index);
+                    document.dispatchEvent(this.event);
                 }
             });
-            this.lastButton.addEventListener('click', (e) => {
+            this.lastButton.addEventListener('click', () => {
                 if (this.index < this.documents.length - 1) {
                     this.index = this.documents.length - 1;
                     this.firstButton.disabled = false;
                     this.previousButton.disabled = false;
                     this.lastButton.disabled = true;
                     this.nextButton.disabled = true;
-                    this.displayFunction(documents, this.index);
+                    document.dispatchEvent(this.event);
                 }
             });
         }
@@ -76,6 +80,17 @@ export class Navigator {
         }
     }
 }
+/**
+ * Radio Buttons
+ *
+ * Construct an object from an array of buttons, to be laid out horizontally or
+ * vertically or in a matrix. These will, I expect, all share the same class so
+ * that CSS can decorate them consistently. They should behave like classic
+ * radio buttons, when one is clicked all other are disabled. An object
+ * attribute is set to the value of the group (the currently active button's
+ * value).
+ */
+// export type RadioSelection = (activeButton: string) => void;
 export class RadioButtons {
     constructor(classNames, activeClass, event) {
         this.buttons = [];
@@ -115,6 +130,22 @@ export class RadioButtons {
                 this.activeButton = button.value;
                 document.dispatchEvent(this.event); /* a button has become active */
             }
+        });
+    }
+}
+export class Checkbox {
+    constructor(id, label, event, checked = false) {
+        this.checkbox = document.createElement('input');
+        this.label = document.createElement('label');
+        this.event = event;
+        this.checkbox.id = id;
+        this.checkbox.type = 'checkbox';
+        this.checkbox.checked = checked;
+        this.label.htmlFor = this.checkbox.id;
+        this.label.innerText = label;
+        this.label.append(this.checkbox);
+        this.checkbox.addEventListener('change', () => {
+            document.dispatchEvent(this.event);
         });
     }
 }

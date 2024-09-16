@@ -37,6 +37,7 @@ import * as Widget from './lib/widgets.js';
 /** @todo perhaps float top navigation (buttons) at the top of the window? */
 
 const ThisPage = new Page();
+const NavigationEvent = 'bait:navigation-update';
 const NavigationElement = ThisPage.appendContent('#top-navigation');
 const ArticleElement = ThisPage.appendContent('#main-article article');
 const ProgressElement = document.createElement('span');
@@ -47,6 +48,7 @@ const Articles = await Fetch.map<T.FileStats>(ArticlesIndex);
 export function render() {
 	const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path') : ''; 
 	const eligiblePaths = [pagePath!];
+	const updateNavigation = new Event(NavigationEvent);
 
 	/**
 	 * Select Articles (markdown documents) from the full list of Articles. If
@@ -59,9 +61,14 @@ export function render() {
 	 * When there are multiple Articles to be displayed, define navigation buttons.
 	 */
 	if (selectedArticles.length > 1) {
-		const navigator = new Widget.Navigator(selectedArticles, displayArticle);
+		const navigator = new Widget.Navigator(selectedArticles, updateNavigation);
 		navigator.addButtons(NavigationElement, 'article-navigation-button');
 		NavigationElement.append(ProgressElement);
+		
+		/* listen for navigation button clicks and display previous/next article */
+		document.addEventListener(NavigationEvent, () => {
+			displayArticle(navigator.documents, navigator.index);
+		});
 	}
 }
 

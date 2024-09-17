@@ -1,8 +1,8 @@
 # Costs are used in calculating camping expenses.
 # All the values here are dollar amounts.
-# A new entry, keyed by the 4-digit year, is required whenever
-# these values change. Years may be entered here in any order.
+#
+# A new entry is required whenever these values change.
+# Rows may be entered here in any order.
 
-### remove `storage` here once applications read from reservations 'hootch' instead.
-
-2023: { site: 35, cabin: 100, storage: 356, reservation: 7.99, cancellation: 7.99 }
+smitty:
+  - { year: 2023, site: 35, cabin: 100, reservation: 7.99, cancellation: 7.99 }

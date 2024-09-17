@@ -10,13 +10,13 @@
 # site: campsite number (must include the "J" prefix for cabins)
 # arrival: date in "YYYY-MM-DD" format
 # reserved: number of nights reserved
-# cancelled: number of nights cancelled (defaults to 0)
-# purchaser: key from accounts.yaml; may be followed by a slash and the actual
-#    reservation account name
-# occupants: key from accounts.yaml representing the family group occupying
-#    the site, followed by a slash and one or more occupant names. When the
-#    value of this field does not contain a slash, the whole value of this
-#    field is for info only, e.g., "?", "Base Camp", etc. (defaults to "?").
+# cancelled: number of nights cancelled (or 0 for none)
+# purchaser: key from groups.yaml; may be followed by a slash and the actual
+#    reservation group name
+# occupants: key from groups.yaml representing the family group occupying
+#    the site, followed by a slash and one or more free-form occupant names.
+#    When the value of this field does not contain a slash, the whole value of
+#    the field is for info only, e.g., "Chad & Jeremy", "MAIN SITE", "?", etc.
 
 # Every field must have a value (cannot be left empty). Enter something like a question
 # mark ("?") when the value is not known. Commas are not allowed in a field value;
@@ -24,8 +24,6 @@
 
 ### 12 and 43 were actually cancelled 3, not 4. Was 86 cancelled at all on the first week?
 
-hooch: 
-  - { year: 2023, product: STORAGE, purchaser: P, cost: 356 }
 smitty:
   # 2024
   - { site: 12,   arrival: 2024-07-19, reserved: 6, cancelled: 0, purchaser: P, occupants: D/Zach & Wei }

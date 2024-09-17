@@ -294,13 +294,19 @@ type Journal /* JournalEntry */ = { /* keyed by uri */
 // }
 
 export type CampCosts = {
+	year: number;
 	site: number; /* per-night campsite cost */
 	cabin: number; /* per-night cabin cost */
-	storage: number; /* per-year storage unit cost */
 	reservation: number; /* per-site reservation fee */
 	cancellation: number; /* per-site cancellation fee */
 }
-export type CampAccount = {
+export type CampAdjustment = {
+	year: number;
+	group: string;
+	amount: number;
+	for: string;
+}
+export type CampGroup = {
 	name: string; /* name of reservation account holder */
 	color: string; /* color associated with account */
 }

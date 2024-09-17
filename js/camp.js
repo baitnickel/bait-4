@@ -9,16 +9,19 @@ const NewViewEvent = 'bait:update-reservation-view';
 const AccountingOptionEvent = 'bait:update-accounting-option';
 const Park = 'smitty';
 const CampgroundsPath = `${Site}/data/camp/campgrounds.yaml`;
+const GroupsPath = `${Site}/data/camp/groups.yaml`;
 const ReservationsPath = `${Site}/data/camp/reservations.yaml`;
-const AccountsPath = `${Site}/data/camp/accounts.yaml`;
+const AdjustmentsPath = `${Site}/data/camp/adjustments.yaml`;
 const CostsPath = `${Site}/data/camp/costs.yaml`;
 /** Fetch all the data we'll need before rendering the page */
 const Campgrounds = await Fetch.map(CampgroundsPath);
+const Groups = await Fetch.map(GroupsPath);
 const AllReservations = await Fetch.map(ReservationsPath);
+const AllAdjustments = await Fetch.map(AdjustmentsPath);
+const AllCosts = await Fetch.map(CostsPath);
 const ParkReservations = AllReservations.get(Park);
-//### const Reservations = ParkReservations.get(Park); // would be nice to use this, but "Reservations" is being used for something else
-const Accounts = await Fetch.map(AccountsPath);
-const Costs = await Fetch.map(CostsPath);
+const ParkAdjustments = (AllAdjustments.get(Park) !== undefined) ? AllAdjustments.get(Park) : [];
+const ParkCosts = (AllCosts.get(Park) !== undefined) ? AllCosts.get(Park) : [];
 const ReservationYears = reservationYears(ParkReservations);
 export function render() {
     const page = new Page();
@@ -64,7 +67,8 @@ export function render() {
      * Display the current year's campsite reservation table.
      */
     if (ParkReservations !== undefined && ReservationYears[0]) {
-        let showAccounting = false;
+        const testAccounting = page.local; //###
+        let showAccounting = false; //### unchecked option by default
         const newReservationsView = new Event(NewViewEvent);
         const accountingOptionChanged = new Event(AccountingOptionEvent);
         const reservationParagraph = document.createElement('p');
@@ -74,7 +78,7 @@ export function render() {
         const buttonsElement = document.createElement('div');
         const yearSelection = document.createElement('select');
         const radioButtons = new Widgets.RadioButtons('radio-button', 'active', newReservationsView);
-        const accountingOption = new Widgets.Checkbox('accounting', 'Show Accounting: ', accountingOptionChanged, showAccounting);
+        const accountingOption = new Widgets.Checkbox('accounting', 'Show Accounting: ', 'camp-checkbox', accountingOptionChanged, showAccounting);
         const accountingDiv = document.createElement('div');
         const reportParagraph = document.createElement('p');
         accountingDiv.classList.add('framed-text');
@@ -85,14 +89,18 @@ export function render() {
         document.addEventListener(NewViewEvent, () => {
             reservationsTableElement.innerHTML = '';
             reportParagraph.innerText = '';
+            const year = Number(yearSelection.value);
             /* Generate campsite reservation table */
-            Reservations.displayReservationTable(reservationsTableElement, Number(yearSelection.value), ParkReservations, Accounts, radioButtons);
+            Reservations.displayReservationTable(reservationsTableElement, year, ParkReservations, Groups, radioButtons);
             if (showAccounting) {
                 /* Generate campsite accounting report */
-                const reportLines = Reservations.accounting(Number(yearSelection.value), ParkReservations, Accounts, Costs);
+                const reportLines = Reservations.accounting(year, Groups, ParkReservations, ParkAdjustments, ParkCosts);
                 for (const reportLine of reportLines)
                     reportParagraph.append(reportLine);
+                accountingDiv.hidden = false;
             }
+            else
+                accountingDiv.hidden = true;
         });
         document.addEventListener(AccountingOptionEvent, () => {
             showAccounting = accountingOption.checkbox.checked;
@@ -109,7 +117,8 @@ export function render() {
         for (let button of radioButtons.buttons)
             buttonsElement.append(button);
         /* checkbox option */
-        // NOT READY FOR PRIMETIME ... buttonsElement.append(accountingOption.label);
+        if (testAccounting)
+            buttonsElement.append(accountingOption.label);
         detailsElement.append(buttonsElement);
         detailsElement.append(reservationsTableElement);
         reservationParagraph.append(detailsElement);

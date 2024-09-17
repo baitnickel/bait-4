@@ -22,7 +22,7 @@ export function displayReservationTable(
 	tableElement: HTMLTableElement,
 	thisYear: number,
 	reservations: T.Reservation[],
-	accounts: Map<string, T.CampAccount>,
+	groups: Map<string, T.CampGroup>,
 	radioButtons: Widgets.RadioButtons,
 ) {
 	let adjustedReservations: AdjustedReservations = {};
@@ -65,7 +65,7 @@ export function displayReservationTable(
 	}
 
 	writeTableHeadings(tableElement, beginDate!, endDate!)
-	writeTableRows(tableElement, adjustedReservations, accounts, radioButtons);
+	writeTableRows(tableElement, adjustedReservations, groups, radioButtons);
 }
 
 function writeTableHeadings(tableElement: HTMLTableElement, beginDate: Date, endDate: Date) {
@@ -92,7 +92,7 @@ function writeTableHeadings(tableElement: HTMLTableElement, beginDate: Date, end
 function writeTableRows(
 	tableElement: HTMLTableElement,
 	adjustedReservations: AdjustedReservations,
-	accounts: Map<string, T.CampAccount>,
+	groups: Map<string, T.CampGroup>,
 	radioButtons: Widgets.RadioButtons
 ) {
 	let sites = sortAdjustedReservations(adjustedReservations);
@@ -113,15 +113,15 @@ function writeTableRows(
 
 			/** interpret slash-separated values in purchaser and occupants */
 			const purchaserValues = slashedValues(purchaser);
-			const accountKey = purchaserValues[0];
-			const account = accounts.get(accountKey);
-			let accountName = ''; 
-			let accountColor = 'lightgray'; /* default color when account is unknown */
-			if (account !== undefined) {
-				accountName = account.name;
-				accountColor = account.color;
+			const groupKey = purchaserValues[0];
+			const group = groups.get(groupKey);
+			let groupName = ''; 
+			let groupColor = 'lightgray'; /* default color when group is unknown */
+			if (group !== undefined) {
+				groupName = group.name;
+				groupColor = group.color;
 			}
-			if (purchaserValues[1].length) accountName = purchaserValues[1];
+			if (purchaserValues[1].length) groupName = purchaserValues[1];
 			const occupantValues = slashedValues(occupants, false);
 			const occupantNames = (occupantValues[1].length) ? occupantValues[1] : '';
 
@@ -137,10 +137,10 @@ function writeTableRows(
 
 			/** add reservation item */
 			siteItemElement = document.createElement('td');
-			const camperName = (radioButtons.activeButton == 'Purchasers') ? accountName : occupantNames;
+			const camperName = (radioButtons.activeButton == 'Purchasers') ? groupName : occupantNames;
 			siteItemElement.innerText = camperName;
 			if (nightsReserved > 1) siteItemElement.colSpan = nightsReserved;
-			siteItemElement.style.backgroundColor = accountColor;
+			siteItemElement.style.backgroundColor = groupColor;
 			siteItemElement.style.textAlign = 'center';
 			siteRowElement.append(siteItemElement);
 			nextColumn += nightsReserved;
@@ -185,20 +185,20 @@ function sortAdjustedReservations(adjustedReservations: AdjustedReservations) {
 
 /**
  * In the Reservation Purchaser and Occupants fields, the strings are typically
- * two values separated by a slash. In both cases, the first value is an Account
- * key. For Purchaser, the second value is a Reservation Account alias (one
- * person may have multiple reservation accounts). For Occupants, the second
+ * two values separated by a slash. In both cases, the first value is a Group
+ * key. For Purchaser, the second value is a Reservation Group alias (one
+ * person may have multiple reservation groups). For Occupants, the second
  * value is a free-form list of occupant names. (Storing two different values in
  * a single field is very bad coding practice! It's being done here merely to
  * simplify the YAML data entry, and might be abandoned once we provide a
  * suitable data entry UI--a rather difficult challenge in static website.)
  * 
- * When a Purchaser field has only one value (no slash), it is taken as an
- * Account key. When an Occupants field has only one value (no slash), it is
+ * When a Purchaser field has only one value (no slash), it is taken as a
+ * Group key. When an Occupants field has only one value (no slash), it is
  * taken as a free-form list of occupant names (or "Main Site", etc.).
  * 
  * Given a Purchaser or Occupants string, return a two-element array. Element 0
- * contains an Account key or an empty string. For a Purchaser field, Element 1
+ * contains a Group key or an empty string. For a Purchaser field, Element 1
  * will contain a reservation alias or an empty string. For an Occupants field,
  * Element 1 will contain a free-form string or an empty string. By default, we
  * assume the string is a Purchaser; set the optional `purchaser` parameter to
@@ -207,18 +207,18 @@ function sortAdjustedReservations(adjustedReservations: AdjustedReservations) {
 export function slashedValues(value: string, purchaser = true) {
 	const values: string[] = [];
 	const separator = '/'
-	let accountKey = '';
+	let groupKey = '';
 	let freeForm = '';
 	const i = value.indexOf(separator);
 	if (i < 0) { /* no slash */
-		if (purchaser) accountKey = value;
+		if (purchaser) groupKey = value;
 		else freeForm = value;
 	}
 	else {
-		accountKey = value.slice(0,i);
+		groupKey = value.slice(0,i);
 		freeForm = value.slice(i+1);
 	}
-	values.push(accountKey.trim());
+	values.push(groupKey.trim());
 	values.push(freeForm.trim());
 	return values;
 }
@@ -226,38 +226,38 @@ export function slashedValues(value: string, purchaser = true) {
 type Transaction = {from: string, to: string, amount: number; purpose: string };
 /**
  * Given the 4-digit `year`, an array of `reservations` for that year, an
- * `accounts` map, and a `costs` map, return an array of plain text lines
+ * `groups` map, and a `costs` map, return an array of plain text lines
  * representing an accounting report.
  */
 export function accounting(
 	year: number,
+	groups: Map<string, T.CampGroup>,
 	reservations: T.Reservation[],
-	accounts: Map<string, T.CampAccount>,
-	costs: Map<string, T.CampCosts>,
+	adjustments: T.CampAdjustment[],
+	costs: T.CampCosts[],
 ) {
 	const reportLines: string[] = [];
-	// reportLines.push(`${year} Accounting Report\n\n`);
 
 	/** 
-	 * Determine method--equal shares vs weight of account-occupants (default is
+	 * Determine method--equal shares vs weight of group-occupants (default is
 	 * equal shares). This might be determined by a UI switch, so that users can
 	 * compare results of each method.
 	 * 
-	 * This suggests the need for an `{account: ID, share: percentage}`
+	 * This suggests the need for an `{group: ID, share: percentage}`
 	 * object, where entries are set dynamically once the method is
 	 * determined and the purchaser/occupants is known.
 	 * 
-	 * There are probably too many different maps keyed by account ID; it might
-	 * make sense to create one dynamic object representing all the account data
+	 * There are probably too many different maps keyed by group ID; it might
+	 * make sense to create one dynamic object representing all the group data
 	 * we collect here: name, share, payments, receipts, etc. It might be nice
 	 * to create multiple functions to fill in these various data--modularize to
 	 * simplify the main thread here.
 	 */
-	const accountKeys = Array.from(accounts.keys());
-	const participants: string[] = []; /* keys of valid account groups present as purchasers and/or occupants */
+	const groupKeys = Array.from(groups.keys());
+	const participatingGroups: string[] = []; /* keys of valid groups present as purchasers and/or occupants */
 	const cabinPrefix = 'J';
-	const cost = currentCosts(year.toString(), costs);
-	const payments = new Map<string, number>(); /* key is accounts.key */
+	const cost = currentCosts(year, costs);
+	const payments = new Map<string, number>(); /* key is groups.key */
 	let sharedExpenses = 0;
 	const directPayments: Transaction[] = [];
 	const directReceipts: Transaction[] = [];
@@ -269,27 +269,22 @@ export function accounting(
 	 * 
 	 * Under a weighted-share approach, when a site is purchased by A and
 	 * occupied by B's family/friends, the fees should be shared across all
-	 * accounts, but the number of nights should be added to B's weight. In this
+	 * groups, but the number of nights should be added to B's weight. In this
 	 * scenario, B's receipts might nullify the shared expenses and lessen B's
 	 * weight?
 	 */
-	for (let accountKey of accountKeys) payments.set(accountKey, 0); /* initialize all account payments */
-	if (cost === undefined) reportLines.push(`cannot get ${year} Cost record\n`);
+	for (let groupKey of groupKeys) payments.set(groupKey, 0); /* initialize all group payments */
+	if (cost === undefined) reportLines.push(`cannot get ${year} Costs\n`);
 	else {
 
-		const storagePurchaser = 'P'; //### obviously, shouldn't be hardcoded--how should we store in reservations?
-		const storageCost = cost.storage;
-		addParticipant(storagePurchaser, participants, accountKeys);
-		accumulate(storagePurchaser, payments, cost.storage);
-		sharedExpenses += storageCost;
-
-		/* loop over reservations: */ //### sort by account/site/arrival so we can report transactions here
+		/* loop over reservations: */ //### sort by group/site/arrival so we can report transactions here
+		// report (e.g.): Pete: 6 reservations, 32 nights total, $1,200 total 
 		for (let reservation of reservations) {
 			if (reservation.arrival.startsWith(`${year}`)) {
 				const purchaser = slashedValues(reservation.purchaser)[0];
 				const occupant = slashedValues(reservation.occupants, false)[0];
-				addParticipant(purchaser, participants, accountKeys);
-				addParticipant(occupant, participants, accountKeys);
+				addParticipant(purchaser, participatingGroups, groupKeys);
+				addParticipant(occupant, participatingGroups, groupKeys);
 				accumulate(purchaser, payments, cost.reservation);
 				sharedExpenses += cost.reservation;
 				if (reservation.cancelled > 0) {
@@ -308,25 +303,60 @@ export function accounting(
 				}
 			}
 		}
-		const perAccountShare = sharedExpenses / accountKeys.length;
+
+		// const storagePurchaser = 'P'; //### obviously, shouldn't be hardcoded--how should we store in reservations?
+		// const storageCost = 356 //### cost.storage;
+		// addParticipant(storagePurchaser, participatingGroups, groupKeys);
+		// accumulate(storagePurchaser, payments, storageCost);
+		// sharedExpenses += storageCost;
+
+		/* process and report adjustments */
+		/**
+		 * ###
+		 * paid is easily handled - add it to the payer's payments
+		 * received is tricky ... we can reduce the receivers payments (as we're doing below),
+		 * but I don't think that's correct
+		 * should it be paid to the purchaser of the site in question? we don't have the data!
+		 * the receiver owes direct payments to the other groups ... we can add these here,
+		 * but we need to know all the participating groups (and the group count, to divide
+		 * the money evenly).
+		 */
+		let foundAdjustments = false;
+		for (const adjustment of adjustments) {
+			if (adjustment.year == year && adjustment.amount != 0 && groups.get(adjustment.group) !== undefined) {
+				if (!foundAdjustments) {
+					foundAdjustments = true;
+					reportLines.push('Adjustments:\n');
+				}
+				const adjustmentGroup = groups.get(adjustment.group)!;
+				const paidOrReceived = (adjustment.amount >= 0) ? 'paid' : 'received';
+				reportLines.push(`  ${adjustmentGroup.name} ${paidOrReceived} ${dollars(Math.abs(adjustment.amount))} for ${adjustment.for}\n`);
+				addParticipant(adjustment.group, participatingGroups, groupKeys);
+				accumulate(adjustment.group, payments, adjustment.amount);
+				sharedExpenses += adjustment.amount;
+			}
+		}
+		if (foundAdjustments) reportLines.push('\n');
+
+		const perAccountShare = sharedExpenses / groupKeys.length;
 		// reportLines.push(`Total shared expenses: ${sharedExpenses.toFixed(2)}\n`);
-		reportLines.push(`Total shared expenses: ${dollars(sharedExpenses)}\n`);
-		reportLines.push(`  1/${participants.length} share: ${dollars(perAccountShare)}\n`);
+		reportLines.push(`Total Shared Expenses: ${dollars(sharedExpenses)}\n`);
+		reportLines.push(`  1/${participatingGroups.length} share: ${dollars(perAccountShare)}\n`);
 		reportLines.push('\nPayments:\n');
-		for (let accountKey of accountKeys) {
-			const account = accounts.get(accountKey)!;
-			const totalPayments = payments.get(accountKey)!;
+		for (let groupKey of groupKeys) {
+			const group = groups.get(groupKey)!;
+			const totalPayments = payments.get(groupKey)!;
 			const overpaid = totalPayments - perAccountShare;
 			const label = (totalPayments <= perAccountShare) ? 'underpaid' : 'overpaid';
-			reportLines.push(`  ${account.name}: ${dollars(totalPayments)} (${label}: ${dollars(Math.abs(overpaid))})\n`);
+			reportLines.push(`  ${group.name}: ${dollars(totalPayments)} (${label}: ${dollars(Math.abs(overpaid))})\n`);
 		}
 
 		// /** At this point, the only `directPayments` are cabin surcharge payments */
 		// if (directPayments.length) {
 		// 	reportLines.push('Cabin Compensations:\n');
 		// 	for (let directPayment of directPayments) {
-		// 		const from = accounts.get(directPayment.from);
-		// 		const to = accounts.get(directPayment.to);
+		// 		const from = groups.get(directPayment.from);
+		// 		const to = groups.get(directPayment.to);
 		// 		if (from !== undefined && to !== undefined) {
 		// 			reportLines.push(`  ${from.name} owes ${to.name} ${directPayment.amount.toFixed(2)}\n`);
 		// 		}
@@ -335,8 +365,8 @@ export function accounting(
 
 		/**
 		 * We will only perform this bit of accounting when there are exactly 3
-		 * accounts involved. Writing a generic function may be very complex,
-		 * and our 3-account assumption is pretty safe for now.
+		 * groups involved. Writing a generic function may be very complex,
+		 * and our 3-group assumption is pretty safe for now.
 		 * 
 		 * One possibility: use a bubble-up algorithm. sort underpayers by
 		 * amount ascending (Fred 1.99, Mary 11.99, Daisy 55.00 ...). Fred sends
@@ -349,27 +379,27 @@ export function accounting(
 		 * reservation process.
 		 */
 		if (payments.size == 3) {
-			const underpayers: string[] = []/* underpayer account keys */
-			const overpayers: string[] = []/* overpayer account keys */
-			for (const [account, payment] of payments) {
-				if (payment - perAccountShare < 0) underpayers.push(account);
-				else overpayers.push(account)
+			const underpayers: string[] = []/* underpayer group keys */
+			const overpayers: string[] = []/* overpayer group keys */
+			for (const [group, payment] of payments) {
+				if (payment - perAccountShare < 0) underpayers.push(group);
+				else overpayers.push(group)
 			}
 			if (underpayers.length == 1) { /*   + + -: Dp(c, a, a.overpayment); Dp(c, b, b.overpayment); */
-				/* underpayer account owes each overpayer account each overpayer amount */
+				/* underpayer group owes each overpayer group each overpayer amount */
 				for (const overpayer of overpayers) {
 					const overpaidAmount = payments.get(overpayer)! - perAccountShare;
 					directPayments.push({from: underpayers[0], to: overpayer, amount: overpaidAmount, purpose: ''});
 				}
 			}
 			else if (underpayers.length == 2) { /*   + - -: Dp(b, a, b.underpayment); Dp(c, a, c.underpayment); */
-				/* each underpayer account owes the overpayer account each underpayment amount */
+				/* each underpayer group owes the overpayer group each underpayment amount */
 				for (const underpayer of underpayers) {
 					const underpaidAmount = perAccountShare - payments.get(underpayer)!;
 					directPayments.push({from: underpayer, to: overpayers[0], amount: underpaidAmount, purpose: ''});
 				}
 			}
-			// else { /* each account owes 0 */ }
+			// else { /* each group owes 0 */ }
 			
 			/**
 			 * write "Bottom Line" heading line
@@ -377,10 +407,10 @@ export function accounting(
 			 * loop over and accumulate amounts for same from/to
 			 *     report each from/to
 			 */
-			reportLines.push('\nReimbursements:\n');
+			reportLines.push('\nAmounts Owed:\n');
 			for (const directPayment of directPayments) {
-				const fromAccount = accounts.get(directPayment.from)!;
-				const toAccount = accounts.get(directPayment.to)!;
+				const fromAccount = groups.get(directPayment.from)!;
+				const toAccount = groups.get(directPayment.to)!;
 				const purpose = (directPayment.purpose) ? ` (includes ${directPayment.purpose})` : ''
 				reportLines.push(`  ${fromAccount.name} owes ${toAccount.name} ${dollars(directPayment.amount)}${purpose}\n`);
 			}
@@ -393,27 +423,18 @@ export function accounting(
  * Return the current `costs` object, "current" meaning the most recent year not
  * greater than the given `year`.
  */
-function currentCosts(year: string, costs: Map<string, T.CampCosts>) {
-	let cost: T.CampCosts = { site: 0, cabin: 0, storage: 0, reservation: 0, cancellation: 0 };
-	if (costs.size >= 1) {
-		const costYears = Array.from(costs.keys());
-		if (costs.size == 1) cost = costs.get(costYears[0])!;
-		else {
-			/* sort years descending */
-			costYears.sort((a, b) => {
-				if (a < b) return 1;
-				else if (a > b) return -1;
-				else return 0
-			});
-			for (let costYear of costYears) {
-				if (costYear <= year) {
-					cost = costs.get(costYear)!;
-					break;
-				}
+function currentCosts(year: number, costs: T.CampCosts[]) {
+	let currentCosts: T.CampCosts = { year: 0, site: 0, cabin: 0, reservation: 0, cancellation: 0 };
+	if (costs.length >= 1) {
+		costs.sort((a, b) => { return b.year - a.year }); /* sort by years descending */
+		for (const cost of costs) {
+			if (cost.year <= year) {
+				currentCosts = cost;
+				break;
 			}
 		}
 	}
-	return cost;
+	return currentCosts;
 }
 
 function accumulate(key: string, map: Map<string, number>, amount: number) {
@@ -423,9 +444,9 @@ function accumulate(key: string, map: Map<string, number>, amount: number) {
 	}
 }
 
-function addParticipant(groupKey: string, participants: string[], accountKeys: string[]) {
-	if (accountKeys.includes(groupKey) && !participants.includes(groupKey)) {
-		participants.push(groupKey);
+function addParticipant(groupKey: string, participatingGroups: string[], groupKeys: string[]) {
+	if (groupKeys.includes(groupKey) && !participatingGroups.includes(groupKey)) {
+		participatingGroups.push(groupKey);
 	}
 }
 

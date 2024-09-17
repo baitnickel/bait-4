@@ -134,15 +134,21 @@ export class RadioButtons {
     }
 }
 export class Checkbox {
-    constructor(id, label, event, checked = false) {
+    constructor(id, label, classNames, event, checked = false) {
         this.checkbox = document.createElement('input');
         this.label = document.createElement('label');
+        if (Array.isArray(classNames))
+            this.classNames = classNames;
+        else
+            this.classNames = [classNames];
         this.event = event;
         this.checkbox.id = id;
         this.checkbox.type = 'checkbox';
         this.checkbox.checked = checked;
         this.label.htmlFor = this.checkbox.id;
         this.label.innerText = label;
+        for (let className of this.classNames)
+            this.label.classList.add(className);
         this.label.append(this.checkbox);
         this.checkbox.addEventListener('change', () => {
             document.dispatchEvent(this.event);

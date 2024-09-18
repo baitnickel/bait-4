@@ -1,6 +1,8 @@
 # The Group key ("P", "D", and "J" here) identifies a family group,
 # used in calculating shared expenses as well as identifying which
-# group is responsible for managing reservations.
+# group is responsible for managing reservations. Lowercase A-Z
+# characters are invalid in Group keys (use only uppercase letters
+# or numbers).
 #
 # Color names must be official CSS color names;
 # see: https://drafts.csswg.org/css-color/#named-colors

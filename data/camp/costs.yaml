@@ -1,7 +1,7 @@
 # Costs are used in calculating camping expenses.
 # All the values here are dollar amounts.
 #
-# A new entry is required whenever these values change.
+# A new entry is only required when one or more of these values change.
 # Rows may be entered here in any order.
 
 smitty:

@@ -199,12 +199,16 @@ export function accounting(
 	adjustments: T.CampAdjustment[],
 	costs: T.CampCosts[],
 ) {
-	const reportLines: string[] = [];
-
 	/** 
 	 * Determine method--equal shares vs weight of group-occupants (default is
 	 * equal shares). This might be determined by a UI switch, so that users can
 	 * compare results of each method.
+	 * 
+	 * Under a weighted-share approach, when a site is purchased by A and
+	 * occupied by B's family/friends, the fees should be shared across all
+	 * groups, but the number of nights should be added to B's weight. In this
+	 * scenario, B's receipts might nullify the shared expenses and lessen B's
+	 * weight?
 	 * 
 	 * This suggests the need for an `{group: ID, share: percentage}`
 	 * object, where entries are set dynamically once the method is
@@ -216,6 +220,8 @@ export function accounting(
 	 * to create multiple functions to fill in these various data--modularize to
 	 * simplify the main thread here.
 	 */
+
+	const reportLines: string[] = [];
 	const groupKeys = Array.from(groups.keys());
 	const participatingGroups: string[] = []; /* keys of valid groups present as purchasers and/or occupants */
 	const cost = currentCosts(year, costs);
@@ -223,18 +229,7 @@ export function accounting(
 	let sharedExpenses = 0;
 	const directPayments: Transaction[] = [];
 	const directReceipts: Transaction[] = [];
-	/**
-	 * In addition to directPayments, we need directReceipts. If I invite some
-	 * of my friends to join us in a site I haven't booked myself, and I am
-	 * reimbursed directly by my friends, what is the proper accounting here,
-	 * what are the options? In any case, we need a transaction for receipts.
-	 * 
-	 * Under a weighted-share approach, when a site is purchased by A and
-	 * occupied by B's family/friends, the fees should be shared across all
-	 * groups, but the number of nights should be added to B's weight. In this
-	 * scenario, B's receipts might nullify the shared expenses and lessen B's
-	 * weight?
-	 */
+
 	for (let groupKey of groupKeys) payments.set(groupKey, 0); /* initialize all group payments */
 	if (cost === undefined) reportLines.push(`cannot get ${year} Costs\n`);
 	else {
@@ -242,44 +237,7 @@ export function accounting(
 		sharedExpenses += processReservations(year, reservations, cost, groupKeys, participatingGroups, payments, directPayments, reportLines);
 		sharedExpenses += processAdjustments(year, adjustments, groups, groupKeys, participatingGroups, payments, reportLines);
 		processAmountsPaid(groups, participatingGroups, payments, sharedExpenses, reportLines);
-
-		if (payments.size == 3) {
-			// const underpayers: string[] = []/* underpayer group keys */
-			// const overpayers: string[] = []/* overpayer group keys */
-			// for (const [group, payment] of payments) {
-			// 	if (payment - perAccountShare < 0) underpayers.push(group);
-			// 	else overpayers.push(group)
-			// }
-			// if (underpayers.length == 1) { /*   + + -: Dp(c, a, a.overpayment); Dp(c, b, b.overpayment); */
-			// 	/* underpayer group owes each overpayer group each overpayer amount */
-			// 	for (const overpayer of overpayers) {
-			// 		const overpaidAmount = payments.get(overpayer)! - perAccountShare;
-			// 		directPayments.push({from: underpayers[0], to: overpayer, amount: overpaidAmount, purpose: ''});
-			// 	}
-			// }
-			// else if (underpayers.length == 2) { /*   + - -: Dp(b, a, b.underpayment); Dp(c, a, c.underpayment); */
-			// 	/* each underpayer group owes the overpayer group each underpayment amount */
-			// 	for (const underpayer of underpayers) {
-			// 		const underpaidAmount = perAccountShare - payments.get(underpayer)!;
-			// 		directPayments.push({from: underpayer, to: overpayers[0], amount: underpaidAmount, purpose: ''});
-			// 	}
-			// }
-			// // else { /* each group owes 0 */ }
-			
-			// /**
-			//  * write "Bottom Line" heading line
-			//  * sort directPayments by from/to
-			//  * loop over and accumulate amounts for same from/to
-			//  *     report each from/to
-			//  */
-			// reportLines.push('\nAmounts Owed:\n');
-			// for (const directPayment of directPayments) {
-			// 	const fromAccount = groups.get(directPayment.from)!;
-			// 	const toAccount = groups.get(directPayment.to)!;
-			// 	const purpose = (directPayment.purpose) ? ` (includes ${directPayment.purpose})` : ''
-			// 	reportLines.push(`  ${fromAccount.name} owes ${toAccount.name} ${dollars(directPayment.amount)}${purpose}\n`);
-			// }
-		}
+		processAmountsOwed(year, sharedExpenses, groups, participatingGroups, payments, adjustments, directPayments, reportLines);
 	}
 	return reportLines;
 }
@@ -297,6 +255,7 @@ function processReservations(
 	let sharedExpenses = 0;
 	let sitesReserved = 0;
 	let sitesCancelled = 0; /* entire reservation cancelled */
+	let sitesPartiallyCancelled = 0;
 	let totalNights = 0;
 	let siteExpenses = 0;
 	let reservationFees = 0;
@@ -319,6 +278,7 @@ function processReservations(
 			const nightsUsed = reservation.reserved - reservation.cancelled;
 			totalNights += nightsUsed;
 			if (nightsUsed == 0) sitesCancelled += 1;
+			else if (nightsUsed < reservation.reserved) sitesPartiallyCancelled += 1;
 			const costOfSite = cost.site * nightsUsed;
 			accumulate(purchaser, payments, costOfSite);
 			siteExpenses += costOfSite;
@@ -330,8 +290,8 @@ function processReservations(
 			}
 		}
 	}
-	reportLines.push('Shared Reservation Expenses:\n');
-	reportLines.push(`  Number of Sites Reserved: ${sitesReserved} (${sitesCancelled} cancelled)\n`);
+	reportLines.push('Shared Campsite Reservation Expenses:\n');
+	reportLines.push(`  Number of Sites Reserved: ${sitesReserved} (${sitesCancelled} completely cancelled, ${sitesPartiallyCancelled} partially cancelled)\n`);
 	reportLines.push(`  ${totalNights} nights @ ${dollars(cost.site)}/night: ${dollars(siteExpenses)}\n`);
 	reportLines.push(`  Total Reservation Fees: ${dollars(reservationFees)}\n`);
 	reportLines.push(`  Total Cancellation Fees: ${dollars(cancellationFees)}\n`);
@@ -379,6 +339,11 @@ function processAmountsPaid(
 	reportLines.push(`Total Shared Expenses: ${dollars(sharedExpenses)}\n`);
 	reportLines.push(`  1/${participatingGroups.length} share: ${dollars(perGroupShare)}\n`);
 	reportLines.push('\nAmounts Paid:\n');
+	participatingGroups.sort((a, b) => {
+		const aPayments = payments.get(a)!;
+		const bPayments = payments.get(b)!;
+		return bPayments - aPayments; /* sort largest payment to smallest payment */
+	});
 	for (let groupKey of participatingGroups) {
 		const group = groups.get(groupKey)!;
 		const totalPayments = payments.get(groupKey)!;
@@ -414,18 +379,23 @@ function processAmountsOwed(
 	 * receiver) in equal amounts.
 	 */
 	for (const adjustment of adjustments) {
-		const uppercaseGroup = adjustment.group.toUpperCase(); /* group keys are uppercase */
+		const uppercaseGroup = adjustment.group.toUpperCase(); /* group keys must be uppercase */
 		/* adjustments with amounts less than 0 are receipts and must create direct payments to all other groups */
 		if (adjustment.year == year && adjustment.amount < 0 && groups.get(uppercaseGroup) !== undefined) {
 			const amount = Math.abs(adjustment.amount) / participatingGroups.length;
 			for (const participatingGroup of participatingGroups) {
 				if (participatingGroup != uppercaseGroup) {
-					directPayments.push({from: uppercaseGroup, to: participatingGroup, amount: amount, purpose: adjustment.for });
+					directPayments.push({from: uppercaseGroup, to: participatingGroup, amount: amount, purpose: adjustment.for});
 				}
 			}
 		}
 	}
 
+	/**
+	 * Calculate each group's share of the expenses and create two arrays:
+	 * - underpayers: Group Keys that owe money
+	 * - overpayers: Group Keys the are owed money
+	 */
 	const perGroupShare = sharedExpenses / participatingGroups.length;
 	const underpayers: string[] = [] /* underpayer group keys */
 	const overpayers: string[] = [] /* overpayer group keys */
@@ -434,27 +404,67 @@ function processAmountsOwed(
 		else overpayers.push(group)
 	}
 
-	if (underpayers.length == 1) { /*   + + -: Dp(c, a, a.overpayment); Dp(c, b, b.overpayment); */
-		/* underpayer group owes each overpayer group each overpayer amount */
-		for (const overpayer of overpayers) {
-			const overpaidAmount = payments.get(overpayer)! - perGroupShare;
-			directPayments.push({from: underpayers[0], to: overpayer, amount: overpaidAmount, purpose: ''});
+	/**
+	 * Create direct payments from underpayers to overpayers. We will
+	 * "bubble-up" payments here. Each underpayer pays the next underpayer the
+	 * accumulated amount of the underpayments. When the last underpayer is
+	 * reached, he or she pays all of the overpayers what they are owed. This
+	 * method ensures that only one underpayer needs to pay more than one
+	 * person.
+	 */
+	let totalUnderpayments = 0;
+	for (let i = 0; i < underpayers.length; i += 1) {
+		totalUnderpayments += payments.get(underpayers[i])!;
+		if ((i + 1) < underpayers.length) {
+			/* there are more underpayers; pass the totalPayments to the next one */
+			directPayments.push({from: underpayers[i], to: underpayers[i + 1], amount: totalUnderpayments, purpose: ''});
 		}
-	}
-	else if (underpayers.length == 2) { /*   + - -: Dp(b, a, b.underpayment); Dp(c, a, c.underpayment); */
-		/* each underpayer group owes the overpayer group each underpayment amount */
-		for (const underpayer of underpayers) {
-			const underpaidAmount = perGroupShare - payments.get(underpayer)!;
-			directPayments.push({from: underpayer, to: overpayers[0], amount: underpaidAmount, purpose: ''});
+		else {
+			/* there are no more underpayers; pay all the overpayers everything they're owed */
+			for (const overpayer of overpayers) {
+				const overpayment = payments.get(overpayer)! - perGroupShare;
+				directPayments.push({from: underpayers[i], to: overpayer, amount: overpayment, purpose: ''});
+			}
 		}
 	}
 
 	reportLines.push('\nAmounts Owed:\n');
-	for (const directPayment of directPayments) {
-		const fromAccount = groups.get(directPayment.from)!;
-		const toAccount = groups.get(directPayment.to)!;
-		const purpose = (directPayment.purpose) ? ` (includes ${directPayment.purpose})` : ''
-		reportLines.push(`  ${fromAccount.name} owes ${toAccount.name} ${dollars(directPayment.amount)}${purpose}\n`);
+	directPayments.sort((a, b) => {
+		if (a.from < b.from) return -1;
+		if (a.from > b.from) return 1;
+		if (a.to < b.to) return -1;
+		if (a.to > b.to) return 1;
+		if (a.purpose < b.purpose) return -1;
+		if (a.purpose > b.purpose) return 1;
+		return (b.amount - a.amount);
+	});
+	// for (const directPayment of directPayments) {
+	// 	const fromAccount = groups.get(directPayment.from)!;
+	// 	const toAccount = groups.get(directPayment.to)!;
+	// 	const purpose = (directPayment.purpose) ? ` (includes ${directPayment.purpose})` : ''
+	// 	reportLines.push(`  ${fromAccount.name} owes ${toAccount.name} ${dollars(directPayment.amount)}${purpose}\n`);
+	// }
+
+	/** ###
+	 * Create an array of footnotes from the purposes encountered above. For
+	 * each non-blank purpose within a from/to set, add a footnoteID to a list
+	 * of footnoteIDs (for this from/to). Display the footnoteIDs (if any) for
+	 * each reportLine below. Finally, display the footnotes beneath the
+	 * "Amounts Owed" section.
+	 */
+	let sum = 0;
+	for (let i = 0; i < directPayments.length; i += 1) {
+		if (i == 0 || directPayments[i].from != directPayments[i - 1].from || directPayments[i].to != directPayments[i - 1].to) {
+			/* first from/to */
+			sum = 0;
+		}
+		sum += directPayments[i].amount;
+		if (i == directPayments.length - 1 || directPayments[i].from != directPayments[i + 1].from || directPayments[i].to != directPayments[i + 1].to) {
+			/* last from/to */
+		const fromAccount = groups.get(directPayments[i].from)!;
+		const toAccount = groups.get(directPayments[i].to)!;
+		reportLines.push(`  ${fromAccount.name} owes ${toAccount.name} ${dollars(sum)}\n`);
+		}
 	}
 }
 
@@ -491,12 +501,12 @@ function addParticipant(groupKey: string, participatingGroups: string[], groupKe
 
 /**
  * Alternative to `number.toFixed(2)`. Use the host default language with
- * options for number formatting.
+ * options for number formatting, e.g., to add thousands commas.
  */
 function dollars(number: number) {
 	// Might also use Unicode's small dollar sign ('\uFE69'),
 	// but this appears to force monospace fonts.
-	return '$' + number.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2,})
+	return '$' + number.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
 }
 
 /**

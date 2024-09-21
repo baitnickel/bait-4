@@ -1,8 +1,9 @@
 /**
- * Special module to support Campsite Reservation tables and camping expense
+ * Special module to support the `camp` module's reservation tables and expense
  * accounting.
  */
 const CabinSitePattern = new RegExp(/^J/, 'i'); /* campsite IDs starting with "J" or "j" are cabins */
+const UnknownGroupColor = 'lightgray'; /* default color when group is unknown */
 export function displayReservationTable(tableElement, thisYear, reservations, groups, radioButtons) {
     let adjustedReservations = {};
     let beginDate = null;
@@ -85,7 +86,7 @@ function writeTableRows(tableElement, adjustedReservations, groups, radioButtons
             const groupKey = purchaserValues[0];
             const group = groups.get(groupKey);
             let groupName = '';
-            let groupColor = 'lightgray'; /* default color when group is unknown */
+            let groupColor = UnknownGroupColor; /* default color */
             if (group !== undefined) {
                 groupName = group.name;
                 groupColor = group.color;
@@ -119,7 +120,7 @@ function writeTableRows(tableElement, adjustedReservations, groups, radioButtons
     }
 }
 function numericSite(site) {
-    /** convert site from string ('J26') to number (26), removing non-digit characters */
+    /** convert site from string to number (e.g., 'J26' => 26), removing non-digit characters */
     let siteNumber = 0;
     site = site.replace(/\D/g, '');
     if (site)
@@ -192,9 +193,9 @@ export function accounting(year, groups, reservations, adjustments, costs) {
     const participatingGroups = []; /* keys of valid groups present as purchasers and/or occupants */
     const cost = currentCosts(year, costs);
     const payments = new Map(); /* key is groups.key */
-    let sharedExpenses = 0;
     const directPayments = [];
     const directReceipts = [];
+    let sharedExpenses = 0;
     for (let groupKey of groupKeys)
         payments.set(groupKey, 0); /* initialize all group payments */
     if (cost === undefined)
@@ -295,21 +296,11 @@ function processAmountsPaid(groups, participatingGroups, payments, sharedExpense
         reportLines.push(`  ${group.name}: ${dollars(totalPayments)} (${label}: ${dollars(Math.abs(overpaid))})\n`);
     }
 }
-/**
- * Use a bubble-up algorithm. Sort underpayers by amount ascending (Fred
- * 1.99, Mary 11.99, Daisy 55.00 ...). Fred sends all of his
- * underpayment to Mary, Mary sends all of her own underpayment plus the
- * amount received from Fred to Daisy, Daisy follows the same approach.
- * When the last underpayer is reached, he or she pays each of the
- * overpayers' their overpayment amount. Only the last underpayer needs
- * to make multiple payments, which could be seen as fitting, since they
- * apparently carried the lightest load in the reservation process.
- */
 function processAmountsOwed(year, sharedExpenses, groups, participatingGroups, payments, adjustments, directPayments, reportLines) {
     /**
-     * Get receipt adjustments and create direct payments for each one found.
-     * Receipts must be distributed to all participants (other than the
-     * receiver) in equal amounts.
+     * Get receipt adjustments and create direct payments for each one found. In
+     * the shared expenses method, receipts are distributed to all participants
+     * (other than the receiver, themselves) in equal amounts.
      */
     for (const adjustment of adjustments) {
         const uppercaseGroup = adjustment.group.toUpperCase(); /* group keys must be uppercase */
@@ -376,12 +367,6 @@ function processAmountsOwed(year, sharedExpenses, groups, participatingGroups, p
             return 1;
         return (b.amount - a.amount);
     });
-    // for (const directPayment of directPayments) {
-    // 	const fromAccount = groups.get(directPayment.from)!;
-    // 	const toAccount = groups.get(directPayment.to)!;
-    // 	const purpose = (directPayment.purpose) ? ` (includes ${directPayment.purpose})` : ''
-    // 	reportLines.push(`  ${fromAccount.name} owes ${toAccount.name} ${dollars(directPayment.amount)}${purpose}\n`);
-    // }
     /** ###
      * Create an array of footnotes from the purposes encountered above. For
      * each non-blank purpose within a from/to set, add a footnoteID to a list
@@ -391,13 +376,17 @@ function processAmountsOwed(year, sharedExpenses, groups, participatingGroups, p
      */
     let sum = 0;
     for (let i = 0; i < directPayments.length; i += 1) {
-        if (i == 0 || directPayments[i].from != directPayments[i - 1].from || directPayments[i].to != directPayments[i - 1].to) {
-            /* first from/to */
+        /* first from/to */
+        if (i == 0
+            || directPayments[i].from != directPayments[i - 1].from
+            || directPayments[i].to != directPayments[i - 1].to) {
             sum = 0;
         }
         sum += directPayments[i].amount;
-        if (i == directPayments.length - 1 || directPayments[i].from != directPayments[i + 1].from || directPayments[i].to != directPayments[i + 1].to) {
-            /* last from/to */
+        /* last from/to */
+        if (i == directPayments.length - 1
+            || directPayments[i].from != directPayments[i + 1].from
+            || directPayments[i].to != directPayments[i + 1].to) {
             const fromAccount = groups.get(directPayments[i].from);
             const toAccount = groups.get(directPayments[i].to);
             reportLines.push(`  ${fromAccount.name} owes ${toAccount.name} ${dollars(sum)}\n`);

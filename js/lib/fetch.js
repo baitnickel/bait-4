@@ -70,6 +70,23 @@ async function getData(uri, response, convertYamlStrings) {
     }
     return data;
 }
+/**
+ * Given a Map with string keys of `Type`, convert its keys to uppercase, if
+ * necessary. The Map is modified in place, and the order of the Map entries may
+ * be affected since any replaced entries will be added after the original
+ * entries.
+ */
+export function uppercaseKeys(map) {
+    const keys = Array.from(map.keys());
+    for (const key of keys) {
+        const newKey = key.toUpperCase();
+        if (newKey != key) {
+            const mapValue = map.get(key);
+            map.delete(key);
+            map.set(newKey, mapValue);
+        }
+    }
+}
 /** --------------- deprecated functions --------------- */
 /**
  * Read the file given in `path` containing data of `type` (default is 'text').

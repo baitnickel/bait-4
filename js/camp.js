@@ -16,6 +16,7 @@ const CostsPath = `${Site}/data/camp/costs.yaml`;
 /** Fetch all the data we'll need before rendering the page */
 const Campgrounds = await Fetch.map(CampgroundsPath);
 const Groups = await Fetch.map(GroupsPath);
+Fetch.uppercaseKeys(Groups); /* force Groups keys to uppercase */
 const AllReservations = await Fetch.map(ReservationsPath);
 const AllAdjustments = await Fetch.map(AdjustmentsPath);
 const AllCosts = await Fetch.map(CostsPath);

@@ -65,6 +65,47 @@ export function IsYamlFile(pathName: string) {
 	return YamlExtension.test(pathName);
 }
 
+/**
+ * Given a `date` (and an optional `format`) return a string representing the
+ * date. The default format is 0.
+ * 
+ * Formats:
+ * - 0: 2024-02-01T22:35:51.175Z  (toISOString)
+ * - 1: Thu Feb 01 2024 14:35:51 GMT-0800 (Pacific Standard Time)  (toString)
+ * - 2: 2024-02-01 14:35:51
+ * - 3: 2024-02-01 14:35
+ * - 4: Thursday, February 1, 2024 2:35pm
+ * - 5: February 1, 2024 2:35pm
+ * - 6: Thu Feb 1, 2024 2:35pm
+ * - 7: Feb 1, 2024 2:35pm */
+export function DateString(date: Date, format = 0) {
+	if (format == 0) return date.toISOString();
+	if (format == 1) return date.toString();
+	const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+	const mon = months[date.getMonth()];
+	const weekdays = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+	const weekday = weekdays[date.getDay()];
+	const year = date.getFullYear().toString().padStart(2, '0');
+	const m = (date.getMonth() + 1).toString();
+	const month = m.padStart(2, '0');
+	const d = date.getDate().toString();
+	const day = d.padStart(2, '0');
+	const hour = date.getHours().toString().padStart(2, '0');
+	const minute = date.getMinutes().toString().padStart(2, '0');
+	const second = date.getSeconds().toString().padStart(2, '0');
+	if (format == 2) return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+	if (format == 3) return `${year}-${month}-${day} ${hour}:${minute}`;
+
+	let h = date.getHours();
+	const amPm = (h < 12) ? 'am' : 'pm';
+	h = (h == 0) ? 12 : h - 12;
+	if (format == 4) return `${weekday}, ${mon} ${d}, ${year} ${h}:${minute}${amPm}`;
+	if (format == 5) return `${mon} ${d}, ${year} ${h}:${minute}${amPm}`;
+	if (format == 6) return `${weekday.slice(0, 3)} ${mon.slice(0, 3)} ${d}, ${year} ${h}:${minute}${amPm}`;
+	if (format == 7) return `${mon.slice(0, 3)} ${d}, ${year} ${h}:${minute}${amPm}`;
+	return date.toISOString(); // default
+}
+
 // export type Message = {
 // 	type: 'E' | 'W' | 'I';
 // 	text: string;

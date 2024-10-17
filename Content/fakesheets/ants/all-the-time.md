@@ -34,7 +34,7 @@ there ^is no time!  ^
 so ^gently ^floating, ^dipping ^rising 
 ^now it's ^waving, ^climbing ^diving 
 ^toe to ^toeing, ^eye to ^eyeing 
-^timely ^hoping ^hopes a^rising
+^timely ^hoping ^hopes a^rising 
 
 in every wave we meet the crest and trough alike
 this moment shapes the colors in its very light

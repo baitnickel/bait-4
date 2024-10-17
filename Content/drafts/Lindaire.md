@@ -6,3 +6,5 @@ Perfectly flat, perfectly straight, perfectly aligned east to west, perfectly me
 In the summertime, they'd sleep under the southern skies on the backyard brick patio, dreaming into the stars, waking to the morning sun. Parent to child, stories were shared. Stories of how the stars shine, how we turn to face them moment by moment. Myths of the past illuminated, visions of the future imagined, but mostly sounds and sights of the present shared and observed.
 
 (4840 square yards in an acre. A quarter acre is 1210 square yards. So properties that are 22 yards wide would be 55 yards deep if the property is .25 acres, which Dad alway said. Square footage is 66 x 165 = 10,890). 
+___
+I have never lived more than 20 miles from the Pacific Coast of California, from the waves splashing on the ocean sands. Is that remarkable for a person of 72 years here in the 21st century?

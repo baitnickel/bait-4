@@ -5,14 +5,16 @@ The [bait-4 site](https://baitnickel.github.io/bait-4/index.html) is an experime
 `bait-4` is, as the name suggests, the fourth iteration of my website experiments. I've been at it for a few years.
 
 We assume here that you are at least somewhat familiar with the following topics; if not, follow the links:
-- [Markdown text files](https://www.markdownguide.org/getting-started/)
 - [Standard HTML](https://developer.mozilla.org/en-US/docs/Learn/HTML)
 - [Standard JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 - [TypeScript](https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html)
+- [Markdown text files](https://www.markdownguide.org/getting-started/)
 
-We are not using any third-party libraries, only standard JavaScript, so there are no dependencies. We're following the Mozilla documentation strictly, using only code features that are supported on (virtually) all modern browsers.
+We are not using any third-party libraries, only standard JavaScript, so there are no dependencies. We're following the Mozilla documentation strictly, using only code features that are supported on (virtually) all modern browsers. We've written our own markdown and YAML parsers—supporting just the standards we need, and allowing for some subtle customizations to fit well with the site's requirements. 
+
+We've barely touched the CSS. Little patience for it at this point. This is why the pages look and feel so primitive.
 
 #### A Static Web Page
-Part of the challenge in a static environment is managing data complexity without a `database`. My approach is to maintain data—markdown articles, YAML configuration, &c.—in a separate repository on my localhost machine, and write code in this repository that performs refreshes of the website repository.
+Part of the challenge in a static environment is managing data complexity without a `database`. My approach is to maintain data—markdown articles, YAML configuration, &c.—in a separate node.js repository on my localhost machine, and write code there that performs refreshes of the content and configuration files in the website repository.
 
-(Updated 1/19/2024)
+(Updated 9/30/2024)

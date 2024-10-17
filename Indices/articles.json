@@ -1,11 +1,11 @@
 {
 	"README.md": {
 		"access": 0,
-		"revision": 1705684222960
+		"revision": 1727729874595
 	},
 	"Content/drafts/Lindaire.md": {
 		"access": 0,
-		"revision": 1715809815180,
+		"revision": 1724603678806,
 		"aliases": [],
 		"tags": []
 	},
@@ -43,13 +43,157 @@
 	},
 	"Content/fakesheets/ants/all-the-time.md": {
 		"access": 0,
-		"revision": 1706053996873,
+		"revision": 1728599459155,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/all-you-need-is-love.md": {
+		"access": 0,
+		"revision": 1729023177633,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/and-i-love-her.md": {
+		"access": 0,
+		"revision": 1729023195881,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/blackbird.md": {
+		"access": 0,
+		"revision": 1729023256606,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/bungalow-bill.md": {
+		"access": 0,
+		"revision": 1729023292685,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/bye-bye-love.md": {
+		"access": 0,
+		"revision": 1729023359572,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/dear-someone.md": {
+		"access": 0,
+		"revision": 1729023407859,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/dont-think-twice.md": {
+		"access": 0,
+		"revision": 1729023472839,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/gone-for-good.md": {
+		"access": 0,
+		"revision": 1729023652745,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/hallelujah.md": {
+		"access": 0,
+		"revision": 1729023710029,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/handy-man.md": {
+		"access": 0,
+		"revision": 1729023770201,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/heart-of-gold.md": {
+		"access": 0,
+		"revision": 1729023810753,
 		"aliases": [],
 		"tags": []
 	},
 	"Content/fakesheets/covers/hello-hello.md": {
 		"access": 0,
 		"revision": 1720570386726,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/house-of-the-rising-sun.md": {
+		"access": 0,
+		"revision": 1729023951226,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/i-call-your-name.md": {
+		"access": 0,
+		"revision": 1729023985044,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/if-i-fell.md": {
+		"access": 0,
+		"revision": 1729024029184,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/im-not-afraid-to-die.md": {
+		"access": 0,
+		"revision": 1729024066806,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/into-white.md": {
+		"access": 0,
+		"revision": 1729024080707,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/morning-has-broken.md": {
+		"access": 0,
+		"revision": 1729024119486,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/new-slang.md": {
+		"access": 0,
+		"revision": 1729021588044,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/novims-nightmare.md": {
+		"access": 0,
+		"revision": 1729024322549,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/rain.md": {
+		"access": 0,
+		"revision": 1729024378230,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/savior-complex.md": {
+		"access": 0,
+		"revision": 1729024424868,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/talk.md": {
+		"access": 0,
+		"revision": 1729024453518,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/two-of-us.md": {
+		"access": 0,
+		"revision": 1729024499573,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fakesheets/covers/was-a-sunny-day.md": {
+		"access": 0,
+		"revision": 1729024530603,
 		"aliases": [],
 		"tags": []
 	},
@@ -110,12 +254,6 @@
 	"Content/fakesheets/psyche/torn-apart.md": {
 		"access": 0,
 		"revision": 1706053915000,
-		"aliases": [],
-		"tags": []
-	},
-	"Content/fakesheets/test-fakes/into-white.md": {
-		"access": 0,
-		"revision": 1720130387479,
 		"aliases": [],
 		"tags": []
 	},

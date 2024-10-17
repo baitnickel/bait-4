@@ -3,9 +3,105 @@
 		"title": "All the Time",
 		"artist": "The Baitnickels"
 	},
+	"covers/all-you-need-is-love.md": {
+		"title": "All You Need Is Love",
+		"artist": "The Beatles"
+	},
+	"covers/and-i-love-her.md": {
+		"title": "And I Love Her",
+		"artist": "The Beatles"
+	},
+	"covers/blackbird.md": {
+		"title": "Blackbird",
+		"artist": "The Beatles"
+	},
+	"covers/bungalow-bill.md": {
+		"title": "The Continuing Story of Bungalow Bill",
+		"artist": "The Beatles"
+	},
+	"covers/bye-bye-love.md": {
+		"title": "Bye Bye Love",
+		"artist": "The Everly Brothers"
+	},
+	"covers/dear-someone.md": {
+		"title": "Dear Someone",
+		"artist": "Gillian Welch"
+	},
+	"covers/dont-think-twice.md": {
+		"title": "Don't Think Twice It's All Right",
+		"artist": "Bob Dylan"
+	},
+	"covers/gone-for-good.md": {
+		"title": "Gone For Good",
+		"artist": "The Shins"
+	},
+	"covers/hallelujah.md": {
+		"title": "Hallelujah",
+		"artist": "Leonard Cohen"
+	},
+	"covers/handy-man.md": {
+		"title": "Handy Man",
+		"artist": "James Taylor"
+	},
+	"covers/heart-of-gold.md": {
+		"title": "Heart of Gold",
+		"artist": "Neil Young"
+	},
 	"covers/hello-hello.md": {
 		"title": "Hello, Hello",
 		"artist": "Sopwith Camel"
+	},
+	"covers/house-of-the-rising-sun.md": {
+		"title": "House of the Rising Sun",
+		"artist": "Bob Dylan"
+	},
+	"covers/i-call-your-name.md": {
+		"title": "I Call Your Name",
+		"artist": "The Beatles"
+	},
+	"covers/if-i-fell.md": {
+		"title": "If I Fell",
+		"artist": "The Beatles"
+	},
+	"covers/im-not-afraid-to-die.md": {
+		"title": "I'm Not Afraid To Die",
+		"artist": "Gillian Welch"
+	},
+	"covers/into-white.md": {
+		"title": "Into White",
+		"artist": "Cat Stevens"
+	},
+	"covers/morning-has-broken.md": {
+		"title": "Morning Has Broken",
+		"artist": "Cat Stevens"
+	},
+	"covers/new-slang.md": {
+		"title": "New Slang",
+		"artist": "The Shins"
+	},
+	"covers/novims-nightmare.md": {
+		"title": "Novim’s Nightmare",
+		"artist": "Cat Stevens"
+	},
+	"covers/rain.md": {
+		"title": "Rain",
+		"artist": "The Beatles"
+	},
+	"covers/savior-complex.md": {
+		"title": "Savior Complex",
+		"artist": "Phoebe Bridgers"
+	},
+	"covers/talk.md": {
+		"title": "Talk",
+		"artist": "Christian Lee Hutson"
+	},
+	"covers/two-of-us.md": {
+		"title": "Two of Us",
+		"artist": "The Beatles"
+	},
+	"covers/was-a-sunny-day.md": {
+		"title": "Was a Sunny Day",
+		"artist": "Paul Simon"
 	},
 	"eighties/wholly-the-changes-come.md": {
 		"title": "Wholly the Changes Come",
@@ -46,10 +142,6 @@
 	"psyche/torn-apart.md": {
 		"title": "Torn Apart",
 		"artist": "The Baitnickels"
-	},
-	"test-fakes/into-white.md": {
-		"title": "Into White",
-		"artist": "Cat Stevens"
 	},
 	"volumes/i-think-im-falling-in-love-again.md": {
 		"title": "I Think I'm Falling In Love Again",

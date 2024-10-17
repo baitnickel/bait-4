@@ -153,7 +153,7 @@ export class Page {
 	displayFooter(revision: number|null = null) {
 		const footerLines: string[] = [];
 		const revisionDate = (revision === null) ? new Date(this.revision) : new Date(revision);
-		footerLines.push(`Last updated <span id=footer-date>${revisionDate.toString()}</span>`);
+		footerLines.push(`Last updated <span id=footer-date>${T.DateString(revisionDate, 6)}</span>`);
 		footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
 		this.footer.innerHTML = footerLines.join('<br>');
 	}

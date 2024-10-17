@@ -1,3 +1,4 @@
+import * as T from './types.js';
 import { Session, Site } from './settings.js';
 import * as Fetch from './fetch.js';
 import { MarkupLine } from './markup.js';
@@ -119,7 +120,7 @@ export class Page {
     displayFooter(revision = null) {
         const footerLines = [];
         const revisionDate = (revision === null) ? new Date(this.revision) : new Date(revision);
-        footerLines.push(`Last updated <span id=footer-date>${revisionDate.toString()}</span>`);
+        footerLines.push(`Last updated <span id=footer-date>${T.DateString(revisionDate, 6)}</span>`);
         footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
         this.footer.innerHTML = footerLines.join('<br>');
     }

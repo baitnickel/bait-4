@@ -6,11 +6,12 @@ const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
 const MenuItems = [
-    { module: 'home', parameters: [], text: 'Home', icon: 'home.svg' },
-    { module: 'iching', parameters: [], text: 'I Ching', icon: '' },
-    { module: 'camp', parameters: [], text: 'Camping', icon: 'camp.svg' },
-    { module: 'articles', parameters: ['path=Content/drafts'], text: 'Drafts', icon: '' },
-    { module: 'songbook', parameters: [], text: 'Song Book', icon: 'songbook.svg' },
+    { module: 'home', parameters: [], text: String.fromCodePoint(0x1f3e0), icon: 'home.svg' },
+    { module: 'iching', parameters: [], text: '\u262f', icon: '' },
+    { module: 'camp', parameters: [], text: '\u26fa', icon: 'camp.svg' },
+    { module: 'articles', parameters: ['path=Content/drafts'], text: String.fromCodePoint(0x1f4da), icon: '' },
+    { module: 'songbook', parameters: [], text: '\u266b', icon: 'songbook.svg' },
+    { module: 'articles', parameters: ['path=README.md'], text: '\u24d8', icon: '' },
 ];
 const Pages = await Fetch.map(`${Site()}/Indices/pages.json`);
 export class Page {
@@ -44,13 +45,13 @@ export class Page {
         body.append(this.footer);
         /** Add test pages */
         if (this.local) {
-            MenuItems.push({ module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: '' });
+            // MenuItems.push({module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: ''});
             // MenuItems.push({module: 'test-cookies', parameters: [], text: 'Cookies', icon: ''});
-            MenuItems.push({ module: 'test-lyrics', parameters: [], text: 'Lyrics', icon: '' });
-            MenuItems.push({ module: 'test-file-api', parameters: [], text: 'File API', icon: '' });
-            MenuItems.push({ module: 'test-svg', parameters: [], text: 'SVG', icon: '' });
-            MenuItems.push({ module: 'test-yaml', parameters: [], text: 'YAML', icon: '' });
-            MenuItems.push({ module: 'test-load-data', parameters: [], text: 'Load Data', icon: '' });
+            // MenuItems.push({module: 'test-lyrics', parameters: [], text: 'Lyrics', icon: ''});
+            // MenuItems.push({module: 'test-file-api', parameters: [], text: 'File API', icon: ''});
+            // MenuItems.push({module: 'test-svg', parameters: [], text: 'SVG', icon: ''});
+            // MenuItems.push({module: 'test-yaml', parameters: [], text: 'YAML', icon: ''});
+            // MenuItems.push({module: 'test-load-data', parameters: [], text: 'Load Data', icon: ''});
         }
         if (header)
             this.displayHeader();
@@ -335,9 +336,9 @@ export class Page {
  * let personObject = Coerce<Person>(data.person);
  * let personObjects = Coerce<Person[]>(data.persons);
  */
-export function Coerce(data) {
-    return data;
-}
+// export function Coerce<Type>(data: any): Type {
+// 	return data;
+// }
 // async function sha256(message: string) {
 // 	// encode as UTF-8
 // 	const msgBuffer = new TextEncoder().encode(message);

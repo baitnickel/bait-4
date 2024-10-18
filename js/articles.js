@@ -39,6 +39,7 @@ const ProgressElement = document.createElement('span');
 ProgressElement.className = 'article-navigation-progress';
 const ArticlesIndex = `${ThisPage.site}/Indices/articles.json`;
 const Articles = await Fetch.map(ArticlesIndex);
+const READMETitle = 'About This Site';
 export function render() {
     const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path') : '';
     const eligiblePaths = [pagePath];
@@ -90,8 +91,10 @@ function displayArticle(articles, index) {
     Fetch.text(articlePath).then((fileText) => {
         const markdown = new MarkdownDocument(fileText);
         let title = '';
-        if ('title' in markdown.metadata)
+        if (markdown.metadata && 'title' in markdown.metadata)
             title = markdown.metadata['title'];
+        else if (articlePath == `${ThisPage.site}/README.md`)
+            title = READMETitle;
         else { /* use file name as title */
             const matches = articlePath.match(/.*\/(.*)\..*$/);
             if (matches !== null)

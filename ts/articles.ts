@@ -45,6 +45,8 @@ ProgressElement.className = 'article-navigation-progress';
 const ArticlesIndex = `${ThisPage.site}/Indices/articles.json`;
 const Articles = await Fetch.map<T.FileStats>(ArticlesIndex);
 
+const READMETitle = 'About This Site';
+
 export function render() {
 	const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path') : ''; 
 	const eligiblePaths = [pagePath!];
@@ -98,7 +100,8 @@ function displayArticle(articles: string[], index: number) {
 	Fetch.text(articlePath).then((fileText) => {
 		const markdown = new MarkdownDocument(fileText);
 		let title = '';
-		if ('title' in markdown.metadata) title = markdown.metadata['title'];
+		if (markdown.metadata && 'title' in markdown.metadata) title = markdown.metadata['title'];
+		else if (articlePath == `${ThisPage.site}/README.md`) title = READMETitle;
 		else { /* use file name as title */
 			const matches = articlePath.match(/.*\/(.*)\..*$/);
 			if (matches !== null) title = matches[1];

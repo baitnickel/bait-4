@@ -6,13 +6,14 @@ import { MarkdownDocument } from './lib/md.js';
 import * as Widget from './lib/widgets.js';
 
 /**
- * Example: http://localhost/bait-4/index.html?page=articles&path=Content/drafts
+ * Example: http://localhost/bait-4/index.html?page=articles&path=README.md,Content/drafts
  * 
- * The `path` argument should be a list of URIs. (Advice to user: simplify your
- * content file structure before complicating the value of `path`.) Each URI
- * represents a single Article document or a folder; if it's a folder, add all
- * the (eligible) Article documents to the Batch list. When the Batch contains
- * multiple Articles, add navigation elements to the page.
+ * The `path` argument is a list of one or more comma-separated files or
+ * folders, relative to the site root directory. (Advice to user: simplify your
+ * content file structure before complicating the value of `path`.) Each path
+ * item represents a single Article document or a folder; if it's a folder, add
+ * all the (eligible) Article documents to the Batch list. When the Batch
+ * contains multiple Articles, add navigation elements to the page.
  * 
  * Optionally, render a "feedback" button--email link; include article metadata
  * in email subject/body (article URI, revision, etc.).
@@ -48,8 +49,8 @@ const Articles = await Fetch.map<T.FileStats>(ArticlesIndex);
 const READMETitle = 'About This Site';
 
 export function render() {
-	const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path') : ''; 
-	const eligiblePaths = [pagePath!];
+	const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path')! : '';
+	const eligiblePaths = pagePath.split(',');
 	const updateNavigation = new Event(NavigationEvent);
 
 	/**

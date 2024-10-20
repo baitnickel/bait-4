@@ -26,17 +26,17 @@ const MenuItems: MenuItem[] = [
 const Pages = await Fetch.map<T.FileStats>(`${Site()}/Indices/pages.json`);
 
 export class Page {
-	name: string|null;                  /** name of requested page (via query 'page=<name>') */
+	name: string|null;              /** name of requested page (via query 'page=<name>') */
 	encryption: number;
 	encryptPrefix: number;
 	origin: string;
-	url: string;                        /** URL origin + pathname (full URL without '?query') */
-	parameters: URLSearchParams;        /** URL query parameters */
-	options: Map<string, string>;       /** Map of options */
-	local: boolean;                     /** is the server 'localhost'? */
-	access: number;                     /** access number (permission/authorization) */
-	revision: number;                   /** revision date (milliseconds since 1/1/1970 UTC) */
-	site: string;              /** root URL for content fetch operations */
+	url: string;                    /** URL origin + pathname (full URL without '?query') */
+	parameters: URLSearchParams;    /** URL query parameters */
+	options: Map<string, string>;   /** Map of options */
+	local: boolean;                 /** is the server 'localhost'? */
+	access: number;                 /** access number (permission/authorization) */
+	revision: number;               /** revision date (milliseconds since 1/1/1970 UTC) */
+	site: string;                   /** root URL for content fetch operations */
 	header: HTMLDivElement;
 	content: HTMLDivElement;
 	footer: HTMLDivElement;
@@ -114,14 +114,15 @@ export class Page {
 		// inputElement.height = 15;
 		/* Event listener */
 		// inputElement.addEventListener('change', processInputText);
+		
+		// this.header.append(inputElement);
+		unorderedList.append(inputElement);
 
 		inputElement.addEventListener('change', (e) => {
 			this.feedback = inputElement.value;
 			if (this.feedback) alert(`Feedback will be sent to: ${this.feedback}`);
 			inputElement.value = '';
 		});
-
-		this.header.append(inputElement);
 
 		/* Event Listener */
 		function processInputText() {

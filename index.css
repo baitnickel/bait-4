@@ -18,7 +18,7 @@ body {
 
 /* #header-menu, #footer, nav, article, main, body { */
 nav, article, main, body {
-	display:block;
+	display: block;
 }	
 
 #header-menu, #footer {
@@ -33,7 +33,8 @@ nav, article, main, body {
 	/* top: 0; */
 	/* margin-top: .2em; */
 	/* width: var(--content-width); */
-	display: flex;
+	/* display: flex; ? */
+	display: block;
 	justify-content: space-between;
 	border-radius: .5em;
 	/* padding: 0 .5em 0 .5em; */ /* also part of fixed-position menu change above */
@@ -47,8 +48,10 @@ nav, article, main, body {
 	padding: 0 .3em; /* padding inside the input box */
 	/* these control the size and position of the text input box */
 	height: 1.2em;
+	/* position: relative; */
 	position: relative;
-	top: .7em;
+	/* right: 2em; */
+	/* top: .7em; ? */
 }
 
 #menu {
@@ -66,8 +69,8 @@ nav, article, main, body {
 #menu li a {
 	text-decoration: none;
 	text-align: center;
-	/* padding: .5em .5em .5em .5em; */
-	padding: 0 .5em;
+	padding: .5em .5em .5em .5em;
+	/* padding: 0 .5em; */
 	color: #eef;
 }
 #menu li a:hover {

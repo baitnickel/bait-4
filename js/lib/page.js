@@ -85,13 +85,14 @@ export class Page {
         // inputElement.height = 15;
         /* Event listener */
         // inputElement.addEventListener('change', processInputText);
+        // this.header.append(inputElement);
+        unorderedList.append(inputElement);
         inputElement.addEventListener('change', (e) => {
             this.feedback = inputElement.value;
             if (this.feedback)
                 alert(`Feedback will be sent to: ${this.feedback}`);
             inputElement.value = '';
         });
-        this.header.append(inputElement);
         /* Event Listener */
         function processInputText() {
             /**

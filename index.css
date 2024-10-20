@@ -16,90 +16,42 @@ body {
 }	
 
 
-/* #header-menu, #footer, nav, article, main, body { */
 nav, article, main, body {
 	display: block;
 }	
 
-#header-menu, #footer {
+#header, #footer {
+	display: block;
+	border-radius: .5em;
+	font-family: sans-serif;
+	font-size: 16pt;
+	color: #eef;
 	background-color: #5480df;
 }
-
 #header-menu {
-	/* new - trying to horizontally align text input after menu items */
-
-	/* commented out lines attempting to fix menu to top of page window */
-	/* position: fixed; */
-	/* top: 0; */
-	/* margin-top: .2em; */
-	/* width: var(--content-width); */
-	/* display: flex; ? */
-	display: block;
 	justify-content: space-between;
-	border-radius: .5em;
-	/* padding: 0 .5em 0 .5em; */ /* also part of fixed-position menu change above */
-	/* padding: 0 .5em; */
 }
-
-#header-input {
-	font-family: sans-serif;
-	font-size: 10pt;
-	margin: 0 1em;
-	padding: 0 .3em; /* padding inside the input box */
-	/* these control the size and position of the text input box */
-	height: 1.2em;
-	/* position: relative; */
-	position: relative;
-	/* right: 2em; */
-	/* top: .7em; ? */
-}
-
-#menu {
-	/* padding: 0; .5em .2em .25em 0; */
-	border-radius: .5em;
-	/* font-size: small; */
-	display: flex; /* works with align-items, below */
-	align-items: center; /* aligns items vertically */
-}
-#menu li {
+#header-menu li {
 	display: inline;
-	font-family: sans-serif;
-	font-size: 16pt; /* controls just the menu item characters? */
-}
-#menu li a {
-	text-decoration: none;
 	text-align: center;
-	padding: .5em .5em .5em .5em;
-	/* padding: 0 .5em; */
+}
+#header-menu li a {
+	text-decoration: none;
+	padding: .5em .5em .5em .5em; /* only adds horizontal spacing between li items */
 	color: #eef;
 }
-#menu li a:hover {
+#header-menu li a:hover {
 	color: orange;
-	/* color: #ffff00; */
 }
-
-/* I don't think these are doing anything - classes aren't being used?
-#menu-list {
-	color: #eef;
-}
-#menu-list:hover {
-	color: #acf69b
-}
-.menu-icon {
-	fill: #eef;
-}
-.menu-icon:hover{
-	fill: orange;
-}
-*/
-
-#footer {
-	display: block;
-	border-radius: .5em;
-	font-family: sans-serif;
+#header-input {
+	/* font-family: serif; */
 	font-size: 75%;
-	padding: .4em 1em .4em 1.5em; /* top, right, bottom, left */
-	color: #eef;
+	margin: 0 1em 3pt 8em; /* last (left) does "indent" it, but others don't seem to do much, if anything */
+	padding: 0 .3em; /* padding inside the input box */
+}
+#footer {
+	font-size: 75%;
+	padding: .4em 1em .4em 1.5em;
 }
 
 h1, h2, h3, h4, h5 {
@@ -115,22 +67,6 @@ h5 {
 	background-color: var(--background-color);
 }
 
-/*
-details {
-	margin-bottom: .5em;
-}
-summary {
-	font-family: sans-serif;
-	font-size: 1.2em;
-	color: #44b;
-}
-*/
-
-/* removed for camp page ... what else is affected?? */
-/* p {
-	font-family: serif;
-} */
-
 .italic {
 	font-style: italic;
 }
@@ -144,18 +80,7 @@ summary {
 	padding-top: 1em;
 }
 
-/* p .blockquote {
-	text-indent: 15%;
-} */
-
-/* li {
-	margin: 0 0 1em 0;
-} */	
-
-/* old global */
-
-
-#page-content {
+#content {
 	/* margin-top: 4em; */ /* move content down to make room for fixed-position menu */
 	margin-top: 1em;
 	margin-bottom: 1em;
@@ -171,15 +96,6 @@ nav {
 	/* position: relative; */
 }
 
-/* .xblockquote { */
-	/* display: block; */
-	/* margin-top: 1em; */
-	/* margin-bottom: 1em; */
-	/* margin-left: 5%; */
-	/* margin-right: 5%; */
-	/* color: gray; */
-	/* background-color: white; */
-/* } */
 blockquote {
 	/* font: 14px/22px normal helvetica, sans-serif; */
 	font-size: 90%;
@@ -196,13 +112,6 @@ blockquote {
 	margin-right: auto;
 	/* width: 100%; */
 }
-
-/* article {
-	border: solid 1px #ccc;
-	border-radius: .5em;
-	background-color: rgba(0, 183, 255, 0.116);
-	padding: 20px;
-} */
 
 article li {
    margin: 0 0 1em 0;   
@@ -589,5 +498,3 @@ font-family: sans-serif;
 	font-size: 9pt;
 	padding: 0 0 0 1rem;
 }
-/* .indent-text {
-} */

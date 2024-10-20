@@ -33,6 +33,7 @@ import * as Widget from './lib/widgets.js';
 /** @todo perhaps support multiple paths in the URL query? */
 /** @todo perhaps float top navigation (buttons) at the top of the window? */
 const ThisPage = new Page();
+ThisPage.setTitle('Articles');
 const NavigationEvent = 'bait:navigation-update';
 const NavigationElement = ThisPage.appendContent('#top-navigation');
 const ArticleElement = ThisPage.appendContent('#main-article article');

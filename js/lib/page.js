@@ -32,19 +32,19 @@ export class Page {
         this.options = new Map();
         this.access = (fileStats === null) ? 0 : fileStats.access;
         this.revision = (fileStats === null) ? Session.built : fileStats.revision;
+        const head = document.querySelector('head'); /** we assume 'head' is defined in index.html */
+        const body = document.createElement('body');
+        head.after(body);
         this.header = document.createElement('div');
-        this.header.id = 'header-menu';
+        this.header.id = 'header';
         this.content = document.createElement('div');
-        this.content.id = 'page-content';
+        this.content.id = 'content';
         this.footer = document.createElement('div');
         this.footer.id = 'footer';
-        /** 'body' must be defined in index.html */
-        const body = document.querySelector('body');
         body.append(this.header);
         body.append(this.content);
         body.append(this.footer);
-        /** Add test pages */
-        if (this.local) {
+        if (this.local) { /** Add test pages */
             // MenuItems.push({module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: ''});
             // MenuItems.push({module: 'test-cookies', parameters: [], text: 'Cookies', icon: ''});
             // MenuItems.push({module: 'test-lyrics', parameters: [], text: 'Lyrics', icon: ''});
@@ -65,7 +65,7 @@ export class Page {
      */
     displayHeader() {
         const unorderedList = document.createElement('ul');
-        unorderedList.id = 'menu';
+        unorderedList.id = 'header-menu';
         this.header.append(unorderedList);
         for (const menuItem of MenuItems) {
             const listElement = document.createElement('li');
@@ -82,10 +82,7 @@ export class Page {
         const inputElement = document.createElement('input');
         inputElement.id = 'header-input';
         inputElement.size = 30;
-        // inputElement.height = 15;
-        /* Event listener */
         // inputElement.addEventListener('change', processInputText);
-        // this.header.append(inputElement);
         unorderedList.append(inputElement);
         inputElement.addEventListener('change', (e) => {
             this.feedback = inputElement.value;
@@ -93,27 +90,27 @@ export class Page {
                 alert(`Feedback will be sent to: ${this.feedback}`);
             inputElement.value = '';
         });
-        /* Event Listener */
-        function processInputText() {
-            /**
-             * Remove non-word and non-whitespace characters, trim both ends,
-             * and replace all whitespace strings with a single space.
-             */
-            // let cleanText = inputElement.value.replace(/[^\w\s]/gi, '');
-            // cleanText = cleanText.trim();
-            // cleanText = cleanText.replace(/\s+/gi, ' ');
-            // alert(`Clean Text: ${cleanText}`);
-            /**
-             * Rather than simply display an alert, what we need to do here is
-             * write cookies containing the encrypted version of the text
-             * entered, and update the available menus accordingly.
-             */
-            // if (cleanText == 'Jed') {
-            // 	MenuItems.push({module: 'camp', text: 'Camping', icon: 'camp.svg'});
-            // 	window.location.reload();
-            // 	// inputElement.value = '';
-            // }
-        }
+        // /* Event Listener */
+        // function processInputText() {
+        // 	/**
+        // 	 * Remove non-word and non-whitespace characters, trim both ends,
+        // 	 * and replace all whitespace strings with a single space.
+        // 	 */
+        // 	let cleanText = inputElement.value.replace(/[^\w\s]/gi, '');
+        // 	cleanText = cleanText.trim();
+        // 	cleanText = cleanText.replace(/\s+/gi, ' ');
+        // 	alert(`Clean Text: ${cleanText}`);
+        // 	/**
+        // 	 * Rather than simply display an alert, what we need to do here is
+        // 	 * write cookies containing the encrypted version of the text
+        // 	 * entered, and update the available menus accordingly.
+        // 	 */
+        // 	if (cleanText == 'Jed') {
+        // 		MenuItems.push({module: 'camp', text: 'Camping', icon: 'camp.svg'});
+        // 		window.location.reload();
+        // 		// inputElement.value = '';
+        // 	}
+        // }
     }
     /**
      * Given a `revision` date (as milliseconds since Jan 1, 1970), (over)write

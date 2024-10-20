@@ -27,9 +27,9 @@ const Pages = await Fetch.map<T.FileStats>(`${Site()}/Indices/pages.json`);
 
 export class Page {
 	name: string|null;              /** name of requested page (via query 'page=<name>') */
-	encryption: number;
-	encryptPrefix: number;
-	origin: string;
+	encryption: number;             /** future? */
+	encryptPrefix: number;          /** future? */
+	origin: string;                 /** The URL's scheme, domain, and port (e.g., 'http://www.example.com:80' */
 	url: string;                    /** URL origin + pathname (full URL without '?query') */
 	parameters: URLSearchParams;    /** URL query parameters */
 	options: Map<string, string>;   /** Map of options */
@@ -37,11 +37,10 @@ export class Page {
 	access: number;                 /** access number (permission/authorization) */
 	revision: number;               /** revision date (milliseconds since 1/1/1970 UTC) */
 	site: string;                   /** root URL for content fetch operations */
-	header: HTMLDivElement;
-	content: HTMLDivElement;
-	footer: HTMLDivElement;
-
-	feedback: string;
+	header: HTMLDivElement;         /** division at the top of the display, containing menu, etc. */
+	content: HTMLDivElement;        /** division containing main page content */
+	footer: HTMLDivElement;         /** division at the bottom of the display, containing modification date, ©, etc. */
+	feedback: string;               /** text entered into the menu input field */
 
 	constructor(header = true, footer = true) {
 		this.origin = window.location.origin;
@@ -62,19 +61,20 @@ export class Page {
 		this.options = new Map<string, string>();
 		this.access = (fileStats === null) ? 0 : fileStats.access;
 		this.revision = (fileStats === null) ? Session.built : fileStats.revision;
+		const head = document.querySelector('head'); /** we assume 'head' is defined in index.html */
+		const body = document.createElement('body');
+		head!.after(body);
 		this.header = document.createElement('div');
-		this.header.id = 'header-menu';
+		this.header.id = 'header';
 		this.content = document.createElement('div');
-		this.content.id = 'page-content';
+		this.content.id = 'content';
 		this.footer = document.createElement('div');
 		this.footer.id = 'footer';
-		/** 'body' must be defined in index.html */
-		const body = document.querySelector('body')!;
 		body.append(this.header);
 		body.append(this.content);
 		body.append(this.footer);
-		/** Add test pages */
-		if (this.local) {
+
+		if (this.local) { /** Add test pages */
 			// MenuItems.push({module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: ''});
 			// MenuItems.push({module: 'test-cookies', parameters: [], text: 'Cookies', icon: ''});
 			// MenuItems.push({module: 'test-lyrics', parameters: [], text: 'Lyrics', icon: ''});
@@ -83,6 +83,7 @@ export class Page {
 			// MenuItems.push({module: 'test-yaml', parameters: [], text: 'YAML', icon: ''});
 			// MenuItems.push({module: 'test-load-data', parameters: [], text: 'Load Data', icon: ''});
 		}
+
 		if (header) this.displayHeader();
 		if (footer) this.displayFooter();
 	}
@@ -94,7 +95,7 @@ export class Page {
 	 */
 	displayHeader(){
 		const unorderedList = document.createElement('ul');
-		unorderedList.id = 'menu';
+		unorderedList.id = 'header-menu';
 		this.header.append(unorderedList);
 		for (const menuItem of MenuItems) {
 			const listElement = document.createElement('li');
@@ -111,11 +112,7 @@ export class Page {
 		const inputElement = document.createElement('input');
 		inputElement.id = 'header-input';
 		inputElement.size = 30;
-		// inputElement.height = 15;
-		/* Event listener */
 		// inputElement.addEventListener('change', processInputText);
-		
-		// this.header.append(inputElement);
 		unorderedList.append(inputElement);
 
 		inputElement.addEventListener('change', (e) => {
@@ -124,28 +121,28 @@ export class Page {
 			inputElement.value = '';
 		});
 
-		/* Event Listener */
-		function processInputText() {
-			/**
-			 * Remove non-word and non-whitespace characters, trim both ends,
-			 * and replace all whitespace strings with a single space.
-			 */
-			// let cleanText = inputElement.value.replace(/[^\w\s]/gi, '');
-			// cleanText = cleanText.trim();
-			// cleanText = cleanText.replace(/\s+/gi, ' ');
-			// alert(`Clean Text: ${cleanText}`);
+		// /* Event Listener */
+		// function processInputText() {
+		// 	/**
+		// 	 * Remove non-word and non-whitespace characters, trim both ends,
+		// 	 * and replace all whitespace strings with a single space.
+		// 	 */
+		// 	let cleanText = inputElement.value.replace(/[^\w\s]/gi, '');
+		// 	cleanText = cleanText.trim();
+		// 	cleanText = cleanText.replace(/\s+/gi, ' ');
+		// 	alert(`Clean Text: ${cleanText}`);
 
-			/**
-			 * Rather than simply display an alert, what we need to do here is
-			 * write cookies containing the encrypted version of the text
-			 * entered, and update the available menus accordingly.
-			 */
-			// if (cleanText == 'Jed') {
-			// 	MenuItems.push({module: 'camp', text: 'Camping', icon: 'camp.svg'});
-			// 	window.location.reload();
-			// 	// inputElement.value = '';
-			// }
-		}
+		// 	/**
+		// 	 * Rather than simply display an alert, what we need to do here is
+		// 	 * write cookies containing the encrypted version of the text
+		// 	 * entered, and update the available menus accordingly.
+		// 	 */
+		// 	if (cleanText == 'Jed') {
+		// 		MenuItems.push({module: 'camp', text: 'Camping', icon: 'camp.svg'});
+		// 		window.location.reload();
+		// 		// inputElement.value = '';
+		// 	}
+		// }
 	}
 
 	/**

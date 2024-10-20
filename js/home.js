@@ -6,6 +6,7 @@ import { Markup } from './lib/markup.js';
 import * as Widgets from './lib/widgets.js';
 export function render() {
     const page = new Page();
+    page.setTitle('Home');
     const Quote = page.appendContent('#Quote');
     const TestCollection = page.appendContent('#TestCollection');
     const TestMap = page.appendContent('#TestMap');

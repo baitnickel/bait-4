@@ -45,6 +45,8 @@ let range = newRange(Array.from(RangeTypes.keys())[0], NumberOfChapters);
  * - I Ching Display (texts from chosen I Ching chapter)
  */
 export function render() {
+    ThisPage.setTitle('I Ching');
+    ThisPage.addHeading('Consult the Book of Changes', 2);
     RangeTypeSelection = document.createElement('div');
     RangeTypeSelection.id = 'iching-range-type';
     ThisPage.content.append(RangeTypeSelection);

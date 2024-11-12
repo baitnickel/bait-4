@@ -69,6 +69,34 @@ export class MarkdownDocument {
             this.text = textLines.join('\n');
     }
     /**
+     * Return an array of `sections` from `this.text`. Each section consists of
+     * a single string, typically with embedded linefeeds. Sections are
+     * separated by lines that match the Horizontal Rule pattern. There will
+     * always be at least one section, though it may consist of only an empty
+     * string.
+     */
+    sections() {
+        const sections = [];
+        const HORIZONTAL_RULE_PATTERN = /^((-+[ \t]{0,}){3,}|(_+[ \t]{0,}){3,}|(\*+[ \t]{0,}){3,})$/;
+        const lines = this.text.split('\n');
+        const sectionLines = [];
+        for (const line of lines) {
+            if (HORIZONTAL_RULE_PATTERN.test(line)) {
+                if (sectionLines.length) {
+                    sections.push(sectionLines.join('\n'));
+                    sectionLines.splice(0);
+                }
+                else
+                    sections.push('');
+            }
+            else
+                sectionLines.push(line);
+        }
+        if (sectionLines.length)
+            sections.push(sectionLines.join('\n'));
+        return sections;
+    }
+    /**
      * This is a convenience method which returns lines of error messages as
      * HTML (the default) or plain text.
      */

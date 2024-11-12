@@ -41,6 +41,12 @@
 		"aliases": [],
 		"tags": []
 	},
+	"Content/drafts/Yosemite Winter 2005.md": {
+		"access": 0,
+		"revision": 1731096984348,
+		"aliases": [],
+		"tags": []
+	},
 	"Content/fakesheets/ants/all-the-time.md": {
 		"access": 0,
 		"revision": 1728599459155,
@@ -314,6 +320,12 @@
 	"Content/fakesheets/wake/rabbit-and-the-white-fish.md": {
 		"access": 0,
 		"revision": 1706053923013,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/fragments/Yosemite.md": {
+		"access": 0,
+		"revision": 1731097040225,
 		"aliases": [],
 		"tags": []
 	},

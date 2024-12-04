@@ -8,12 +8,10 @@
 	--background-color: #dfeeff;
 }
 
-/* body { background-color: var(--blue); } */
-
 body {
 	background-color: var(--background-color);
 	max-width: var(--content-width);
-	margin: auto;
+	margin: auto; /* center body in window */
 }	
 
 

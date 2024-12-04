@@ -7,4 +7,4 @@ In the summertime, they'd sleep under the southern skies on the backyard brick p
 
 (4840 square yards in an acre. A quarter acre is 1210 square yards. So properties that are 22 yards wide would be 55 yards deep if the property is .25 acres, which Dad alway said. Square footage is 66 x 165 = 10,890). 
 ___
-I have never lived more than 20 miles from the Pacific Coast of California, from the waves splashing on the ocean sands. Is that remarkable for a person of 72 years here in the 21st century?
+I have never lived more than 20 miles from the Pacific Coast of California. Is that remarkable for a person of 72 years here in the 21st century? Through every moment of my life the ocean has been there, so close, its waves keeping time with my breaths.

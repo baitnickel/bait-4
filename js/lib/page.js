@@ -6,12 +6,18 @@ const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
 const MenuItems = [
-    { module: 'home', parameters: [], text: String.fromCodePoint(0x1f3e0), icon: 'home.svg' },
-    { module: 'iching', parameters: [], text: '\u262f', icon: '' },
-    { module: 'camp', parameters: [], text: '\u26fa', icon: 'camp.svg' },
-    { module: 'articles', parameters: ['path=Content/drafts'], text: String.fromCodePoint(0x1f4da), icon: '' },
-    { module: 'songbook', parameters: [], text: '\u266b', icon: 'songbook.svg' },
-    { module: 'articles', parameters: ['path=README.md'], text: '\u24d8', icon: '' },
+    { module: 'home', parameters: [], text: 'Home', icon: '' },
+    { module: 'articles', parameters: ['path=Content/drafts'], text: 'Writing', icon: '' },
+    { module: 'songbook', parameters: [], text: 'Songs', icon: '' },
+    { module: 'iching', parameters: [], text: 'I Ching', icon: '' },
+    { module: 'camp', parameters: [], text: 'Camping', icon: 'camp.svg' },
+    { module: 'articles', parameters: ['path=README.md'], text: 'About', icon: '' },
+    // {module: 'home', parameters: [], text: String.fromCodePoint(0x1f3e0), icon: 'home.svg'},
+    // {module: 'iching', parameters: [], text: '\u262f', icon: ''},
+    // {module: 'camp', parameters: [], text: '\u26fa', icon: 'camp.svg'},
+    // {module: 'articles', parameters: ['path=Content/drafts'], text: String.fromCodePoint(0x1f4da), icon: ''},
+    // {module: 'songbook', parameters: [], text: '\u266b', icon: 'songbook.svg'},
+    // {module: 'articles', parameters: ['path=README.md'], text: '\u24d8', icon: ''},
 ];
 const Pages = await Fetch.map(`${Site()}/Indices/pages.json`);
 export class Page {
@@ -32,9 +38,9 @@ export class Page {
         this.options = new Map();
         this.access = (fileStats === null) ? 0 : fileStats.access;
         this.revision = (fileStats === null) ? Session.built : fileStats.revision;
-        const head = document.querySelector('head'); /** we assume 'head' is defined in index.html */
-        const body = document.createElement('body');
-        head.after(body);
+        /** 'head' and 'body' must be defined in index.html */
+        const head = document.querySelector('head');
+        const body = document.querySelector('body');
         this.header = document.createElement('div');
         this.header.id = 'header';
         this.content = document.createElement('div');
@@ -87,7 +93,7 @@ export class Page {
         inputElement.addEventListener('change', (e) => {
             this.feedback = inputElement.value;
             if (this.feedback)
-                alert(`Feedback will be sent to: ${this.feedback}`);
+                alert(`You said:: ${this.feedback}`);
             inputElement.value = '';
         });
         // /* Event Listener */

@@ -10,13 +10,26 @@ We assume here that you are at least somewhat familiar with the following topics
 - [TypeScript](https://www.typescriptlang.org/docs/handbook/typescript-from-scratch.html)
 - [Markdown text files](https://www.markdownguide.org/getting-started/)
 
+All of the HTML in this site is generated via JavaScript, with the exception of the following `index.html` file:
+```
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta content="text/html">
+  <link rel="icon" type="image/x-icon" href="./images/icons/fav-modules-32.png">
+  <link type="text/css" rel="stylesheet" href="./index.css?v=240527">
+  <title>bait-4</title>
+</head>
+<script type='module' src='./js/index.js'></script>
+</html>
+```
+
 We are not using any third-party libraries, only standard JavaScript, so there are no dependencies. We're following the Mozilla documentation strictly, using only code features that are supported on (virtually) all modern browsers. We've written our own markdown and YAML parsers—supporting just the standards we need, and allowing for some subtle customizations to fit well with the site's requirements. 
 
-We've barely touched the CSS—little patience for it at this point. This is why the pages look and feel so primitive. Someone with a good eye for aesthetics might offer us suggestions
+We've barely touched the CSS—little patience for it at this point. This is why the pages look and feel so primitive.
 
 #### A Static Web Page
 Part of the challenge in a static environment is managing data complexity without a `database`. My approach is to maintain data—markdown articles, YAML configuration, &c.—in a separate node.js repository on my localhost machine, and write code there that performs refreshes of the content and configuration files in the website repository.
 
-This is a good way to refresh the content in a site—all we have to do is run a node.js script we've written, called `promote`, that pulls new and updated content from local (mostly markdown) files, rebuilds index files, and writes it all the the localhost pages. But making a site feel truly dynamic is challenging. Challenges are good, of course; the rest is all mundane.
-
-(Updated 10/18/2024)
+This is a good way to refresh the content in a site—all we have to do is run a node.js script we've written, called `promote`, that pulls new and updated content from local (mostly markdown) files, rebuilds index files, and writes it all to the localhost pages. But making a site feel truly dynamic is challenging. Challenges are good, of course; everything else is mundane.

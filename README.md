@@ -15,17 +15,23 @@ All of the HTML in this site is generated via JavaScript, with the exception of 
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-  <meta charset="utf-8">
-  <meta content="text/html">
-  <link rel="icon" type="image/x-icon" href="./images/icons/fav-modules-32.png">
-  <link type="text/css" rel="stylesheet" href="./index.css?v=240527">
-  <title>bait-4</title>
+	<meta charset="utf-8">
+	<meta content="text/html">
+	<link rel="icon"
+	  type="image/x-icon"
+	  href="./images/icons/fav-modules-32.png">
+	<link rel="stylesheet"
+	  type="text/css"
+	  href="./index.css?v=241206">
+	<title>bait-4</title>
 </head>
+<body>
+</body>
 <script type='module' src='./js/index.js'></script>
 </html>
 ```
 
-We are not using any third-party libraries, only standard JavaScript, so there are no dependencies. We're following the Mozilla documentation strictly, using only code features that are supported on (virtually) all modern browsers. We've written our own markdown and YAML parsers—supporting just the standards we need, and allowing for some subtle customizations to fit well with the site's requirements. 
+We're not using any third-party libraries, only standard JavaScript, so there are no dependencies. We're following the Mozilla documentation strictly, using only code features that are supported on (virtually) all modern browsers. We've written our own markdown and YAML parsers—supporting just the standards we need, and allowing for some subtle customizations to fit well with the site's requirements. 
 
 We've barely touched the CSS—little patience for it at this point. This is why the pages look and feel so primitive.
 

@@ -15,15 +15,15 @@ All of the HTML in this site is generated via JavaScript, with the exception of 
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-	<meta charset="utf-8">
-	<meta content="text/html">
-	<link rel="icon"
-	  type="image/x-icon"
-	  href="./images/icons/fav-modules-32.png">
-	<link rel="stylesheet"
-	  type="text/css"
-	  href="./index.css?v=241206">
-	<title>bait-4</title>
+  <meta charset="utf-8">
+  <meta content="text/html">
+  <link rel="icon"
+    type="image/x-icon"
+    href="./images/icons/fav-modules-32.png">
+  <link rel="stylesheet"
+    type="text/css"
+    href="./index.css?v=241206">
+  <title>bait-4</title>
 </head>
 <body>
 </body>

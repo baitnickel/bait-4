@@ -31,7 +31,7 @@ export class MarkdownDocument {
 	errors: boolean;
 	metadataErrors: string[];
 
-	constructor( markdownDocument: string, yamlOnly = false, convertStrings = false) {
+	constructor(markdownDocument: string, yamlOnly = false, convertStrings = false) {
 		this.metadata = null;
 		this.text = '';
 		this.textOffset = -1;
@@ -74,28 +74,30 @@ export class MarkdownDocument {
 	}
 
 	/**
-	 * Return an array of `sections` from `this.text`. Each section consists of
-	 * a single string, typically with embedded linefeeds. Sections are
-	 * separated by lines that match the Horizontal Rule pattern. There will
+	 * Return an array of Section objects from `this.text`. Each section
+	 * consists of a single string, typically with embedded linefeeds. Sections
+	 * are separated by lines that match the Horizontal Rule pattern. There will
 	 * always be at least one section, though it may consist of only an empty
 	 * string.
+	 * 
+	 * An optional `source` (e.g., File.name) may be provided to associate a section
+	 * with the markdown file from which it was read.
 	 */
-	sections() {
-		const sections: string[] = [];
+	sections(source = '') {
+		const sections: Section[] = [];
 		const HORIZONTAL_RULE_PATTERN = /^((-+[ \t]{0,}){3,}|(_+[ \t]{0,}){3,}|(\*+[ \t]{0,}){3,})$/;
 		const lines: string[] = this.text.split('\n');
 		const sectionLines: string[] = [];
 		for (const line of lines) {
 			if (HORIZONTAL_RULE_PATTERN.test(line)) {
 				if (sectionLines.length) {
-					sections.push(sectionLines.join('\n'));
-					sectionLines.splice(0);
+					sections.push(new Section(sectionLines, source));
+					sectionLines.splice(0); /** clear array for next iteration */
 				}
-				else sections.push('');
 			}
-			else sectionLines.push(line)
+			else sectionLines.push(line);
 		}
-		if (sectionLines.length) sections.push(sectionLines.join('\n'));
+		if (sectionLines.length) sections.push(new Section(sectionLines, source));
 		return sections;
 	}
 
@@ -131,3 +133,50 @@ export class MarkdownDocument {
 	}
 }
 
+/**
+ * A markdown document may be divided into one or more sections using a dividing
+ * line (e.g., a horizontal rule). Currently this is done in the
+ * MarkdownDocument.sections method. An array of section `textLines` comprise
+ * the whole section. The first text line is treated as the section `title`, and
+ * the remaining text lines are joined together to form the body--a single
+ * string, typically containing embedded newlines.
+ * 
+ * An optional `source` (e.g., File.name) may be provided to associate a section
+ * with the markdown file from which it was read.
+ */
+export class Section {
+	source: string;
+	title: string;
+	body: string;
+
+	constructor(textLines: string[], source = '') {
+		this.source = source;
+		const lines = textLines.slice(); /** clone the array so it may be manipulated */
+		this.title = (lines.length) ? lines[0] : '';
+		if (!this.title) this.body = lines.join('\n');
+		else {
+			lines.shift(); /** remove title line */
+			while (lines.length && !lines[0].trim()) lines.shift();
+		}
+		this.body = lines.join('\n').trimEnd();
+	}
+}
+/*
+	// Usage example:
+
+	const testFile = `${Env.obsidianVaults}/main/notebook/2024-11-03 Sun.md`;
+	const file = FS.GetFile(testFile);
+	if (file === null) {
+		Shell.error('Cannot read file:', testFile);
+		process.exit(1);
+	}
+	const article = FS.ReadText(testFile);
+	const markdown = new MarkdownDocument(article);
+	const sections = markdown.sections();
+	Shell.header(`\tNote: ${file.name}`);
+	for (const section of sections) {
+		Shell.header(`\n${section.title}:`);
+		Shell.log(section.body);
+	}
+
+*/

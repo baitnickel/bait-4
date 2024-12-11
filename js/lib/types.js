@@ -83,8 +83,8 @@ export function DateString(date, format = 0) {
     if (format == 1)
         return date.toString();
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const mon = months[date.getMonth()];
     const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const mon = months[date.getMonth()];
     const weekday = weekdays[date.getDay()];
     const year = date.getFullYear().toString().padStart(2, '0');
     const m = (date.getMonth() + 1).toString();
@@ -100,7 +100,10 @@ export function DateString(date, format = 0) {
         return `${year}-${month}-${day} ${hour}:${minute}`;
     let h = date.getHours();
     const amPm = (h < 12) ? 'am' : 'pm';
-    h = (h == 0) ? 12 : h - 12;
+    if (h > 12)
+        h -= 12;
+    else if (h == 0)
+        h = 12;
     if (format == 4)
         return `${weekday}, ${mon} ${d}, ${year} ${h}:${minute}${amPm}`;
     if (format == 5)

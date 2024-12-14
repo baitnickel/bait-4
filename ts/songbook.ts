@@ -75,7 +75,9 @@ export async function render() {
 	else {
 		/** Display a list of songs having fakesheets */
 		page.setTitle('Song Book');
-		page.displayFooter(); /* refresh default footer */
+		/* refresh default footer */
+		page.footer.innerHTML = '';
+		page.displayFooter();
 		page.addHeading('List of Songs', 2);
 		const fakeSheetIndexPath = `${indicesPath}/fakesheets.json`;
 		const songMap = await Fetch.map<FakesheetLookups>(fakeSheetIndexPath);
@@ -141,7 +143,9 @@ export async function render() {
 function displaySheet(fakesheet: FakeSheet, revision: number|null) {
 	const title = (fakesheet.artist) ? `${fakesheet.title} - ${fakesheet.artist}` : fakesheet.title;
 	document.title = MarkupLine(title, 'ET');
-	page.displayFooter(revision); /* refresh footer */
+	/* refresh footer */
+	page.footer.innerHTML = '';
+	page.displayFooter(revision);
 	page.addHeading(MarkupLine(title, 'ET'), 4);
 
 	/** Create placeholders for page content */

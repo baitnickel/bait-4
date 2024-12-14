@@ -35,6 +35,7 @@ export function render() {
         const testYaml = false;
         const testRadio = true;
         const testEmail = true;
+        const testIconLink = false;
         if (testCollection) {
             const songsIndexFile = `${page.site}/Indices/fakesheets.json`;
             Fetch.map(songsIndexFile).then((songsMap) => {
@@ -175,6 +176,15 @@ export function render() {
                 else
                     window.location.href = `mailto:${page.feedback}?subject=${page.url}`;
             });
+        }
+        if (testIconLink) {
+            // const division = page.appendContent();
+            const iconButton = document.createElement('button');
+            // const icon = `${page.site}/images/icons/bluesky.png`;
+            // iconButton.innerHTML = `<img src="${icon}" />`;
+            iconButton.id = 'footer-bluesky';
+            page.footer.append(iconButton);
+            // division.append(iconButton);
         }
     }
 }

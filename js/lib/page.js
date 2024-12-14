@@ -123,11 +123,24 @@ export class Page {
      * the page footer, showing the revision date and copyright year.
      */
     displayFooter(revision = null) {
-        const footerLines = [];
+        const infoSection = document.createElement('div');
+        const iconSection = document.createElement('div');
+        const infoText = [];
         const revisionDate = (revision === null) ? new Date(this.revision) : new Date(revision);
-        footerLines.push(`Last updated <span id=footer-date>${T.DateString(revisionDate, 6)}</span>`);
-        footerLines.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
-        this.footer.innerHTML = footerLines.join('<br>');
+        infoText.push(`Last updated <span id=footer-date>${T.DateString(revisionDate, 6)}</span>`);
+        infoText.push(`&copy; ${COPYRIGHT_YEAR} ${COPYRIGHT_HOLDER}`);
+        infoSection.innerHTML = infoText.join('<br>');
+        const iconAnchor = document.createElement('a');
+        iconAnchor.id = 'footer-bluesky-item';
+        iconAnchor.href = 'https://bsky.app/profile/baitnickel.bsky.social';
+        iconAnchor.title = 'Baitnickel on Bluesky';
+        const iconImage = document.createElement('img');
+        iconImage.id = 'footer-bluesky-image';
+        iconImage.setAttribute('src', `${this.site}/images/icons/bluesky.png`);
+        iconAnchor.append(iconImage);
+        iconSection.append(iconAnchor);
+        this.footer.append(infoSection);
+        this.footer.append(iconSection);
     }
     /**
      * (Re)set the title in the HTML head. Optionally, also use the title as

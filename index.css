@@ -1,11 +1,14 @@
 /* 
 	When this file is changed, update the version number in index.html's <head>
+
+	For color names, see: https://drafts.csswg.org/css-color/#named-colors
  */
 
 /* global variables */
 :root {
 	--content-width: 820px;
-	--background-color: #dfeeff;
+	--body-color: #ddd;
+	--main-background-color: #dfeeff; /* lightblue */;  
 	--banner-color: #eef;
 	--banner-background-color: #5480df;
 	--banner-border-color: #bababa;
@@ -13,7 +16,12 @@
 }
 
 body {
-	background-color: #ddd; /* #daeafa; */
+	display: grid;
+	gap: .5em;
+	grid-template-rows: auto 1fr auto; /* header, content, and footer */
+	min-height: 95vh; 
+
+	background-color: var(--body-color); /* #daeafa; */
 	max-width: var(--content-width);
 	margin: auto; /* center body in window */
 	border: var(--diagnositic-border);
@@ -37,14 +45,39 @@ body {
 }
 
 #footer {
-	display: block;
+	/* stick the footer to the bottom of the window (or bottom of Content in short page) */
+	/* position: sticky; */
+	/* bottom: 0; */
+
+	display: grid;
+	gap: 1em;
+	grid-template-columns: auto auto;
+	align-items: center; /* used to center the Bluesky icon vertically in the footer */
+
+	/* display: block; */
 	border: var(--diagnositic-border);
 	border-radius: .5em;
-	padding: .5em 1.5em;
+	/* padding: .5em 1.5em; */
+	padding: .5em 1em;
 	color: var(--banner-color);
 	background-color: var(--banner-background-color);
 	font-family: sans-serif;
 	font-size: 9pt;
+}
+/* #footer ul { */
+	/* display: inline; */
+	/* margin: 0; */
+	/* padding: .5em; */
+/* } */
+/* #footer li { */
+	/* display: inline; */
+/* } */
+#footer-bluesky-item {
+	/* display: inline; */
+	float: right;
+}
+#footer-bluesky-image {
+	height: 1.5em;
 }
 
 #content {
@@ -52,7 +85,7 @@ body {
 	padding: 1em;
 	border: var(--diagnositic-border);
 	border-radius: .5em;
-	background-color: var(--background-color);
+	background-color: var(--main-background-color);
 }
 
 /* #header-menu {
@@ -96,7 +129,7 @@ h5 {
 	padding: .3em .3em .3em .3em;
 	border: 1px solid #aaa;
 	color: #00f;
-	background-color: var(--background-color);
+	background-color: var(--main-background-color);
 }
 
 .italic {
@@ -301,7 +334,7 @@ pre code { /* fenced code blocks */
 	border: 1px solid black;
 	border-radius: 10px;
 	z-index: 10; /* big number ensures modal will draw on top of everything else */
-	background-color: var(--background-color);
+	background-color: var(--main-background-color);
 	width: calc(var(--content-width) * .50); /* 500px */
 	max-width: 80%;
 }

@@ -340,6 +340,7 @@ export class Page {
 		// const container = document.createElement('div');
 		// container.className = 'quote';
 		// targetElement.append(container);
+
 		targetElement.className = 'quote';
 
 		const textParagraph = document.createElement('p');

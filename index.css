@@ -7,13 +7,21 @@
 /* global variables */
 :root {
 	--content-width: 820px;
-	--body-color: #ddd;
-	--main-background-color: #dfeeff; /* lightblue */;  
-	--banner-color: #eef;
-	--banner-background-color: #5480df;
-	--banner-border-color: #bababa;
+	--content-background-color: #dfeeff; /* lightblue */;  
+	--banner-text-color: #eef; /* almost white */
+	--banner-background-color: #5480df; /* blue */
+	--banner-border-color: #bababa; /* grey */
+	--viewport-background-color: #ccc; /* grey */
 	--diagnositic-border: 0 dashed #000; /* toggle 0 (hide) and 1px (show) */
 }
+
+html {
+	font-size: 12pt; /* root font size (rem) */
+	color: #000; /* default font color */
+	background-color: var(--viewport-background-color);
+}
+
+/* body contains #header, #content, and #footer */
 
 body {
 	display: grid;
@@ -21,12 +29,14 @@ body {
 	grid-template-rows: auto 1fr auto; /* header, content, and footer */
 	min-height: 95vh; 
 
-	background-color: var(--body-color); /* #daeafa; */
+	background-color: var(--content-background-color);
 	max-width: var(--content-width);
-	margin: auto; /* center body in window */
+	margin: 0 auto; /* auto horizontally centers body in window */
 	border: var(--diagnositic-border);
-	padding: 1em 2em;
+	padding: .5em;
 }	
+
+/* #header contains the menu items */
 
 #header {
 	/* stick the header (menu) div to the top of the page */
@@ -34,15 +44,27 @@ body {
 	top: 0;
 
 	display: block;
+	color: var(--banner-text-color);
+	background-color: var(--banner-background-color);
 	border: var(--diagnositic-border);
 	border-radius: .5em;
-	color: var(--banner-color);
 	padding: .5em 1.5em;
-	background-color: var(--banner-background-color);
 	font-family: sans-serif;
 	font-size: 10pt;
 	font-weight: normal;
 }
+
+/* #content contains all the normal page content */
+
+#content {
+	display: block;
+	padding: 0 1em;
+	border: var(--diagnositic-border);
+	border-radius: .5em;
+	/* background-color: var(--viewport-background-color); */
+}
+
+/* #footer contains general info and icon link(s) to external social media, etc. */
 
 #footer {
 	/* stick the footer to the bottom of the window (or bottom of Content in short page) */
@@ -59,33 +81,17 @@ body {
 	border-radius: .5em;
 	/* padding: .5em 1.5em; */
 	padding: .5em 1em;
-	color: var(--banner-color);
+	color: var(--banner-text-color);
 	background-color: var(--banner-background-color);
 	font-family: sans-serif;
 	font-size: 9pt;
 }
-/* #footer ul { */
-	/* display: inline; */
-	/* margin: 0; */
-	/* padding: .5em; */
-/* } */
-/* #footer li { */
-	/* display: inline; */
-/* } */
+
 #footer-bluesky-item {
-	/* display: inline; */
 	float: right;
 }
 #footer-bluesky-image {
-	height: 1.5em;
-}
-
-#content {
-	display: block;
-	padding: 1em;
-	border: var(--diagnositic-border);
-	border-radius: .5em;
-	background-color: var(--main-background-color);
+	height: 2em;
 }
 
 /* #header-menu {
@@ -129,7 +135,7 @@ h5 {
 	padding: .3em .3em .3em .3em;
 	border: 1px solid #aaa;
 	color: #00f;
-	background-color: var(--main-background-color);
+	/* background-color: var(--content-background-color); */
 }
 
 .italic {
@@ -273,11 +279,11 @@ pre code { /* fenced code blocks */
 	margin: 1em 0;
 }
 .quote .text {
-	font-size: 115%;
+	/* font-size: 115%; */
 	margin-bottom: .5em;
 }
 .quote .attribution {
-	font-size: 85%;
+	font-size: 80%;
 	text-indent: 1em;
 	margin-top: .5em;
 }
@@ -334,7 +340,7 @@ pre code { /* fenced code blocks */
 	border: 1px solid black;
 	border-radius: 10px;
 	z-index: 10; /* big number ensures modal will draw on top of everything else */
-	background-color: var(--main-background-color);
+	background-color: var(--content-background-color);
 	width: calc(var(--content-width) * .50); /* 500px */
 	max-width: 80%;
 }

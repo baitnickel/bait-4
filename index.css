@@ -5,15 +5,19 @@
  */
 
 /* global variables */
+
 :root {
 	--content-width: 820px;
-	--content-background-color: #dfeeff; /* lightblue */;  
+	--content-background-color: #def; /*  #dfeeff;lightblue */;  
 	--banner-text-color: #eef; /* almost white */
-	--banner-background-color: #5480df; /* blue */
-	--banner-border-color: #bababa; /* grey */
+	--banner-text-highlight-color: #f80; /* dark orange*/
+	--banner-background-color: #57e; /* #5480df; blue */
+	--banner-border-color: #aaa; /* grey */
 	--viewport-background-color: #ccc; /* grey */
 	--diagnositic-border: 0 dashed #000; /* toggle 0 (hide) and 1px (show) */
 }
+
+/* document defaults */
 
 html {
 	font-size: 12pt; /* root font size (rem) */
@@ -31,7 +35,7 @@ body {
 
 	background-color: var(--content-background-color);
 	max-width: var(--content-width);
-	margin: 0 auto; /* auto horizontally centers body in window */
+	margin: 0 auto; /* 'auto' centers body horizontally in window */
 	border: var(--diagnositic-border);
 	padding: .5em;
 }	
@@ -94,30 +98,26 @@ body {
 	height: 2em;
 }
 
-/* #header-menu {
-	justify-content: space-between;
-} */
 #header-menu {
 	margin: 0;
 	padding: .5em;
 }
 #header-menu li {
 	display: inline;
-	padding: .5em; /* horizontal spacing between li items */
-	/* text-align: center; */
+	padding: .5em; /* spacing around menu items */
 }
 #header-menu li a {
 	text-decoration: none;
-	color: #eef;
+	color: var(--banner-text-color);
 }
 #header-menu li a:hover {
-	color: orange;
+	color: var(--banner-text-highlight-color);
 }
 #header-input {
 	font-family: sans-serif;
 	font-size: 10pt;
 	padding: 0 .3em; /* padding inside the input box */
-	/* move imput element to the right and adjust margins around it */
+	/* move input element to the right and adjust margins around it */
 	float: right;
 	/* margin: .5em; */
 }
@@ -126,9 +126,6 @@ h1, h2, h3, h4, h5 {
 	font-family: sans-serif;
 	font-weight: normal;
 }
-/* h1 {
-	margin: 0;
-} */
 h5 {
 	width: -moz-fit-content;
 	width: fit-content;
@@ -173,12 +170,11 @@ blockquote {
 	border-left: .5em solid #ccc;
 } 
 
-.center { /* was used for Home banner */
-	display: block;
-	margin-left: 16px;
-	margin-right: auto;
-	/* width: 100%; */
-}
+/* .center { was used for Home banner */
+	/* display: block; */
+	/* margin-left: 16px; */
+	/* margin-right: auto; */
+/* } */
 
 /* this was needed somewhere (?) but shouldn't be imposed everywhere */
 /* article li {
@@ -197,11 +193,9 @@ figure {
 
 code { /* inline <code></code> */
 	font-family: monospace;
-	color: crimson;
-	/* background-color: #f1f1f1; */
+	color: #dc143c;
 	background-color: #cee5ff;
 	padding: 2px;
-	/* font-size: 100%; */
 }
 
 pre code { /* fenced code blocks */
@@ -210,9 +204,7 @@ pre code { /* fenced code blocks */
 	margin-left: 2em;
 	margin-right: 2em;
 	color: #080808;
-	/* background-color: #f1f1f1; */
-	padding: 1.5em 1.5em 1.5em 1.5em; /* top right bottom left */
-	/* font-size: 80%; */
+	padding: 1.5em;
 }
 
 #ok-button {
@@ -221,18 +213,10 @@ pre code { /* fenced code blocks */
 
 .iching-range-item-select {
 	margin-left: .5em;
-	/* margin-right: 1em; */
-	/* font-size: 32px; */
 }
 .iching-range-display {
 	font-size: 48px;
 }
-/* .die-select-group {
-	font-size: 16px;
-} */
-/* .die {
-	font-size: 32px;
-} */
 
 .input-form {
 	display: flex;
@@ -300,11 +284,10 @@ pre code { /* fenced code blocks */
 
 .article-navigation-button {
 	margin: 0 .3em;
-	/* color: blue; */
 }
 .article-navigation-progress {
 	margin: 0 .75em;
-	color: blue;
+	color: #00f;
 	font-family: sans-serif;
 	font-size: .75em;
 }
@@ -319,14 +302,11 @@ pre code { /* fenced code blocks */
 }
 .track-list-item {
 	cursor: pointer;
-	/* padding: 0 0 .2em; */
 	font-size: small;
 	margin: .2em;
 }
 .track-list-item:hover {
-	color: red;
-	/* font-size: 1em; */
-	/* padding: 1em 0; */
+	color: #f00;
 }
 
 /* modal, dialog, popup */
@@ -337,7 +317,7 @@ pre code { /* fenced code blocks */
 	/* transform: translate(-50%, -50%); true center */
 	transform: scale(0); /* hide modal */
 	transition: 200ms ease-in-out;
-	border: 1px solid black;
+	border: 1px solid #000;
 	border-radius: 10px;
 	z-index: 10; /* big number ensures modal will draw on top of everything else */
 	background-color: var(--content-background-color);
@@ -369,10 +349,9 @@ pre code { /* fenced code blocks */
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	border-bottom: 1px solid black;
+	border-bottom: 1px solid #000;
 }
 .modal-header .title {
-	/* font-size: 1.25rem; */
 	font-weight: bold;
 }
 .modal-header .close-button {
@@ -388,20 +367,19 @@ pre code { /* fenced code blocks */
 }
 
 /* camp page(s) */
-.alert {background-color: red; color: black;}
-.campsite-good {background-color: lightgreen;}
-.campsite-bad {background-color: darksalmon;}
-.campsite-limited {background-color: silver;}
-table, th, td {border: 1px solid black; border-collapse: collapse;}
+.alert {background-color: #f00; color: #000;}
+.campsite-good {background-color: #90ee90;}
+.campsite-bad {background-color: #e9967a;}
+.campsite-limited {background-color: #c0c0c0;}
+table, th, td {border: 1px solid #000; border-collapse: collapse;}
 th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 .campsite-comments {font-family: sans-serif; font-size: .75em;}
 
 /* iching page(s) */
 .iching-table {
 	table-layout:fixed;
-	width: 50px; /* 350px; */
-	height: 50px; /* 350px; */
-	/* font-size: 1.5rem; */
+	width: 50px;
+	height: 50px;
 	font-family: serif;
 	font-size: 3em;
 }
@@ -409,25 +387,20 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	max-height: 15px;
 }
 .iching-td {
-	background-color: #22bbff;
-	border: white solid .1rem;
+	background-color: #2bf;
+	border: #fff solid .1rem;
 	text-align: center;
-	/* position: relative; */
-	width: 50px; /* 114px; */
-	height: 50px; /* 114px; */
+	width: 50px;
+	height: 50px;
 }
 #iching-range-type {
 	font-family: sans-serif;
-	/* font-size: 1em; */
-	/* line-height: 2em; */
 	padding-bottom: .5em;
-	/* margin-bottom: 1em; */
 }
 .iching-hexagram {
 	font-family: serif;
 	font-size: 3em;
 	line-height: 2em;
-	/* bottom: 3em;  how do I get spacing below? */
 }
 .iching-hexagram-chapter-name {
 	font-family: sans-serif;
@@ -449,7 +422,7 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 #song-error {
 	font-family: sans-serif;
 	font-size: 80%;
-	color: red;
+	color: #f00;
 }
 #song-metadata {
 	font-family: sans-serif;
@@ -470,12 +443,6 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	color: #a76f6f;
 }
 
-/* these were in fake.css, but I think they are not being used:
-h3.mono { font-family: Menlo; font-size: 18px; }
-h4.mono { font-family: Menlo; font-size: 14px; }
-span.mono { font-family: Menlo; font-size: 12px; }
-*/
-
 /* for testing span markup */
 .intro {
 	font-size: smaller;
@@ -488,37 +455,25 @@ span.mono { font-family: Menlo; font-size: 12px; }
 }
 
 .test-icons {
-	/* fill: red; */
 	transform: scale(2);
 	padding: 0 2em 0 0;
 }
 .test-icons svg path:hover {
-	fill: red;
+	fill: #f00;
 }
-/* svg {
-	fill: red;
-} */
+
 .test-columns-2 {
-	/* column-count: 2; */
 	column-width: 150px;
-	/* width: 300px; */
-	/* columns: 2 150px; */
 	column-rule: 1px solid #bbb;
 	column-gap: 3em;
 }
 .test-columns-3 {
-	/* column-count: 3; */
 	column-width: 150px;
-	/* width: 450px; */
-	/* columns: 3 150px; */
 	column-rule: 1px solid #bbb;
 	column-gap: 3em;
 }
 .test-columns-4 {
-	/* column-count: 4; */
 	column-width: 150px;
-	/* width: 600px; */
-	/* columns: 4 150px; */
 	column-rule: 1px solid #bbb;
 	column-gap: 3em;
 }
@@ -543,21 +498,19 @@ font-family: sans-serif;
 }
 
 .radio-button {
-	/* background-color: lightgray; */
-	color: black;
+	color: #000;
 	margin: .3em;
 }
 .radio-button.active {
-	color: black;
-	/* font-weight: bold; */
-	background-color: lightblue;
+	color: #000;
+	background-color: #add8e6;
 }
 .framed-text {
-	/* font-family: monospace; */
 	font-family: sans-serif;
 	font-size: smaller;
 	white-space: pre;
-	border: 2px dotted black; /* dotted dashed solid double groove ridge inset outset none hidden */
+	/* dotted dashed solid double groove ridge inset outset none hidden */
+	border: 2px dotted #000; 
 	margin: .5rem 0 1rem 0;
 	padding: 0 .5rem;
 }

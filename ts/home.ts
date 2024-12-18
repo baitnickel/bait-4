@@ -27,6 +27,8 @@ export function render() {
 		const randomKey = keys[Math.floor(Math.random() * keys.length)];
 		const randomQuote = quotes.get(randomKey)!;
 		page.appendQuote(Quote, randomQuote);
+		// const note = (randomQuote.note) ? ` (${randomQuote.note})` : '';
+		// const quote = `"${randomQuote.text}" ~ ${randomQuote.attribution}${note}`;
 
 		const lorem = `Aliquip deserunt adipisicing id labore nisi ipsum aliqua sunt ex adipisicing velit sint quis nulla. Non ea irure voluptate non. Pariatur proident eu sunt non ullamco excepteur enim in enim reprehenderit eu occaecat occaecat tempor. Veniam aute non dolore tempor ex dolor tempor sint enim proident. Reprehenderit ex anim magna tempor adipisicing consequat ipsum exercitation laborum duis sunt fugiat nostrud. Excepteur aute commodo laboris qui ad enim amet velit. Nulla ex do labore anim ut commodo amet laboris eu dolore est. Ut sunt fugiat labore in sit id qui. Minim voluptate irure ea ea deserunt aliquip eiusmod commodo. Reprehenderit id ex amet quis elit labore et ad amet consequat deserunt anim. Anim ullamco sint elit veniam.`;
 		page.appendParagraph(Lorem, lorem);

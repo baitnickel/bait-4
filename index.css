@@ -29,15 +29,13 @@ html {
 
 body {
 	display: grid;
+	max-width: var(--content-width);
+	min-height: 95vh; 
+	margin: 0 auto; /* 'auto' centers body horizontally in window */
+	padding: .5em 0;
+	border: var(--diagnositic-border);
 	gap: .5em;
 	grid-template-rows: auto 1fr auto; /* header, content, and footer */
-	min-height: 95vh; 
-
-	background-color: var(--content-background-color);
-	max-width: var(--content-width);
-	margin: 0 auto; /* 'auto' centers body horizontally in window */
-	border: var(--diagnositic-border);
-	padding: .5em;
 }	
 
 /* #header contains the menu items */
@@ -62,10 +60,10 @@ body {
 
 #content {
 	display: block;
-	padding: 0 1em;
+	padding: 1em;
 	border: var(--diagnositic-border);
 	border-radius: .5em;
-	/* background-color: var(--viewport-background-color); */
+	background-color: var(--content-background-color);
 }
 
 /* #footer contains general info and icon link(s) to external social media, etc. */
@@ -160,16 +158,6 @@ nav {
 	/* position: relative; */
 }
 
-blockquote {
-	/* font: 14px/22px normal helvetica, sans-serif; */
-	font-size: 90%;
-	margin-top: 0;
-	margin-bottom: 0;
-	margin-left: 2em;
-	padding-left: 1em;
-	border-left: .5em solid #ccc;
-} 
-
 /* .center { was used for Home banner */
 	/* display: block; */
 	/* margin-left: 16px; */
@@ -193,6 +181,7 @@ figure {
 
 code { /* inline <code></code> */
 	font-family: monospace;
+	font-size: 10pt;
 	color: #dc143c;
 	background-color: #cee5ff;
 	padding: 2px;
@@ -205,10 +194,6 @@ pre code { /* fenced code blocks */
 	margin-right: 2em;
 	color: #080808;
 	padding: 1.5em;
-}
-
-#ok-button {
-	margin-top: .5em;
 }
 
 .iching-range-item-select {
@@ -240,37 +225,56 @@ pre code { /* fenced code blocks */
 	padding: 0 1em 1em 1em;
 }
 
-.image-row {
-	padding: 0 1em 0 0;
-}
+/* .image-row { */
+	/* padding: 0 1em 0 0; */
+/* } */
 
 /* home page */
-#banner-image {
-	width: auto;
-	max-height: 100vh;
-}
-#home-quote {
-	font-size: 90%;
-	margin-top: 1em;
-	padding-left: 1em;
-	border-left: .5em solid #ccc;
-}
-.quote {
-	background-color: #aecef1; /* lightgray; */ /* #cee5ff; */
+/* #banner-image { */
+	/* width: auto; */
+	/* max-height: 100vh; */
+/* } */
+/* #home-quote { */
+	/* font-size: 90%; */
+	/* margin-top: 1em; */
+	/* padding-left: 1em; */
+	/* border-left: .5em solid #ccc; */
+/* } */
+
+/* .quote {
+	background-color: #aecef1;
 	padding: 0 1.5em;
-	border: .2em solid #5480df; /* gray; */
+	border: .2em solid #5480df;
 	border-radius: 1em;
-	margin: 1em 0;
+	margin: 1em 3em;
+} */
+.quote {
+	font-size: 90%;
+	margin: .5em 15em 2em 0;
+	padding: .5em 1em;
+	border: .5em ridge #bbd6f2;
+	background-color: #bbd6f2;
 }
 .quote .text {
-	/* font-size: 115%; */
-	margin-bottom: .5em;
+	margin-bottom: 0;
 }
 .quote .attribution {
-	font-size: 80%;
+	font-size: 90%;
 	text-indent: 1em;
 	margin-top: .5em;
 }
+
+blockquote {
+	/* font: 14px/22px normal helvetica, sans-serif; */
+	font-size: 90%;
+	margin-top: 0;
+	margin-bottom: 0;
+	margin-left: 2em;
+	padding-left: 1em;
+	border-left: .5em solid #ccc;
+} 
+
+/* article pages */
 .article-header {
 	width: -moz-fit-content;
 	width: fit-content;
@@ -292,80 +296,6 @@ pre code { /* fenced code blocks */
 	font-size: .75em;
 }
 
-/* audio */
-#controls-block {
-	padding: .5em 0;
-}
-.track-list {
-	width: -moz-fit-content;
-	width: fit-content;
-}
-.track-list-item {
-	cursor: pointer;
-	font-size: small;
-	margin: .2em;
-}
-.track-list-item:hover {
-	color: #f00;
-}
-
-/* modal, dialog, popup */
-.modal {
-	position: fixed;
-	top: 25%; /* 25 */
-	left: calc(var(--content-width) * .1); /* 150 */
-	/* transform: translate(-50%, -50%); true center */
-	transform: scale(0); /* hide modal */
-	transition: 200ms ease-in-out;
-	border: 1px solid #000;
-	border-radius: 10px;
-	z-index: 10; /* big number ensures modal will draw on top of everything else */
-	background-color: var(--content-background-color);
-	width: calc(var(--content-width) * .50); /* 500px */
-	max-width: 80%;
-}
-.modal.active {
-	/* transform: translate(-50%, -50%); true center */
-	transform: scale(1); /* show modal */
-	transition: 200ms ease-in-out;
-}
-#modal-overlay {
-	position: fixed;
-	opacity: 0;
-	transition: 200ms ease-in-out;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: rgba(0, 0, 0, .5);
-	pointer-events: none; /* prevent click events on overlay */
-}
-#modal-overlay.active {
-	opacity: 1;
-	pointer-events: all; /* allow click events on overlay */
-}
-.modal-header {
-	padding: 5px 15px;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	border-bottom: 1px solid #000;
-}
-.modal-header .title {
-	font-weight: bold;
-}
-.modal-header .close-button {
-	cursor: pointer;
-	border: none;
-	outline: none;
-	background: none;
-	font-size: 1.25rem;
-	font-weight: bold;
-}
-.modal-body {
-	padding: 0px 15px 10px;
-}
-
 /* camp page(s) */
 .alert {background-color: #f00; color: #000;}
 .campsite-good {background-color: #90ee90;}
@@ -374,6 +304,29 @@ pre code { /* fenced code blocks */
 table, th, td {border: 1px solid #000; border-collapse: collapse;}
 th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 .campsite-comments {font-family: sans-serif; font-size: .75em;}
+
+.radio-button {
+	color: #000;
+	margin: .3em;
+}
+.radio-button.active {
+	color: #000;
+	background-color: #add8e6;
+}
+.framed-text {
+	font-family: sans-serif;
+	font-size: smaller;
+	white-space: pre;
+	/* dotted dashed solid double groove ridge inset outset none hidden */
+	border: 2px dotted #000; 
+	margin: .5rem 0 1rem 0;
+	padding: 0 .5rem;
+}
+.camp-checkbox {
+	font-family: sans-serif;
+	font-size: 9pt;
+	padding: 0 0 0 1rem;
+}
 
 /* iching page(s) */
 .iching-table {
@@ -433,6 +386,9 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	padding-left: .5em;
 	border-left: .4em solid #ccc;
 }
+#song-sheet {
+	font-size: 9pt;
+}
 .songbook-metadata-label {
 	font-weight: bold;
 }
@@ -441,6 +397,100 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 }
 .chords {
 	color: #a76f6f;
+}
+
+/*
+font-family: 'Cormorant', serif;
+font-family: 'Inter', sans-serif;
+font-family: 'Special Elite', cursive;
+font-family: 'Halant', serif;
+font-family: 'Abhaya Libre', serif;
+font-family: 'Average Sans', sans-serif;
+font-family: 'Cambay', sans-serif;
+font-family: 'NTR', sans-serif;
+font-family: 'Rosarivo', serif;
+font-family: sans-serif;
+*/
+
+/* audio
+#controls-block {
+	padding: .5em 0;
+}
+.track-list {
+	width: -moz-fit-content;
+	width: fit-content;
+}
+.track-list-item {
+	cursor: pointer;
+	font-size: small;
+	margin: .2em;
+}
+.track-list-item:hover {
+	color: #f00;
+}
+*/
+
+/* modal, dialog, popup */
+.modal {
+	position: fixed;
+	top: 25%; /* 25 */
+	left: calc(var(--content-width) * .1); /* 150 */
+	/* transform: translate(-50%, -50%); true center */
+	transform: scale(0); /* hide modal */
+	transition: 200ms ease-in-out;
+	border: 1px solid #000;
+	border-radius: 10px;
+	z-index: 10; /* big number ensures modal will draw on top of everything else */
+	background-color: var(--content-background-color);
+	width: calc(var(--content-width) * .50); /* 500px */
+	max-width: 80%;
+}
+.modal.active {
+	/* transform: translate(-50%, -50%); true center */
+	transform: scale(1); /* show modal */
+	transition: 200ms ease-in-out;
+}
+#modal-overlay {
+	position: fixed;
+	opacity: 0;
+	transition: 200ms ease-in-out;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, .5);
+	pointer-events: none; /* prevent click events on overlay */
+}
+#modal-overlay.active {
+	opacity: 1;
+	pointer-events: all; /* allow click events on overlay */
+}
+.modal-header {
+	padding: 5px 15px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #000;
+}
+.modal-header .title {
+	font-weight: bold;
+}
+.modal-header .close-button {
+	cursor: pointer;
+	border: none;
+	outline: none;
+	background: none;
+	font-size: 1.25rem;
+	font-weight: bold;
+}
+.modal-body {
+	padding: 0px 15px 10px;
+}
+
+.scroll-text {
+	overflow: scroll;
+	margin: 1rem 0;
+	height: 400px;
 }
 
 /* for testing span markup */
@@ -452,6 +502,11 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 }
 .blue {
 	color: #00f;
+}
+
+/* used in test-yaml only - button properties should be generalized */
+#ok-button {
+	margin-top: .5em;
 }
 
 .test-icons {
@@ -476,46 +531,4 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	column-width: 150px;
 	column-rule: 1px solid #bbb;
 	column-gap: 3em;
-}
-
-/*
-font-family: 'Cormorant', serif;
-font-family: 'Inter', sans-serif;
-font-family: 'Special Elite', cursive;
-font-family: 'Halant', serif;
-font-family: 'Abhaya Libre', serif;
-font-family: 'Average Sans', sans-serif;
-font-family: 'Cambay', sans-serif;
-font-family: 'NTR', sans-serif;
-font-family: 'Rosarivo', serif;
-font-family: sans-serif;
-*/
-
-.scroll-text {
-	overflow: scroll;
-	margin: 1rem 0;
-	height: 400px;
-}
-
-.radio-button {
-	color: #000;
-	margin: .3em;
-}
-.radio-button.active {
-	color: #000;
-	background-color: #add8e6;
-}
-.framed-text {
-	font-family: sans-serif;
-	font-size: smaller;
-	white-space: pre;
-	/* dotted dashed solid double groove ridge inset outset none hidden */
-	border: 2px dotted #000; 
-	margin: .5rem 0 1rem 0;
-	padding: 0 .5rem;
-}
-.camp-checkbox {
-	font-family: sans-serif;
-	font-size: 9pt;
-	padding: 0 0 0 1rem;
 }

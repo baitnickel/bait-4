@@ -30,7 +30,7 @@ const ReservationYears = reservationYears(ParkReservations);
 export function render() {
     const page = new Page();
     const testing = page.parameters.has('test');
-    page.setTitle('Campsites', 2);
+    page.setTitle('Campsites', 1);
     const mapDiv = document.createElement('div');
     const reservationsDiv = document.createElement('div');
     const sitesDiv = document.createElement('div');

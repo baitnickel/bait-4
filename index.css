@@ -118,30 +118,33 @@ body {
 
 h1, h2, h3, h4, h5 {
 	font-family: sans-serif;
+	font-weight: normal;
 	/* font-weight: normal; */
 }
 h1 {
-	font-size: 200%;
-	font-weight: bold;
+	font-size: 175%;
+	/* font-weight: bold; */
 }
 h2 {
 	font-size: 150%;
-	font-weight: bold;
+	/* font-weight: bold; */
 }
 h3 {
-	/* font-size: 100%; */
-	font-weight: bold;
+	font-size: 125%;
+	/* font-weight: bold; */
 }
 h4 {
-	font-weight: bold;
+	font-size: 110%;
+	/* font-weight: bold; */
 }
 h5 {
-	width: -moz-fit-content;
+	/* width: -moz-fit-content; */
 	width: fit-content;
 	padding: .3em .3em .3em .3em;
 	border: 1px solid #aaa;
 	color: #00f;
 	background-color: #eee;
+	font-weight: bold;
 }
 
 .italic {
@@ -223,7 +226,7 @@ pre code { /* fenced code blocks */
 
 .quote {
 	/* shrink the quote box around its contents */
-	width: -moz-fit-content;
+	/* width: -moz-fit-content; */
 	width: fit-content;
 
 	font-size: 90%;
@@ -253,7 +256,7 @@ blockquote {
 
 /* article pages */
 .article-header {
-	width: -moz-fit-content;
+	/* width: -moz-fit-content; */
 	width: fit-content;
 	padding: .5em 1em .5em 1em;
 	border-radius: .5em;

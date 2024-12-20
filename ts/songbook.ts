@@ -77,7 +77,7 @@ export async function render() {
 		page.setTitle('Song Book');
 		/* refresh default footer */
 		page.displayFooter();
-		page.addHeading('List of Songs', 2);
+		page.addHeading('List of Songs');
 		const fakeSheetIndexPath = `${indicesPath}/fakesheets.json`;
 		const songMap = await Fetch.map<FakesheetLookups>(fakeSheetIndexPath);
 		let sortOrder = ARTIST_SORT; /** @todo should be widget option */

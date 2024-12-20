@@ -34,7 +34,7 @@ export function render() {
 	ThisPage.appendQuote(Quote, randomQuote);
 
 	const markdown = new MarkdownDocument(HomeText);
-	ArticleText.innerHTML = Markup('## Home\n' + markdown.text);
+	ArticleText.innerHTML = Markup('# Home\n' + markdown.text);
 
 	/** display the file's revision date in the footer */
 	let revision: number|null = null;

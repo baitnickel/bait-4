@@ -28,6 +28,7 @@ export function render() {
     const randomQuote = Quotes.get(randomKey);
     ThisPage.appendQuote(Quote, randomQuote);
     const markdown = new MarkdownDocument(HomeText);
+    /** adding heading above text, below quote */
     ArticleText.innerHTML = Markup('# Home\n' + markdown.text);
     /** display the file's revision date in the footer */
     let revision = null;
@@ -44,8 +45,8 @@ export function render() {
         const testMap = false;
         const testMarkdown = true;
         const testYaml = false;
-        const testRadio = true;
-        const testEmail = true;
+        const testRadio = false;
+        const testEmail = false;
         const testIconLink = false;
         if (testCollection) {
             const songsIndexFile = `${ThisPage.site}/Indices/fakesheets.json`;
@@ -95,15 +96,18 @@ export function render() {
             });
         }
         if (testMarkdown) {
-            const testMarkdownFile = `${ThisPage.site}/data/test-markdown.md`;
-            Fetch.text(testMarkdownFile).then((fileContent) => {
+            const testMarkdownFile = 'data/test-markdown.md';
+            const testMarkdownPath = `${ThisPage.site}/${testMarkdownFile}`;
+            Fetch.text(testMarkdownPath).then((fileContent) => {
                 if (!fileContent) {
-                    const errorMessage = `Cannot read file: ${testMarkdownFile}`;
+                    const errorMessage = `Cannot read file: ${testMarkdownPath}`;
                     ThisPage.appendParagraph(TestMarkdown, errorMessage);
                 }
                 else {
                     const markdownDocument = new MarkdownDocument(fileContent);
-                    markdownDocument.text += `\n\nFirst text line is: ${markdownDocument.textOffset + 1}`;
+                    /** replace special braced placeholders in test file text */
+                    markdownDocument.text = markdownDocument.text.replace('{LINE_NUMBER}', `${markdownDocument.textOffset + 1}`);
+                    markdownDocument.text = markdownDocument.text.replace('{FILE_NAME}', `${testMarkdownFile}`);
                     const html = Markup(markdownDocument.text);
                     const paragraph = ThisPage.appendParagraph(TestMarkdown, '');
                     paragraph.innerHTML = html;

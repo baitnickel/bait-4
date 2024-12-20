@@ -104,7 +104,7 @@ function displayArticle(articles, index) {
         }
         if (title)
             ThisPage.setTitle(title);
-        const heading = (title) ? `# ${title}\n` : '';
+        const heading = (title) ? `## ${title}\n` : '';
         const markedUpText = Markup(heading + markdown.text);
         ArticleElement.innerHTML = markedUpText;
         ProgressElement.innerText = `${index + 1} of ${articles.length}`;

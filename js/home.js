@@ -21,11 +21,8 @@ export function render() {
     const TestMarkdown = ThisPage.appendContent('#TestMarkdown');
     const TestYaml = ThisPage.appendContent('#TestYaml');
     const TestRadio = ThisPage.appendContent('#TestRadio');
-    const Lorem = ThisPage.appendContent('#Lorem .blue');
     const Photo = ThisPage.appendContent('#Photo');
     const Video = ThisPage.appendContent('#Video');
-    const quotesPath = `${ThisPage.site}/Indices/quotes.json`;
-    // Fetch.map<T.Quote>(quotesPath).then((quotes) => {
     const keys = Array.from(Quotes.keys());
     const randomKey = keys[Math.floor(Math.random() * keys.length)];
     const randomQuote = Quotes.get(randomKey);
@@ -34,20 +31,11 @@ export function render() {
     ArticleText.innerHTML = Markup('## Home\n' + markdown.text);
     /** display the file's revision date in the footer */
     let revision = null;
-    // let articleKey = `${fakeSheetsSubPath}/${songQuery}`;
     if (Articles.has(HomeTextFile)) {
         const articleProperties = Articles.get(HomeTextFile);
         revision = articleProperties.revision;
     }
     ThisPage.displayFooter(revision);
-    // const markup = Markup(markdown.text);
-    // const markup = markedUpText(HomeText);
-    // ThisPage.appendParagraph(ArticleText, markup);
-    // const note = (randomQuote.note) ? ` (${randomQuote.note})` : '';
-    // const quote = `"${randomQuote.text}" ~ ${randomQuote.attribution}${note}`;
-    // const lorem = `Aliquip deserunt adipisicing id labore nisi ipsum aliqua sunt ex adipisicing velit sint quis nulla. Non ea irure voluptate non. Pariatur proident eu sunt non ullamco excepteur enim in enim reprehenderit eu occaecat occaecat tempor. Veniam aute non dolore tempor ex dolor tempor sint enim proident. Reprehenderit ex anim magna tempor adipisicing consequat ipsum exercitation laborum duis sunt fugiat nostrud. Excepteur aute commodo laboris qui ad enim amet velit. Nulla ex do labore anim ut commodo amet laboris eu dolore est. Ut sunt fugiat labore in sit id qui. Minim voluptate irure ea ea deserunt aliquip eiusmod commodo. Reprehenderit id ex amet quis elit labore et ad amet consequat deserunt anim. Anim ullamco sint elit veniam.`;
-    // ThisPage.appendParagraph(Lorem, lorem);
-    // });
     // ThisPage.appendPhoto(Photo, 'i-SDpf2qV', 'S');
     // ThisPage.appendParagraph('');
     // ThisPage.appendVideo(Video, '9MtLIkk2ihw', 400, 220);

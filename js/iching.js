@@ -46,7 +46,7 @@ let range = newRange(Array.from(RangeTypes.keys())[0], NumberOfChapters);
  */
 export function render() {
     ThisPage.setTitle('I Ching');
-    ThisPage.addHeading('Consult the Book of Changes', 2);
+    ThisPage.addHeading('I Ching: The Book of Changes', 2);
     RangeTypeSelection = document.createElement('div');
     RangeTypeSelection.id = 'iching-range-type';
     ThisPage.content.append(RangeTypeSelection);

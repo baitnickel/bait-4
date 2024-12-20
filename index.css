@@ -249,9 +249,13 @@ pre code { /* fenced code blocks */
 	margin: 1em 3em;
 } */
 .quote {
+	/* shrink the quote box around its contents */
+	width: -moz-fit-content;
+	width: fit-content;
+
 	font-size: 90%;
-	margin: .5em 15em 2em 0;
-	padding: .5em 1em;
+	margin: .5em 15em 1em 0;
+	padding: .2em 1em;
 	border: .5em ridge #bbd6f2;
 	background-color: #bbd6f2;
 }

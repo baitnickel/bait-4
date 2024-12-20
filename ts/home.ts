@@ -6,39 +6,64 @@ import { MarkdownDocument } from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 import * as Widgets from './lib/widgets.js';
 
+const ThisPage = new Page();
+const IndicesPath = `${ThisPage.site}/Indices`;
+const Articles = await Fetch.map<T.ArticleProperties>(`${IndicesPath}/articles.json`);
+const QuotesPath = `${ThisPage.site}/Indices/quotes.json`;
+const HomeTextFile = 'Content/Home.md'
+const HomeTextPath = `${ThisPage.site}/${HomeTextFile}`;
+const Quotes = await Fetch.map<T.Quote>(QuotesPath);
+const HomeText = await Fetch.text(HomeTextPath);
+
 export function render() {
-	const page = new Page();
-	page.setTitle('Home');
+	ThisPage.setTitle('Home');
 
-	
-	const Quote = page.appendContent('#Quote');
-	const TestCollection = page.appendContent('#TestCollection');
-	const TestMap = page.appendContent('#TestMap');
-	const TestMarkdown = page.appendContent('#TestMarkdown');
-	const TestYaml = page.appendContent('#TestYaml');
-	const TestRadio = page.appendContent('#TestRadio');
-	const Lorem = page.appendContent('#Lorem .blue');
-	const Photo = page.appendContent('#Photo');
-	const Video = page.appendContent('#Video');
+	const Quote = ThisPage.appendContent('#Quote');
+	const ArticleText = ThisPage.appendContent('#Article');
+	const TestCollection = ThisPage.appendContent('#TestCollection');
+	const TestMap = ThisPage.appendContent('#TestMap');
+	const TestMarkdown = ThisPage.appendContent('#TestMarkdown');
+	const TestYaml = ThisPage.appendContent('#TestYaml');
+	const TestRadio = ThisPage.appendContent('#TestRadio');
+	const Lorem = ThisPage.appendContent('#Lorem .blue');
+	const Photo = ThisPage.appendContent('#Photo');
+	const Video = ThisPage.appendContent('#Video');
 
-	const quotesPath = `${page.site}/Indices/quotes.json`;
-	Fetch.map<T.Quote>(quotesPath).then((quotes) => {
-		const keys = Array.from(quotes.keys());
+	const quotesPath = `${ThisPage.site}/Indices/quotes.json`;
+	// Fetch.map<T.Quote>(quotesPath).then((quotes) => {
+		const keys = Array.from(Quotes.keys());
 		const randomKey = keys[Math.floor(Math.random() * keys.length)];
-		const randomQuote = quotes.get(randomKey)!;
-		page.appendQuote(Quote, randomQuote);
+		const randomQuote = Quotes.get(randomKey)!;
+		ThisPage.appendQuote(Quote, randomQuote);
+
+		const markdown = new MarkdownDocument(HomeText);
+		ArticleText.innerHTML = Markup('## Home\n' + markdown.text);
+
+		/** display the file's revision date in the footer */
+		let revision: number|null = null;
+		// let articleKey = `${fakeSheetsSubPath}/${songQuery}`;
+		if (Articles.has(HomeTextFile)) {
+			const articleProperties = Articles.get(HomeTextFile)!;
+			revision = articleProperties.revision;
+		}
+		ThisPage.displayFooter(revision);
+		
+		// const markup = Markup(markdown.text);
+		// const markup = markedUpText(HomeText);
+		// ThisPage.appendParagraph(ArticleText, markup);
 		// const note = (randomQuote.note) ? ` (${randomQuote.note})` : '';
 		// const quote = `"${randomQuote.text}" ~ ${randomQuote.attribution}${note}`;
 
-		const lorem = `Aliquip deserunt adipisicing id labore nisi ipsum aliqua sunt ex adipisicing velit sint quis nulla. Non ea irure voluptate non. Pariatur proident eu sunt non ullamco excepteur enim in enim reprehenderit eu occaecat occaecat tempor. Veniam aute non dolore tempor ex dolor tempor sint enim proident. Reprehenderit ex anim magna tempor adipisicing consequat ipsum exercitation laborum duis sunt fugiat nostrud. Excepteur aute commodo laboris qui ad enim amet velit. Nulla ex do labore anim ut commodo amet laboris eu dolore est. Ut sunt fugiat labore in sit id qui. Minim voluptate irure ea ea deserunt aliquip eiusmod commodo. Reprehenderit id ex amet quis elit labore et ad amet consequat deserunt anim. Anim ullamco sint elit veniam.`;
-		page.appendParagraph(Lorem, lorem);
-	});
 
-	// page.appendPhoto(Photo, 'i-SDpf2qV', 'S');
-	// page.appendParagraph('');
-	// page.appendVideo(Video, '9MtLIkk2ihw', 400, 220);
+		// const lorem = `Aliquip deserunt adipisicing id labore nisi ipsum aliqua sunt ex adipisicing velit sint quis nulla. Non ea irure voluptate non. Pariatur proident eu sunt non ullamco excepteur enim in enim reprehenderit eu occaecat occaecat tempor. Veniam aute non dolore tempor ex dolor tempor sint enim proident. Reprehenderit ex anim magna tempor adipisicing consequat ipsum exercitation laborum duis sunt fugiat nostrud. Excepteur aute commodo laboris qui ad enim amet velit. Nulla ex do labore anim ut commodo amet laboris eu dolore est. Ut sunt fugiat labore in sit id qui. Minim voluptate irure ea ea deserunt aliquip eiusmod commodo. Reprehenderit id ex amet quis elit labore et ad amet consequat deserunt anim. Anim ullamco sint elit veniam.`;
+		// ThisPage.appendParagraph(Lorem, lorem);
+	// });
 
-	if (page.local) {
+	// ThisPage.appendPhoto(Photo, 'i-SDpf2qV', 'S');
+	// ThisPage.appendParagraph('');
+	// ThisPage.appendVideo(Video, '9MtLIkk2ihw', 400, 220);
+
+	if (ThisPage.local) {
 		const testCollection = false;
 		const testMap = false;
 		const testMarkdown = true;
@@ -48,7 +73,7 @@ export function render() {
 		const testIconLink = false;
 
 		if (testCollection) {
-			const songsIndexFile = `${page.site}/Indices/fakesheets.json`;
+			const songsIndexFile = `${ThisPage.site}/Indices/fakesheets.json`;
 			Fetch.map<T.FakesheetLookups>(songsIndexFile).then((songsMap) => {
 				const songs = new Datasets.Collection<T.FakesheetLookups>(songsMap);
 				const dataLines: string[] = [];
@@ -80,12 +105,12 @@ export function render() {
 					}
 				}
 
-				page.appendParagraph(TestCollection, dataLines);
+				ThisPage.appendParagraph(TestCollection, dataLines);
 			});
 		}
 
 		if (testMap) {
-			const songsIndexFile = `${page.site}/Indices/fakesheets.json`;
+			const songsIndexFile = `${ThisPage.site}/Indices/fakesheets.json`;
 			Fetch.map<T.FakesheetLookups>(songsIndexFile).then((songsMap) => {
 				const dataLines: string[] = [];
 				const collection = new Datasets.Collection<T.FakesheetLookups>(songsMap);
@@ -95,29 +120,29 @@ export function render() {
 					dataLines.push(`${entry}: ${record!.artist} - ${record!.title}`);
 					entry = collection.next();
 				}
-				page.appendParagraph(TestMap, dataLines);
+				ThisPage.appendParagraph(TestMap, dataLines);
 			});
 		}
 
 		if (testMarkdown) {
-			const testMarkdownFile = `${page.site}/data/test-markdown.md`;
+			const testMarkdownFile = `${ThisPage.site}/data/test-markdown.md`;
 			Fetch.text(testMarkdownFile).then((fileContent) => {
 				if (!fileContent) {
 					const errorMessage = `Cannot read file: ${testMarkdownFile}`;
-					page.appendParagraph(TestMarkdown, errorMessage);
+					ThisPage.appendParagraph(TestMarkdown, errorMessage);
 				}
 				else {
 					const markdownDocument = new MarkdownDocument(fileContent);
 					markdownDocument.text += `\n\nFirst text line is: ${markdownDocument.textOffset + 1}`;
 					const html = Markup(markdownDocument.text);
-					const paragraph = page.appendParagraph(TestMarkdown, '');
+					const paragraph = ThisPage.appendParagraph(TestMarkdown, '');
 					paragraph.innerHTML = html;
 				}
 			});
 		}
 
 		if (testYaml) {
-			const ReservationsPath = `${page.site}/data/camp/reservations.yaml`;
+			const ReservationsPath = `${ThisPage.site}/data/camp/reservations.yaml`;
 			Fetch.map<T.Reservation[]>(ReservationsPath).then((reservations) => {
 				const dataLines: string[] = [];
 				const reserved = reservations.get('smitty');
@@ -129,13 +154,13 @@ export function render() {
 						if (!limit) break;
 					}
 				}
-				page.appendParagraph(TestYaml, dataLines);
+				ThisPage.appendParagraph(TestYaml, dataLines);
 			});
 		}
 
 		if (testRadio) {
-			const division = page.appendContent();
-			const anotherDivision = page.appendContent();
+			const division = ThisPage.appendContent();
+			const anotherDivision = ThisPage.appendContent();
 			const event = new Event('change-camper');
 			const radioButtons = new Widgets.RadioButtons('radio-button', 'active', event);
 			radioButtons.addButton('Purchasers');
@@ -164,7 +189,7 @@ export function render() {
 			*/
 			
 			// /* https://www.techiedelight.com/create-radio-button-dynamically-javascript/ */
-			// const division = page.appendContent();
+			// const division = ThisPage.appendContent();
 			// const purchaserType = document.createElement('input');
 			// purchaserType.type = 'radio';
 			// purchaserType.id = 'purchaser';
@@ -186,25 +211,31 @@ export function render() {
 		}
 
 		if (testEmail) {
-			const division = page.appendContent();
+			const division = ThisPage.appendContent();
 			const emailButton = document.createElement('button');
 			emailButton.innerText = 'Send Feedback';
 			division.append(emailButton);
 
 			emailButton.addEventListener('click', (e) => {
-				if (!page.feedback) alert('Don\'t know who to send feedback to!');
-				else window.location.href = `mailto:${page.feedback}?subject=${page.url}`;
+				if (!ThisPage.feedback) alert('Don\'t know who to send feedback to!');
+				else window.location.href = `mailto:${ThisPage.feedback}?subject=${ThisPage.url}`;
 			});
 		}
 
 		if (testIconLink) {
-			// const division = page.appendContent();
+			// const division = ThisPage.appendContent();
 			const iconButton = document.createElement('button');
-			// const icon = `${page.site}/images/icons/bluesky.png`;
+			// const icon = `${ThisPage.site}/images/icons/bluesky.png`;
 			// iconButton.innerHTML = `<img src="${icon}" />`;
 			iconButton.id = 'footer-bluesky';
-			page.footer.append(iconButton);
+			ThisPage.footer.append(iconButton);
 			// division.append(iconButton);
 		}
 	}
 }
+
+// function markedUpText(markdownText: string) {
+// 	const markdown = new MarkdownDocument(markdownText);
+// 	const markedUpText = Markup(markdown.text);
+// 	return markedUpText;
+// }

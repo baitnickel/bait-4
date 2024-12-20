@@ -69,7 +69,6 @@ export async function render() {
         /** Display a list of songs having fakesheets */
         page.setTitle('Song Book');
         /* refresh default footer */
-        page.footer.innerHTML = '';
         page.displayFooter();
         page.addHeading('List of Songs', 2);
         const fakeSheetIndexPath = `${indicesPath}/fakesheets.json`;
@@ -138,7 +137,6 @@ function displaySheet(fakesheet, revision) {
     const title = (fakesheet.artist) ? `${fakesheet.title} - ${fakesheet.artist}` : fakesheet.title;
     document.title = MarkupLine(title, 'ET');
     /* refresh footer */
-    page.footer.innerHTML = '';
     page.displayFooter(revision);
     page.addHeading(MarkupLine(title, 'ET'), 4);
     /** Create placeholders for page content */

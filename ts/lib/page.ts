@@ -100,6 +100,7 @@ export class Page {
 	 * are present.
 	 */
 	displayHeader(){
+		this.header.innerHTML = ''; /** overwrite whatever was there already */
 		const unorderedList = document.createElement('ul');
 		unorderedList.id = 'header-menu';
 		this.header.append(unorderedList);
@@ -156,6 +157,7 @@ export class Page {
 	 * the page footer, showing the revision date and copyright year.
 	 */
 	displayFooter(revision: number|null = null) {
+		this.footer.innerHTML = ''; /** overwrite whatever was there already */
 		const infoSection = document.createElement('div');
 		const iconSection = document.createElement('div');
 

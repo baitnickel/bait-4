@@ -286,6 +286,29 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 }
 
 /* iching page(s) */
+.iching-selection {
+	margin: 1rem 0;
+}
+.iching {
+	table-layout:fixed;
+	width: 1rem;
+	height: 1rem;
+	font-family: serif;
+	font-size: 1rem;
+	margin: .5rem;
+	display: inline;
+}
+.iching-row {
+	max-height: 1rem;
+}
+.iching-data {
+	background-color: #b5daff;
+	border: #111 solid .1rem;
+	text-align: center;
+	width: 1rem;
+	height: 1rem;
+}
+
 .iching-table {
 	table-layout:fixed;
 	width: 50px;
@@ -303,6 +326,7 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	width: 50px;
 	height: 50px;
 }
+
 #iching-range-type {
 	font-family: sans-serif;
 	padding-bottom: .5em;

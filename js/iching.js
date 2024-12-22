@@ -7,6 +7,7 @@ let RangeTypeSelection;
 let RangeValueSelection;
 let RangeValueDisplay;
 let IChingDisplay;
+let Tables;
 /** ###
  * Sortition: the action of selecting or determining something by the casting or
  * drawing of lots. See:
@@ -59,6 +60,17 @@ export function render() {
     ThisPage.content.append(RangeValueDisplay);
     IChingDisplay = document.createElement('div');
     ThisPage.content.append(IChingDisplay);
+    /* ### not ready
+    Tables = document.createElement('div');
+    Tables.className = 'iching-selection';
+    const Table1 = createTable(3, 4, 1, 'iching')
+    const Table2 = createTable(3, 4, 1, 'iching')
+    const Table3 = createTable(3, 4, 1, 'iching')
+    Tables.append(Table1);
+    Tables.append(Table2);
+    Tables.append(Table3);
+    ThisPage.content.append(Tables);
+    */
     /**
      * Clear the `RangeValueSelection`, `RangeValueDisplay`, and `IChingDisplay`
      * divisions, and create the widgets in `RangeValueSelection` that will be
@@ -152,8 +164,29 @@ function dropDownValues(dropdowns) {
     }
     return values;
 }
+/**
+ * Given the desired number of `rows` and `columns`, and a `tableClass` name,
+ * return an HTMLTableElement.
+ */
+function createTable(rows, columns, firstId, tableClass) {
+    const tableElement = document.createElement('table');
+    tableElement.className = tableClass;
+    let cellNumber = firstId;
+    for (let row = 0; row < rows; row += 1) {
+        let newRow = tableElement.insertRow();
+        newRow.className = `${tableClass}-row`;
+        for (let column = 0; column < columns; column += 1) {
+            const tableCell = newRow.insertCell(column);
+            tableCell.id = `${tableClass}-${cellNumber}`;
+            tableCell.className = `${tableClass}-data`;
+            tableCell.innerText = `${cellNumber}`;
+            cellNumber += 1;
+        }
+    }
+    return tableElement;
+}
 function displayHexagram(hexagramNumber) {
-    // ThisPage.fadeOut(ThisPage.table, 100)
+    // ThisPage.fadeOut(Table, 100);
     IChingDisplay.innerHTML = '';
     const hexagramSummary = document.createElement('div');
     const hexagramCommentary = document.createElement('div');

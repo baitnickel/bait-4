@@ -15,6 +15,7 @@ let RangeTypeSelection: HTMLDivElement;
 let RangeValueSelection: HTMLDivElement;
 let RangeValueDisplay: HTMLDivElement;
 let IChingDisplay: HTMLDivElement;
+let Tables: HTMLDivElement;
 
 /** ###
  * Sortition: the action of selecting or determining something by the casting or
@@ -76,6 +77,18 @@ export function render() {
 
 	IChingDisplay = document.createElement('div');
 	ThisPage.content.append(IChingDisplay);
+	
+	/* ### not ready
+	Tables = document.createElement('div');
+	Tables.className = 'iching-selection';
+	const Table1 = createTable(3, 4, 1, 'iching')
+	const Table2 = createTable(3, 4, 1, 'iching')
+	const Table3 = createTable(3, 4, 1, 'iching')
+	Tables.append(Table1);
+	Tables.append(Table2);
+	Tables.append(Table3);
+	ThisPage.content.append(Tables);
+	*/
 
 	/**
 	 * Clear the `RangeValueSelection`, `RangeValueDisplay`, and `IChingDisplay`
@@ -172,8 +185,30 @@ function dropDownValues(dropdowns: HTMLSelectElement[]) {
 	return values;
 }
 
+/**
+ * Given the desired number of `rows` and `columns`, and a `tableClass` name,
+ * return an HTMLTableElement.
+ */
+function createTable(rows: number, columns: number, firstId: number, tableClass: string) {
+	const tableElement = document.createElement('table');
+	tableElement.className = tableClass;
+	let cellNumber = firstId;
+	for (let row = 0; row < rows; row += 1) {
+		let newRow = tableElement.insertRow();
+		newRow.className = `${tableClass}-row`;
+		for (let column = 0; column < columns; column += 1) {
+			const tableCell = newRow.insertCell(column);
+			tableCell.id = `${tableClass}-${cellNumber}`;
+			tableCell.className = `${tableClass}-data`;
+			tableCell.innerText = `${cellNumber}`;
+			cellNumber += 1;
+		}
+	}
+	return tableElement;
+}
+
 function displayHexagram(hexagramNumber: number) {
-	// ThisPage.fadeOut(ThisPage.table, 100)
+	// ThisPage.fadeOut(Table, 100);
 	IChingDisplay.innerHTML = '';
 	const hexagramSummary = document.createElement('div');
 	const hexagramCommentary = document.createElement('div');

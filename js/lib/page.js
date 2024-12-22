@@ -346,6 +346,30 @@ export class Page {
         }
         return table;
     }
+    fadeOut(element, delay = 50) {
+        let initialOpacity = 1;
+        let timer = setInterval(() => {
+            if (initialOpacity <= 0.1) {
+                clearInterval(timer);
+                element.style.display = 'none';
+            }
+            element.style.opacity = initialOpacity.toString();
+            element.style.filter = `alpha(opacity=${initialOpacity * 100})`;
+            initialOpacity -= initialOpacity * 0.1;
+        }, delay);
+    }
+    fadeIn(element, delay = 10) {
+        let initialOpacity = 0.1;
+        element.style.display = 'block';
+        let timer = setInterval(() => {
+            if (initialOpacity >= 1) {
+                clearInterval(timer);
+            }
+            element.style.opacity = initialOpacity.toString();
+            element.style.filter = `alpha(opacity=${initialOpacity * 100})`;
+            initialOpacity += initialOpacity * 0.1;
+        }, delay);
+    }
 }
 /**
  * General function to coerce data, provided in the argument, to another type.

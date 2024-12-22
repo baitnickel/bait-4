@@ -387,6 +387,32 @@ export class Page {
 		}
 		return table;
 	}
+
+	fadeOut(element: HTMLElement, delay: number = 50) {
+		let initialOpacity = 1;
+		let timer = setInterval(() => {
+			if (initialOpacity <= 0.1){
+				clearInterval(timer);
+				element.style.display = 'none';
+			}
+			element.style.opacity = initialOpacity.toString();
+			element.style.filter = `alpha(opacity=${initialOpacity * 100})`;
+			initialOpacity -= initialOpacity * 0.1;
+		}, delay);
+	}
+	
+	fadeIn(element: HTMLElement, delay: number = 10) {
+		let initialOpacity = 0.1;
+		element.style.display = 'block';
+		let timer = setInterval(() => {
+			if (initialOpacity >= 1){
+				clearInterval(timer);
+			}
+			element.style.opacity = initialOpacity.toString();
+			element.style.filter = `alpha(opacity=${initialOpacity * 100})`;
+			initialOpacity += initialOpacity * 0.1;
+		}, delay);
+	}
 }
 
 /**

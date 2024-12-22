@@ -116,44 +116,26 @@ body {
 	float: right;
 }
 
-h1, h2, h3, h4, h5 {
-	font-family: sans-serif;
-	font-weight: normal;
-}
-h1 {
-	font-size: 175%;
-}
-h2 {
-	font-size: 150%;
-}
-h3 {
-	font-size: 125%;
-}
-h4 {
-	font-size: 110%;
-}
-h5 {
-	/* width: -moz-fit-content; */
+summary { font-size: 1.1rem; font-weight: 200; }
+h1, h2, h3, h4, h5, h6 { font-family: sans-serif; font-weight: normal; }
+h1 { font-size: 1.7rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.1rem; }
+h4 { font-size: 1.0rem; }
+h5 { font-size: 0.9rem; padding: .3rem; font-weight: bold; }
+h6 { font-size: 0.8rem; padding: .2rem; }
+h5, h6 {
+	width: -moz-fit-content; /* still required for Firefox? */
 	width: fit-content;
-	padding: .3em .3em .3em .3em;
 	border: 1px solid #aaa;
-	color: #00f;
 	background-color: #eee;
-	font-weight: bold;
+	color: #00f;
 }
 
-.italic {
-	font-style: italic;
-}
-.small {
-	font-size: small;
-}
-.single-space {
-	margin: 0px;
-}
-.pad-top {
-	padding-top: 1em;
-}
+.italic { font-style: italic; }
+.small { font-size: small; }
+.single-space { margin: 0; }
+.pad-top { padding-top: 1em; }
 
 nav, article, main {
 	display: block;
@@ -221,7 +203,7 @@ pre code { /* fenced code blocks */
 
 .quote {
 	/* shrink the quote box around its contents */
-	/* width: -moz-fit-content; */
+	width: -moz-fit-content; /* still required for Firefox? */
 	width: fit-content;
 
 	font-size: 90%;
@@ -251,7 +233,7 @@ blockquote {
 
 /* article pages */
 .article-header {
-	/* width: -moz-fit-content; */
+	width: -moz-fit-content; /* still required for Firefox? */
 	width: fit-content;
 	padding: .5em 1em .5em 1em;
 	border-radius: .5em;

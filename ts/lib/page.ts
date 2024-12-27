@@ -174,7 +174,7 @@ export class Page {
 
 		const iconImage = document.createElement('img');
 		iconImage.id = 'footer-bluesky-image';
-		iconImage.setAttribute('src', `${this.site}/images/icons/bluesky.png`);
+		iconImage.setAttribute('src', `${this.site}/images/icons/bluesky-white.svg`);
 		iconAnchor.append(iconImage);
 		iconSection.append(iconAnchor);
 		

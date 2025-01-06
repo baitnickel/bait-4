@@ -301,7 +301,7 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 .iching-row {
 	max-height: 1rem;
 }
-.iching-data {
+.iching-cell {
 	background-color: #b5daff;
 	border: #111 solid .1rem;
 	text-align: center;

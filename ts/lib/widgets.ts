@@ -179,3 +179,58 @@ export class Checkbox {
 		})
 	}
 }
+
+/* ### not ready
+Tables = document.createElement('div');
+Tables.className = 'iching-selection';
+const Table1 = createTable(3, 4, 1, 'iching')
+const Table2 = createTable(3, 4, 1, 'iching')
+const Table3 = createTable(3, 4, 1, 'iching')
+Tables.append(Table1);
+Tables.append(Table2);
+Tables.append(Table3);
+ThisPage.content.append(Tables);
+*/
+/**
+ * A matrix, in this context, is a group of cells in columns and rows. Each cell
+ * represents a unique selection; when one cell is selected, all the other cells
+ * in the group are deselected.
+ * 
+ * `id` is assigned as the ID of the HTMLTableElement, and is used as the prefix
+ * of the HTMLTableRowElement classes (the suffix being '-row') and as the
+ * prefix of the HTMLTableCellElement classes (the suffix being '-cell'). 'rows'
+ * and 'columns' are the number of rows and columns to be created in the table.
+ * The 'values' array will be used as the inner text of the cell elements; if
+ * fewer values are supplied than the number of cells, cell text is set to: '1'
+ * through `${number of cells}`;
+ */
+export class Matrix {
+	readonly element: HTMLTableElement;
+	readonly cellValues: string[];
+	readonly selectedValue: string;
+
+	constructor(id: string, rows: number, columns: number, values: string[] = []) {
+		this.element = document.createElement('table');
+		this.element.id = id;
+		this.cellValues = [];
+		this.selectedValue = '';
+		for (let row = 0; row < rows; row += 1) {
+			const newRow = this.element.insertRow();
+			newRow.className = `${this.element.id}-row`;
+			for (let column = 0; column < columns; column += 1) {
+				const newCell = newRow.insertCell(column);
+				newCell.className = `${this.element.id}-cell`;
+				const cellNumber = (row * columns) + column;
+				newCell.id = `${this.element.id}-${cellNumber}`;
+				if (values.length == rows * columns) newCell.innerText = values[cellNumber];
+				else newCell.innerText = `${cellNumber + 1}`;
+				this.cellValues.push(newCell.innerText);
+			}
+		}
+	}
+
+	/**
+	 * When a cell is clicked, a method here should be called to set (or
+	 * clear--set to null) this.selectedValue.
+	 */
+}

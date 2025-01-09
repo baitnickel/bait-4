@@ -117,6 +117,7 @@ export function DateString(date: Date, format = 0) {
  * used determine how to sync files between the source and target systems.
 */
 export type FileStats = {
+	id: number;
 	access: number;
 	revision: number; /* Date.valueOf(); */
 }
@@ -126,6 +127,7 @@ export type FileStats = {
  * index file.
  */
 export type ArticleProperties = {
+	id: number;
 	access: number;
 	revision: number;
 	aliases: string[];
@@ -141,6 +143,7 @@ export type ArticleProperties = {
 export type Metadata = {
 	aliases: string[];
 	tags: string[];
+	id: string;
 	access: string;
 	title: string;
 	artist: string;

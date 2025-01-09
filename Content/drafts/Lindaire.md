@@ -1,4 +1,5 @@
 ---
+id: 2
 access: 0
 ---
 Perfectly flat, perfectly straight, perfectly aligned east to west, perfectly measured out lots, each one 22 yards by 55 yards (exactly one quarter acre), one by one adding up to 440 yards on each side of the street forming a perfect quarter mile. Right in the middle on the northern side sat the yellow house that Wesley and Averyl bought, the house they raised their four boys in.

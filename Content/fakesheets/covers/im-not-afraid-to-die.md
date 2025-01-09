@@ -1,4 +1,5 @@
 ---
+id: 25
 access: 0
 title: I'm Not Afraid To Die
 artist: Gillian Welch

@@ -1,4 +1,5 @@
 ---
+id: 4
 access: 0
 tags: blog
 eras: [1974-09, 1975, 1976] # how do we handle the era(s) property?

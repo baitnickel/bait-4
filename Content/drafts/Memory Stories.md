@@ -1,4 +1,5 @@
 ---
+id: 3
 access: 0
 ---
 When I think about my earliest memory I usually think about the evening in San Jose, helping my family lay bricks near the back step of our yellow house. I scurried around the little picket fence behind which lay the sandbox Dad made for us. Scooping up a bucket of sand, I scurried back around the fence and delivered the sand to the bricks' sand bed.

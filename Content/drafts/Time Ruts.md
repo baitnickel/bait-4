@@ -1,4 +1,5 @@
 ---
+id: 6
 access: 0
 ---
 It seems I've always known about Einstein. I must have heard his name on television. Maybe in a cartoon. When we were children in the playground at school, most of us playing kickball or basketball or dodgeball, while a few of the class weirdos would be sitting on a bench reading a book. "What a weirdo. Hey Einstein, you're such a weirdo." It was very clear to us that Einstein, the actual man, was a genius, but then we only knew it as an insulting name.

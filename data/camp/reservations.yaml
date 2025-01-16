@@ -27,13 +27,15 @@
 smitty:
   # 2025
   - { site: 104,  arrival: 2025-07-16, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
-  - { site: J105, arrival: 2025-07-17, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
+  - { site: J105, arrival: 2025-07-17, reserved: 7, cancelled: 0, purchaser: P, occupants: P/Pete & Joni }
   - { site: 102,  arrival: 2025-07-17, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
   - { site: 43,   arrival: 2025-07-17, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
   - { site: 10,   arrival: 2025-07-18, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
   - { site: 44,   arrival: 2025-07-18, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
   - { site: 42,   arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
   - { site: 36,   arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
+  - { site: 93,   arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
+  - { site: 94,   arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
   # 2024
   - { site: 12,   arrival: 2024-07-19, reserved: 6, cancelled: 0, purchaser: P, occupants: D/Zach & Wei }
   - { site: 12,   arrival: 2024-07-25, reserved: 7, cancelled: 4, purchaser: P/Paul, occupants: D/Zach & Wei }

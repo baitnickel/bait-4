@@ -36,6 +36,8 @@ smitty:
   - { site: 36,   arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
   - { site: 93,   arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
   - { site: 94,   arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
+  - { site: 101,   arrival: 2025-07-17, reserved: 7, cancelled: 0, purchaser: J, occupants: ? }
+  - { site: 28,   arrival: 2025-07-17, reserved: 7, cancelled: 0, purchaser: D, occupants: ? }
   # 2024
   - { site: 12,   arrival: 2024-07-19, reserved: 6, cancelled: 0, purchaser: P, occupants: D/Zach & Wei }
   - { site: 12,   arrival: 2024-07-25, reserved: 7, cancelled: 4, purchaser: P/Paul, occupants: D/Zach & Wei }

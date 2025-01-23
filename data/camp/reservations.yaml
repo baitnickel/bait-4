@@ -11,6 +11,7 @@
 # arrival: date in "YYYY-MM-DD" format
 # reserved: number of nights reserved
 # cancelled: number of nights cancelled (or 0 for none)
+# modified: number of times the reservation has been modified
 # purchaser: key from groups.yaml; may be followed by a slash and the actual
 #    reservation group name
 # occupants: key from groups.yaml representing the family group occupying
@@ -24,54 +25,54 @@
 
 smitty:
   # 2025
-  - { site: 10,   arrival: 2025-07-18, reserved: 7, cancelled: 0, purchaser: P/Pete ‡, occupants: ? }
-  - { site: 28,   arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: D/Zach †, occupants: ? }
-  - { site: 36,   arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
-  - { site: 42,   arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
-  - { site: 43,   arrival: 2025-07-17, reserved: 7, cancelled: 0, purchaser: P/Pete ‡, occupants: ? }
-  - { site: 44,   arrival: 2025-07-17, reserved: 7, cancelled: 0, purchaser: P/Pete ‡, occupants: ? }
-  - { site: 85,   arrival: 2025-07-21, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
-  - { site: 93,   arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
-  - { site: 94,   arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
-  - { site: 101,  arrival: 2025-07-19, reserved: 7, cancelled: 0, purchaser: J/James †, occupants: ? }
-  - { site: 102,  arrival: 2025-07-17, reserved: 7, cancelled: 0, purchaser: P/Pete ‡, occupants: ? }
-  - { site: 104,  arrival: 2025-07-16, reserved: 7, cancelled: 0, purchaser: P/Pete ‡, occupants: ? }
-  - { site: 104,  arrival: 2025-07-23, reserved: 7, cancelled: 0, purchaser: P, occupants: ? }
-  - { site: J105, arrival: 2025-07-17, reserved: 7, cancelled: 0, purchaser: P/Pete ‡, occupants: P/Pete & Joni }
+  - { site: 10,   arrival: 2025-07-18, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: ? }
+  - { site: 28,   arrival: 2025-07-19, reserved: 7, cancelled: 0, modified: 1, purchaser: D/Zach, occupants: ? }
+  - { site: 36,   arrival: 2025-07-19, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: ? }
+  - { site: 42,   arrival: 2025-07-19, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: ? }
+  - { site: 43,   arrival: 2025-07-17, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: ? }
+  - { site: 44,   arrival: 2025-07-17, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: ? }
+  - { site: 85,   arrival: 2025-07-21, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: ? }
+  - { site: 93,   arrival: 2025-07-19, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: ? }
+  - { site: 94,   arrival: 2025-07-19, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: ? }
+  - { site: 101,  arrival: 2025-07-19, reserved: 7, cancelled: 0, modified: 1, purchaser: J, occupants: ? }
+  - { site: 102,  arrival: 2025-07-17, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: ? }
+  - { site: 104,  arrival: 2025-07-16, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: MAIN SITE }
+  - { site: 104,  arrival: 2025-07-23, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: MAIN SITE }
+  - { site: J105, arrival: 2025-07-17, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: P/Pete & Joni }
   # 2024
-  - { site: 12,   arrival: 2024-07-19, reserved: 6, cancelled: 0, purchaser: P, occupants: D/Zach & Wei }
-  - { site: 12,   arrival: 2024-07-25, reserved: 7, cancelled: 4, purchaser: P/Paul, occupants: D/Zach & Wei }
-  - { site: 43,   arrival: 2024-07-25, reserved: 7, cancelled: 4, purchaser: P/Duck, occupants: D/Anne & Richard }
-  - { site: 47,   arrival: 2024-07-21, reserved: 7, cancelled: 0, purchaser: J/Andrew, occupants: MAIN SITE }
-  - { site: 47,   arrival: 2024-07-28, reserved: 6, cancelled: 0, purchaser: P/PWesley, occupants: MAIN SITE }
-  - { site: 58,   arrival: 2024-07-21, reserved: 7, cancelled: 0, purchaser: J, occupants: J/James & Kristin }
-  - { site: 85,   arrival: 2024-07-20, reserved: 7, cancelled: 0, purchaser: D/Zach, occupants: J/Mycah & Sarah }
-  - { site: 85,   arrival: 2024-07-27, reserved: 7, cancelled: 7, purchaser: D, occupants: ? }
-  - { site: 86,   arrival: 2024-07-20, reserved: 7, cancelled: 4, purchaser: D/Becca, occupants: ? }
-  - { site: 86,   arrival: 2024-07-27, reserved: 7, cancelled: 7, purchaser: D/Laurel, occupants: ? }
-  - { site: 88,   arrival: 2024-07-22, reserved: 7, cancelled: 7, purchaser: D/Becca, occupants: ? }
-  - { site: 89,   arrival: 2024-07-20, reserved: 7, cancelled: 0, purchaser: J, occupants: D/Dan & Laurel }
-  - { site: 89,   arrival: 2024-07-27, reserved: 7, cancelled: 0, purchaser: J, occupants: D/Dan & Laurel }
-  - { site: 98,   arrival: 2024-07-21, reserved: 7, cancelled: 7, purchaser: P, occupants: ? }
-  - { site: J30,  arrival: 2024-07-27, reserved: 7, cancelled: 0, purchaser: P/PWesley, occupants: J/James & Kristin }
-  - { site: J105, arrival: 2024-07-27, reserved: 7, cancelled: 0, purchaser: P/Joni, occupants: P/Pete & Joni & Carisa }
+  - { site: 12,   arrival: 2024-07-19, reserved: 6, cancelled: 0, modified: 0, purchaser: P, occupants: D/Zach & Wei }
+  - { site: 12,   arrival: 2024-07-25, reserved: 7, cancelled: 4, modified: 0, purchaser: P/Paul, occupants: D/Zach & Wei }
+  - { site: 43,   arrival: 2024-07-25, reserved: 7, cancelled: 4, modified: 0, purchaser: P/Duck, occupants: D/Anne & Richard }
+  - { site: 47,   arrival: 2024-07-21, reserved: 7, cancelled: 0, modified: 0, purchaser: J/Andrew, occupants: MAIN SITE }
+  - { site: 47,   arrival: 2024-07-28, reserved: 6, cancelled: 0, modified: 0, purchaser: P/PWesley, occupants: MAIN SITE }
+  - { site: 58,   arrival: 2024-07-21, reserved: 7, cancelled: 0, modified: 0, purchaser: J, occupants: J/James & Kristin }
+  - { site: 85,   arrival: 2024-07-20, reserved: 7, cancelled: 0, modified: 0, purchaser: D/Zach, occupants: J/Mycah & Sarah }
+  - { site: 85,   arrival: 2024-07-27, reserved: 7, cancelled: 7, modified: 0, purchaser: D, occupants: ? }
+  - { site: 86,   arrival: 2024-07-20, reserved: 7, cancelled: 4, modified: 0, purchaser: D/Becca, occupants: ? }
+  - { site: 86,   arrival: 2024-07-27, reserved: 7, cancelled: 7, modified: 0, purchaser: D/Laurel, occupants: ? }
+  - { site: 88,   arrival: 2024-07-22, reserved: 7, cancelled: 7, modified: 0, purchaser: D/Becca, occupants: ? }
+  - { site: 89,   arrival: 2024-07-20, reserved: 7, cancelled: 0, modified: 0, purchaser: J, occupants: D/Dan & Laurel }
+  - { site: 89,   arrival: 2024-07-27, reserved: 7, cancelled: 0, modified: 0, purchaser: J, occupants: D/Dan & Laurel }
+  - { site: 98,   arrival: 2024-07-21, reserved: 7, cancelled: 7, modified: 0, purchaser: P, occupants: ? }
+  - { site: J30,  arrival: 2024-07-27, reserved: 7, cancelled: 0, modified: 0, purchaser: P/PWesley, occupants: J/James & Kristin }
+  - { site: J105, arrival: 2024-07-27, reserved: 7, cancelled: 0, modified: 0, purchaser: P/Joni, occupants: P/Pete & Joni & Carisa }
   # 2023
-  - { site: 15,   arrival: 2023-07-28, reserved: 7, cancelled: 7, purchaser: J/Andrew, occupants: ? }
-  - { site: 36,   arrival: 2023-07-23, reserved: 7, cancelled: 3, purchaser: P/Paul, occupants: D/Becca & Chris }
-  - { site: 36,   arrival: 2023-07-30, reserved: 6, cancelled: 6, purchaser: J/Corin, occupants: ? }
-  - { site: 40,   arrival: 2023-07-22, reserved: 7, cancelled: 5, purchaser: J/Andrew, occupants: P/Pete & Joni }
-  - { site: 40,   arrival: 2023-07-29, reserved: 7, cancelled: 7, purchaser: P/Joni, occupants: ? }
-  - { site: 59,   arrival: 2023-07-28, reserved: 7, cancelled: 0, purchaser: J/Corin, occupants: J/James & Corin }
-  - { site: 93,   arrival: 2023-07-22, reserved: 7, cancelled: 0, purchaser: D/Laurel, occupants: J/James & Corin }
-  - { site: 95,   arrival: 2023-07-22, reserved: 7, cancelled: 0, purchaser: P, occupants: D/Dan & Laurel }
-  - { site: 95,   arrival: 2023-07-29, reserved: 7, cancelled: 0, purchaser: D, occupants: D/Dan & Laurel }
-  - { site: 97,   arrival: 2023-07-23, reserved: 7, cancelled: 0, purchaser: D/Becca, occupants: MAIN SITE }
-  - { site: 97,   arrival: 2023-07-30, reserved: 6, cancelled: 0, purchaser: D, occupants: MAIN SITE }
-  - { site: 99,   arrival: 2023-07-22, reserved: 7, cancelled: 0, purchaser: J, occupants: D/Zach & Wei }
-  - { site: 99,   arrival: 2023-07-29, reserved: 7, cancelled: 7, purchaser: P/PWesley, occupants: ? }
-  - { site: 103,  arrival: 2023-07-22, reserved: 7, cancelled: 2, purchaser: P/Joni, occupants: P/Carisa }
-  - { site: 103,  arrival: 2023-07-29, reserved: 7, cancelled: 7, purchaser: P/Carisa, occupants: P/Carisa }
-  - { site: 104,  arrival: 2023-07-29, reserved: 7, cancelled: 7, purchaser: P/PWesley, occupants: ? }
-  - { site: J105, arrival: 2023-07-29, reserved: 7, cancelled: 0, purchaser: P/Duck, occupants: P/Pete & Joni }
-  - { site: J26,  arrival: 2023-07-24, reserved: 6, cancelled: 0, purchaser: D/Becca, occupants: P/Pete & Joni }
+  - { site: 15,   arrival: 2023-07-28, reserved: 7, cancelled: 7, modified: 0, purchaser: J/Andrew, occupants: ? }
+  - { site: 36,   arrival: 2023-07-23, reserved: 7, cancelled: 3, modified: 0, purchaser: P/Paul, occupants: D/Becca & Chris }
+  - { site: 36,   arrival: 2023-07-30, reserved: 6, cancelled: 6, modified: 0, purchaser: J/Corin, occupants: ? }
+  - { site: 40,   arrival: 2023-07-22, reserved: 7, cancelled: 5, modified: 0, purchaser: J/Andrew, occupants: P/Pete & Joni }
+  - { site: 40,   arrival: 2023-07-29, reserved: 7, cancelled: 7, modified: 0, purchaser: P/Joni, occupants: ? }
+  - { site: 59,   arrival: 2023-07-28, reserved: 7, cancelled: 0, modified: 0, purchaser: J/Corin, occupants: J/James & Corin }
+  - { site: 93,   arrival: 2023-07-22, reserved: 7, cancelled: 0, modified: 0, purchaser: D/Laurel, occupants: J/James & Corin }
+  - { site: 95,   arrival: 2023-07-22, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: D/Dan & Laurel }
+  - { site: 95,   arrival: 2023-07-29, reserved: 7, cancelled: 0, modified: 0, purchaser: D, occupants: D/Dan & Laurel }
+  - { site: 97,   arrival: 2023-07-23, reserved: 7, cancelled: 0, modified: 0, purchaser: D/Becca, occupants: MAIN SITE }
+  - { site: 97,   arrival: 2023-07-30, reserved: 6, cancelled: 0, modified: 0, purchaser: D, occupants: MAIN SITE }
+  - { site: 99,   arrival: 2023-07-22, reserved: 7, cancelled: 0, modified: 0, purchaser: J, occupants: D/Zach & Wei }
+  - { site: 99,   arrival: 2023-07-29, reserved: 7, cancelled: 7, modified: 0, purchaser: P/PWesley, occupants: ? }
+  - { site: 103,  arrival: 2023-07-22, reserved: 7, cancelled: 2, modified: 0, purchaser: P/Joni, occupants: P/Carisa }
+  - { site: 103,  arrival: 2023-07-29, reserved: 7, cancelled: 7, modified: 0, purchaser: P/Carisa, occupants: P/Carisa }
+  - { site: 104,  arrival: 2023-07-29, reserved: 7, cancelled: 7, modified: 0, purchaser: P/PWesley, occupants: ? }
+  - { site: J105, arrival: 2023-07-29, reserved: 7, cancelled: 0, modified: 0, purchaser: P/Duck, occupants: P/Pete & Joni }
+  - { site: J26,  arrival: 2023-07-24, reserved: 6, cancelled: 0, modified: 0, purchaser: D/Becca, occupants: P/Pete & Joni }
  

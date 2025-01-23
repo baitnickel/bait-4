@@ -5,5 +5,5 @@
 # Rows may be entered here in any order.
 
 smitty:
-  - { year: 2025, site: 35, cabin: 100, reservation: 8.25, cancellation: 8.25 }
-  - { year: 2023, site: 35, cabin: 100, reservation: 7.99, cancellation: 7.99 }
+  - { year: 2025, site: 35, cabin: 100, reservation: 8.25, cancellation: 8.25, modification: 8.25 }
+  - { year: 2023, site: 35, cabin: 100, reservation: 7.99, cancellation: 7.99, modification: 7.99 }

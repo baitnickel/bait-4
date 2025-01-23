@@ -344,6 +344,7 @@ export type CampCosts = {
 	cabin: number; /* per-night cabin cost */
 	reservation: number; /* per-site reservation fee */
 	cancellation: number; /* per-site cancellation fee */
+	modification: number; /* per-site reservation modification fee */
 }
 export type CampAdjustment = {
 	year: number;
@@ -360,6 +361,7 @@ export type Reservation = {
 	arrival: string; /* pseudo Date: YYYY-MM-DD */
 	reserved: number; /* nights reserved */
 	cancelled: number; /* nights cancelled */
+	modified: number; /* number of times reservation has been modified */
 	purchaser: string; /* key for Account record, optionally followed by "/<alias>" */
 	occupants: string; /* "<account-key>/<occupant-names>" or "?", "none", "main site", etc. */
 }

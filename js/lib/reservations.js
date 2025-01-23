@@ -3,6 +3,9 @@
  * accounting.
  */
 const CabinSitePattern = new RegExp(/^J/, 'i'); /* campsite IDs starting with "J" or "j" are cabins */
+const CheckInTime = '14:00:00.000-07:00'; /** 2:00pm PDT */
+const ModificationLimit = 2; /* maximum allowed reservation modifications (per reservation) */
+const ModificationSymbols = ['†', '‡']; /* symbols indicating reservation modifications--must be as many as ModificationLimit */
 const UnknownGroupColor = 'lightgray'; /* default color when group is unknown */
 const NormalPurpose = '';
 export function displayReservationTable(tableElement, thisYear, reservations, groups, radioButtons) {
@@ -15,9 +18,8 @@ export function displayReservationTable(tableElement, thisYear, reservations, gr
      * Later, we can re-sort the sites if necessary for display.
      */
     sortReservations(reservations);
-    const TwoPM = 'T14:00:00.000-07:00'; /** 2:00pm PDT */
     for (let reservation of reservations) {
-        let arrival = new Date(reservation.arrival + TwoPM);
+        let arrival = new Date(reservation.arrival + 'T' + CheckInTime);
         let arrivalYear = arrival.getFullYear();
         if (arrivalYear == thisYear && reservation.reserved > reservation.cancelled) { /** selection criteria */
             let lastDay = new Date(arrival);
@@ -30,6 +32,7 @@ export function displayReservationTable(tableElement, thisYear, reservations, gr
                 site: numericSite(`${reservation.site}`),
                 arrivalDate: new Date(arrival.getTime()),
                 nightsReserved: reservation.reserved - reservation.cancelled,
+                modified: reservation.modified,
                 purchaser: reservation.purchaser,
                 occupants: reservation.occupants,
                 /** because we've sorted reservations by arrival date above, we
@@ -82,6 +85,7 @@ function writeTableRows(tableElement, adjustedReservations, groups, radioButtons
             let nightsReserved = adjustedReservations[site][reservation].nightsReserved;
             let purchaser = adjustedReservations[site][reservation].purchaser;
             let occupants = adjustedReservations[site][reservation].occupants;
+            let modified = adjustedReservations[site][reservation].modified;
             /** interpret slash-separated values in purchaser and occupants */
             const purchaserValues = slashedValues(purchaser);
             const groupKey = purchaserValues[0];
@@ -108,7 +112,11 @@ function writeTableRows(tableElement, adjustedReservations, groups, radioButtons
             }
             /** add reservation item */
             siteItemElement = document.createElement('td');
-            const camperName = (radioButtons.activeButton == 'Purchasers') ? groupName : occupantNames;
+            let camperName = (radioButtons.activeButton == 'Purchasers') ? groupName : occupantNames;
+            if (modified > 0 && modified <= ModificationSymbols.length) {
+                /* attach reservation modification symbol to camper name */
+                camperName += ` ${ModificationSymbols[modified - 1]}`;
+            }
             siteItemElement.innerText = camperName;
             if (nightsReserved > 1)
                 siteItemElement.colSpan = nightsReserved;
@@ -219,6 +227,7 @@ function processReservations(year, reservations, cost, groupKeys, participatingG
     let siteExpenses = 0;
     let reservationFees = 0;
     let cancellationFees = 0;
+    let modificationFees = 0;
     for (let reservation of reservations) {
         if (reservation.arrival.startsWith(`${year}`)) {
             sitesReserved += 1;
@@ -233,6 +242,12 @@ function processReservations(year, reservations, cost, groupKeys, participatingG
                 accumulate(purchaser, payments, cost.cancellation);
                 cancellationFees += cost.cancellation;
                 sharedExpenses += cost.cancellation;
+            }
+            if (reservation.modified > 0 && reservation.modified <= ModificationLimit) {
+                const modificationCost = cost.modification * reservation.modified;
+                accumulate(purchaser, payments, modificationCost);
+                modificationFees += modificationCost;
+                sharedExpenses += modificationCost;
             }
             const nightsUsed = reservation.reserved - reservation.cancelled;
             totalNights += nightsUsed;
@@ -256,6 +271,7 @@ function processReservations(year, reservations, cost, groupKeys, participatingG
     reportLines.push(`  ${totalNights} nights @ ${dollars(cost.site)}/night: ${dollars(siteExpenses)}\n`);
     reportLines.push(`  Total Reservation Fees: ${dollars(reservationFees)}\n`);
     reportLines.push(`  Total Cancellation Fees: ${dollars(cancellationFees)}\n`);
+    reportLines.push(`  Total Modification Fees: ${dollars(modificationFees)}\n`);
     return sharedExpenses;
 }
 function processExpenseAdjustments(year, adjustments, groups, groupKeys, participatingGroups, payments, reportLines) {
@@ -427,7 +443,7 @@ function createUnderpayerPayments(sharedExpenses, participatingGroups, payments,
  * most recent year not greater than the given `year`.
  */
 function currentCosts(year, costs) {
-    let currentCosts = { year: 0, site: 0, cabin: 0, reservation: 0, cancellation: 0 };
+    let currentCosts = { year: 0, site: 0, cabin: 0, reservation: 0, cancellation: 0, modification: 0 };
     if (costs.length >= 1) {
         costs.sort((a, b) => { return b.year - a.year; }); /* sort by years descending */
         for (const cost of costs) {

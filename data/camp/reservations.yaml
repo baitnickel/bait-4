@@ -28,14 +28,15 @@ smitty:
   - { site: 10,   arrival: 2025-07-18, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: ? }
   - { site: 28,   arrival: 2025-07-19, reserved: 7, cancelled: 0, modified: 1, purchaser: D/Zach, occupants: ? }
   - { site: 36,   arrival: 2025-07-19, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: ? }
-  - { site: 42,   arrival: 2025-07-19, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: ? }
+  - { site: 42,   arrival: 2025-07-24, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: ? }
   - { site: 43,   arrival: 2025-07-17, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: ? }
   - { site: 44,   arrival: 2025-07-17, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: ? }
-  - { site: 85,   arrival: 2025-07-21, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: ? }
-  - { site: 93,   arrival: 2025-07-19, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: ? }
-  - { site: 94,   arrival: 2025-07-19, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: ? }
+  - { site: 85,   arrival: 2025-07-24, reserved: 7, cancelled: 0, modified: 1, purchaser: P, occupants: ? }
+  - { site: 93,   arrival: 2025-07-24, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: ? }
+  - { site: 94,   arrival: 2025-07-24, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: ? }
   - { site: 101,  arrival: 2025-07-19, reserved: 7, cancelled: 0, modified: 1, purchaser: J, occupants: ? }
   - { site: 102,  arrival: 2025-07-17, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: ? }
+  - { site: 103,  arrival: 2025-07-25, reserved: 7, cancelled: 0, modified: 0, purchaser: D, occupants: ? }
   - { site: 104,  arrival: 2025-07-16, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: MAIN SITE }
   - { site: 104,  arrival: 2025-07-23, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: MAIN SITE }
   - { site: J105, arrival: 2025-07-17, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: P/Pete & Joni }

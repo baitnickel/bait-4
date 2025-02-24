@@ -77,7 +77,12 @@ export function IsYamlFile(pathName: string) {
  * - 4: Thursday, February 1, 2024 2:35pm
  * - 5: February 1, 2024 2:35pm
  * - 6: Thu Feb 1, 2024 2:35pm
- * - 7: Feb 1, 2024 2:35pm */
+ * - 7: Feb 1, 2024 2:35pm
+ * - 8: Feb 1, 2024
+ * - 9: Thu Feb 1, 2024
+ * - 10: Feb 2024
+ * - 11: 2024
+ */
 export function DateString(date: Date, format = 0) {
 	if (format == 0) return date.toISOString();
 	if (format == 1) return date.toString();
@@ -104,7 +109,40 @@ export function DateString(date: Date, format = 0) {
 	if (format == 5) return `${mon} ${d}, ${year} ${h}:${minute}${amPm}`;
 	if (format == 6) return `${weekday.slice(0, 3)} ${mon.slice(0, 3)} ${d}, ${year} ${h}:${minute}${amPm}`;
 	if (format == 7) return `${mon.slice(0, 3)} ${d}, ${year} ${h}:${minute}${amPm}`;
+	if (format == 8) return `${mon.slice(0, 3)} ${d}, ${year}`;
+	if (format == 9) return `${weekday.slice(0, 3)} ${mon.slice(0, 3)} ${d}, ${year}`;
+	if (format == 10) return `${mon.slice(0, 3)} ${year}`;
+	if (format == 11) return `${year}`;
 	return date.toISOString(); // default
+}
+
+/**
+ * Given a string of `text`, return the text in the form of a title, where case
+ * (upper/lower) is adjusted according to standard rules (as defined here).
+ * 
+ * - Capitalize the first word and the last word
+ * - Capitalize nouns, pronouns, adjectives, verbs, adverbs, subordinating conjunctions
+ * - Do not capitalize articles, prepositions, coordinating conjunctions
+ * - (Capitalize words of 4 or more characters ... ignoring this rule for now)
+ */
+export function Title(text: string) {
+	let title = '';
+	const lowerWords = ['a', 'an', 'and', 'at', 'nor', 'of', 'or', 'the', 'with'];
+	const words = text.trim().split(/\s+/);
+	const adjustedWords: string[] = [];
+	for (let i = 0; i < words.length; i += 1) {
+		let word = words[i];
+		const firstWord = (i == 0);
+		const lastWord = (i == (words.length - 1));
+		const lowerWord = lowerWords.includes(word);
+		const letters = word.split('');
+		let firstLetter = letters[0];
+		if (firstWord || lastWord || !lowerWord) firstLetter = firstLetter.toUpperCase();
+		word = firstLetter + word.substring(1);
+		adjustedWords.push(word);
+	}
+	if (adjustedWords.length) title = adjustedWords.join(' ');
+	return title;
 }
 
 // export type Message = {

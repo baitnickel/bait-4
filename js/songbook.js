@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
-import { MarkdownDocument } from './lib/md.js';
+import * as MD from './lib/md.js';
 import { FAKESHEET, FakeSheet } from './lib/fakesheet.js';
 import { MarkupLine } from './lib/markup.js';
 const CSS_CLASS = {
@@ -56,7 +56,7 @@ export async function render() {
                 revision = fakeSheetProperties.revision;
             }
             /** convert the text to fakesheet and display it */
-            const markdown = new MarkdownDocument(fakeSheetText);
+            const markdown = new MD.Markdown(fakeSheetText);
             if (markdown.errors)
                 page.content.innerHTML = markdown.errorMessages();
             else {

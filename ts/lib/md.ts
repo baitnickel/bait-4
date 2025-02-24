@@ -24,14 +24,14 @@ import * as YAML from './yaml.js';
  * The `errorMessages` and `reportErrors` methods can be used to display error
  * messages.
  */
-export class MarkdownDocument {
+export class Markdown {
 	metadata: any;
 	text: string;
 	textOffset: number;
 	errors: boolean;
 	metadataErrors: string[];
 
-	constructor(markdownDocument: string, yamlOnly = false, convertStrings = false) {
+	constructor(markdown: string, yamlOnly = false, convertStrings = false) {
 		this.metadata = null;
 		this.text = '';
 		this.textOffset = -1;
@@ -40,7 +40,7 @@ export class MarkdownDocument {
 		const metadataLines: string[] = [];
 		const textLines: string[] = [];
 
-		const lines = markdownDocument.trimEnd().split('\n');
+		const lines = markdown.trimEnd().split('\n');
 		let inMetadata = (yamlOnly) ? true : false;
 		let firstLine = true;
 		let textOffset = 0;
@@ -74,38 +74,93 @@ export class MarkdownDocument {
 	}
 
 	/**
-	 * Return an array of Section objects from `this.text`. Each section
-	 * consists of a single string, typically with embedded linefeeds. Sections
-	 * are separated by lines that match the Horizontal Rule pattern. There will
-	 * always be at least one section, though it may consist of only an empty
-	 * string.
+	 * Return an array of metadata hashtags (without the hash). The array is
+	 * empty when there are no hashtags in the metadata, or when there is no
+	 * metadata.
 	 * 
-	 * An optional `source` (e.g., File.name) may be provided to associate a section
-	 * with the markdown file from which it was read.
+	 * Tags may be properly enclosed in brackets, or improperly a simple string
+	 * of comma-separated tags.
 	 */
-	sections(source = '') {
-		const sections: Section[] = [];
-		const HORIZONTAL_RULE_PATTERN = /^((-+[ \t]{0,}){3,}|(_+[ \t]{0,}){3,}|(\*+[ \t]{0,}){3,})$/;
-		const lines: string[] = this.text.split('\n');
-		const sectionLines: string[] = [];
-		for (const line of lines) {
-			if (HORIZONTAL_RULE_PATTERN.test(line)) {
-				if (sectionLines.length) {
-					sections.push(new Section(sectionLines, source));
-					sectionLines.splice(0); /** clear array for next iteration */
-				}
-			}
-			else sectionLines.push(line);
+	tags() {
+		let tags: string[] = [];
+		const keyword = 'tags';
+		if (this.metadata !== null && this.metadata[keyword]) {
+			if (Array.isArray(this.metadata[keyword])) tags = Array.from(this.metadata[keyword]);
+			else tags = this.metadata[keyword].split(/\s*,\s*/);
 		}
-		if (sectionLines.length) sections.push(new Section(sectionLines, source));
+		return tags;
+	}
+
+	/**
+	 * Divide the markdown text into sections and return an array of sections.
+	 * Each section is a string, typically containing newline characters.
+	 * Sections are separated by the Horizontal Rule pattern. Blank lines at the
+	 * beginning and end of a section are removed. Sections containing only
+	 * whitespace are ignored.
+	 */
+	sections() {
+		const sections: string[] = [];
+		const HORIZONTAL_RULE_PATTERN = /^_{3,}\s*$/gm;
+		const sectionTexts = this.text.split(HORIZONTAL_RULE_PATTERN);
+		for (let sectionText of sectionTexts) {
+			if (sectionText.trim()) { /** ignore whitespace-only section */
+				const sectionLines = sectionText.split('\n');
+				/** set indices of start and end of non-blank lines */
+				let start = -1;
+				let end = -1;
+				for (let i = 0; i < sectionLines.length; i += 1) {
+					if (sectionLines[i].trim()) {
+						if (start < 0) start = i;
+						end = i;
+					}
+				}
+				sections.push(sectionLines.slice(start, end + 1).join('\n'))
+			}
+		}
 		return sections;
+	}
+
+	/**
+	 * Divide the markdown text into paragraphs, each paragraph separated by a
+	 * blank line, and return an array of paragraphs. First, we divide the text
+	 * into sections, treating each section boundary as a paragraph boundary and
+	 * removing the section Horizontal Rule markup.
+	 */
+	paragraphs() {
+		const paragraphs: string[] = [];
+		const PARAGRAPH_BOUNDARY_PATTERN = /\n\s*\n/gm;
+		const sections = this.sections();
+		for (const section of sections) {
+			const sectionParagraphs = section.split(PARAGRAPH_BOUNDARY_PATTERN);
+			for (const sectionParagraph of sectionParagraphs) {
+				if (sectionParagraph.trim()) paragraphs.push(sectionParagraph);
+			}
+		}
+		return paragraphs;
+	}
+
+	/**
+	 * Divide the markdown text into lines, each line separated by a newline
+	 * character, and return an array of lines. First, we divide the text into
+	 * sections, removing the section Horizonal Rule markup.
+	 */
+	lines() {
+		const lines: string[] = [];
+		const sections = this.sections();
+		for (const section of sections) {
+			const rawLines = section.split('\n');
+			for (const rawLine of rawLines) {
+				if (rawLine.trim()) lines.push(rawLine.trimEnd()); // or trim() and lose indentation?
+			}
+		}
+		return lines;
 	}
 
 	/**
 	 * This is a convenience method which returns lines of error messages as
 	 * HTML (the default) or plain text.
 	 */
-	errorMessages(html: boolean = true) {
+	errorMessages(html = true) {
 		let messages = '';
 		if (this.metadataErrors.length) {
 			let heading = (html) ? '<h6>Metadata Errors:</h6>' : 'Metadata Errors:\n';
@@ -132,51 +187,3 @@ export class MarkdownDocument {
 		}
 	}
 }
-
-/**
- * A markdown document may be divided into one or more sections using a dividing
- * line (e.g., a horizontal rule). Currently this is done in the
- * MarkdownDocument.sections method. An array of section `textLines` comprise
- * the whole section. The first text line is treated as the section `title`, and
- * the remaining text lines are joined together to form the body--a single
- * string, typically containing embedded newlines.
- * 
- * An optional `source` (e.g., File.name) may be provided to associate a section
- * with the markdown file from which it was read.
- */
-export class Section {
-	source: string;
-	title: string;
-	body: string;
-
-	constructor(textLines: string[], source = '') {
-		this.source = source;
-		const lines = textLines.slice(); /** clone the array so it may be manipulated */
-		this.title = (lines.length) ? lines[0] : '';
-		if (!this.title) this.body = lines.join('\n');
-		else {
-			lines.shift(); /** remove title line */
-			while (lines.length && !lines[0].trim()) lines.shift();
-		}
-		this.body = lines.join('\n').trimEnd();
-	}
-}
-/*
-	// Usage example:
-
-	const testFile = `${Env.obsidianVaults}/main/notebook/2024-11-03 Sun.md`;
-	const file = FS.GetFile(testFile);
-	if (file === null) {
-		Shell.error('Cannot read file:', testFile);
-		process.exit(1);
-	}
-	const article = FS.ReadText(testFile);
-	const markdown = new MarkdownDocument(article);
-	const sections = markdown.sections();
-	Shell.header(`\tNote: ${file.name}`);
-	for (const section of sections) {
-		Shell.header(`\n${section.title}:`);
-		Shell.log(section.body);
-	}
-
-*/

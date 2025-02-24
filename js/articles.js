@@ -1,7 +1,7 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
 import { Markup } from './lib/markup.js';
-import { MarkdownDocument } from './lib/md.js';
+import * as MD from './lib/md.js';
 import * as Widget from './lib/widgets.js';
 /**
  * Example: http://localhost/bait-4/index.html?page=articles&path=README.md,Content/drafts
@@ -91,7 +91,7 @@ function selectArticles(paths, eligiblePaths) {
 function displayArticle(articles, index) {
     const articlePath = articles[index];
     Fetch.text(articlePath).then((fileText) => {
-        const markdown = new MarkdownDocument(fileText);
+        const markdown = new MD.Markdown(fileText);
         let title = '';
         if (markdown.metadata && 'title' in markdown.metadata)
             title = markdown.metadata['title'];

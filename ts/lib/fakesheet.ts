@@ -1,4 +1,4 @@
-import { MarkdownDocument } from './md.js';
+import * as MD from './md.js';
 import { MarkupLine } from './markup.js';
 
 /**
@@ -146,7 +146,7 @@ export class FakeSheet {
 	 * be optional, either one or both or neither should produce expected
 	 * results.
 	 */
-	constructor(fakeSheet: MarkdownDocument) {
+	constructor(fakeSheet: MD.Markdown) {
 		this.title = '(untitled)';
 		this.artist = '';
 		this.composers = '';

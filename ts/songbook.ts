@@ -2,7 +2,7 @@ import * as T from './lib/types.js';
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js'
 import { FakesheetLookups } from './lib/types.js'
-import { MarkdownDocument } from './lib/md.js';
+import * as MD from './lib/md.js';
 import { FAKESHEET, FakeSheet, FakeLine } from './lib/fakesheet.js'
 import { MarkupLine } from './lib/markup.js';
 
@@ -64,7 +64,7 @@ export async function render() {
 				revision = fakeSheetProperties.revision;
 			}
 			/** convert the text to fakesheet and display it */
-			const markdown = new MarkdownDocument(fakeSheetText);
+			const markdown = new MD.Markdown(fakeSheetText);
 			if (markdown.errors) page.content.innerHTML = markdown.errorMessages();
 			else {
 				const fakeSheet = new FakeSheet(markdown);

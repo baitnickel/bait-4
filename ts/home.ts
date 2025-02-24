@@ -2,7 +2,7 @@ import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js'
 import * as Datasets from './lib/datasets.js';
-import { MarkdownDocument } from './lib/md.js';
+import * as MD from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 import * as Widgets from './lib/widgets.js';
 
@@ -33,7 +33,7 @@ export function render() {
 	const randomQuote = Quotes.get(randomKey)!;
 	ThisPage.appendQuote(Quote, randomQuote);
 
-	const markdown = new MarkdownDocument(HomeText);
+	const markdown = new MD.Markdown(HomeText);
 	/** adding heading above text, below quote */
 	ArticleText.innerHTML = Markup('# Home\n' + markdown.text);
 
@@ -119,7 +119,7 @@ export function render() {
 					ThisPage.appendParagraph(TestMarkdown, errorMessage);
 				}
 				else {
-					const markdownDocument = new MarkdownDocument(fileContent);
+					const markdownDocument = new MD.Markdown(fileContent);
 					/** replace special braced placeholders in test file text */
 					markdownDocument.text = markdownDocument.text.replace('{LINE_NUMBER}', `${markdownDocument.textOffset + 1}`);
 					markdownDocument.text = markdownDocument.text.replace('{FILE_NAME}', `${testMarkdownFile}`);
@@ -224,7 +224,7 @@ export function render() {
 }
 
 // function markedUpText(markdownText: string) {
-// 	const markdown = new MarkdownDocument(markdownText);
+// 	const markdown = new MD.Markdown(markdownText);
 // 	const markedUpText = Markup(markdown.text);
 // 	return markedUpText;
 // }

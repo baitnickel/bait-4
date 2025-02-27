@@ -9,7 +9,7 @@
 	"README.md": {
 		"id": 0,
 		"access": 0,
-		"revision": 1733529928436
+		"revision": 1739568018602
 	},
 	"Content/drafts/Lindaire.md": {
 		"id": 2,
@@ -28,16 +28,16 @@
 	"Content/drafts/Santa Cruz.md": {
 		"id": 4,
 		"access": 0,
-		"revision": 1736376515483,
+		"revision": 1738967265610,
 		"aliases": [],
 		"tags": [
-			"blog"
+			"memoir"
 		]
 	},
 	"Content/drafts/The Mudra In My Hands.md": {
 		"id": 5,
 		"access": 0,
-		"revision": 1736376515484,
+		"revision": 1740689044208,
 		"aliases": [],
 		"tags": []
 	},
@@ -58,7 +58,7 @@
 	"Content/drafts/Yosemite Winter 2005.md": {
 		"id": 8,
 		"access": 0,
-		"revision": 1736376515485,
+		"revision": 1740688940781,
 		"aliases": [],
 		"tags": []
 	},
@@ -394,14 +394,9 @@
 	"Content/test-docs/Sangha.md": {
 		"id": 56,
 		"access": 0,
-		"revision": 1736376897846,
+		"revision": 1738965332436,
 		"aliases": [],
-		"tags": [
-			"todo",
-			"web",
-			"zen",
-			"blog"
-		]
+		"tags": []
 	},
 	"Content/test-redwords/40-matthew.md": {
 		"id": 57,

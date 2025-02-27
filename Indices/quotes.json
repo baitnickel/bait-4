@@ -76,6 +76,20 @@
 		"date": "2024-11-22T16:21:11.000Z",
 		"source": "notebook/2024-11-22 Fri.md"
 	},
+	"all-of-our-technology-is-an-excretion-of-the": {
+		"text": "All of our technology is an excretion of the imagination.",
+		"attribution": "Terence McKenna",
+		"note": "",
+		"date": "2025-01-17T17:59:59.856Z",
+		"source": "notebook/2025-01-17 Fri.md"
+	},
+	"all-of-our-technology-is-the-condensation-of": {
+		"text": "All of our technology is the condensation of ideological intention.",
+		"attribution": "Terence McKenna",
+		"note": "",
+		"date": "2025-01-17T17:59:59.856Z",
+		"source": "notebook/2025-01-17 Fri.md"
+	},
 	"all-the-things-that-truly-matter-beauty-love": {
 		"text": "All the things that truly matter—beauty, love, creativity, joy, inner peace—arise from beyond the mind.",
 		"attribution": "Eckhart Tolle",
@@ -103,6 +117,13 @@
 		"note": "",
 		"date": "",
 		"source": "etc/legacy-quotes.md"
+	},
+	"arguing-involves-thoughts-of-victory-or-defeat": {
+		"text": "Arguing involves thoughts of victory or defeat and is contrary to the Way of the Buddha.",
+		"attribution": "Platform Sutra 38",
+		"note": "Red Pine's Zen Roots",
+		"date": "2025-02-23T14:56:20.000Z",
+		"source": "notebook/2025-02-23 Sun.md"
 	},
 	"art-is-long-life-short": {
 		"text": "Art is long, life short",
@@ -334,6 +355,13 @@
 		"note": "",
 		"date": "2023-09-01T00:24:05.000Z",
 		"source": "notebook/2023-08-31 Thu.md"
+	},
+	"earth-laughs-in-flowers": {
+		"text": "Earth laughs in flowers.",
+		"attribution": "Ralph Waldo Emerson",
+		"note": "",
+		"date": "2023-04-28T15:22:07.000Z",
+		"source": "notebook/2023-04-28 Fri.md"
 	},
 	"emptiness-is-in-fact-the-reservoir-of-infinite": {
 		"text": "Emptiness is in fact the reservoir of infinite possibilities.",
@@ -1147,12 +1175,26 @@
 		"date": "",
 		"source": "etc/legacy-quotes.md"
 	},
+	"one-use-of-labels-is-to-file-things-away-so-you": {
+		"text": "One use of labels is to file things away so you don’t have to spend time on them.",
+		"attribution": "Robert Wright",
+		"note": "",
+		"date": "2023-01-06T15:17:16.795Z",
+		"source": "notebook/2023-01-06 Fri.md"
+	},
 	"only-keep-the-question-what-is-the-best-way-of": {
 		"text": "Only keep the question, 'What is the best way of helping other people?'",
 		"attribution": "Seung Sahn",
 		"note": "from *Essential Zen*",
 		"date": "",
 		"source": "etc/legacy-quotes.md"
+	},
+	"our-father-and-mother-our-wife-and-babes-are": {
+		"text": "Our father and mother, our wife and babes, are bone of our bone and flesh of our flesh. When they die, a part of our very selves is gone.",
+		"attribution": "William James",
+		"note": "",
+		"date": "2023-01-06T15:17:16.795Z",
+		"source": "notebook/2023-01-06 Fri.md"
 	},
 	"our-life-is-momentary-and-at-the-same-time-each": {
 		"text": "Our life is momentary, and, at the same time, each moment includes its own past and future.",
@@ -1679,6 +1721,13 @@
 		"date": "2024-05-22T19:24:55.962Z",
 		"source": "notebook/2024-05-22 Wed.md"
 	},
+	"the-whole-world-bears-your-signature": {
+		"text": "The whole world bears your signature.",
+		"attribution": "Alan Watts",
+		"note": "",
+		"date": "2025-02-02T14:57:33.000Z",
+		"source": "notebook/2025-02-02 Sun.md"
+	},
 	"the-wilderness-had-a-clarity-that-included-me": {
 		"text": "The wilderness had a clarity that included me.",
 		"attribution": "Cheryl Strayed",
@@ -2035,6 +2084,13 @@
 		"note": "",
 		"date": "",
 		"source": "etc/legacy-quotes.md"
+	},
+	"we-need-to-find-out-what-is-true-so-we-can-do": {
+		"text": "We need to find out what is true so we can do what's right.",
+		"attribution": "Terence McKenna",
+		"note": "",
+		"date": "2025-01-21T17:42:50.459Z",
+		"source": "notebook/2025-01-21 Tue.md"
 	},
 	"we-read-for-the-pleasure-of-thinking-another": {
 		"text": "We read for the pleasure of thinking another person's thoughts.",

@@ -42,7 +42,7 @@ import { Resource } from './resource.js';
  * Span - {{.class content}}
  */
 
-console.log(`markup: 2025.02.28`); /* report version */
+console.log(`markup: 2025.03.01`); /* report version */
 
 /* HTML tags */
 const PARAGRAPH_TAG = 'p';
@@ -89,11 +89,10 @@ const BOLD_PATTERN = /\*{2}(.+?)\*{2}/g;
 const SUPERSCRIPT_PATTERN = /([\S])(\d+)\^/g;
 const HIGHLIGHT_PATTERN = /={2}(.+?)={2}/g;
 const STRIKETHROUGH_PATTERN = /~{2}(.+?)~{2}/g;
-const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g;
-const SINGLE_LINK_PATTERN = /\[(.*?)]\((.*?)\)/; //### avoid image patterns - check for not following "!"
-const LINK_PATTERN = new RegExp(SINGLE_LINK_PATTERN,'g');
-const EXTERNAL_LINK = /^(https?:\/\/|localhost\/)/; /* non-external links require special handling */
+const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g; 
 /* complex inline patterns--replacements will be performed in a while loop */
+const LINK_PATTERN = /(?<!!)\[(.*?)]\((.*?)\)/; /* lookbehind assertion prevents image pattern match */
+const EXTERNAL_LINK = /^(https?:\/\/|localhost\/)/; /* non-external links require special handling */
 const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
 const LINK_REFERENCE_PATTERN = /\[(.*?)\]\[(\S*?)\]/;
 const SPAN_PATTERN = /\{\{(.*?)\}\}/;
@@ -759,28 +758,6 @@ function markupText(text: string, resources: Map<string, Resource>|null = null) 
 		else {
 			/* simple global replacements */
 			segment = segment.replace(IMAGE_PATTERN, `<${IMAGE_TAG} src="$2" alt="$1">`);
-			//### this whole hyperlink section needs it's own function - and replace the hardcoding!
-			/* hyperlink handling - both internal and external links */
-			/* should also apply to Wikilinks (regexp if string inside double-brackets, split on pipe) */
-			const links = segment.match(LINK_PATTERN); /* get all links in the segment */
-			if (links) {
-				for (const link of links){
-					console.log('Link:', link);
-					const components = link.match(SINGLE_LINK_PATTERN); /* get this link's components (label and url) */
-					if (components) {
-						const label = components[1];
-						let url = components[2];
-						if (!EXTERNAL_LINK.test(url)) {
-							url = 'http://localhost/bait-4/index.html?page=articles&path=' + url;
-							url = encodeURI(url);
-						}
-						console.log(url);
-						segment = segment.replace(link, `<${LINK_TAG} href="${url}">${label}</${LINK_TAG}>`);
-					}
-				}
-			}
-			// segment = segment.replace(IMAGE_PATTERN, `<${IMAGE_TAG} src="$2" alt="$1">`);
-			// segment = segment.replace(LINK_PATTERN, `<${LINK_TAG} href="$2">$1</${LINK_TAG}>`);
 			segment = segment.replace(SUPERSCRIPT_PATTERN, `$1<${SUPERSCRIPT_TAG}>$2</${SUPERSCRIPT_TAG}>`);
 			segment = segment.replace(BOLD_PATTERN, `<${BOLD_TAG}>$1</${BOLD_TAG}>`);
 			segment = segment.replace(ITALIC_PATTERN, `<${ITALIC_TAG}>$1</${ITALIC_TAG}>`);
@@ -791,11 +768,39 @@ function markupText(text: string, resources: Map<string, Resource>|null = null) 
 				segment = markupReference(segment, IMAGE_REFERENCE_PATTERN, IMAGE_TAG, resources);
 				segment = markupReference(segment, LINK_REFERENCE_PATTERN, LINK_TAG, resources);
 			}
+			segment = markupLinks(segment);
 			segment = markupSpan(segment, SPAN_PATTERN, SPAN_TAG);
 		}
 		markedUpText += segment;
 	}
 	return markedUpText;
+}
+
+/**
+ * Image and Link markdown with handling of local relative URLs.
+ * 
+ * Should also handle Wikilinks (string inside double-brackets, with pipe
+ * separating URL from label.
+ * 
+ */
+function markupLinks(segment: string) {
+	const globalLinkPattern = new RegExp(LINK_PATTERN, 'g');
+	const links = segment.match(globalLinkPattern); /* get all links in the segment */
+	if (links) {
+		for (const link of links){
+			const components = link.match(LINK_PATTERN); /* get this link's components (label and url) */
+			if (components) {
+				const label = components[1];
+				let url = components[2];
+				if (!EXTERNAL_LINK.test(url)) {
+					url = 'http://localhost/bait-4/index.html?page=articles&path=' + url; //### testing only
+					url = encodeURI(url);
+				}
+				segment = segment.replace(link, `<${LINK_TAG} href="${url}">${label}</${LINK_TAG}>`);
+			}
+		}
+	}
+	return segment;
 }
 
 /**

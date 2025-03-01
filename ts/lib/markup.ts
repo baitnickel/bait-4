@@ -42,7 +42,7 @@ import { Resource } from './resource.js';
  * Span - {{.class content}}
  */
 
-console.log(`markup: 2023.09.18`); /* report version */
+console.log(`markup: 2025.02.28`); /* report version */
 
 /* HTML tags */
 const PARAGRAPH_TAG = 'p';
@@ -90,7 +90,9 @@ const SUPERSCRIPT_PATTERN = /([\S])(\d+)\^/g;
 const HIGHLIGHT_PATTERN = /={2}(.+?)={2}/g;
 const STRIKETHROUGH_PATTERN = /~{2}(.+?)~{2}/g;
 const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g;
-const LINK_PATTERN = /\[(.*?)]\((.*?)\)/g;
+const SINGLE_LINK_PATTERN = /\[(.*?)]\((.*?)\)/; //### avoid image patterns - check for not following "!"
+const LINK_PATTERN = new RegExp(SINGLE_LINK_PATTERN,'g');
+const EXTERNAL_LINK = /^(https?:\/\/|localhost\/)/; /* non-external links require special handling */
 /* complex inline patterns--replacements will be performed in a while loop */
 const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
 const LINK_REFERENCE_PATTERN = /\[(.*?)\]\[(\S*?)\]/;
@@ -757,7 +759,28 @@ function markupText(text: string, resources: Map<string, Resource>|null = null) 
 		else {
 			/* simple global replacements */
 			segment = segment.replace(IMAGE_PATTERN, `<${IMAGE_TAG} src="$2" alt="$1">`);
-			segment = segment.replace(LINK_PATTERN, `<${LINK_TAG} href="$2">$1</${LINK_TAG}>`);
+			//### this whole hyperlink section needs it's own function - and replace the hardcoding!
+			/* hyperlink handling - both internal and external links */
+			/* should also apply to Wikilinks (regexp if string inside double-brackets, split on pipe) */
+			const links = segment.match(LINK_PATTERN); /* get all links in the segment */
+			if (links) {
+				for (const link of links){
+					console.log('Link:', link);
+					const components = link.match(SINGLE_LINK_PATTERN); /* get this link's components (label and url) */
+					if (components) {
+						const label = components[1];
+						let url = components[2];
+						if (!EXTERNAL_LINK.test(url)) {
+							url = 'http://localhost/bait-4/index.html?page=articles&path=' + url;
+							url = encodeURI(url);
+						}
+						console.log(url);
+						segment = segment.replace(link, `<${LINK_TAG} href="${url}">${label}</${LINK_TAG}>`);
+					}
+				}
+			}
+			// segment = segment.replace(IMAGE_PATTERN, `<${IMAGE_TAG} src="$2" alt="$1">`);
+			// segment = segment.replace(LINK_PATTERN, `<${LINK_TAG} href="$2">$1</${LINK_TAG}>`);
 			segment = segment.replace(SUPERSCRIPT_PATTERN, `$1<${SUPERSCRIPT_TAG}>$2</${SUPERSCRIPT_TAG}>`);
 			segment = segment.replace(BOLD_PATTERN, `<${BOLD_TAG}>$1</${BOLD_TAG}>`);
 			segment = segment.replace(ITALIC_PATTERN, `<${ITALIC_TAG}>$1</${ITALIC_TAG}>`);

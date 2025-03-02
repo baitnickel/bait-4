@@ -39,7 +39,7 @@ import { Resource } from './resource.js';
  * Image - ![content](url) or ![content][reference]
  * Span - {{.class content}}
  */
-console.log(`markup: 2025.03.01`); /* report version */
+console.log(`markup: 2025.03.02b`); /* report version */
 /* HTML tags */
 const PARAGRAPH_TAG = 'p';
 const LINE_BREAK_TAG = 'br';
@@ -86,6 +86,7 @@ const STRIKETHROUGH_PATTERN = /~{2}(.+?)~{2}/g;
 const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g;
 /* complex inline patterns--replacements will be performed in a while loop */
 const LINK_PATTERN = /(?<!!)\[(.*?)]\((.*?)\)/; /* lookbehind assertion prevents image pattern match */
+const WIKILINK_PATTERN = /\[\[(.*?)\|(.*?)\]\]/; /* [[path|label]] */
 const EXTERNAL_LINK = /^(https?:\/\/|localhost\/)/; /* non-external links require special handling */
 const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
 const LINK_REFERENCE_PATTERN = /\[(.*?)\]\[(\S*?)\]/;
@@ -758,30 +759,33 @@ function markupText(text, resources = null) {
     return markedUpText;
 }
 /**
- * Image and Link markdown with handling of local relative URLs.
- *
- * Should also handle Wikilinks (string inside double-brackets, with pipe
- * separating URL from label.
- *
+ * Markup Hyperlinks, doing special handling of local relative URLs (both
+ * standard markdown links and Wikilinks).
  */
 function markupLinks(segment) {
-    const globalLinkPattern = new RegExp(LINK_PATTERN, 'g');
-    const links = segment.match(globalLinkPattern); /* get all links in the segment */
-    if (links) {
-        for (const link of links) {
-            const components = link.match(LINK_PATTERN); /* get this link's components (label and uri) */
-            if (components) {
-                const label = components[1];
-                let uri = components[2];
-                if (!EXTERNAL_LINK.test(uri)) {
-                    const href = `${window.location.origin}${window.location.pathname}`;
-                    const page = 'articles'; //### hardcoding - should be a function of the Article type
-                    const query = `page=${page}&path=${uri}`;
-                    // uri = 'http://localhost/bait-4/index.html?page=articles&path=' + uri; //### testing only
-                    uri = `${href}?${query}`;
-                    uri = encodeURI(uri);
+    const patterns = [LINK_PATTERN, WIKILINK_PATTERN]; /* support both standard markdown links and wikilinks */
+    for (const pattern of patterns) {
+        const globalPattern = new RegExp(pattern, 'g');
+        const links = segment.match(globalPattern); /* get all links in the segment */
+        if (links) {
+            for (const link of links) {
+                const components = link.match(pattern); /* get this link's components (label and uri) */
+                if (components) {
+                    let label = components[1];
+                    let uri = components[2];
+                    if (pattern.toString() === WIKILINK_PATTERN.toString()) {
+                        label = components[2];
+                        uri = components[1];
+                    }
+                    if (!EXTERNAL_LINK.test(uri)) {
+                        const href = `${window.location.origin}${window.location.pathname}`; /** URL preceding query */
+                        const page = 'articles'; //### hardcoding - should be a function of the Article type
+                        const query = `page=${page}&path=${uri}`;
+                        uri = `${href}?${query}`;
+                        uri = encodeURI(uri);
+                    }
+                    segment = segment.replace(link, `<${LINK_TAG} href="${uri}">${label}</${LINK_TAG}>`);
                 }
-                segment = segment.replace(link, `<${LINK_TAG} href="${uri}">${label}</${LINK_TAG}>`);
             }
         }
     }

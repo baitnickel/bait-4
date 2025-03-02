@@ -105,7 +105,7 @@ const SPAN_PATTERN = /\{\{(.*?)\}\}/;
  * that generates HTML. A `baseUrl` parameter may be required if markdown
  * contains `Resource` objects with relative (query) definitions.
  */
-export function Markup(markdown: string|string[]) {
+export function Markup(markdown: string|string[], origin = '') {
 	MARKDOWN = new MarkdownText();
 	MARKDOWN.loadLines(markdown);
 	return MARKDOWN.html();
@@ -788,15 +788,19 @@ function markupLinks(segment: string) {
 	const links = segment.match(globalLinkPattern); /* get all links in the segment */
 	if (links) {
 		for (const link of links){
-			const components = link.match(LINK_PATTERN); /* get this link's components (label and url) */
+			const components = link.match(LINK_PATTERN); /* get this link's components (label and uri) */
 			if (components) {
 				const label = components[1];
-				let url = components[2];
-				if (!EXTERNAL_LINK.test(url)) {
-					url = 'http://localhost/bait-4/index.html?page=articles&path=' + url; //### testing only
-					url = encodeURI(url);
+				let uri = components[2];
+				if (!EXTERNAL_LINK.test(uri)) {
+					const href = `${window.location.origin}${window.location.pathname}`;
+					const page = 'articles'; //### hardcoding - should be a function of the Article type
+					const query = `page=${page}&path=${uri}`;
+					// uri = 'http://localhost/bait-4/index.html?page=articles&path=' + uri; //### testing only
+					uri = `${href}?${query}`;
+					uri = encodeURI(uri);
 				}
-				segment = segment.replace(link, `<${LINK_TAG} href="${url}">${label}</${LINK_TAG}>`);
+				segment = segment.replace(link, `<${LINK_TAG} href="${uri}">${label}</${LINK_TAG}>`);
 			}
 		}
 	}

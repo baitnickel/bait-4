@@ -8,11 +8,8 @@ import { Resource } from './resource.js';
  *
  * Support custom markdown enclosed in braces. Mostly this will be resource
  * references such as {photo: foo}, {photo/category: bar}, where the Front
- * Matter of the document resolves the reference. The current
- * [content][reference] and ![content][reference] URL and Image syntaxes are
- * standard markdown and probably can coexist with new brace syntax. Braces may
- * also be used as a replacement for the current Span syntax: {{.foo #bar
- * content text}}.
+ * Matter of the document resolves the reference. But braces may also be used as
+ * a replacement for the current Span syntax: {{.foo #bar content text}}.
  */
 /*
  * Code Blocks - delimited by '~~~' or '```', lines from delimiter thru delimiter
@@ -35,11 +32,11 @@ import { Resource } from './resource.js';
  * Superscript - in "E=mc2^" superscript the digit
  * Highlight - ==content==
  * Strikethrough - ~~content~~
- * URL - [content](url) or [content][reference]
- * Image - ![content](url) or ![content][reference]
+ * URL - [content](url) or [[url|content]]
+ * Image - ![content](url) or ![[url|content]]
  * Span - {{.class content}}
  */
-console.log(`markup: 2025.03.02b`); /* report version */
+console.log(`markup: 2025.03.03`); /* report version */
 /* HTML tags */
 const PARAGRAPH_TAG = 'p';
 const LINE_BREAK_TAG = 'br';
@@ -778,10 +775,10 @@ function markupLinks(segment) {
                         uri = components[1];
                     }
                     if (!EXTERNAL_LINK.test(uri)) {
-                        const href = `${window.location.origin}${window.location.pathname}`; /** URL preceding query */
+                        const originPathname = `${window.location.origin}${window.location.pathname}`; /** URL preceding query */
                         const page = 'articles'; //### hardcoding - should be a function of the Article type
                         const query = `page=${page}&path=${uri}`;
-                        uri = `${href}?${query}`;
+                        uri = `${originPathname}?${query}`;
                         uri = encodeURI(uri);
                     }
                     segment = segment.replace(link, `<${LINK_TAG} href="${uri}">${label}</${LINK_TAG}>`);

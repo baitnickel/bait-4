@@ -26,6 +26,7 @@ export class Page {
         this.site = Site();
         this.local = Session.local;
         this.url = window.location.origin + window.location.pathname;
+        /** Note: URLSearchParams decodes percent-encoding */
         this.parameters = new URLSearchParams(window.location.search);
         this.name = this.parameters.get('page');
         this.feedback = '';

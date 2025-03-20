@@ -221,8 +221,10 @@ export function render() {
 			// division.append(iconButton);
 		}
 	}
-	let value = ThisPage.getCookie('phrase', 'enter phrase');
-	console.log('phrase:', value);
+	if (ThisPage.local) {
+		let value = ThisPage.getCookie('phrase', 'enter phrase');
+		console.log('phrase:', value);
+	}
 }
 
 // function markedUpText(markdownText: string) {

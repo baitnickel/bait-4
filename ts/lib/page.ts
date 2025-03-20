@@ -33,8 +33,6 @@ const Pages = await Fetch.map<T.FileStats>(`${Site()}/Indices/pages.json`);
 
 export class Page {
 	name: string|null;              /** name of requested page (via query 'page=<name>') */
-	encryption: number;             /** future? */
-	encryptPrefix: number;          /** future? */
 	origin: string;                 /** The URL's scheme, domain, and port (e.g., 'http://www.example.com:80' */
 	url: string;                    /** URL origin + pathname (full URL without '?query') */
 	parameters: URLSearchParams;    /** URL query parameters */
@@ -63,8 +61,6 @@ export class Page {
 		let fileStats: T.FileStats|null = null;
 		if (this.name !== null && Pages.has(this.name)) fileStats = Pages.get(this.name)!;
 
-		this.encryption= Session.encryption;
-		this.encryptPrefix = Session.encryptPrefix;
 		this.options = new Map<string, string>();
 		this.access = (fileStats === null) ? 0 : fileStats.access;
 		this.revision = (fileStats === null) ? Session.built : fileStats.revision;
@@ -125,7 +121,9 @@ export class Page {
 
 		inputElement.addEventListener('change', (e) => {
 			this.feedback = inputElement.value;
-			if (this.feedback) alert(`You said:: ${this.feedback}`);
+			if (this.feedback) {
+				alert(`You said:: ${this.feedback}`);
+			}
 			inputElement.value = '';
 		});
 
@@ -414,6 +412,63 @@ export class Page {
 			initialOpacity += initialOpacity * 0.1;
 		}, delay);
 	}
+
+	// checkCookie(name: string, prompt: string) {
+	// 	let cookie: string|null = this.getCookie(name);
+	// 	while (!cookie) {
+	// 		cookie = window.prompt(`${prompt}:`, '');
+	// 		if (cookie) this.setCookie(name, cookie, 365);
+	// 	}
+	// 	return cookie;
+	// }
+	
+	setCookie(cookieName: string, value: string, validityDays: number) {
+		cookieName = cookieName.trim();
+		const date = new Date();
+		date.setTime(date.getTime() + (validityDays * 24 * 60 * 60 * 1000));
+		let expires = `expires=${date.toUTCString()}`;
+		document.cookie = `${cookieName}=${value};${expires};path=/`;
+		return value;
+	}
+
+	getCookie(cookieName: string, prompt: string) {
+		let value: string|null = '';
+		cookieName = cookieName.trim();
+		let cookies = document.cookie.split(';');
+		for (const cookie of cookies) {
+			const cookieElements = cookie.split('==', 2);
+			if (cookieElements[0] == cookieName) {
+				value = cookieElements[1];
+				break;
+			}
+		}
+		// for (let i = 0; i < cookies.length; i++) {
+		// 	let cookie = cookies[i].trim();
+		// 	if (cookie.indexOf(cookieName) == 0) {
+		// 		value = cookie.substring(cookieName.length + 1, cookie.length);
+		// 		break;
+		// 	}
+		// }
+		if (!value) {
+			value = window.prompt(`${prompt}:`, '');
+			if (value) this.setCookie(cookieName, value, 365);
+		}
+		return value;
+	}
+
+	// getCookie(name: string) {
+	// 	let cookieFound = '';
+	// 	let nameCookie = `${name.trim()}=`;
+	// 	let cookies = document.cookie.split(';');
+	// 	for (let i = 0; i < cookies.length; i++) {
+	// 		let cookie = cookies[i].trim();
+	// 		if (cookie.indexOf(nameCookie) == 0) {
+	// 			cookieFound = cookie.substring(nameCookie.length, cookie.length);
+	// 			break;
+	// 		}
+	// 	}
+	// 	return cookieFound;
+	// }
 }
 
 /**

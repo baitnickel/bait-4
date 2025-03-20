@@ -4,8 +4,6 @@ export const Session = {
 	repository: 'bait-4',
 	branch: 'main',
 	built: Date.parse(document.lastModified), /** index.html modification date/time (milliseconds) */
-	encryption: 26,
-	encryptPrefix: 999,
 }
 
 /**

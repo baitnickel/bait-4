@@ -221,6 +221,8 @@ export function render() {
 			// division.append(iconButton);
 		}
 	}
+	let value = ThisPage.getCookie('phrase', 'enter phrase');
+	console.log('phrase:', value);
 }
 
 // function markedUpText(markdownText: string) {

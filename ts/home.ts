@@ -222,8 +222,22 @@ export function render() {
 		}
 	}
 	if (ThisPage.local) {
-		let value = ThisPage.getCookie('phrase', 'enter phrase');
-		console.log('phrase:', value);
+		// let cookieValue = null;
+		// const cookieName = window.prompt('Cookie Name', '');
+		// if (cookieName) {
+		// 	cookieValue = ThisPage.getCookie(cookieName);
+		// 	if (!cookieValue) {
+		// 		cookieValue = window.prompt('Cookie Value', '');
+		// 		if (cookieValue !== null) ThisPage.setCookie(cookieName, cookieValue, 365);
+		// 	}
+		// }
+		// const cookies = document.cookie;
+		// console.log('Cookies:', cookies);
+
+		// const cookie = window.prompt('Delete Cookie:', '');
+		// if (cookie) ThisPage.deleteCookie(cookie);
+		// const cookieString = document.cookie;
+		// console.log(cookieString);
 	}
 }
 

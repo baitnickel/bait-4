@@ -370,46 +370,32 @@ export class Page {
             initialOpacity += initialOpacity * 0.1;
         }, delay);
     }
-    // checkCookie(name: string, prompt: string) {
-    // 	let cookie: string|null = this.getCookie(name);
-    // 	while (!cookie) {
-    // 		cookie = window.prompt(`${prompt}:`, '');
-    // 		if (cookie) this.setCookie(name, cookie, 365);
-    // 	}
-    // 	return cookie;
-    // }
-    setCookie(cookieName, value, validityDays) {
-        cookieName = cookieName.trim();
-        const date = new Date();
-        date.setTime(date.getTime() + (validityDays * 24 * 60 * 60 * 1000));
-        let expires = `expires=${date.toUTCString()}`;
-        document.cookie = `${cookieName}=${value};${expires};path=/`;
-        return value;
-    }
-    getCookie(cookieName, prompt) {
+    getCookie(cookieName) {
         let value = '';
         cookieName = cookieName.trim();
-        let cookies = document.cookie.split(';');
+        const cookies = document.cookie.split(';');
         for (const cookie of cookies) {
-            const cookieElements = cookie.split('==', 2);
+            const cookieElements = cookie.split('=', 2);
             if (cookieElements[0] == cookieName) {
                 value = cookieElements[1];
                 break;
             }
         }
-        // for (let i = 0; i < cookies.length; i++) {
-        // 	let cookie = cookies[i].trim();
-        // 	if (cookie.indexOf(cookieName) == 0) {
-        // 		value = cookie.substring(cookieName.length + 1, cookie.length);
-        // 		break;
-        // 	}
-        // }
-        if (!value) {
-            value = window.prompt(`${prompt}:`, '');
-            if (value)
-                this.setCookie(cookieName, value, 365);
-        }
         return value;
+    }
+    setCookie(cookieName, value, validityDays) {
+        cookieName = cookieName.trim();
+        const date = new Date();
+        date.setTime(date.getTime() + (validityDays * 24 * 60 * 60 * 1000));
+        const expiration = `expires=${date.toUTCString()}`;
+        document.cookie = `${cookieName}=${value}; ${expiration}; path=/;`;
+        return value;
+    }
+    deleteCookie(cookieName) {
+        cookieName = cookieName.trim();
+        const date = new Date(0);
+        const expiration = `expires=${date.toUTCString()}`;
+        document.cookie = `${cookieName}=; ${expiration}; path=/;`;
     }
 }
 /**

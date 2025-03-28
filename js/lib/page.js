@@ -85,18 +85,61 @@ export class Page {
             anchor.innerText = menuItem.text;
             listElement.append(anchor);
         }
-        const inputElement = document.createElement('input');
-        inputElement.id = 'header-input';
-        inputElement.size = 30;
-        // inputElement.addEventListener('change', processInputText);
-        unorderedList.append(inputElement);
-        inputElement.addEventListener('change', (e) => {
-            this.feedback = inputElement.value;
-            if (this.feedback) {
-                alert(`You said:: ${this.feedback}`);
+        /** top-right corner, menu bar Identity button */
+        const symbols = [0x2705, 0x26d4]; /** identified, not identified */
+        let currentSymbol = 1;
+        let user = '';
+        let passphrase = '';
+        for (const cookie of this.getCookies()) {
+            const cookieElements = cookie.split('=');
+            if (cookieElements.length == 2) {
+                const cookieName = cookieElements[0].trim();
+                const cookieValue = cookieElements[1].trim();
+                if (cookieName == 'user')
+                    user = cookieValue;
+                else if (cookieName == 'passphrase')
+                    passphrase = cookieValue;
             }
-            inputElement.value = '';
+        }
+        if (user && passphrase)
+            currentSymbol = 0;
+        const identityButton = document.createElement('button');
+        identityButton.id = 'identity-button';
+        identityButton.innerText = String.fromCodePoint(symbols[currentSymbol]); /** sad face */
+        unorderedList.append(identityButton);
+        identityButton.addEventListener('click', (e) => {
+            /**
+             * when currentSymbol = 0:
+             * dialog:
+             * - show values
+             * - provide option to delete/update cookies
+             *
+             * when currentSymbol == 1:
+             * - prompt for user (defaulting to current value, if any)
+             * - prompt for passphrase (defaulting to current value, if any)
+             * dialog:
+             * - confirm values received or rejected
+             * - show values
+             * when confirmed:
+             * - currentSymbol == 0
+             * - refresh page
+             */
+            currentSymbol = (currentSymbol + 1) % 2;
+            identityButton.innerText = String.fromCodePoint(symbols[currentSymbol]);
         });
+        /** top-right corner, menu bar input field */
+        // const inputElement = document.createElement('input');
+        // inputElement.id = 'header-input';
+        // inputElement.size = 30;
+        // // inputElement.addEventListener('change', processInputText);
+        // unorderedList.append(inputElement);
+        // inputElement.addEventListener('change', (e) => {
+        // 	this.feedback = inputElement.value;
+        // 	if (this.feedback) {
+        // 		alert(`You said:: ${this.feedback}`);
+        // 	}
+        // 	inputElement.value = '';
+        // });
         // /* Event Listener */
         // function processInputText() {
         // 	/**
@@ -370,18 +413,21 @@ export class Page {
             initialOpacity += initialOpacity * 0.1;
         }, delay);
     }
-    getCookie(cookieName) {
-        let value = '';
+    getCookies(cookieName = '') {
+        // let value: string|null = '';
+        const values = [];
         cookieName = cookieName.trim();
         const cookies = document.cookie.split(';');
         for (const cookie of cookies) {
             const cookieElements = cookie.split('=', 2);
-            if (cookieElements[0] == cookieName) {
-                value = cookieElements[1];
+            if (cookieName && cookieElements[0] == cookieName) {
+                values.push(cookie);
                 break;
             }
+            else
+                values.push(cookie);
         }
-        return value;
+        return values;
     }
     setCookie(cookieName, value, validityDays) {
         cookieName = cookieName.trim();

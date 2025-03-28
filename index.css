@@ -108,12 +108,16 @@ body {
 #header-menu li a:hover {
 	color: var(--banner-text-highlight-color);
 }
+#identity-button {
+	background: transparent;
+	border: none;
+	float: right; /* move input element to the right */
+}
 #header-input {
 	font-family: sans-serif;
 	font-size: 10pt;
 	padding: 0 .3em; /* padding inside the input box */
-	/* move input element to the right */
-	float: right;
+	float: right; /* move input element to the right */
 }
 
 summary { font-size: 1.1rem; font-weight: 200; }

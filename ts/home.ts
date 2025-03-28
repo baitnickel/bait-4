@@ -25,6 +25,7 @@ export function render() {
 	const TestMarkdown = ThisPage.appendContent('#TestMarkdown');
 	const TestYaml = ThisPage.appendContent('#TestYaml');
 	const TestRadio = ThisPage.appendContent('#TestRadio');
+	const TestCookies = ThisPage.appendContent('#TestCookies');
 	const Photo = ThisPage.appendContent('#Photo');
 	const Video = ThisPage.appendContent('#Video');
 
@@ -57,6 +58,7 @@ export function render() {
 		const testRadio = false;
 		const testEmail = false;
 		const testIconLink = false;
+		const testCookies = false;
 
 		if (testCollection) {
 			const songsIndexFile = `${ThisPage.site}/Indices/fakesheets.json`;
@@ -220,24 +222,44 @@ export function render() {
 			ThisPage.footer.append(iconButton);
 			// division.append(iconButton);
 		}
-	}
-	if (ThisPage.local) {
-		// let cookieValue = null;
-		// const cookieName = window.prompt('Cookie Name', '');
-		// if (cookieName) {
-		// 	cookieValue = ThisPage.getCookie(cookieName);
-		// 	if (!cookieValue) {
-		// 		cookieValue = window.prompt('Cookie Value', '');
-		// 		if (cookieValue !== null) ThisPage.setCookie(cookieName, cookieValue, 365);
-		// 	}
-		// }
-		// const cookies = document.cookie;
-		// console.log('Cookies:', cookies);
 
-		// const cookie = window.prompt('Delete Cookie:', '');
-		// if (cookie) ThisPage.deleteCookie(cookie);
-		// const cookieString = document.cookie;
-		// console.log(cookieString);
+		if (testCookies) {
+			// const cookies: string[] = [];
+			// const cookieName = window.prompt('Cookie Name', '');
+			// if (cookieName !== null) {
+			// 	for (const cookie of ThisPage.getCookies(cookieName)) cookies.push(cookie);
+			// 	if (!cookies.length) {
+			// 		cookies = window.prompt('Cookie Value', '');
+			// 		if (cookies !== null) ThisPage.setCookie(cookieName, cookieValues, 365);
+			// 	}
+			// }
+			// const cookies = ThisPage.getCookies(); //document.cookie;
+	
+			const cookie = window.prompt('Add Cookie (Name=Value):', '');
+			if (cookie && cookie.includes('=')) {
+				const cookieElements = cookie.split('=');
+				ThisPage.setCookie(cookieElements[0].trim(), cookieElements[1], 365);
+			}
+	
+			// ThisPage.appendParagraph(TestCookies, 'Cookies:');
+			// console.log('Cookies:');
+			// const output: string[] = [];
+			// output.push('Cookies:');
+			// for (const cookie of ThisPage.getCookies()) output.push(cookie)
+			// ThisPage.appendParagraph(TestCookies, output);
+	
+			const badCookie = window.prompt('Delete Cookie:', '');
+			if (badCookie) {
+				ThisPage.deleteCookie(badCookie);
+			}
+			const output: string[] = [];
+			output.push('Cookies:');
+			for (const cookie of ThisPage.getCookies()) output.push(cookie)
+			ThisPage.appendParagraph(TestCookies, output);
+	
+			// const cookieString = document.cookie;
+			// console.log(cookieString);
+		}
 	}
 }
 

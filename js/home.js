@@ -22,6 +22,7 @@ export function render() {
     const TestYaml = ThisPage.appendContent('#TestYaml');
     const TestRadio = ThisPage.appendContent('#TestRadio');
     const TestCookies = ThisPage.appendContent('#TestCookies');
+    const TestNode = ThisPage.appendContent('#TestNode');
     const Photo = ThisPage.appendContent('#Photo');
     const Video = ThisPage.appendContent('#Video');
     const keys = Array.from(Quotes.keys());
@@ -50,6 +51,7 @@ export function render() {
         const testEmail = false;
         const testIconLink = false;
         const testCookies = false;
+        const testNode = false;
         if (testCollection) {
             const songsIndexFile = `${ThisPage.site}/Indices/fakesheets.json`;
             Fetch.map(songsIndexFile).then((songsMap) => {
@@ -236,6 +238,25 @@ export function render() {
             ThisPage.appendParagraph(TestCookies, output);
             // const cookieString = document.cookie;
             // console.log(cookieString);
+        }
+        if (testNode) {
+            const message = window.prompt('Message:');
+            if (message) {
+                const data = { message: message };
+                fetch('/process', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', },
+                    body: JSON.stringify(data),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                    console.log('Success:', data);
+                    // Update your HTML with the received data
+                })
+                    .catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
         }
     }
 }

@@ -14,6 +14,11 @@ type MenuItem = {
 	icon: string,
 };
 
+type Credentials = {
+	user: string,
+	passphrase: string,
+}
+
 const MenuItems: MenuItem[] = [
 	{module: 'home', parameters: [], text: 'Home', icon: ''},
 	{module: 'articles', parameters: ['path=Content/drafts'], text: 'Writing', icon: ''},
@@ -114,85 +119,39 @@ export class Page {
 			listElement.append(anchor);
 		}
 
-		/** top-right corner, menu bar Identity button */
-		const symbols = [0x2705, 0x26d4];  /** identified, not identified */
-		let currentSymbol = 1;
-		let user = '';
-		let passphrase = '';
-		for (const cookie of this.getCookies()) {
-			const cookieElements = cookie.split('=');
-			if (cookieElements.length == 2) {
-				const cookieName = cookieElements[0].trim();
-				const cookieValue = cookieElements[1].trim();
-				if (cookieName == 'user') user = cookieValue;
-				else if (cookieName == 'passphrase') passphrase = cookieValue;
-			}
-		}
-		if (user && passphrase) currentSymbol = 0;
-
+		/** top-right corner, menu bar create and initialize Identity button */
 		const identityButton = document.createElement('button');
 		identityButton.id = 'identity-button';
-		identityButton.innerText = String.fromCodePoint(symbols[currentSymbol]); /** sad face */
+		const validIDLabel = 0x2705; // 9989
+		const invalidIDLabel = 0x26d4; // 9940
+		const credentials = getCredentials();
+		let identityLabel = getIdentityButtonLabel(credentials, validIDLabel, invalidIDLabel);
+		identityButton.innerText = String.fromCodePoint(identityLabel);
 		unorderedList.append(identityButton);
 
 		identityButton.addEventListener('click', (e) => {
-			/**
-			 * when currentSymbol = 0:
-			 * dialog:
-			 * - show values
-			 * - provide option to delete/update cookies
-			 * 
-			 * when currentSymbol == 1:
-			 * - prompt for user (defaulting to current value, if any)
-			 * - prompt for passphrase (defaulting to current value, if any)
-			 * dialog:
-			 * - confirm values received or rejected
-			 * - show values
-			 * when confirmed:
-			 * - currentSymbol == 0
-			 * - refresh page
-			 */
-			currentSymbol = (currentSymbol + 1) % 2;
-			identityButton.innerText = String.fromCodePoint(symbols[currentSymbol]);
+			const credentials = getCredentials();
+			if (credentials.user && credentials.passphrase) {
+				const answer = window.prompt('You\'re logged in.\nDo you want to logout?:', '');
+				if (answer && ['y', 'yes'].includes(answer.toLowerCase())) {
+					deleteCookie('user');
+					deleteCookie('passphrase');
+					alert('Credentials deleted');
+					identityButton.innerText = String.fromCodePoint(invalidIDLabel);
+				}
+			}
+			else {
+				const user = window.prompt('Enter user name:', '');
+				if (user) {
+					const passphrase = window.prompt('Enter pass phrase:', '');
+					if (passphrase) {
+						setCookie('user', user, 365);
+						setCookie('passphrase', passphrase, 365);
+						identityButton.innerText = String.fromCodePoint(validIDLabel);
+					}
+				}
+			}
 		});
-
-		/** top-right corner, menu bar input field */
-		// const inputElement = document.createElement('input');
-		// inputElement.id = 'header-input';
-		// inputElement.size = 30;
-		// // inputElement.addEventListener('change', processInputText);
-		// unorderedList.append(inputElement);
-
-		// inputElement.addEventListener('change', (e) => {
-		// 	this.feedback = inputElement.value;
-		// 	if (this.feedback) {
-		// 		alert(`You said:: ${this.feedback}`);
-		// 	}
-		// 	inputElement.value = '';
-		// });
-
-		// /* Event Listener */
-		// function processInputText() {
-		// 	/**
-		// 	 * Remove non-word and non-whitespace characters, trim both ends,
-		// 	 * and replace all whitespace strings with a single space.
-		// 	 */
-		// 	let cleanText = inputElement.value.replace(/[^\w\s]/gi, '');
-		// 	cleanText = cleanText.trim();
-		// 	cleanText = cleanText.replace(/\s+/gi, ' ');
-		// 	alert(`Clean Text: ${cleanText}`);
-
-		// 	/**
-		// 	 * Rather than simply display an alert, what we need to do here is
-		// 	 * write cookies containing the encrypted version of the text
-		// 	 * entered, and update the available menus accordingly.
-		// 	 */
-		// 	if (cleanText == 'Jed') {
-		// 		MenuItems.push({module: 'camp', text: 'Camping', icon: 'camp.svg'});
-		// 		window.location.reload();
-		// 		// inputElement.value = '';
-		// 	}
-		// }
 	}
 
 	/**
@@ -457,38 +416,110 @@ export class Page {
 		}, delay);
 	}
 
-	getCookies(cookieName = '') {
-		// let value: string|null = '';
-		const values: string[] = [];
-		cookieName = cookieName.trim();
-		const cookies = document.cookie.split(';');
-		for (const cookie of cookies) {
-			const cookieElements = cookie.split('=', 2);
-			if (cookieName && cookieElements[0] == cookieName) {
-				values.push(cookie);
-				break;
-			}
-			else values.push(cookie);
-		}
-		return values;
-	}
+	// getCookies(cookieName = '') {
+	// 	// let value: string|null = '';
+	// 	const values: string[] = [];
+	// 	cookieName = cookieName.trim();
+	// 	const cookies = document.cookie.split(';');
+	// 	for (const cookie of cookies) {
+	// 		const cookieElements = cookie.split('=', 2);
+	// 		if (cookieName && cookieElements[0] == cookieName) {
+	// 			values.push(cookie);
+	// 			break;
+	// 		}
+	// 		else values.push(cookie);
+	// 	}
+	// 	return values;
+	// }
 
-	setCookie(cookieName: string, value: string, validityDays: number) {
-		cookieName = cookieName.trim();
-		const date = new Date();
-		date.setTime(date.getTime() + (validityDays * 24 * 60 * 60 * 1000));
-		const expiration = `expires=${date.toUTCString()}`;
-		document.cookie = `${cookieName}=${value}; ${expiration}; path=/;`;
-		return value;
-	}
+	// setCookie(cookieName: string, value: string, validityDays: number) {
+	// 	cookieName = cookieName.trim();
+	// 	const date = new Date();
+	// 	date.setTime(date.getTime() + (validityDays * 24 * 60 * 60 * 1000));
+	// 	const expiration = `expires=${date.toUTCString()}`;
+	// 	document.cookie = `${cookieName}=${value}; ${expiration}; path=/;`;
+	// 	return value;
+	// }
 
-	deleteCookie(cookieName: string) {
-		cookieName = cookieName.trim();
-		const date = new Date(0);
-		const expiration = `expires=${date.toUTCString()}`;
-		document.cookie = `${cookieName}=; ${expiration}; path=/;`;
-	}
+	// deleteCookie(cookieName: string) {
+	// 	cookieName = cookieName.trim();
+	// 	const date = new Date(0);
+	// 	const expiration = `expires=${date.toUTCString()}`;
+	// 	document.cookie = `${cookieName}=; ${expiration}; path=/;`;
+	// }
 }
+
+/**
+ * Given a `cookieName`, return the cookie in the form "name=value". When called
+ * without a `cookieName`, return and array of cookies.
+ */
+export function getCookies(cookieName = '') {
+	const values: string[] = [];
+	cookieName = cookieName.trim();
+	const cookies = document.cookie.split(';');
+	for (const cookie of cookies) {
+		const cookieElements = cookie.split('=', 2);
+		if (cookieName && cookieElements[0] == cookieName) {
+			values.push(cookie);
+			break;
+		}
+		else values.push(cookie);
+	}
+	return values;
+}
+
+/**
+ * Given `cookieName`, `value`, and `validityDays`, create or update a cookie
+ * with the new value and number of days until it is expired. Return the value
+ * assigned to the cookie.
+ */
+export function setCookie(cookieName: string, value: string, validityDays: number) {
+	cookieName = cookieName.trim();
+	const date = new Date();
+	date.setTime(date.getTime() + (validityDays * 24 * 60 * 60 * 1000));
+	const expiration = `expires=${date.toUTCString()}`;
+	document.cookie = `${cookieName}=${value}; ${expiration}; path=/;`;
+	return value;
+}
+
+/**
+ * Given `cookieName`, inactivate the cookie by setting its expiration date to
+ * the past.
+ */
+export function deleteCookie(cookieName: string) {
+	cookieName = cookieName.trim();
+	const date = new Date(0);
+	const expiration = `expires=${date.toUTCString()}`;
+	document.cookie = `${cookieName}=; ${expiration}; path=/;`;
+}
+
+export function getCredentials(): Credentials {
+	const credentials: Credentials = {user: '', passphrase: ''};
+	let user = '';
+	let passphrase = '';
+	for (const cookie of getCookies()) {
+		const cookieElements = cookie.split('=');
+		if (cookieElements.length == 2) {
+			const cookieName = cookieElements[0].trim();
+			const cookieValue = cookieElements[1].trim();
+			if (cookieName == 'user') user = cookieValue;
+			else if (cookieName == 'passphrase') passphrase = cookieValue;
+		}
+	}
+	return {user: user, passphrase: passphrase};
+}
+
+export function getIdentityButtonLabel(credentials: Credentials, validLabel: number, invalidLabel: number) {
+	let label = invalidLabel;
+	if (credentials.user && credentials.passphrase) label = validLabel;
+	return label;
+}
+
+
+
+
+
+
 
 /**
  * General function to coerce data, provided in the argument, to another type.

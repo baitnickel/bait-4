@@ -1,4 +1,4 @@
-import { Page } from './lib/page.js';
+import { Page, getCookies } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
 import * as Datasets from './lib/datasets.js';
 import * as MD from './lib/md.js';
@@ -50,7 +50,7 @@ export function render() {
         const testRadio = false;
         const testEmail = false;
         const testIconLink = false;
-        const testCookies = false;
+        const testCookies = true;
         const testNode = false;
         if (testCollection) {
             const songsIndexFile = `${ThisPage.site}/Indices/fakesheets.json`;
@@ -206,38 +206,11 @@ export function render() {
             // division.append(iconButton);
         }
         if (testCookies) {
-            // const cookies: string[] = [];
-            // const cookieName = window.prompt('Cookie Name', '');
-            // if (cookieName !== null) {
-            // 	for (const cookie of ThisPage.getCookies(cookieName)) cookies.push(cookie);
-            // 	if (!cookies.length) {
-            // 		cookies = window.prompt('Cookie Value', '');
-            // 		if (cookies !== null) ThisPage.setCookie(cookieName, cookieValues, 365);
-            // 	}
-            // }
-            // const cookies = ThisPage.getCookies(); //document.cookie;
-            const cookie = window.prompt('Add Cookie (Name=Value):', '');
-            if (cookie && cookie.includes('=')) {
-                const cookieElements = cookie.split('=');
-                ThisPage.setCookie(cookieElements[0].trim(), cookieElements[1], 365);
-            }
-            // ThisPage.appendParagraph(TestCookies, 'Cookies:');
-            // console.log('Cookies:');
-            // const output: string[] = [];
-            // output.push('Cookies:');
-            // for (const cookie of ThisPage.getCookies()) output.push(cookie)
-            // ThisPage.appendParagraph(TestCookies, output);
-            const badCookie = window.prompt('Delete Cookie:', '');
-            if (badCookie) {
-                ThisPage.deleteCookie(badCookie);
-            }
             const output = [];
             output.push('Cookies:');
-            for (const cookie of ThisPage.getCookies())
+            for (const cookie of getCookies())
                 output.push(cookie);
             ThisPage.appendParagraph(TestCookies, output);
-            // const cookieString = document.cookie;
-            // console.log(cookieString);
         }
         if (testNode) {
             const message = window.prompt('Message:');

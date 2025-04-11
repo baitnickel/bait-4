@@ -22,6 +22,7 @@ export function render() {
     const TestYaml = ThisPage.appendContent('#TestYaml');
     const TestRadio = ThisPage.appendContent('#TestRadio');
     const TestCookies = ThisPage.appendContent('#TestCookies');
+    const TestDialog = ThisPage.appendContent('#TestDialog');
     const TestNode = ThisPage.appendContent('#TestNode');
     const Photo = ThisPage.appendContent('#Photo');
     const Video = ThisPage.appendContent('#Video');
@@ -43,15 +44,25 @@ export function render() {
     // ThisPage.appendParagraph('');
     // ThisPage.appendVideo(Video, '9MtLIkk2ihw', 400, 220);
     if (ThisPage.local) {
-        const testCollection = false;
-        const testMap = false;
-        const testMarkdown = true;
-        const testYaml = false;
-        const testRadio = false;
-        const testEmail = false;
-        const testIconLink = false;
-        const testCookies = true;
-        const testNode = false;
+        const tests = [];
+        const testQueries = ThisPage.parameters.get('tests');
+        if (testQueries) {
+            const tmpTests = testQueries.split(/[,\s ]/);
+            for (let test of tmpTests) {
+                tests.push(test.trim().toLowerCase());
+            }
+        }
+        /** ?page=home&tests=dialog,cookies */
+        const testCollection = (tests.includes('collection'));
+        const testMap = (tests.includes('map'));
+        const testMarkdown = (tests.includes('markdown'));
+        const testYaml = (tests.includes('yaml'));
+        const testRadio = (tests.includes('radio'));
+        const testEmail = (tests.includes('email'));
+        const testIconLink = (tests.includes('iconlink'));
+        const testCookies = (tests.includes('cookies'));
+        const testDialog = (tests.includes('dialog'));
+        const testNode = (tests.includes('node'));
         if (testCollection) {
             const songsIndexFile = `${ThisPage.site}/Indices/fakesheets.json`;
             Fetch.map(songsIndexFile).then((songsMap) => {
@@ -211,6 +222,10 @@ export function render() {
             for (const cookie of getCookies())
                 output.push(cookie);
             ThisPage.appendParagraph(TestCookies, output);
+        }
+        if (testDialog) {
+            const output = 'Testing Modal Dialog ...';
+            ThisPage.appendParagraph(TestDialog, output);
         }
         if (testNode) {
             const message = window.prompt('Message:');

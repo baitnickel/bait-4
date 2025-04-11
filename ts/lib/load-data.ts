@@ -1,5 +1,5 @@
+import { Page } from '../lib/page.js';
 import * as T from './types.js';
-import { Site } from './settings.js';
 import * as Fetch from './fetch.js';
 
 /**
@@ -16,5 +16,7 @@ import * as Fetch from './fetch.js';
  * tsconfig.json file--see error message TS 1378. 
  */
 
-export const Pages = await Fetch.map<T.FileStats>(`${Site()}/Indices/pages.json`);
-export const Articles = await Fetch.map<T.ArticleProperties>(`${Site()}/Indices/articles.json`);
+const PAGE = new Page();
+const Site = PAGE.session.site;
+export const Pages = await Fetch.map<T.FileStats>(`${Site}/Indices/pages.json`);
+export const Articles = await Fetch.map<T.ArticleProperties>(`${Site}/Indices/articles.json`);

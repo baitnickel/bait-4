@@ -1,4 +1,4 @@
-import { Site } from './settings.js';
+import { Page } from '../lib/page.js';
 import * as Fetch from './fetch.js';
 /**
  * Load data maps from the Indices folder into memory constants. Fetch.map
@@ -13,5 +13,7 @@ import * as Fetch from './fetch.js';
  * used) require minimal 'module' and 'target' settings in the project's
  * tsconfig.json file--see error message TS 1378.
  */
-export const Pages = await Fetch.map(`${Site()}/Indices/pages.json`);
-export const Articles = await Fetch.map(`${Site()}/Indices/articles.json`);
+const PAGE = new Page();
+const Site = PAGE.session.site;
+export const Pages = await Fetch.map(`${Site}/Indices/pages.json`);
+export const Articles = await Fetch.map(`${Site}/Indices/articles.json`);

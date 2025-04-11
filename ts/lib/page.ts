@@ -1,8 +1,32 @@
 import * as T from './types.js';
-import { Session, Site } from './settings.js';
 import * as Fetch from './fetch.js';
 import { MarkupLine } from './markup.js';
 
+class Session {
+	local: boolean;
+	built: number; /** last modified date/time of document in milliseconds  */
+	site: string;
+
+	constructor() {
+		this.local = (window.location.hostname == 'localhost');
+		this.built = Date.parse(document.lastModified);
+		/**
+		 * When fetching site files from the localhost, the process is
+		 * straightforward. When fetching from GitHub Pages, we must use a
+		 * special "raw content" URL. 
+		*/
+		const repository = 'bait-4';
+		if (this.local) this.site = `${window.location.origin}/${repository}`;
+		else {
+			const rawContent = 'https://raw.githubusercontent.com';
+			const username = 'baitnickel';
+			const branch = 'main';
+			this.site = `${rawContent}/${username}/${repository}/${branch}`;
+		}
+	}
+}
+
+const SESSION = new Session();
 const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
@@ -34,9 +58,10 @@ const MenuItems: MenuItem[] = [
 	// {module: 'articles', parameters: ['path=README.md'], text: '\u24d8', icon: ''},
 ];
 
-const Pages = await Fetch.map<T.FileStats>(`${Site()}/Indices/pages.json`);
+const Pages = await Fetch.map<T.FileStats>(`${SESSION.site}/Indices/pages.json`);
 
 export class Page {
+	session: Session;               /** Session object, instantiated above when this module is loaded */
 	name: string|null;              /** name of requested page (via query 'page=<name>') */
 	origin: string;                 /** The URL's scheme, domain, and port (e.g., 'http://www.example.com:80' */
 	url: string;                    /** URL origin + pathname (full URL without '?query') */
@@ -52,9 +77,10 @@ export class Page {
 	feedback: string;               /** text entered into the menu input field */
 
 	constructor(header = true, footer = true) {
+		this.session = SESSION;
 		this.origin = window.location.origin;
-		this.site = Site();
-		this.local = Session.local;
+		this.site = this.session.site;
+		this.local = this.session.local;
 		this.url = window.location.origin + window.location.pathname;
 		/** Note: URLSearchParams decodes percent-encoding */
 		this.parameters = new URLSearchParams(window.location.search);
@@ -68,7 +94,7 @@ export class Page {
 
 		this.options = new Map<string, string>();
 		this.access = (fileStats === null) ? 0 : fileStats.access;
-		this.revision = (fileStats === null) ? Session.built : fileStats.revision;
+		this.revision = (fileStats === null) ? this.session.built : fileStats.revision;
 		/** 'head' and 'body' must be defined in index.html */
 		const head = document.querySelector('head')!;
 		const body = document.querySelector('body')!;

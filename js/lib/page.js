@@ -1,7 +1,27 @@
 import * as T from './types.js';
-import { Session, Site } from './settings.js';
 import * as Fetch from './fetch.js';
 import { MarkupLine } from './markup.js';
+class Session {
+    constructor() {
+        this.local = (window.location.hostname == 'localhost');
+        this.built = Date.parse(document.lastModified);
+        /**
+         * When fetching site files from the localhost, the process is
+         * straightforward. When fetching from GitHub Pages, we must use a
+         * special "raw content" URL.
+        */
+        const repository = 'bait-4';
+        if (this.local)
+            this.site = `${window.location.origin}/${repository}`;
+        else {
+            const rawContent = 'https://raw.githubusercontent.com';
+            const username = 'baitnickel';
+            const branch = 'main';
+            this.site = `${rawContent}/${username}/${repository}/${branch}`;
+        }
+    }
+}
+const SESSION = new Session();
 const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
@@ -19,12 +39,13 @@ const MenuItems = [
     // {module: 'songbook', parameters: [], text: '\u266b', icon: 'songbook.svg'},
     // {module: 'articles', parameters: ['path=README.md'], text: '\u24d8', icon: ''},
 ];
-const Pages = await Fetch.map(`${Site()}/Indices/pages.json`);
+const Pages = await Fetch.map(`${SESSION.site}/Indices/pages.json`);
 export class Page {
     constructor(header = true, footer = true) {
+        this.session = SESSION;
         this.origin = window.location.origin;
-        this.site = Site();
-        this.local = Session.local;
+        this.site = this.session.site;
+        this.local = this.session.local;
         this.url = window.location.origin + window.location.pathname;
         /** Note: URLSearchParams decodes percent-encoding */
         this.parameters = new URLSearchParams(window.location.search);
@@ -36,7 +57,7 @@ export class Page {
             fileStats = Pages.get(this.name);
         this.options = new Map();
         this.access = (fileStats === null) ? 0 : fileStats.access;
-        this.revision = (fileStats === null) ? Session.built : fileStats.revision;
+        this.revision = (fileStats === null) ? this.session.built : fileStats.revision;
         /** 'head' and 'body' must be defined in index.html */
         const head = document.querySelector('head');
         const body = document.querySelector('body');

@@ -1,22 +1,23 @@
 import { Page } from './lib/page.js';
-import * as Settings from './lib/settings.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as Table from './lib/table.js';
 import * as Reservations from './lib/reservations.js';
 import * as Widgets from './lib/widgets.js';
 
-const Site = Settings.Site();
+const PAGE = new Page();
+// const Site = PAGE.site;
+
 const NewReservationsViewEvent = 'bait:update-reservation-view';
 const AccountingOptionEvent = 'bait:update-accounting-option';
 const Park = 'smitty';
 
-const CampgroundsPath = `${Site}/data/camp/campgrounds.yaml`;
-const GroupsPath = `${Site}/data/camp/groups.yaml`;
-const ReservationsPath = `${Site}/data/camp/reservations.yaml`;
-const AdjustmentsPath = `${Site}/data/camp/adjustments.yaml`;
-const CostsPath = `${Site}/data/camp/costs.yaml`;
-const FinalizedYearsPath = `${Site}/data/camp/finalized.yaml`;
+const CampgroundsPath = `${PAGE.site}/data/camp/campgrounds.yaml`;
+const GroupsPath = `${PAGE.site}/data/camp/groups.yaml`;
+const ReservationsPath = `${PAGE.site}/data/camp/reservations.yaml`;
+const AdjustmentsPath = `${PAGE.site}/data/camp/adjustments.yaml`;
+const CostsPath = `${PAGE.site}/data/camp/costs.yaml`;
+const FinalizedYearsPath = `${PAGE.site}/data/camp/finalized.yaml`;
 
 /** Fetch all the data we'll need before rendering the page */
 const Campgrounds = await Fetch.map<T.Campground>(CampgroundsPath);
@@ -34,18 +35,17 @@ const ParkFinalizedYears = (AllFinalizedYears.get(Park) !== undefined) ? AllFina
 const ReservationYears = reservationYears(ParkReservations);
 
 export function render() {
-	const page = new Page();
-	const testing = page.parameters.has('test');
-	page.setTitle('Campsites', 1);
+	const testing = PAGE.parameters.has('test');
+	PAGE.setTitle('Campsites', 1);
 
 	const mapDiv = document.createElement('div');
 	const reservationsDiv = document.createElement('div');
 	const sitesDiv = document.createElement('div');
 	const commentsDiv = document.createElement('div');
-	page.content.append(mapDiv);
-	page.content.append(reservationsDiv);
-	page.content.append(sitesDiv);
-	page.content.append(commentsDiv);
+	PAGE.content.append(mapDiv);
+	PAGE.content.append(reservationsDiv);
+	PAGE.content.append(sitesDiv);
+	PAGE.content.append(commentsDiv);
 
 	/**
 	 * Display the campground map, campsites table, and comments.

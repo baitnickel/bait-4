@@ -224,8 +224,24 @@ export function render() {
             ThisPage.appendParagraph(TestCookies, output);
         }
         if (testDialog) {
-            const output = 'Testing Modal Dialog ...';
-            ThisPage.appendParagraph(TestDialog, output);
+            /** add the button used to display the Modal dialog box */
+            const openModal = document.createElement('button');
+            openModal.innerText = 'Display Modal';
+            TestDialog.append(openModal);
+            /** dialog element */
+            const modal = document.createElement('dialog');
+            TestDialog.append(modal);
+            /** div element for dialog text */
+            const modalDiv = document.createElement('div');
+            modalDiv.innerHTML = '<p>This is the Modal Dialog</p>';
+            modal.append(modalDiv);
+            /** button to close dialog */
+            const closeModal = document.createElement('button');
+            closeModal.innerText = 'Close';
+            modal.append(closeModal);
+            /** event handlers */
+            openModal.addEventListener('click', () => { modal.showModal(); });
+            closeModal.addEventListener('click', () => { modal.close(); });
         }
         if (testNode) {
             const message = window.prompt('Message:');

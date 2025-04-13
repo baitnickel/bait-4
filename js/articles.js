@@ -41,16 +41,27 @@ const ProgressElement = document.createElement('span');
 ProgressElement.className = 'article-navigation-progress';
 const ArticlesIndex = `${ThisPage.site}/Indices/articles.json`;
 const Articles = await Fetch.map(ArticlesIndex);
+/**###
+ * Also create Map keyed by article ID
+ *
+ * type ArticleID =
+ * {
+ * 		path: string;
+ * 		access: number;
+ * 		revision: number;
+ * }
+ */
 const READMETitle = 'About This Site';
 export function render() {
     const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path') : '';
     const eligiblePaths = pagePath.split(',');
+    const articleIDs = (ThisPage.parameters.has('id')) ? ThisPage.parameters.get('id') : '';
     const updateNavigation = new Event(NavigationEvent);
     /**
      * Select Articles (markdown documents) from the full list of Articles. If
      * at least one Article is selected, display the first article.
      */
-    const selectedArticles = selectArticles(Array.from(Articles.keys()), eligiblePaths);
+    const selectedArticles = selectArticles(Array.from(Articles.keys()), articleIDs, eligiblePaths);
     if (selectedArticles.length > 0)
         displayArticle(selectedArticles, 0);
     /**
@@ -70,14 +81,34 @@ export function render() {
  * Only markdown (`.md`) files and directories (folders) are eligible, and only
  * those whose path names start with one of the given `eligiblePaths`.
  */
-function selectArticles(paths, eligiblePaths) {
+function selectArticles(paths, ids, eligiblePaths) {
     const selectedDocuments = [];
-    for (let path of paths) {
-        for (let eligiblePath of eligiblePaths) {
-            if (!(path.endsWith('.md') || path.endsWith('/')))
-                path += '/';
-            if (path.startsWith(eligiblePath))
-                selectedDocuments.push(`${ThisPage.site}/${path}`);
+    /** when specific article IDs are provided, they take precedence over article paths */
+    const idSet = new Set();
+    if (ids) {
+        for (let idValue of ids.split(',')) {
+            const id = Number(idValue.trim());
+            if (!isNaN(id))
+                idSet.add(id);
+        }
+        /**### this is very inefficient--we need an Articles index keyed by ID */
+        for (const id of Array.from(idSet)) {
+            for (const path of paths) {
+                const article = Articles.get(path);
+                if (article !== undefined && article.id == id && path.endsWith('.md')) {
+                    selectedDocuments.push(`${ThisPage.site}/${path}`);
+                }
+            }
+        }
+    }
+    else if (!selectedDocuments.length) {
+        for (let path of paths) {
+            for (let eligiblePath of eligiblePaths) {
+                if (!(path.endsWith('.md') || path.endsWith('/')))
+                    path += '/';
+                if (path.startsWith(eligiblePath))
+                    selectedDocuments.push(`${ThisPage.site}/${path}`);
+            }
         }
     }
     return selectedDocuments;

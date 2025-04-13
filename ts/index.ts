@@ -11,9 +11,17 @@
  * 
  * The selected page module is loaded dynamically in an async/await clause.
  */
+let page = '';
+let ids = '';
 const urlParameters = new URLSearchParams(document.location.search);
-const queryPage = (urlParameters.get('page')) ? urlParameters.get('page')! : 'home';
+for (const [key, value] of urlParameters.entries()) {
+	if (key == 'page') page = value;
+	else if (key == 'id') ids = value;
+}
+if (!page && ids) page = 'articles';
+else if (!page) page = 'home';
+
 (async () => {
-	const module = await import(`./${queryPage}.js`);
+	const module = await import(`./${page}.js`);
 	module.render();
 })();

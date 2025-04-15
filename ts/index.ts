@@ -17,6 +17,8 @@ const urlParameters = new URLSearchParams(document.location.search);
 for (const [key, value] of urlParameters.entries()) {
 	if (key == 'page') page = value;
 	else if (key == 'id') ids = value;
+	else if (/^\d/.test(key)) ids = key;
+	// console.log(`Key: |${key}| Value: |${value}|`)
 }
 if (!page && ids) page = 'articles';
 else if (!page) page = 'home';
@@ -25,3 +27,13 @@ else if (!page) page = 'home';
 	const module = await import(`./${page}.js`);
 	module.render();
 })();
+
+
+// const query = '  1,2    3,4,5  ';
+// const regexp = /[\d\s,]*/;
+// if (regexp.test(query)) {
+//     console.log('yes!');
+//     const values = query.trim().split(/[\s,]*/);
+//     for (const value of values) console.log(value);
+// }
+// else console.log('nope');

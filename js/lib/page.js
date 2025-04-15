@@ -25,6 +25,9 @@ const SESSION = new Session();
 const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
+/** List of Article IDs--list starts and ends with numbers, numbers separated by whitespace/commas */
+const ID_SEPARATORS_PATTERN = /\s,/; /** separate IDs in list  */
+const ID_LIST_PATTERN = new RegExp(`^\\d[\\d${ID_SEPARATORS_PATTERN.source}]*`);
 const MenuItems = [
     { module: 'home', parameters: [], text: 'Home', icon: '' },
     { module: 'articles', parameters: ['path=Content/drafts'], text: 'Writing', icon: '' },
@@ -49,7 +52,18 @@ export class Page {
         this.url = window.location.origin + window.location.pathname;
         /** Note: URLSearchParams decodes percent-encoding */
         this.parameters = new URLSearchParams(window.location.search);
-        this.name = this.parameters.get('page');
+        this.name = ''; // this.parameters.get('page');
+        const idLists = [];
+        for (const [key, value] of this.parameters.entries()) {
+            if (key == 'page')
+                this.name = value;
+            else if (key == 'id')
+                idLists.push(value);
+            else if (/^\d/.test(key))
+                idLists.push(key); /** key *is* the value when key starts with a digit */
+        }
+        this.ids = articleIDs(idLists, ID_LIST_PATTERN, ID_SEPARATORS_PATTERN);
+        console.log(`IDs: ${this.ids}`);
         this.feedback = '';
         /** get module file statistics from the Pages index map */
         let fileStats = null;
@@ -455,6 +469,33 @@ export function getIdentityButtonLabel(credentials, validLabel, invalidLabel) {
     if (credentials.user && credentials.passphrase)
         label = validLabel;
     return label;
+}
+/**
+ * Each entry in the `lists` array is a string of one or more article ID
+ * numbers, separated by the splitterPattern (e.g., whitespace and comma).
+ * Return a unique set of article ID numbers, discarding all duplicate or
+ * invalid IDs.
+ */
+function articleIDs(lists, listPattern, separatorsPattern) {
+    const articleIDs = [];
+    const idSet = new Set();
+    for (const list of lists) {
+        if (listPattern.test(list)) {
+            for (let idValues of list.trim().split(separatorsPattern)) {
+                console.log(`idValues: ${idValues}`);
+                for (const idValue of idValues) {
+                    if (idValue.trim()) {
+                        const id = Number(idValue);
+                        if (!isNaN(id))
+                            idSet.add(id);
+                    }
+                }
+            }
+        }
+    }
+    for (const id of Array.from(idSet))
+        articleIDs.push(id);
+    return articleIDs;
 }
 /**
  * General function to coerce data, provided in the argument, to another type.

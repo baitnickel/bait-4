@@ -31,6 +31,10 @@ const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
 
+/** List of Article IDs--list starts and ends with numbers, numbers separated by whitespace/commas */
+const ID_SEPARATORS_PATTERN = /\s,/; /** separate IDs in list  */
+const ID_LIST_PATTERN = new RegExp(`^\\d[\\d${ID_SEPARATORS_PATTERN.source}]*`);
+
 type MenuItem = {
 	module: string, /** from `page` parameter */
 	parameters: string[], /** additional query parameters */
@@ -66,6 +70,7 @@ export class Page {
 	origin: string;                 /** The URL's scheme, domain, and port (e.g., 'http://www.example.com:80' */
 	url: string;                    /** URL origin + pathname (full URL without '?query') */
 	parameters: URLSearchParams;    /** URL query parameters */
+	ids: number[];                  /** Article ID numbers--entered as query (id=1,2,3 or simply 1,2,3) */
 	options: Map<string, string>;   /** Map of options */
 	local: boolean;                 /** is the server 'localhost'? */
 	access: number;                 /** access number (permission/authorization) */
@@ -84,7 +89,15 @@ export class Page {
 		this.url = window.location.origin + window.location.pathname;
 		/** Note: URLSearchParams decodes percent-encoding */
 		this.parameters = new URLSearchParams(window.location.search);
-		this.name = this.parameters.get('page');
+		this.name = ''; // this.parameters.get('page');
+		const idLists: string[] = [];
+		for (const [key, value] of this.parameters.entries()) {
+			if (key == 'page') this.name = value;
+			else if (key == 'id') idLists.push(value);
+			else if (/^\d/.test(key)) idLists.push(key); /** key *is* the value when key starts with a digit */
+		}
+		this.ids = articleIDs(idLists, ID_LIST_PATTERN, ID_SEPARATORS_PATTERN);
+		console.log(`IDs: ${this.ids}`);
 
 		this.feedback = '';
 
@@ -541,7 +554,31 @@ export function getIdentityButtonLabel(credentials: Credentials, validLabel: num
 	return label;
 }
 
-
+/**
+ * Each entry in the `lists` array is a string of one or more article ID
+ * numbers, separated by the splitterPattern (e.g., whitespace and comma).
+ * Return a unique set of article ID numbers, discarding all duplicate or
+ * invalid IDs. 
+ */
+function articleIDs(lists: string[], listPattern: RegExp, separatorsPattern: RegExp) {
+	const articleIDs: number[] = [];
+	const idSet = new Set<number>();
+	for (const list of lists) {
+		if (listPattern.test(list)) {
+			for (let idValues of list.trim().split(separatorsPattern)) {
+				console.log(`idValues: ${idValues}`);
+				for (const idValue of idValues) {
+					if (idValue.trim()) {
+						const id = Number(idValue);
+						if (!isNaN(id)) idSet.add(id);
+					}
+				}
+			}
+		}
+	}
+	for (const id of Array.from(idSet)) articleIDs.push(id);
+	return articleIDs;
+}
 
 
 

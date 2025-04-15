@@ -62,7 +62,8 @@ const READMETitle = 'About This Site';
 export function render() {
 	const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path')! : '';
 	const eligiblePaths = pagePath.split(',');
-	const articleIDs = (ThisPage.parameters.has('id')) ? ThisPage.parameters.get('id')! : '';
+	// const articleIDs = (ThisPage.parameters.has('id')) ? ThisPage.parameters.get('id')! : '';
+	const articleIDs = ThisPage.ids;
 	const updateNavigation = new Event(NavigationEvent);
 
 	/**
@@ -91,17 +92,18 @@ export function render() {
  * Only markdown (`.md`) files and directories (folders) are eligible, and only
  * those whose path names start with one of the given `eligiblePaths`.
  */
-function selectArticles(paths: string[], ids: string, eligiblePaths: string[]) {
+function selectArticles(paths: string[], ids: number[], eligiblePaths: string[]) {
 	const selectedDocuments: string[] = [];
 	/** when specific article IDs are provided, they take precedence over article paths */
 	const idSet = new Set<number>();
-	if (ids) {
-		for (let idValue of ids.split(',')) {
-			const id = Number(idValue.trim());
-			if (!isNaN(id)) idSet.add(id);
-		}
+	if (ids.length) {
+		// for (let idValue of ids.split(',')) {
+		// 	const id = Number(idValue.trim());
+		// 	if (!isNaN(id)) idSet.add(id);
+		// }
 		/**### this is very inefficient--we need an Articles index keyed by ID */
-		for (const id of Array.from(idSet)) {
+		// for (const id of Array.from(idSet)) {
+		for (const id of ids) {
 			for (const path of paths) {
 				const article = Articles.get(path);
 				if (article !== undefined && article.id == id && path.endsWith('.md')) {

@@ -41,28 +41,18 @@ const ProgressElement = document.createElement('span');
 ProgressElement.className = 'article-navigation-progress';
 const ArticlesIndex = `${ThisPage.site}/Indices/articles.json`;
 const Articles = await Fetch.map(ArticlesIndex);
-/**###
- * Also create Map keyed by article ID
- *
- * type ArticleID =
- * {
- * 		path: string;
- * 		access: number;
- * 		revision: number;
- * }
- */
+const ArticlesByID = articlesByID(Articles);
 const READMETitle = 'About This Site';
 export function render() {
-    const pagePath = (ThisPage.parameters.get('path')) ? ThisPage.parameters.get('path') : '';
-    const eligiblePaths = pagePath.split(',');
-    // const articleIDs = (ThisPage.parameters.has('id')) ? ThisPage.parameters.get('id')! : '';
-    const articleIDs = ThisPage.ids;
+    const pagePath = (ThisPage.parameters.has('path')) ? ThisPage.parameters.get('path') : '';
+    const requestedPaths = (pagePath) ? pagePath.split(',') : [];
+    const requestedIDs = ThisPage.ids;
     const updateNavigation = new Event(NavigationEvent);
     /**
      * Select Articles (markdown documents) from the full list of Articles. If
      * at least one Article is selected, display the first article.
      */
-    const selectedArticles = selectArticles(Array.from(Articles.keys()), articleIDs, eligiblePaths);
+    const selectedArticles = selectArticles(Array.from(Articles.keys()), requestedPaths, requestedIDs);
     if (selectedArticles.length > 0)
         displayArticle(selectedArticles, 0);
     /**
@@ -80,39 +70,34 @@ export function render() {
 }
 /**
  * Only markdown (`.md`) files and directories (folders) are eligible, and only
- * those whose path names start with one of the given `eligiblePaths`.
+ * those whose path names start with one of the given `requestedPaths` or those
+ * with the `requestedIDs`.
  */
-function selectArticles(paths, ids, eligiblePaths) {
-    const selectedDocuments = [];
-    /** when specific article IDs are provided, they take precedence over article paths */
-    const idSet = new Set();
-    if (ids.length) {
-        // for (let idValue of ids.split(',')) {
-        // 	const id = Number(idValue.trim());
-        // 	if (!isNaN(id)) idSet.add(id);
-        // }
-        /**### this is very inefficient--we need an Articles index keyed by ID */
-        // for (const id of Array.from(idSet)) {
-        for (const id of ids) {
-            for (const path of paths) {
-                const article = Articles.get(path);
-                if (article !== undefined && article.id == id && path.endsWith('.md')) {
-                    selectedDocuments.push(`${ThisPage.site}/${path}`);
+function selectArticles(allPaths, requestedPaths, requestedIDs) {
+    const articles = [];
+    const uniquePaths = new Set();
+    for (const id of requestedIDs) {
+        const article = ArticlesByID.get(id);
+        if (article !== undefined && article.path.endsWith('.md')) {
+            uniquePaths.add(article.path);
+        }
+    }
+    if (requestedPaths.length) {
+        for (let path of allPaths) {
+            for (let requestedPath of requestedPaths) {
+                if (!(path.endsWith('.md') || path.endsWith('/')))
+                    path += '/';
+                if (path.startsWith(requestedPath)) {
+                    uniquePaths.add(path);
                 }
             }
         }
     }
-    else if (!selectedDocuments.length) {
-        for (let path of paths) {
-            for (let eligiblePath of eligiblePaths) {
-                if (!(path.endsWith('.md') || path.endsWith('/')))
-                    path += '/';
-                if (path.startsWith(eligiblePath))
-                    selectedDocuments.push(`${ThisPage.site}/${path}`);
-            }
-        }
+    for (const path of Array.from(uniquePaths)) {
+        articles.push(`${ThisPage.site}/${path}`);
     }
-    return selectedDocuments;
+    articles.sort();
+    return articles;
 }
 /**
  * Given the `articles` array and the `index` of a selected article, fetch the
@@ -141,4 +126,24 @@ function displayArticle(articles, index) {
         ArticleElement.innerHTML = markedUpText;
         ProgressElement.innerText = `${index + 1} of ${articles.length}`;
     });
+}
+/**
+ * Given the Articles map, keyed by file path, return a new map as a secondary
+ * index to the same data but keyed by Article ID.
+ */
+function articlesByID(articles) {
+    const articlesByID = new Map();
+    const paths = Array.from(articles.keys());
+    for (const path of paths) {
+        const articleData = articles.get(path);
+        if (articleData !== undefined) {
+            const data = {
+                path: path,
+                access: articleData.access,
+                revision: articleData.revision
+            };
+            articlesByID.set(articleData.id, data);
+        }
+    }
+    return articlesByID;
 }

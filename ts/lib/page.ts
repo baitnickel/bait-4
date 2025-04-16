@@ -31,9 +31,10 @@ const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
 
-/** List of Article IDs--list starts and ends with numbers, numbers separated by whitespace/commas */
-const ID_SEPARATORS_PATTERN = /\s,/; /** separate IDs in list  */
-const ID_LIST_PATTERN = new RegExp(`^\\d[\\d${ID_SEPARATORS_PATTERN.source}]*`);
+/** List of Article IDs--list starts and ends with numbers, numbers are separated by commas */
+const ID_SEPARATOR = ',';
+const ID_SEPARATOR_PATTERN = new RegExp(`${ID_SEPARATOR}+`);
+const ID_LIST_PATTERN = new RegExp(`^\\d[\\d${ID_SEPARATOR}]*`);
 
 type MenuItem = {
 	module: string, /** from `page` parameter */
@@ -66,7 +67,7 @@ const Pages = await Fetch.map<T.FileStats>(`${SESSION.site}/Indices/pages.json`)
 
 export class Page {
 	session: Session;               /** Session object, instantiated above when this module is loaded */
-	name: string|null;              /** name of requested page (via query 'page=<name>') */
+	name: string;                   /** name of requested page (via query 'page=<name>') */
 	origin: string;                 /** The URL's scheme, domain, and port (e.g., 'http://www.example.com:80' */
 	url: string;                    /** URL origin + pathname (full URL without '?query') */
 	parameters: URLSearchParams;    /** URL query parameters */
@@ -89,15 +90,15 @@ export class Page {
 		this.url = window.location.origin + window.location.pathname;
 		/** Note: URLSearchParams decodes percent-encoding */
 		this.parameters = new URLSearchParams(window.location.search);
-		this.name = ''; // this.parameters.get('page');
+		this.name = '';
 		const idLists: string[] = [];
 		for (const [key, value] of this.parameters.entries()) {
 			if (key == 'page') this.name = value;
 			else if (key == 'id') idLists.push(value);
-			else if (/^\d/.test(key)) idLists.push(key); /** key *is* the value when key starts with a digit */
+			/** when key starts with a digit, the key *is* the value */
+			else if (/^\d/.test(key)) idLists.push(key);
 		}
-		this.ids = articleIDs(idLists, ID_LIST_PATTERN, ID_SEPARATORS_PATTERN);
-		console.log(`IDs: ${this.ids}`);
+		this.ids = articleIDs(idLists, ID_LIST_PATTERN, ID_SEPARATOR_PATTERN);
 
 		this.feedback = '';
 
@@ -161,8 +162,8 @@ export class Page {
 		/** top-right corner, menu bar create and initialize Identity button */
 		const identityButton = document.createElement('button');
 		identityButton.id = 'identity-button';
-		const validIDLabel = 0x2705; // 9989
-		const invalidIDLabel = 0x26d4; // 9940
+		const validIDLabel = 0x2705;
+		const invalidIDLabel = 0x26d4;
 		const credentials = getCredentials();
 		let identityLabel = getIdentityButtonLabel(credentials, validIDLabel, invalidIDLabel);
 		identityButton.innerText = String.fromCodePoint(identityLabel);
@@ -238,12 +239,10 @@ export class Page {
 	 * directly below <header>, using tag <h1>...<h6> (based on 'level').
 	*/
 	addHeading(heading: string, level: number = 1) {
-		// if (this.header) {
 		if (this.content) {
 			const tag = (level >= 1 && level <= 6) ? 'h' + level : 'h1';
 			const element = document.createElement(tag);
 			element.innerText = heading;
-			// this.header.insertAdjacentElement('afterend', element);
 			this.content.append(element);
 		}
 	}
@@ -293,8 +292,6 @@ export class Page {
 	 * - const element = page.appendContent('article #blog-1 .bold .pretty');
 	 */
 	appendContent(properties: string = '', targetElement = this.content) {
-		// split properties into terms
-		// set tagName, id, classList
 		const terms = properties.split(/\s/);
 		let tagName = '';
 		let id = '';
@@ -329,11 +326,9 @@ export class Page {
 			const textLines = text.slice(); /* preserve original text lines */
 			for (const i in textLines) textLines[i] = MarkupLine(textLines[i], 'met');
 			markedUpText = textLines.join('<br>');
-			// markedUpText = Markup(textLines);
 		}
 		else if (typeof text === 'string') {
 			markedUpText = MarkupLine(text, 'met');
-			// markedUpText = Markup(text);
 		}
 		const paragraph = document.createElement('p');
 		paragraph.innerHTML = markedUpText;
@@ -454,38 +449,6 @@ export class Page {
 			initialOpacity += initialOpacity * 0.1;
 		}, delay);
 	}
-
-	// getCookies(cookieName = '') {
-	// 	// let value: string|null = '';
-	// 	const values: string[] = [];
-	// 	cookieName = cookieName.trim();
-	// 	const cookies = document.cookie.split(';');
-	// 	for (const cookie of cookies) {
-	// 		const cookieElements = cookie.split('=', 2);
-	// 		if (cookieName && cookieElements[0] == cookieName) {
-	// 			values.push(cookie);
-	// 			break;
-	// 		}
-	// 		else values.push(cookie);
-	// 	}
-	// 	return values;
-	// }
-
-	// setCookie(cookieName: string, value: string, validityDays: number) {
-	// 	cookieName = cookieName.trim();
-	// 	const date = new Date();
-	// 	date.setTime(date.getTime() + (validityDays * 24 * 60 * 60 * 1000));
-	// 	const expiration = `expires=${date.toUTCString()}`;
-	// 	document.cookie = `${cookieName}=${value}; ${expiration}; path=/;`;
-	// 	return value;
-	// }
-
-	// deleteCookie(cookieName: string) {
-	// 	cookieName = cookieName.trim();
-	// 	const date = new Date(0);
-	// 	const expiration = `expires=${date.toUTCString()}`;
-	// 	document.cookie = `${cookieName}=; ${expiration}; path=/;`;
-	// }
 }
 
 /**
@@ -555,23 +518,20 @@ export function getIdentityButtonLabel(credentials: Credentials, validLabel: num
 }
 
 /**
- * Each entry in the `lists` array is a string of one or more article ID
- * numbers, separated by the splitterPattern (e.g., whitespace and comma).
- * Return a unique set of article ID numbers, discarding all duplicate or
- * invalid IDs. 
+ * Each entry in the `lists` array is a string of one or more article ID numbers
+ * matching the `listPattern` regular expression. Invalid lists are ignored.
+ * Individual article IDs in each list are separated using the `splitPattern`
+ * RegExp. Return a unique set of valid article ID numbers.
  */
-function articleIDs(lists: string[], listPattern: RegExp, separatorsPattern: RegExp) {
+function articleIDs(lists: string[], listPattern: RegExp, splitPattern: RegExp) {
 	const articleIDs: number[] = [];
 	const idSet = new Set<number>();
 	for (const list of lists) {
 		if (listPattern.test(list)) {
-			for (let idValues of list.trim().split(separatorsPattern)) {
-				console.log(`idValues: ${idValues}`);
-				for (const idValue of idValues) {
-					if (idValue.trim()) {
-						const id = Number(idValue);
-						if (!isNaN(id)) idSet.add(id);
-					}
+			for (let idValue of list.trim().split(splitPattern)) {
+				if (idValue.trim()) {
+					const id = Number(idValue);
+					if (!isNaN(id)) idSet.add(id);
 				}
 			}
 		}

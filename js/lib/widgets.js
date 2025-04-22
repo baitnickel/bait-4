@@ -12,10 +12,14 @@ export class Navigator {
         this.lastButton = document.createElement('button');
         this.event = event;
         /** default button texts */
-        this.firstButton.innerText = '|<';
-        this.previousButton.innerText = '<';
-        this.nextButton.innerText = '>';
-        this.lastButton.innerText = '>|';
+        // this.firstButton.innerText = '|<';
+        // this.previousButton.innerText = '<';
+        // this.nextButton.innerText = '>';
+        // this.lastButton.innerText = '>|';
+        this.firstButton.innerHTML = '&larrb;';
+        this.previousButton.innerHTML = '&larr;';
+        this.nextButton.innerHTML = '&rarr;';
+        this.lastButton.innerHTML = '&rarrb;';
         if (this.documents.length > 1) {
             this.firstButton.disabled = true;
             this.previousButton.disabled = true;

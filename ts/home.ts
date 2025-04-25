@@ -267,10 +267,25 @@ export function render() {
 		}
 
 		if (testNode) {
+			/** Test GET */
+			fetch('http://localhost:3000', {
+				method: 'GET',
+				headers: { 'Content-Type': 'application/json', },
+			})
+			// .then(response => response.json())
+			// .then(data => {
+			// 	console.log('Success:', data);
+			// 	ThisPage.appendParagraph(TestNode, data);
+			// })
+			.catch((error) => {
+				console.error('Error:', error);
+			});
+
+			/** Test POST */
 			const message = window.prompt('Message:');
 			if (message) {
 				const data = { message: message };
-				fetch('/process', {
+				fetch('http://localhost:3000', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json', },
 					body: JSON.stringify(data),
@@ -278,8 +293,8 @@ export function render() {
 				.then(response => response.json())
 				.then(data => {
 					console.log('Success:', data);
-					// Update your HTML with the received data
-					})
+					ThisPage.appendParagraph(TestNode, data);
+				})
 				.catch((error) => {
 					console.error('Error:', error);
 				});

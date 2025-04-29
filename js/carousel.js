@@ -2,11 +2,19 @@ import { Page } from './lib/page.js';
 const PAGE = new Page(false, false);
 const html = document.querySelector('html');
 html.style['backgroundColor'] = '#000';
-PAGE.body.style['backgroundColor'] = '#000';
-PAGE.header.remove();
-PAGE.content.remove();
-PAGE.footer.remove();
-let Interval = 0;
+PAGE.body.remove();
+const body = document.createElement('body');
+html.append(body);
+body.style['margin'] = '0';
+body.style['backgroundColor'] = '#000';
+body.style['width'] = '100vw';
+body.style['maxWidth'] = '100vw';
+body.style['height'] = '100vh';
+body.style['maxHeight'] = '100vh';
+body.style['padding'] = '0';
+body.style['border'] = '0';
+body.style['gap'] = '0';
+let Interval = 2;
 let Shuffle = false;
 const Images = [
     '../media/image/lb/laurel1.jpeg',
@@ -19,7 +27,7 @@ const Images = [
 export function render() {
     /** create the <div> element that will contain the slides */
     const carousel = document.createElement('div');
-    PAGE.body.append(carousel);
+    body.append(carousel);
     carousel.className = 'carousel';
     carousel.dataset.carousel = '';
     /** create the <ul> element to contain all the slides */

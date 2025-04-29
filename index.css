@@ -35,7 +35,7 @@ body {
 	border: var(--diagnositic-border);
 	gap: .5em;
 	grid-template-rows: auto 1fr auto; /* header, content, and footer */
-}	
+}
 
 /* #header contains the menu items */
 

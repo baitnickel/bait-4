@@ -11,12 +11,14 @@ let Interval = 0;
 let Shuffle = true;
 
 const Images = [
-	'/Users/dan/Documents/development/carousel/lb/laurel1.jpeg',
-	'/Users/dan/Documents/development/carousel/lb/laurel2.jpeg',
-	'/Users/dan/Documents/development/carousel/lb/laurel3.jpeg',
-	'/Users/dan/Documents/development/carousel/lb/laurel4.jpeg',
-	'/Users/dan/Documents/development/carousel/lb/laurel5.jpeg',
-	'/Users/dan/Documents/development/carousel/lb/laurel6.jpeg',
+	'../media/image/die-12.png',
+	'../media/image/duet-settings.png',
+	// '/Users/dan/Documents/development/carousel/lb/laurel1.jpeg',
+	// '/Users/dan/Documents/development/carousel/lb/laurel2.jpeg',
+	// '/Users/dan/Documents/development/carousel/lb/laurel3.jpeg',
+	// '/Users/dan/Documents/development/carousel/lb/laurel4.jpeg',
+	// '/Users/dan/Documents/development/carousel/lb/laurel5.jpeg',
+	// '/Users/dan/Documents/development/carousel/lb/laurel6.jpeg',
 ];
 
 export function render() {
@@ -28,6 +30,8 @@ export function render() {
 	// carousel.dataset.carousel = '';
 	// body.append(carousel);
 	const carousel = PAGE.content;
+	carousel.className = 'carousel';
+	carousel.dataset.carousel = '';
 
 	/** create the <ul> element to contain all the slides */
 	const slides = document.createElement('ul');

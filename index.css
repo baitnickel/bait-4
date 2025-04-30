@@ -426,8 +426,7 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	z-index: 2; /* force buttons to show up on top of images */
 	background: none;
 	border: none;
-	font-size: 2rem;  /* 4rem; */
-	top: 50%;
+	font-size: 1.5rem;  /* 4rem; */
 	transform: translateY(-50%); /* push buttons up a bit to exactly dead center of vertical (Y) axis */
 	color: rgba(255, 255, 255, .5);
 	cursor: pointer; /* to support clicking on buttons */
@@ -447,10 +446,17 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 }
 
 .carousel-button.prev { /* position "previous" button on the left side of screen */
+	top: 50%;
 	left: 1rem;
 }
 
 .carousel-button.next { /* position "next" button on the right side of screen */
+	top: 50%;
+	right: 1rem;
+}
+
+.carousel-button.return { /* position "next" button on the right side of screen */
+	top: 3%;
 	right: 1rem;
 }
 

@@ -124,7 +124,7 @@ export class Page {
 		this.body.append(this.footer);
 
 		if (this.local) { /** Add test pages */
-			MenuItems.push({module: 'carousel', parameters: ['interval=6','shuffle'], text: 'Carousel', icon: ''});
+			MenuItems.push({module: 'carousel', parameters: [], text: 'Carousel', icon: ''});
 			// MenuItems.push({module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: ''});
 			// MenuItems.push({module: 'test-cookies', parameters: [], text: 'Cookies', icon: ''});
 			// MenuItems.push({module: 'test-lyrics', parameters: [], text: 'Lyrics', icon: ''});

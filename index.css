@@ -460,6 +460,15 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	right: 1rem;
 }
 
+dialog.carousel-dialog > fieldset > ul > li {
+	list-style-type: none;
+	margin: 0 0 1rem 0;
+}
+
+dialog.carousel-dialog > fieldset > ul > li > button {
+	font-size: .75rem;
+	margin: 1rem .5em 0 .5rem;
+}
 
 /* Tests, etc. =================================================================== */
 

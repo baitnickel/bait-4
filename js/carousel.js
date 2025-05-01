@@ -20,6 +20,12 @@ if (isNaN(Interval) || Interval < 0)
 let Shuffle = (PAGE.parameters.has('shuffle')) ? true : false;
 const Images = album('lb');
 export function render() {
+    if (PAGE.parameters.has('interval') || PAGE.parameters.has('shuffle'))
+        runCarousel();
+    else
+        modalDialog();
+}
+function runCarousel() {
     /** create the <div> element that will contain the slides */
     const carousel = document.createElement('div');
     PAGE.body.append(carousel);
@@ -42,7 +48,7 @@ export function render() {
         slide.append(image);
         slides.append(slide);
     }
-    addReturnButton(carousel);
+    addExitButton(carousel);
     if (Interval) {
         const changeSlideFunction = () => changeSlide(slides, 1);
         const intervalID = setInterval(changeSlideFunction, Interval * 1000, slides);
@@ -84,10 +90,10 @@ function addNavigationButtons(parent) {
     parent.append(nextButton);
     return [previousButton, nextButton];
 }
-function addReturnButton(parent) {
+function addExitButton(parent) {
     const returnButton = document.createElement('button');
     returnButton.className = 'carousel-button return';
-    returnButton.innerHTML = '&times;'; //'&nwarr;';
+    returnButton.innerHTML = '&times;';
     parent.append(returnButton);
     returnButton.addEventListener('click', () => { window.history.back(); });
 }
@@ -187,4 +193,93 @@ function album(albumName) {
         ];
     }
     return images;
+}
+function modalDialog() {
+    /** open modal dialog to set options */
+    const modal = document.createElement('dialog');
+    modal.className = 'carousel-dialog';
+    /** fieldset */
+    const modalFieldSet = document.createElement('fieldset');
+    const modalLegend = document.createElement('legend');
+    modalLegend.innerText = 'Carousel Options';
+    modalFieldSet.append(modalLegend);
+    /** create options list */
+    const optionList = document.createElement('ul');
+    /** shuffle checkbox */
+    const shuffleOption = document.createElement('li');
+    const shuffleCheckbox = document.createElement('input');
+    shuffleCheckbox.type = 'checkbox';
+    shuffleCheckbox.id = 'shuffleOption';
+    shuffleCheckbox.checked = true;
+    const shuffleLabel = document.createElement('label');
+    shuffleLabel.htmlFor = shuffleCheckbox.id;
+    shuffleLabel.innerText = 'Randomly Sort Slides ';
+    shuffleLabel.append(shuffleCheckbox);
+    shuffleOption.append(shuffleLabel);
+    /** interval seconds */
+    const intervalOption = document.createElement('li');
+    const intervalSelection = document.createElement('input');
+    intervalSelection.type = 'range';
+    intervalSelection.id = 'intervalSelection';
+    intervalSelection.min = '0';
+    intervalSelection.max = '60';
+    intervalSelection.step = '1';
+    intervalSelection.value = '0';
+    const intervalOutput = document.createElement('output');
+    intervalOutput.innerHTML = `<br>Value: ${intervalSelection.value}`;
+    const intervalLabel = document.createElement('label');
+    intervalLabel.htmlFor = 'intervalSelection';
+    intervalLabel.innerHTML = 'Interval Between Slides (Seconds):<br>';
+    intervalLabel.append(intervalSelection);
+    intervalLabel.append(intervalOutput);
+    intervalOption.append(intervalLabel);
+    // /** create file picker input */
+    // const fileOption = document.createElement('input');
+    // fileOption.type = 'file';
+    // fileOption.id = 'fileOption';
+    // fileOption.name = 'fileOption';
+    // fileOption.accept = '.jpg, .jpeg, .png';
+    // fileOption.multiple = true;
+    /** cancel and confirm buttons */
+    const buttonsOption = document.createElement('li');
+    const cancelButton = document.createElement('button');
+    cancelButton.innerText = 'Cancel';
+    buttonsOption.append(cancelButton);
+    const confirmButton = document.createElement('button');
+    confirmButton.innerText = 'Confirm';
+    buttonsOption.append(confirmButton);
+    /** add list of options to options list and add options list to fieldset */
+    optionList.append(shuffleOption);
+    optionList.append(intervalOption);
+    // optionList.append(fileOption);
+    optionList.append(buttonsOption);
+    modalFieldSet.append(optionList);
+    /** add fieldset to modal and modal to body and display modal */
+    modal.append(modalFieldSet);
+    PAGE.body.append(modal);
+    modal.showModal();
+    shuffleCheckbox.addEventListener('change', () => {
+        Shuffle = shuffleCheckbox.checked;
+    });
+    intervalSelection.addEventListener('input', () => {
+        Interval = Number(intervalSelection.value);
+        intervalOutput.innerHTML = `<br>Value: ${Interval}`;
+    });
+    // fileOption.addEventListener('change', (event) => {
+    // 	for (const file of event.target.files) {
+    // 		// images.push(file.name);
+    // 		console.log(file);
+    // 	}
+    // });
+    cancelButton.addEventListener('click', () => {
+        modal.close();
+        window.history.back();
+    });
+    confirmButton.addEventListener('click', () => {
+        modal.close();
+        if (Images.length)
+            runCarousel();
+        else
+            alert('No images have been selected!');
+    });
 }

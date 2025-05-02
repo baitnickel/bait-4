@@ -21,81 +21,91 @@ PAGE.body.style['padding'] = '0';
 PAGE.body.style['border'] = '0';
 PAGE.body.style['gap'] = '0';
 
-let Interval = (PAGE.parameters.has('interval')) ? Number(PAGE.parameters.get('interval')) : 0;
-if (isNaN(Interval) || Interval < 0) Interval = 0;
-let Shuffle = (PAGE.parameters.has('shuffle')) ? true : false;
-
-const Images = album('lb');
-
 export function render() {
-	if (PAGE.parameters.has('interval') || PAGE.parameters.has('shuffle')) runCarousel();
-	else modalDialog();
+	const images = album('lb');
+	let interval = (PAGE.parameters.has('interval')) ? Number(PAGE.parameters.get('interval')) : 0;
+	if (isNaN(interval) || interval < 0) interval = 0;
+	let shuffle = (PAGE.parameters.has('shuffle')) ? true : false;
+	if (PAGE.parameters.has('interval') || PAGE.parameters.has('shuffle')) runCarousel(images, shuffle, interval);
+	else modalDialog(images, shuffle, interval);
 }
 
-function runCarousel() {
-	/** create the <div> element that will contain the slides */
-	const carousel = document.createElement('div');
-	PAGE.body.append(carousel);
-	carousel.className = 'carousel';
-	carousel.dataset.carousel = '';
-	
-	/** create the <ul> element to contain all the slides */
-	const slides = document.createElement('ul');
-	slides.dataset.slides = '';
-	carousel.append(slides);
-	
-	/** create each of the <li> elements representing the slides */
-	if (Shuffle) Images.sort(() => Math.random() - .5);
-	for (let i = 0; i < Images.length; i += 1) {
-		const slide = document.createElement('li');
-		slide.className = 'slide';
-		if (i == 0) slide.dataset.active = '';
-		const image = document.createElement('img');
-		image.src = `${Images[i]}`;
-		slide.append(image);
-		slides.append(slide);
-	}
-
-	addExitButton(carousel);
-
-	if (Interval) {
-		const changeSlideFunction = () => changeSlide(slides, 1);
-		const intervalID = setInterval(changeSlideFunction, Interval * 1000, slides);
+function runCarousel(images: string[], shuffle: boolean, interval: number) {
+	if (!images.length) {
+		alert('No images have been selected!');
+		window.history.back();
 	}
 	else {
-		const buttons = addNavigationButtons(carousel);
-		buttons.forEach(button => {
-			button.addEventListener('click', () => {
-				const offset = button.dataset.carouselButton === 'next' ? 1 : -1;
-				changeSlide(slides, offset);
-			});
-		});
+		/** create the <div> element that will contain the slides */
+		const carousel = document.createElement('div');
+		PAGE.body.append(carousel);
+		carousel.className = 'carousel';
+		carousel.dataset.carousel = '';
+		
+		loadSlides(images, shuffle, 'slide').then((listElements) => {
+			carousel.append(listElements);
+			addExitButton(carousel);
+			if (interval) {
+				const changeSlideFunction = () => changeSlide(images, listElements, 1);
+				const intervalID = setInterval(changeSlideFunction, interval * 1000, listElements);
+			}
+			else {
+				const buttons = addNavigationButtons(carousel);
+				buttons.forEach(button => {
+					button.addEventListener('click', () => {
+						const offset = button.dataset.carouselButton === 'next' ? 1 : -1;
+						changeSlide(images, listElements, offset);
+					});
+				});
+			}
+		})
 	}
 }
 
-function changeSlide(slides: HTMLUListElement, offset: number) {
-	const activeSlide: HTMLElement = slides.querySelector('[data-active]')!;
-	let newIndex = [...slides.children].indexOf(activeSlide) + offset;
-	if (newIndex < 0) newIndex = slides.children.length - 1;
-	if (newIndex >= slides.children.length) newIndex = 0;
-	const child = slides.children.item(newIndex);
-	if (child) {
-		const newActiveSlide = child as HTMLElement;
-		newActiveSlide.dataset.active = '';
-		delete activeSlide.dataset.active; /* remove 'active' attribute from the old slide */
+async function loadSlides(images: string[], shuffle: boolean, classes: string) {
+	/** create the <ul> element to contain all the slides */
+	const slideList = document.createElement('ul');
+	slideList.dataset.slides = '';
+	
+	/** create each of the <li> elements representing the slideList */
+	if (shuffle) images.sort(() => Math.random() - .5);
+	for (let i = 0; i < images.length; i += 1) {
+		const slide = document.createElement('li');
+		slide.className = classes;
+		if (i == 0) slide.dataset.active = '';
+		slideList.append(slide);
 	}
+	return slideList;
+}
+
+async function changeSlide(images: string[], slideList: HTMLUListElement, offset: number) {
+	const activeSlide: HTMLLIElement = slideList.querySelector('[data-active]')!;
+	let newIndex = [...slideList.children].indexOf(activeSlide) + offset;
+	if (newIndex < 0) newIndex = slideList.children.length - 1;
+	if (newIndex >= slideList.children.length) newIndex = 0;
+
+	const newActiveSlide = slideList.children.item(newIndex) as HTMLLIElement;
+	if (!newActiveSlide.children.length) {
+		/** <li> element is empty; add the image */
+		const image = document.createElement('img');
+		image.src = `${images[newIndex]}`;
+		await image.decode(); /** wait till the image is ready to use */
+		newActiveSlide.append(image);
+	}
+	newActiveSlide.dataset.active = '';
+	delete activeSlide.dataset.active; /* remove 'active' attribute from the old slide */
 }
 
 function addNavigationButtons(parent: HTMLElement) {
 	const previousButton = document.createElement('button');
 	previousButton.className = 'carousel-button prev';
 	previousButton.dataset.carouselButton = 'prev';
-	previousButton.innerHTML = '&larr;';
+	previousButton.innerHTML = '&lt;'; // '&larr;';
 	parent.append(previousButton);
 	const nextButton = document.createElement('button');
 	nextButton.className = 'carousel-button next';
 	nextButton.dataset.carouselButton = 'next';
-	nextButton.innerHTML = '&rarr;';
+	nextButton.innerHTML = '&gt;'; // '&rarr;';
 	parent.append(nextButton);
 	return [previousButton, nextButton];
 }
@@ -145,6 +155,16 @@ function album(albumName: string) {
 			'../media/image/lb/laurel4.jpeg',
 			'../media/image/lb/laurel5.jpeg',
 			'../media/image/lb/laurel6.jpeg',
+		];
+	}
+	else if (albumName == 'sm') {
+		images = [
+			externalImageURI('i-Tm4DNVx'),
+			externalImageURI('i-rwxHxHr'),
+			externalImageURI('i-hrkCmFB'),
+			externalImageURI('i-ppMDLxx'),
+			externalImageURI('i-jKZ2rrF'),
+			externalImageURI('i-Rg8PzGG'),
 		];
 	}
 	else if (albumName == 'smug') {
@@ -206,7 +226,7 @@ function album(albumName: string) {
 	return images;
 }
 
-function modalDialog() {
+function modalDialog(images: string[], shuffle: boolean, interval: number) {
 	/** open modal dialog to set options */
 	const modal = document.createElement('dialog');
 	modal.className = 'carousel-dialog';
@@ -242,10 +262,10 @@ function modalDialog() {
 	intervalSelection.step = '1';
 	intervalSelection.value = '0';
 	const intervalOutput = document.createElement('output');
-	intervalOutput.innerHTML = `<br>Value: ${intervalSelection.value}`;
+	intervalOutput.innerHTML = `<br>Number of Seconds: ${intervalSelection.value}`;
 	const intervalLabel = document.createElement('label');
 	intervalLabel.htmlFor = 'intervalSelection';
-	intervalLabel.innerHTML = 'Interval Between Slides (Seconds):<br>';
+	intervalLabel.innerHTML = 'Interval Between Slides:<br>';
 	intervalLabel.append(intervalSelection);
 	intervalLabel.append(intervalOutput);
 	intervalOption.append(intervalLabel);
@@ -280,11 +300,11 @@ function modalDialog() {
 	modal.showModal();
 
 	shuffleCheckbox.addEventListener('change', () => {
-		Shuffle = shuffleCheckbox.checked;
+		shuffle = shuffleCheckbox.checked;
 	});
 	intervalSelection.addEventListener('input', () => {
-		Interval = Number(intervalSelection.value);
-		intervalOutput.innerHTML = `<br>Value: ${Interval}`;
+		interval = Number(intervalSelection.value);
+		intervalOutput.innerHTML = `<br>Number of Seconds: ${interval}`;
 	});
 	// fileOption.addEventListener('change', (event) => {
 	// 	for (const file of event.target.files) {
@@ -293,12 +313,11 @@ function modalDialog() {
 	// 	}
 	// });
 	cancelButton.addEventListener('click', () => {
-		modal.close()
+		modal.close();
 		window.history.back();
 	});
 	confirmButton.addEventListener('click', () => {
-		modal.close()
-		if (Images.length) runCarousel();
-		else alert('No images have been selected!');
+		modal.close();
+		runCarousel(images, shuffle, interval);
 	});
 }

@@ -3,6 +3,7 @@ import * as Fetch from './fetch.js';
 import { MarkupLine } from './markup.js';
 
 class Session {
+	// static log: string[] = []; /**### doesn't work, see: Window: sessionStorage */
 	local: boolean;
 	built: number; /** last modified date/time of document in milliseconds  */
 	site: string;
@@ -30,6 +31,8 @@ const SESSION = new Session();
 const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
+
+// const LOG: string[] = []; /**### doesn't work, see: Window: sessionStorage */
 
 /** List of Article IDs--list starts and ends with numbers, numbers are separated by commas */
 const ID_SEPARATOR = ',';
@@ -137,6 +140,20 @@ export class Page {
 		if (header) this.displayHeader();
 		if (footer) this.displayFooter();
 	}
+
+	/**
+	 * Post a `message` in PAGE.log.
+	 * ### doesn't work, see: Window: sessionStorage
+	 */
+	// static log(message: string) {
+	// 	const timestamp = T.DateString(new Date(), 2);
+	// 	const uri = `${window.location.pathname} ${window.location.search} ${window.location.hash}`;
+	// 	Session.log.push(`${timestamp} ${uri} ¶ ${message}`);
+	// }
+
+	// static logEntries() {
+	// 	return Session.log;
+	// }
 
 	/**
 	 * Retrieve cookies, if any, and display special menus (append them to
@@ -452,6 +469,17 @@ export class Page {
 		}, delay);
 	}
 }
+
+/**
+ * @todo
+ * Many, if not all of these functions could be enclosed in the Page class as
+ * static functions. This is probably where a lot of common functions should be
+ * put--common to all Pages. Through a module's conformance to Page (basically,
+ * just having a 'render' function), it should expect certain functions to be
+ * available--even shareable across modules in a single session.
+ */
+
+
 
 /**
  * Given a `cookieName`, return the cookie in the form "name=value". When called

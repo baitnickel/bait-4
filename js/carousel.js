@@ -3,17 +3,16 @@ const PAGE = new Page(false, false);
 PAGE.header.remove();
 PAGE.content.remove();
 PAGE.footer.remove();
-const html = document.querySelector('html');
-html.style['backgroundColor'] = '#000';
-PAGE.body.style['backgroundColor'] = '#000';
-PAGE.body.style['width'] = '100vw';
-PAGE.body.style['maxWidth'] = '100vw';
-PAGE.body.style['height'] = '100vh';
-PAGE.body.style['maxHeight'] = '100vh';
-PAGE.body.style['margin'] = '0';
-PAGE.body.style['padding'] = '0';
-PAGE.body.style['border'] = '0';
-PAGE.body.style['gap'] = '0';
+document.documentElement.style['backgroundColor'] = '#000';
+document.body.style['backgroundColor'] = '#000';
+document.body.style['width'] = '100vw';
+document.body.style['maxWidth'] = '100vw';
+document.body.style['height'] = '100vh';
+document.body.style['maxHeight'] = '100vh';
+document.body.style['margin'] = '0';
+document.body.style['padding'] = '0';
+document.body.style['border'] = '0';
+document.body.style['gap'] = '0';
 export function render() {
     const images = album('lb');
     let interval = (PAGE.parameters.has('interval')) ? Number(PAGE.parameters.get('interval')) : 0;
@@ -25,6 +24,17 @@ export function render() {
     else
         modalDialog(images, shuffle, interval);
 }
+class ImageSet {
+    constructor(URIs, shuffle = false) {
+        if (shuffle)
+            URIs.sort(() => Math.random() - .5);
+        this.URIs = URIs;
+    }
+    activeURI() {
+        return this.URIs[ImageSet.index];
+    }
+}
+ImageSet.index = 0;
 function runCarousel(images, shuffle, interval) {
     if (!images.length) {
         alert('No images have been selected!');
@@ -33,61 +43,42 @@ function runCarousel(images, shuffle, interval) {
     else {
         /** create the <div> element that will contain the slides */
         const carousel = document.createElement('div');
-        PAGE.body.append(carousel);
+        document.body.append(carousel);
         carousel.className = 'carousel';
         carousel.dataset.carousel = '';
-        loadSlides(images, shuffle, 'slide').then((listElements) => {
-            carousel.append(listElements);
-            addExitButton(carousel);
-            if (interval) {
-                const changeSlideFunction = () => changeSlide(images, listElements, 1);
-                const intervalID = setInterval(changeSlideFunction, interval * 1000, listElements);
-            }
-            else {
-                const buttons = addNavigationButtons(carousel);
-                buttons.forEach(button => {
-                    button.addEventListener('click', () => {
-                        const offset = button.dataset.carouselButton === 'next' ? 1 : -1;
-                        changeSlide(images, listElements, offset);
-                    });
+        const imageSet = new ImageSet(images, shuffle);
+        const slide = document.createElement('div');
+        slide.className = 'slide';
+        slide.dataset.active = '';
+        carousel.append(slide);
+        const imageElement = document.createElement('img');
+        imageElement.src = imageSet.activeURI();
+        slide.append(imageElement);
+        // await image.decode(); /** wait till the image is ready to use */
+        addExitButton(carousel);
+        if (interval) {
+            const changeImageFunction = () => changeImage(imageSet, imageElement);
+            const intervalID = setInterval(changeImageFunction, interval * 1000, carousel);
+        }
+        else {
+            const buttons = addNavigationButtons(carousel);
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const reverse = button.dataset.carouselButton === 'prev';
+                    changeImage(imageSet, imageElement, reverse);
                 });
-            }
-        });
+            });
+        }
     }
 }
-async function loadSlides(images, shuffle, classes) {
-    /** create the <ul> element to contain all the slides */
-    const slideList = document.createElement('ul');
-    slideList.dataset.slides = '';
-    /** create each of the <li> elements representing the slideList */
-    if (shuffle)
-        images.sort(() => Math.random() - .5);
-    for (let i = 0; i < images.length; i += 1) {
-        const slide = document.createElement('li');
-        slide.className = classes;
-        if (i == 0)
-            slide.dataset.active = '';
-        slideList.append(slide);
-    }
-    return slideList;
-}
-async function changeSlide(images, slideList, offset) {
-    const activeSlide = slideList.querySelector('[data-active]');
-    let newIndex = [...slideList.children].indexOf(activeSlide) + offset;
-    if (newIndex < 0)
-        newIndex = slideList.children.length - 1;
-    if (newIndex >= slideList.children.length)
-        newIndex = 0;
-    const newActiveSlide = slideList.children.item(newIndex);
-    if (!newActiveSlide.children.length) {
-        /** <li> element is empty; add the image */
-        const image = document.createElement('img');
-        image.src = `${images[newIndex]}`;
-        await image.decode(); /** wait till the image is ready to use */
-        newActiveSlide.append(image);
-    }
-    newActiveSlide.dataset.active = '';
-    delete activeSlide.dataset.active; /* remove 'active' attribute from the old slide */
+function changeImage(imageSet, imageElement, reverse = false) {
+    const offset = (reverse) ? -1 : 1;
+    ImageSet.index += offset;
+    if (ImageSet.index < 0)
+        ImageSet.index = imageSet.URIs.length - 1;
+    else if (ImageSet.index >= imageSet.URIs.length)
+        ImageSet.index = 0;
+    imageElement.src = imageSet.activeURI();
 }
 function addNavigationButtons(parent) {
     const previousButton = document.createElement('button');
@@ -109,32 +100,78 @@ function addExitButton(parent) {
     parent.append(returnButton);
     returnButton.addEventListener('click', () => { window.history.back(); });
 }
-/**
- * To obtain the URL of a SmugMug photo for use in a web page (also see Obsidian
- * 'SmugMug' note):
- *
- * - Logon to SmugMug and open the image
- * - Click the Share icon in the left-hand ribbon
- * - Select Embed
- * - Select a Photo Size
- * - Click JPEG
- * - Click COPY JPEG URL
- *
- * ... or, just grab the ID from the image URL
- *
- * A SmugMug Embed URL doesn't care where in SmugMug the file has been placed:
- * https://photos.smugmug.com/photos/i-g6HGgRQ/0/Th/i-g6HGgRQ-Th.jpg
- *
- * In contrast, the plain SmugMug Link contains gallery/folder names:
- * https://dand.smugmug.com/Travels/Sierra-Nevada/Yosemite-05/i-g6HGgRQ/A
- *
- */
-function externalImageURI(id, size = 'O', type = 'jpg') {
-    const smugMug = 'https://photos.smugmug.com/photos';
-    let uri = `${smugMug}/${id}/0/${size}/${id}-${size}.${type}`;
-    if (size == 'O')
-        uri.replace('-O', '');
-    return uri;
+function modalDialog(images, shuffle, interval) {
+    /** open modal dialog to set options */
+    const modal = document.createElement('dialog');
+    modal.className = 'carousel-dialog';
+    /** fieldset */
+    const modalFieldSet = document.createElement('fieldset');
+    const modalLegend = document.createElement('legend');
+    modalLegend.innerText = 'Carousel Options';
+    modalFieldSet.append(modalLegend);
+    /** create options list */
+    const optionList = document.createElement('ul');
+    /** shuffle checkbox */
+    const shuffleOption = document.createElement('li');
+    const shuffleCheckbox = document.createElement('input');
+    shuffleCheckbox.type = 'checkbox';
+    shuffleCheckbox.id = 'shuffleOption';
+    shuffleCheckbox.checked = shuffle;
+    const shuffleLabel = document.createElement('label');
+    shuffleLabel.htmlFor = shuffleCheckbox.id;
+    shuffleLabel.innerText = 'Shuffle Slides ';
+    shuffleLabel.append(shuffleCheckbox);
+    shuffleOption.append(shuffleLabel);
+    /** interval seconds */
+    const intervalOption = document.createElement('li');
+    const intervalSelection = document.createElement('input');
+    intervalSelection.type = 'range';
+    intervalSelection.id = 'intervalSelection';
+    intervalSelection.min = '0';
+    intervalSelection.max = '60';
+    intervalSelection.step = '1';
+    intervalSelection.value = '0';
+    const intervalOutput = document.createElement('output');
+    intervalOutput.innerHTML = `<br>Number of Seconds: ${intervalSelection.value}`;
+    const intervalLabel = document.createElement('label');
+    intervalLabel.htmlFor = 'intervalSelection';
+    intervalLabel.innerHTML = 'Interval Between Slides:<br>';
+    intervalLabel.append(intervalSelection);
+    intervalLabel.append(intervalOutput);
+    intervalOption.append(intervalLabel);
+    /** cancel and confirm buttons */
+    const buttonsOption = document.createElement('li');
+    const cancelButton = document.createElement('button');
+    cancelButton.innerText = 'Cancel';
+    buttonsOption.append(cancelButton);
+    const confirmButton = document.createElement('button');
+    confirmButton.innerText = 'Confirm';
+    buttonsOption.append(confirmButton);
+    /** add list of options to options list and add options list to fieldset */
+    optionList.append(shuffleOption);
+    optionList.append(intervalOption);
+    // optionList.append(fileOption);
+    optionList.append(buttonsOption);
+    modalFieldSet.append(optionList);
+    /** add fieldset to modal and modal to body and display modal */
+    modal.append(modalFieldSet);
+    document.body.append(modal);
+    modal.showModal();
+    shuffleCheckbox.addEventListener('change', () => {
+        shuffle = shuffleCheckbox.checked;
+    });
+    intervalSelection.addEventListener('input', () => {
+        interval = Number(intervalSelection.value);
+        intervalOutput.innerHTML = `<br>Number of Seconds: ${interval}`;
+    });
+    cancelButton.addEventListener('click', () => {
+        modal.close();
+        window.history.back();
+    });
+    confirmButton.addEventListener('click', () => {
+        modal.close();
+        runCarousel(images, shuffle, interval);
+    });
 }
 function album(albumName) {
     let images = [];
@@ -216,89 +253,30 @@ function album(albumName) {
     }
     return images;
 }
-function modalDialog(images, shuffle, interval) {
-    /** open modal dialog to set options */
-    const modal = document.createElement('dialog');
-    modal.className = 'carousel-dialog';
-    /** fieldset */
-    const modalFieldSet = document.createElement('fieldset');
-    const modalLegend = document.createElement('legend');
-    modalLegend.innerText = 'Carousel Options';
-    modalFieldSet.append(modalLegend);
-    /** create options list */
-    const optionList = document.createElement('ul');
-    /** shuffle checkbox */
-    const shuffleOption = document.createElement('li');
-    const shuffleCheckbox = document.createElement('input');
-    shuffleCheckbox.type = 'checkbox';
-    shuffleCheckbox.id = 'shuffleOption';
-    shuffleCheckbox.checked = true;
-    const shuffleLabel = document.createElement('label');
-    shuffleLabel.htmlFor = shuffleCheckbox.id;
-    shuffleLabel.innerText = 'Randomly Sort Slides ';
-    shuffleLabel.append(shuffleCheckbox);
-    shuffleOption.append(shuffleLabel);
-    /** interval seconds */
-    const intervalOption = document.createElement('li');
-    const intervalSelection = document.createElement('input');
-    intervalSelection.type = 'range';
-    intervalSelection.id = 'intervalSelection';
-    intervalSelection.min = '0';
-    intervalSelection.max = '60';
-    intervalSelection.step = '1';
-    intervalSelection.value = '0';
-    const intervalOutput = document.createElement('output');
-    intervalOutput.innerHTML = `<br>Number of Seconds: ${intervalSelection.value}`;
-    const intervalLabel = document.createElement('label');
-    intervalLabel.htmlFor = 'intervalSelection';
-    intervalLabel.innerHTML = 'Interval Between Slides:<br>';
-    intervalLabel.append(intervalSelection);
-    intervalLabel.append(intervalOutput);
-    intervalOption.append(intervalLabel);
-    // /** create file picker input */
-    // const fileOption = document.createElement('input');
-    // fileOption.type = 'file';
-    // fileOption.id = 'fileOption';
-    // fileOption.name = 'fileOption';
-    // fileOption.accept = '.jpg, .jpeg, .png';
-    // fileOption.multiple = true;
-    /** cancel and confirm buttons */
-    const buttonsOption = document.createElement('li');
-    const cancelButton = document.createElement('button');
-    cancelButton.innerText = 'Cancel';
-    buttonsOption.append(cancelButton);
-    const confirmButton = document.createElement('button');
-    confirmButton.innerText = 'Confirm';
-    buttonsOption.append(confirmButton);
-    /** add list of options to options list and add options list to fieldset */
-    optionList.append(shuffleOption);
-    optionList.append(intervalOption);
-    // optionList.append(fileOption);
-    optionList.append(buttonsOption);
-    modalFieldSet.append(optionList);
-    /** add fieldset to modal and modal to body and display modal */
-    modal.append(modalFieldSet);
-    PAGE.body.append(modal);
-    modal.showModal();
-    shuffleCheckbox.addEventListener('change', () => {
-        shuffle = shuffleCheckbox.checked;
-    });
-    intervalSelection.addEventListener('input', () => {
-        interval = Number(intervalSelection.value);
-        intervalOutput.innerHTML = `<br>Number of Seconds: ${interval}`;
-    });
-    // fileOption.addEventListener('change', (event) => {
-    // 	for (const file of event.target.files) {
-    // 		// images.push(file.name);
-    // 		console.log(file);
-    // 	}
-    // });
-    cancelButton.addEventListener('click', () => {
-        modal.close();
-        window.history.back();
-    });
-    confirmButton.addEventListener('click', () => {
-        modal.close();
-        runCarousel(images, shuffle, interval);
-    });
+/**
+ * To obtain the URL of a SmugMug photo for use in a web page (also see Obsidian
+ * 'SmugMug' note):
+ *
+ * - Logon to SmugMug and open the image
+ * - Click the Share icon in the left-hand ribbon
+ * - Select Embed
+ * - Select a Photo Size
+ * - Click JPEG
+ * - Click COPY JPEG URL
+ *
+ * ... or, just grab the ID from the image URL
+ *
+ * A SmugMug Embed URL doesn't care where in SmugMug the file has been placed:
+ * https://photos.smugmug.com/photos/i-g6HGgRQ/0/Th/i-g6HGgRQ-Th.jpg
+ *
+ * In contrast, the plain SmugMug Link contains gallery/folder names:
+ * https://dand.smugmug.com/Travels/Sierra-Nevada/Yosemite-05/i-g6HGgRQ/A
+ *
+ */
+function externalImageURI(id, size = 'O', type = 'jpg') {
+    const smugMug = 'https://photos.smugmug.com/photos';
+    let uri = `${smugMug}/${id}/0/${size}/${id}-${size}.${type}`;
+    if (size == 'O')
+        uri.replace('-O', '');
+    return uri;
 }

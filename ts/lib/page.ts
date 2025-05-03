@@ -80,7 +80,7 @@ export class Page {
 	access: number;                 /** access number (permission/authorization) */
 	revision: number;               /** revision date (milliseconds since 1/1/1970 UTC) */
 	site: string;                   /** root URL for content fetch operations */
-	body: HTMLBodyElement;          /** HTML body element */
+	// body: HTMLBodyElement;          /** HTML body element */
 	header: HTMLDivElement;         /** division at the top of the display, containing menu, etc. */
 	content: HTMLDivElement;        /** division containing main page content */
 	footer: HTMLDivElement;         /** division at the bottom of the display, containing modification date, ©, etc. */
@@ -114,17 +114,17 @@ export class Page {
 		this.access = (fileStats === null) ? 0 : fileStats.access;
 		this.revision = (fileStats === null) ? this.session.built : fileStats.revision;
 		/** 'head' and 'body' must be defined in index.html */
-		const head = document.querySelector('head')!;
-		this.body = document.querySelector('body')!;
+		// const head = document.querySelector('head')!;
+		// this.body = document.querySelector('body')!;
 		this.header = document.createElement('div');
 		this.header.id = 'header';
 		this.content = document.createElement('div');
 		this.content.id = 'content';
 		this.footer = document.createElement('div');
 		this.footer.id = 'footer';
-		this.body.append(this.header);
-		this.body.append(this.content);
-		this.body.append(this.footer);
+		document.body.append(this.header);
+		document.body.append(this.content);
+		document.body.append(this.footer);
 
 		if (this.local) { /** Add test pages */
 			MenuItems.push({module: 'carousel', parameters: [], text: 'Carousel', icon: ''});

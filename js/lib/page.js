@@ -75,17 +75,17 @@ export class Page {
         this.access = (fileStats === null) ? 0 : fileStats.access;
         this.revision = (fileStats === null) ? this.session.built : fileStats.revision;
         /** 'head' and 'body' must be defined in index.html */
-        const head = document.querySelector('head');
-        this.body = document.querySelector('body');
+        // const head = document.querySelector('head')!;
+        // this.body = document.querySelector('body')!;
         this.header = document.createElement('div');
         this.header.id = 'header';
         this.content = document.createElement('div');
         this.content.id = 'content';
         this.footer = document.createElement('div');
         this.footer.id = 'footer';
-        this.body.append(this.header);
-        this.body.append(this.content);
-        this.body.append(this.footer);
+        document.body.append(this.header);
+        document.body.append(this.content);
+        document.body.append(this.footer);
         if (this.local) { /** Add test pages */
             MenuItems.push({ module: 'carousel', parameters: [], text: 'Carousel', icon: '' });
             // MenuItems.push({module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: ''});

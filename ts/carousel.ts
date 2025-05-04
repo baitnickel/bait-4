@@ -1,4 +1,5 @@
 import { Page } from './lib/page.js';
+import * as Fetch from './lib/fetch.js';
 
 const PAGE = new Page(false, false);
 PAGE.header.remove();
@@ -17,13 +18,16 @@ document.body.style['padding'] = '0';
 document.body.style['border'] = '0';
 document.body.style['gap'] = '0';
 
+const MediaImages = `${PAGE.site}/data/test-Data/albums.yaml`;
+const Albums = await Fetch.map<string[]>(MediaImages);
+
 export function render() {
-	const images = album('lb');
+	let album = (PAGE.parameters.has('album')) ? PAGE.parameters.get('album')! : 'lb';
 	let interval = (PAGE.parameters.has('interval')) ? Number(PAGE.parameters.get('interval')) : 0;
 	if (isNaN(interval) || interval < 0) interval = 0;
 	let shuffle = (PAGE.parameters.has('shuffle')) ? true : false;
-	if (PAGE.parameters.has('interval') || PAGE.parameters.has('shuffle')) runCarousel(images, shuffle, interval);
-	else modalDialog(images, shuffle, interval);
+	if (PAGE.parameters.has('interval') || PAGE.parameters.has('shuffle')) runCarousel(album, shuffle, interval);
+	else modalDialog(album, shuffle, interval);
 }
 
 class ImageSet {
@@ -39,10 +43,11 @@ class ImageSet {
 	}
 }
 
-function runCarousel(images: string[], shuffle: boolean, interval: number) {
+function runCarousel(album: string, shuffle: boolean, interval: number) {
+	const images = albumImages(album);
 	if (!images.length) {
 		alert('No images have been selected!');
-		window.history.back();
+		location.reload();
 	}
 	else {
 		/** create the <div> element that will contain the slides */
@@ -107,7 +112,7 @@ function addExitButton(parent: HTMLElement) {
 	returnButton.addEventListener('click', () => { window.history.back(); });
 }
 
-function modalDialog(images: string[], shuffle: boolean, interval: number) {
+function modalDialog(album: string, shuffle: boolean, interval: number) {
 	/** open modal dialog to set options */
 	const modal = document.createElement('dialog');
 	modal.className = 'carousel-dialog';
@@ -120,6 +125,18 @@ function modalDialog(images: string[], shuffle: boolean, interval: number) {
 
 	/** create options list */
 	const optionList = document.createElement('ul');
+
+	/** album selection */
+	const albumOption = document.createElement('li');
+	const albumSelection = document.createElement('input');
+	albumSelection.id = 'album';
+	albumSelection.name = 'album';
+	albumSelection.value = album;
+	const albumLabel = document.createElement('label');
+	albumLabel.htmlFor = albumSelection.id;
+	albumLabel.innerText = 'Album: ';
+	albumLabel.append(albumSelection);
+	albumOption.append(albumLabel);
 
 	/** shuffle checkbox */
 	const shuffleOption = document.createElement('li');
@@ -161,9 +178,9 @@ function modalDialog(images: string[], shuffle: boolean, interval: number) {
 	buttonsOption.append(confirmButton);
 
 	/** add list of options to options list and add options list to fieldset */
+	optionList.append(albumOption);
 	optionList.append(shuffleOption);
 	optionList.append(intervalOption);
-	// optionList.append(fileOption);
 	optionList.append(buttonsOption);
 	modalFieldSet.append(optionList);
 
@@ -172,6 +189,9 @@ function modalDialog(images: string[], shuffle: boolean, interval: number) {
 	document.body.append(modal);
 	modal.showModal();
 
+	albumSelection.addEventListener('change', () => {
+		album = albumSelection.value;
+	});
 	shuffleCheckbox.addEventListener('change', () => {
 		shuffle = shuffleCheckbox.checked;
 	});
@@ -185,112 +205,29 @@ function modalDialog(images: string[], shuffle: boolean, interval: number) {
 	});
 	confirmButton.addEventListener('click', () => {
 		modal.close();
-		runCarousel(images, shuffle, interval);
+		runCarousel(album, shuffle, interval);
 	});
 }
 
-function album(albumName: string) {
+function albumImages(albumName: string) {
 	let images: string[] = [];
-	if (albumName == 'lb') {
-		images = [
-			'../media/image/lb/laurel1.jpeg',
-			'../media/image/lb/laurel2.jpeg',
-			'../media/image/lb/laurel3.jpeg',
-			'../media/image/lb/laurel4.jpeg',
-			'../media/image/lb/laurel5.jpeg',
-			'../media/image/lb/laurel6.jpeg',
-		];
+	if (Albums.has(albumName)) {
+		images = Albums.get(albumName)!;
+		images.forEach((image, i, array) => {
+			/** convert SmugMug IDs to URIs */
+			if (!image.includes('/')) array[i] = smugURI(image);
+		});
 	}
-	else if (albumName == 'sm') {
-		images = [
-			externalImageURI('i-Tm4DNVx'),
-			externalImageURI('i-rwxHxHr'),
-			externalImageURI('i-hrkCmFB'),
-			externalImageURI('i-ppMDLxx'),
-			externalImageURI('i-jKZ2rrF'),
-			externalImageURI('i-Rg8PzGG'),
-		];
-	}
-	else if (albumName == 'smug') {
-		images = [
-			externalImageURI('i-Tm4DNVx'),
-			externalImageURI('i-rwxHxHr'),
-			externalImageURI('i-hrkCmFB'),
-			externalImageURI('i-ppMDLxx'),
-			externalImageURI('i-jKZ2rrF'),
-			externalImageURI('i-Rg8PzGG'),
-			externalImageURI('i-JNdgjQm'),
-			externalImageURI('i-84C2Hsq'),
-			externalImageURI('i-wZLVH8D'),
-			externalImageURI('i-3Mx7mVm'),
-			externalImageURI('i-Csjbz22'),
-			externalImageURI('i-BqwT4mg'),
-			externalImageURI('i-JM3GNRf'),
-			externalImageURI('i-7ttcPm6'),
-			externalImageURI('i-9F92fdJ'),
-			externalImageURI('i-8QrWQjD'),
-			externalImageURI('i-sbg54cH'),
-			externalImageURI('i-DHBchVF'),
-			externalImageURI('i-RQm3fz2'),
-			externalImageURI('i-75TgDZk'),
-			externalImageURI('i-ssSgNgH'),
-			externalImageURI('i-7gxW9Pr'),
-			externalImageURI('i-JfR9mKR'),
-			externalImageURI('i-bvdVMgN'),
-			externalImageURI('i-dsrkX6K'),
-			externalImageURI('i-7XSJ7sc'),
-			externalImageURI('i-6HsKBZC'),
-			externalImageURI('i-QxjNSDx'),
-			externalImageURI('i-PmB4QRK'),
-			externalImageURI('i-PzpBr5S'),
-			externalImageURI('i-LTzBkj5'),
-			externalImageURI('i-ZrLfLgh'),
-			externalImageURI('i-ftSVh27'),
-			externalImageURI('i-jBWW5mn'),
-			externalImageURI('i-BPBwJxL'),
-			externalImageURI('i-sCf6xR7'),
-			externalImageURI('i-Fs8g2Gw'),
-			externalImageURI('i-DChXB5S'),
-			externalImageURI('i-G8JbPVs'),
-			externalImageURI('i-tGh9dZv'),
-			externalImageURI('i-L84NFbF'),
-			externalImageURI('i-M7XkjLQ'),
-			externalImageURI('i-wgSqRTH'),
-			externalImageURI('i-gRMN5z6'),
-			externalImageURI('i-24sk7Fn'),
-			externalImageURI('i-L22tW7j'),
-			externalImageURI('i-LWcdZ7z'),
-			externalImageURI('i-m58Jcfm'),
-			externalImageURI('i-Q89WJWx'),
-			externalImageURI('i-JZPkD7q'),
-			externalImageURI('i-xGLMGDC'),
-			externalImageURI('i-77Gk4Rn'),
-		];
-	}
+	for (const image of images) console.log(image);
 	return images;
 }
 
 /**
- * To obtain the URL of a SmugMug photo for use in a web page (also see Obsidian
- * 'SmugMug' note):
- * 
- * - Logon to SmugMug and open the image
- * - Click the Share icon in the left-hand ribbon
- * - Select Embed
- * - Select a Photo Size
- * - Click JPEG
- * - Click COPY JPEG URL
- * 
- * ... or, just grab the ID from the image URL
- * 
- * A SmugMug Embed URL doesn't care where in SmugMug the file has been placed:
- * https://photos.smugmug.com/photos/i-g6HGgRQ/0/Th/i-g6HGgRQ-Th.jpg
- * 
- * In contrast, the plain SmugMug Link contains gallery/folder names:
+ * Logged into SmugMug, a photo's URL contains its photo `id`.
+ * In the URL below, the `id` is: i-g6HGgRQ 
  * https://dand.smugmug.com/Travels/Sierra-Nevada/Yosemite-05/i-g6HGgRQ/A
- * 
  */
-function externalImageURI(id: string, size = 'O', type = 'jpg') {
+function smugURI(id: string, size = 'O', type = 'jpg') {
 	const smugMug = 'https://photos.smugmug.com/photos';
 	let uri = `${smugMug}/${id}/0/${size}/${id}-${size}.${type}`;
 	if (size == 'O') uri.replace('-O', '');

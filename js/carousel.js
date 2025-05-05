@@ -29,9 +29,7 @@ export function render() {
 }
 class ImageSet {
     constructor(URIs, shuffle = false) {
-        if (shuffle)
-            URIs.sort(() => Math.random() - .5);
-        this.URIs = URIs;
+        this.URIs = (shuffle) ? randomize(URIs) : URIs;
     }
     activeURI() {
         return this.URIs[ImageSet.index];
@@ -216,4 +214,19 @@ function smugURI(id, size = 'O', type = 'jpg') {
     if (size == 'O')
         uri.replace('-O', '');
     return uri;
+}
+/**
+ * Given an `array` of strings, return a new array with the elements sorted
+ * randomly. The original `array` is unchanged. This function generally produces
+ * more random results than: "array.sort(()=>Math.random()-.5)".
+ */
+function randomize(array) {
+    const newArray = [];
+    const arrayCopy = [...array];
+    for (let i = 0; i < array.length; i += 1) {
+        const randomElement = Math.floor(Math.random() * (array.length - i));
+        newArray.push(arrayCopy[randomElement]);
+        arrayCopy.splice(randomElement, 1);
+    }
+    return newArray;
 }

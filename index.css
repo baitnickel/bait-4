@@ -426,6 +426,7 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	z-index: 2; /* force buttons to show up on top of images */
 	background: none;
 	border: none;
+	/* font-family: serif;  ... seems to make no difference */
 	font-size: 1.5rem;  /* 4rem; */
 	transform: translateY(-50%); /* push buttons up a bit to exactly dead center of vertical (Y) axis */
 	color: rgba(255, 255, 255, .5);

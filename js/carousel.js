@@ -81,6 +81,7 @@ function changeImage(imageSet, imageElement, reverse = false) {
     else if (ImageSet.index >= imageSet.URIs.length)
         ImageSet.index = 0;
     imageElement.src = imageSet.activeURI();
+    // PAGE.fadeIn(imageElement, 10); // no good ... 
 }
 function addNavigationButtons(parent) {
     const previousButton = document.createElement('button');

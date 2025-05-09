@@ -244,37 +244,10 @@ export function render() {
             closeModal.addEventListener('click', () => { modal.close(); });
         }
         if (testNode) {
-            /** Test GET */
-            fetch('http://localhost:3000', {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json', },
-            })
-                // .then(response => response.json())
-                // .then(data => {
-                // 	console.log('Success:', data);
-                // 	ThisPage.appendParagraph(TestNode, data);
-                // })
-                .catch((error) => {
-                console.error('Error:', error);
+            Fetch.json('http://localhost:3000/media/images').then((data) => {
+                console.log('Data:');
+                console.log(data);
             });
-            /** Test POST */
-            const message = window.prompt('Message:');
-            if (message) {
-                const data = { message: message };
-                fetch('http://localhost:3000', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', },
-                    body: JSON.stringify(data),
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                    console.log('Success:', data);
-                    ThisPage.appendParagraph(TestNode, data);
-                })
-                    .catch((error) => {
-                    console.error('Error:', error);
-                });
-            }
         }
     }
 }

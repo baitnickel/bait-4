@@ -10,6 +10,14 @@ export async function text(uri: string) {
 	return text;
 }
 
+export async function json<Type>(uri: string) {
+	let textData = await text(uri);
+	// let jsonData = JSON.parse(textData);
+	// const data: Type = jsonData;
+	const data: Type = JSON.parse(textData);
+	return data;
+}
+
 export async function object<Type>(uri: string, convertYamlStrings = true) {
 	let data = <Type>{}; /* empty object */
 	const response = await getResponse(uri);

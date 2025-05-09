@@ -8,6 +8,13 @@ export async function text(uri) {
         text = await response.text();
     return text;
 }
+export async function json(uri) {
+    let textData = await text(uri);
+    // let jsonData = JSON.parse(textData);
+    // const data: Type = jsonData;
+    const data = JSON.parse(textData);
+    return data;
+}
 export async function object(uri, convertYamlStrings = true) {
     let data = {}; /* empty object */
     const response = await getResponse(uri);

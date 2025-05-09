@@ -1,4 +1,7 @@
 import * as Fetch from '../lib/fetch.js';
+/**
+ * url returns MoonData[]
+ */
 export async function displayMoonData(element) {
     const url = 'https://svs.gsfc.nasa.gov/vis/a000000/a005000/a005048/mooninfo_2023.json';
     // const url = './data/moon.json'; /** relative to index.html directory */

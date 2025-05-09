@@ -14,10 +14,13 @@ document.body.style['margin'] = '0';
 document.body.style['padding'] = '0';
 document.body.style['border'] = '0';
 document.body.style['gap'] = '0';
-const MediaImages = `${PAGE.site}/data/test-Data/albums.yaml`;
-const Albums = await Fetch.map(MediaImages);
+/**### must catch and report failures when the localhost server is unreachable */
+const MediaImages = await Fetch.json('http://localhost:3000/media/images');
+const Albums = mediaImagesMap(MediaImages);
+// const MediaImages = `${PAGE.site}/data/test-Data/albums.yaml`;
+// const Albums = await Fetch.map<string[]>(MediaImages);
 export function render() {
-    let album = (PAGE.parameters.has('album')) ? PAGE.parameters.get('album') : 'lb';
+    let album = (PAGE.parameters.has('album')) ? PAGE.parameters.get('album') : '';
     let interval = (PAGE.parameters.has('interval')) ? Number(PAGE.parameters.get('interval')) : 0;
     if (isNaN(interval) || interval < 0)
         interval = 0;
@@ -230,4 +233,14 @@ function randomize(array) {
         arrayCopy.splice(randomElement, 1);
     }
     return newArray;
+}
+function mediaImagesMap(mediaImages) {
+    const imagesMap = new Map();
+    for (const mediaImage of mediaImages) {
+        const albumName = mediaImage.folder.replace(/.*\//, '');
+        const adjustedPath = mediaImage.folder.replace(/.*\/Sites/, '..');
+        const imagePaths = mediaImage.files.map((element) => `${adjustedPath}/${element}`);
+        imagesMap.set(albumName, imagePaths);
+    }
+    return imagesMap;
 }

@@ -35,14 +35,45 @@ export function render() {
 }
 
 class ImageSet {
-	static index = 0;
-	URIs: string[];
+	images: string[];
+	index: number;
+	shuffling: boolean;
 
-	constructor(URIs: string[], shuffle = false) {
-		this.URIs = (shuffle) ? randomize(URIs) : URIs;
+	constructor(images: string[], shuffle = false) {
+		this.images = [...images];
+		this.index = 0;
+		this.shuffling = shuffle;
+		if (this.shuffling) this.shuffle();
 	}
-	activeURI() {
-		return this.URIs[ImageSet.index];
+
+	/**
+	 * Return the next image.
+	 */
+	nextImage(reverse = false) {
+		const offset = (reverse) ? -1 : 1;
+		this.index += offset;
+		if (this.index >= this.images.length) {
+			this.index = 0;
+			if (this.shuffling) this.shuffle();
+		}
+		else if (this.index < 0) {
+			this.index = this.images.length - 1;
+			if (this.shuffling) this.shuffle();
+		}
+		return this.images[this.index];
+	}
+
+	/**
+	 * Randomly sort the object's images. This method seems to produce more random
+	 * results than: "this.images.sort(()=>Math.random()-.5)".
+	 */
+	shuffle() {
+		let count = this.images.length;
+		for (let i = 0; i < count; i += 1) {
+			const randomIndex = Math.floor(Math.random() * (count - i));
+			const randomImage = this.images.splice(randomIndex, 1)[0]
+			this.images.push(randomImage);
+		}
 	}
 }
 
@@ -65,12 +96,12 @@ function runCarousel(album: string, shuffle: boolean, interval: number) {
 		slide.dataset.active = '';
 		carousel.append(slide);
 		const imageElement = document.createElement('img');
-		imageElement.src = imageSet.activeURI();
+		imageElement.src = imageSet.images[imageSet.index];
 		slide.append(imageElement);
 		// await image.decode(); /** wait till the image is ready to use */
 		addExitButton(carousel);
 		if (interval) {
-			const changeImageFunction = () => changeImage(imageSet, imageElement);
+			const changeImageFunction = () => imageElement.src = imageSet.nextImage();
 			const intervalID = setInterval(changeImageFunction, interval * 1000, carousel);
 		}
 		else {
@@ -78,20 +109,11 @@ function runCarousel(album: string, shuffle: boolean, interval: number) {
 			buttons.forEach(button => {
 				button.addEventListener('click', () => {
 					const reverse = button.dataset.carouselButton === 'prev';
-					changeImage(imageSet, imageElement, reverse);
+					imageElement.src = imageSet.nextImage(reverse);
 				});
 			});
 		}
 	}
-}
-
-function changeImage(imageSet: ImageSet, imageElement: HTMLImageElement, reverse = false) {
-	const offset = (reverse) ? -1 : 1;
-	ImageSet.index += offset;
-	if (ImageSet.index < 0) ImageSet.index = imageSet.URIs.length - 1;
-	else if (ImageSet.index >= imageSet.URIs.length) ImageSet.index = 0;
-	imageElement.src = imageSet.activeURI();
-	// PAGE.fadeIn(imageElement, 10); // no good ... 
 }
 
 function addNavigationButtons(parent: HTMLElement) {
@@ -236,22 +258,6 @@ function smugURI(id: string, size = 'O', type = 'jpg') {
 	let uri = `${smugMug}/${id}/0/${size}/${id}-${size}.${type}`;
 	if (size == 'O') uri.replace('-O', '');
 	return uri;
-}
-
-/**
- * Given an `array` of strings, return a new array with the elements sorted
- * randomly. The original `array` is unchanged. This function generally produces
- * more random results than: "array.sort(()=>Math.random()-.5)".
- */
-function randomize(array: string[]) {
-	const newArray: string[] = [];
-	const arrayCopy = [...array];
-	for (let i = 0; i < array.length; i += 1) {
-		const randomElement = Math.floor(Math.random() * (array.length - i));
-		newArray.push(arrayCopy[randomElement]);
-		arrayCopy.splice(randomElement, 1);
-	}
-	return newArray;
 }
 
 function mediaImagesMap(mediaImages: MediaImageData[]) {

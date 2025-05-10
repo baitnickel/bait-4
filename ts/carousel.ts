@@ -18,7 +18,7 @@ document.body.style['padding'] = '0';
 document.body.style['border'] = '0';
 document.body.style['gap'] = '0';
 
-type MediaImageData = { folder: string; files: string[]; }
+type MediaImageData = { album: string; filePaths: string[]; }
 /**### must catch and report failures when the localhost server is unreachable */
 const MediaImages = await Fetch.json<MediaImageData[]>('http://localhost:3000/media/images');
 const Albums = mediaImagesMap(MediaImages);
@@ -256,11 +256,6 @@ function randomize(array: string[]) {
 
 function mediaImagesMap(mediaImages: MediaImageData[]) {
 	const imagesMap = new Map<string, string[]>();
-	for (const mediaImage of mediaImages) {
-		const albumName = mediaImage.folder.replace(/.*\//, '');
-		const adjustedPath = mediaImage.folder.replace(/.*\/Sites/, '..');
-		const imagePaths = mediaImage.files.map((element) => `${adjustedPath}/${element}`);
-		imagesMap.set(albumName, imagePaths);
-	}
+	for (const mediaImage of mediaImages) imagesMap.set(mediaImage.album, mediaImage.filePaths);
 	return imagesMap;
 }

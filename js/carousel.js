@@ -236,11 +236,7 @@ function randomize(array) {
 }
 function mediaImagesMap(mediaImages) {
     const imagesMap = new Map();
-    for (const mediaImage of mediaImages) {
-        const albumName = mediaImage.folder.replace(/.*\//, '');
-        const adjustedPath = mediaImage.folder.replace(/.*\/Sites/, '..');
-        const imagePaths = mediaImage.files.map((element) => `${adjustedPath}/${element}`);
-        imagesMap.set(albumName, imagePaths);
-    }
+    for (const mediaImage of mediaImages)
+        imagesMap.set(mediaImage.album, mediaImage.filePaths);
     return imagesMap;
 }

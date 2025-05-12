@@ -19,13 +19,7 @@ document.body.style['border'] = '0';
 document.body.style['gap'] = '0';
 
 const Backend = 'http://localhost:3000';
-/** catch and report failures when the localhost server is unreachable */
-const BackendResponse = await Fetch.getResponse(`${Backend}/`);
-if (BackendResponse) console.log(BackendResponse);
-else {
-	window.alert(`Failed to connect to ${Backend}`);
-	window.history.back();
-}
+await Fetch.test(`${Backend}/`); /** ensure that backend is running */
 
 type MediaImageData = { album: string; filePaths: string[]; }
 const MediaImages = await Fetch.json<MediaImageData[]>(`${Backend}/media/images`);

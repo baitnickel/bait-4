@@ -1,6 +1,20 @@
 import { YAML } from './yaml.js';
 const JsonFile = /\.json$/i;
 const YamlFile = /\.ya?ml$/i;
+/**
+ * Test the connection to the given `uri`, typically the root API of a backend
+ * server. On no response, alert the user and go back to the previously loaded
+ * page.
+ */
+export async function test(uri) {
+    const response = await getResponse(uri);
+    if (response)
+        console.log(response);
+    else {
+        window.alert(`Cannot connect to: ${uri}`);
+        window.history.back();
+    }
+}
 export async function text(uri) {
     let text = '';
     const response = await getResponse(uri);
@@ -10,8 +24,6 @@ export async function text(uri) {
 }
 export async function json(uri) {
     let textData = await text(uri);
-    // let jsonData = JSON.parse(textData);
-    // const data: Type = jsonData;
     const data = JSON.parse(textData);
     return data;
 }
@@ -51,7 +63,7 @@ export async function blob(uri) {
         blob = await response.blob();
     return blob;
 }
-export async function getResponse(uri) {
+async function getResponse(uri) {
     try {
         const request = new Request(uri);
         const response = await fetch(request);

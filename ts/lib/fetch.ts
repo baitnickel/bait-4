@@ -53,7 +53,7 @@ export async function blob(uri: string) {
 	return blob;
 }
 
-async function getResponse(uri: string) {
+export async function getResponse(uri: string) {
 	try {
 		const request = new Request(uri);
 		const response = await fetch(request);

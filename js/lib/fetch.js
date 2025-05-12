@@ -51,7 +51,7 @@ export async function blob(uri) {
         blob = await response.blob();
     return blob;
 }
-async function getResponse(uri) {
+export async function getResponse(uri) {
     try {
         const request = new Request(uri);
         const response = await fetch(request);

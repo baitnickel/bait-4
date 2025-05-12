@@ -18,9 +18,17 @@ document.body.style['padding'] = '0';
 document.body.style['border'] = '0';
 document.body.style['gap'] = '0';
 
+const Backend = 'http://localhost:3000';
+/** catch and report failures when the localhost server is unreachable */
+const BackendResponse = await Fetch.getResponse(`${Backend}/`);
+if (BackendResponse) console.log(BackendResponse);
+else {
+	window.alert(`Failed to connect to ${Backend}`);
+	window.history.back();
+}
+
 type MediaImageData = { album: string; filePaths: string[]; }
-/**### must catch and report failures when the localhost server is unreachable */
-const MediaImages = await Fetch.json<MediaImageData[]>('http://localhost:3000/media/images');
+const MediaImages = await Fetch.json<MediaImageData[]>(`${Backend}/media/images`);
 const Albums = mediaImagesMap(MediaImages);
 // const MediaImages = `${PAGE.site}/data/test-Data/albums.yaml`;
 // const Albums = await Fetch.map<string[]>(MediaImages);

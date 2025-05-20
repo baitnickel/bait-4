@@ -2,42 +2,47 @@
 	"articles": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188889
+		"revision": 1747767593385
 	},
 	"camp": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188910
+		"revision": 1747767593244
+	},
+	"carousel": {
+		"id": 0,
+		"access": 0,
+		"revision": 1747767593237
 	},
 	"home": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188876
+		"revision": 1747767593205
 	},
 	"iching": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188873
+		"revision": 1747767593178
 	},
 	"index": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740948943943
+		"revision": 1747767571033
 	},
 	"songbook": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188756
+		"revision": 1747767593160
 	},
 	"test-cookies": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188907
+		"revision": 1747767593042
 	},
 	"test-file-api": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188751
+		"revision": 1747767593028
 	},
 	"test-iching": {
 		"id": 0,
@@ -47,31 +52,31 @@
 	"test-load-data": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188905
+		"revision": 1747767593024
 	},
 	"test-lyrics": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188750
+		"revision": 1747767593011
 	},
 	"test-redwords": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188746
+		"revision": 1747767592996
 	},
 	"test-svg": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188902
+		"revision": 1747767592993
 	},
 	"test-types": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188743
+		"revision": 1747767592989
 	},
 	"test-yaml": {
 		"id": 0,
 		"access": 0,
-		"revision": 1740950188742
+		"revision": 1747767592980
 	}
 }

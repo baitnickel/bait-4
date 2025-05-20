@@ -87,6 +87,7 @@ export class Page {
         document.body.append(this.content);
         document.body.append(this.footer);
         if (this.local) { /** Add test pages */
+            MenuItems.push({ module: 'articles', parameters: ['path=Content/drafts/timeline'], text: 'Timeline', icon: '' });
             MenuItems.push({ module: 'carousel', parameters: [], text: 'Carousel', icon: '' });
             // MenuItems.push({module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: ''});
             // MenuItems.push({module: 'test-cookies', parameters: [], text: 'Cookies', icon: ''});

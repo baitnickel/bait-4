@@ -29,6 +29,8 @@ export function render() {
         const articleProperties = Articles.get(HomeTextFile);
         revision = articleProperties.revision;
     }
+    /**### testing--display hostname/IP */
+    ThisPage.appendParagraph(ArticleText, window.location.hostname);
     ThisPage.displayFooter(revision);
     // ThisPage.appendPhoto(Photo, 'i-SDpf2qV', 'S');
     // ThisPage.appendParagraph('');

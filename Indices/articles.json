@@ -11,6 +11,43 @@
 		"access": 0,
 		"revision": 1739568018602
 	},
+	"Content/drafts/A Shadow Across My Eye.md": {
+		"id": 62,
+		"access": 0,
+		"revision": 1748293231097,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/drafts/Lindaire.md": {
+		"id": 2,
+		"access": 0,
+		"revision": 1736376515482,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/drafts/Memory Stories.md": {
+		"id": 3,
+		"access": 0,
+		"revision": 1740954448560,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/drafts/Santa Cruz.md": {
+		"id": 4,
+		"access": 0,
+		"revision": 1738967265610,
+		"aliases": [],
+		"tags": [
+			"memoir"
+		]
+	},
+	"Content/drafts/timeline.md": {
+		"id": 61,
+		"access": 0,
+		"revision": 1747782775700,
+		"aliases": [],
+		"tags": []
+	},
 	"Content/fakesheets/ants/all-the-time.md": {
 		"id": 9,
 		"access": 0,
@@ -340,96 +377,66 @@
 		"aliases": [],
 		"tags": []
 	},
-	"Content/test-docs/Lindaire.md": {
-		"id": 2,
-		"access": 0,
-		"revision": 1736376515482,
-		"aliases": [],
-		"tags": []
-	},
-	"Content/test-docs/Memory Stories.md": {
-		"id": 3,
-		"access": 0,
-		"revision": 1740954448560,
-		"aliases": [],
-		"tags": []
-	},
-	"Content/test-docs/Sangha.md": {
-		"id": 56,
-		"access": 0,
-		"revision": 1738965332436,
-		"aliases": [],
-		"tags": []
-	},
-	"Content/test-docs/Santa Cruz.md": {
-		"id": 4,
-		"access": 0,
-		"revision": 1738967265610,
-		"aliases": [],
-		"tags": [
-			"memoir"
-		]
-	},
-	"Content/test-docs/The Mudra In My Hands.md": {
-		"id": 5,
-		"access": 0,
-		"revision": 1740689044208,
-		"aliases": [],
-		"tags": []
-	},
-	"Content/test-docs/Time Ruts.md": {
-		"id": 6,
-		"access": 0,
-		"revision": 1736376515484,
-		"aliases": [],
-		"tags": []
-	},
-	"Content/test-docs/Upgrade.md": {
-		"id": 7,
-		"access": 0,
-		"revision": 1736376515484,
-		"aliases": [],
-		"tags": []
-	},
-	"Content/test-docs/Yosemite Winter 2005.md": {
-		"id": 8,
-		"access": 0,
-		"revision": 1740688940781,
-		"aliases": [],
-		"tags": []
-	},
-	"Content/test-docs/gospels/40-matthew.md": {
+	"Content/test-docs/bible/40-matthew.md": {
 		"id": 57,
 		"access": 0,
 		"revision": 1736376897847,
 		"aliases": [],
 		"tags": []
 	},
-	"Content/test-docs/gospels/41-mark.md": {
+	"Content/test-docs/bible/41-mark.md": {
 		"id": 58,
 		"access": 0,
 		"revision": 1736376897848,
 		"aliases": [],
 		"tags": []
 	},
-	"Content/test-docs/gospels/42-luke.md": {
+	"Content/test-docs/bible/42-luke.md": {
 		"id": 59,
 		"access": 0,
 		"revision": 1743027039760,
 		"aliases": [],
 		"tags": []
 	},
-	"Content/test-docs/gospels/43-john.md": {
+	"Content/test-docs/bible/43-john.md": {
 		"id": 60,
 		"access": 0,
 		"revision": 1744564161000,
 		"aliases": [],
 		"tags": []
 	},
-	"Content/test-docs/timeline.md": {
-		"id": 61,
+	"Content/test-docs/fragments/Sangha.md": {
+		"id": 56,
 		"access": 0,
-		"revision": 1747782775700,
+		"revision": 1738965332436,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/test-docs/fragments/The Mudra In My Hands.md": {
+		"id": 5,
+		"access": 0,
+		"revision": 1740689044208,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/test-docs/fragments/Time Ruts.md": {
+		"id": 6,
+		"access": 0,
+		"revision": 1736376515484,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/test-docs/fragments/Upgrade.md": {
+		"id": 7,
+		"access": 0,
+		"revision": 1736376515484,
+		"aliases": [],
+		"tags": []
+	},
+	"Content/test-docs/fragments/Yosemite Winter 2005.md": {
+		"id": 8,
+		"access": 0,
+		"revision": 1740688940781,
 		"aliases": [],
 		"tags": []
 	}

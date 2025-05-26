@@ -32,7 +32,7 @@ const ID_SEPARATOR_PATTERN = new RegExp(`${ID_SEPARATOR}+`);
 const ID_LIST_PATTERN = new RegExp(`^\\d[\\d${ID_SEPARATOR}]*`);
 const MenuItems = [
     { module: 'home', parameters: [], text: 'Home', icon: '' },
-    { module: 'articles', parameters: ['path=Content/drafts'], text: 'Writing', icon: '' },
+    // {module: 'articles', parameters: ['path=Content/drafts'], text: 'Writing', icon: ''},
     { module: 'songbook', parameters: [], text: 'Songs', icon: '' },
     { module: 'iching', parameters: [], text: 'I Ching', icon: '' },
     { module: 'camp', parameters: [], text: 'Camping', icon: 'camp.svg' },
@@ -87,7 +87,7 @@ export class Page {
         document.body.append(this.content);
         document.body.append(this.footer);
         if (this.local) { /** Add test pages */
-            MenuItems.push({ module: 'articles', parameters: ['path=Content/drafts/timeline'], text: 'Timeline', icon: '' });
+            MenuItems.push({ module: 'articles', parameters: ['path=Content/drafts'], text: 'Drafts', icon: '' });
             MenuItems.push({ module: 'carousel', parameters: [], text: 'Carousel', icon: '' });
             // MenuItems.push({module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: ''});
             // MenuItems.push({module: 'test-cookies', parameters: [], text: 'Cookies', icon: ''});

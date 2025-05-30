@@ -9,7 +9,7 @@ class Session {
 	site: string;
 
 	constructor() {
-		this.local = (window.location.hostname == 'localhost');
+		this.local = (window.location.hostname == 'localhost' || window.location.hostname.startsWith('192.'));
 		this.built = Date.parse(document.lastModified);
 		/**
 		 * When fetching site files from the localhost, the process is

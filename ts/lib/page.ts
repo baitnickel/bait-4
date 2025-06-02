@@ -2,6 +2,9 @@ import * as T from './types.js';
 import * as Fetch from './fetch.js';
 import { MarkupLine } from './markup.js';
 
+const Backend = 'http://localhost:3000';
+const BackendAvailable = await Fetch.test(`${Backend}/`, false);
+
 class Session {
 	// static log: string[] = []; /**### doesn't work, see: Window: sessionStorage */
 	local: boolean;
@@ -178,8 +181,9 @@ export class Page {
 			anchor.innerText = menuItem.text;
 			listElement.append(anchor);
 		}
-
+		
 		/** top-right corner, menu bar create and initialize Identity button */
+		const identityItem = document.createElement('li');
 		const identityButton = document.createElement('button');
 		identityButton.id = 'identity-button';
 		const validIDLabel = 0x2705;
@@ -187,7 +191,8 @@ export class Page {
 		const credentials = getCredentials();
 		let identityLabel = getIdentityButtonLabel(credentials, validIDLabel, invalidIDLabel);
 		identityButton.innerText = String.fromCodePoint(identityLabel);
-		unorderedList.append(identityButton);
+		identityItem.append(identityButton);
+		unorderedList.append(identityItem);
 
 		identityButton.addEventListener('click', (e) => {
 			const credentials = getCredentials();
@@ -212,6 +217,24 @@ export class Page {
 				}
 			}
 		});
+		
+		if (BackendAvailable) {
+			/** annotate button */
+			const annotateItem = document.createElement('li');
+			const annotateButton = document.createElement('button');
+			annotateButton.id = 'annotate-button';
+			const annotateLabel = 0x2606; //0x2020;
+			annotateButton.innerText = String.fromCodePoint(annotateLabel);
+			annotateItem.append(annotateButton);
+			unorderedList.append(annotateItem);
+			
+			annotateButton.addEventListener('click', (e) => {
+				const annotation = window.prompt('Enter annotation:', '');
+				if (annotation) {
+					console.log(`annotation: ${annotation}`);
+				}
+			})
+		}
 	}
 
 	/**

@@ -80,6 +80,30 @@ export function render() {
             const route = 'items';
             testPost(data, route);
         });
+        // /* Form POST */
+        // const formDivision = ThisPage.appendContent();
+        // const form = document.createElement('form');
+        // form.action = '/items';
+        // form.method = 'POST';
+        // const textInput = document.createElement('input');
+        // textInput.type = 'text';
+        // textInput.id = 'text';
+        // textInput.name = 'text';
+        // textInput.value = '';
+        // const textLabel = document.createElement('label');
+        // textLabel.htmlFor = textInput.id;
+        // textLabel.innerText = 'Item Description: ';
+        // textLabel.append(textInput);
+        // const submit = document.createElement('input');
+        // submit.type = 'submit';
+        // submit.value = 'Submit';
+        // form.append(textLabel);
+        // form.append(submit);
+        // formDivision.append(form);
+        // form.addEventListener('submit', (e) => {
+        // 	e.preventDefault();
+        // 	postForm(form);
+        // })
     }
 }
 // 	const testCollection = (tests.includes('collection'));
@@ -300,4 +324,7 @@ function testPost(data, route, backend = 'http://localhost:3000') {
     })
         .then((response) => response.json())
         .then((json) => console.log(json));
+}
+function postForm(form, backend = 'http://localhost:3000') {
+    console.log(`posted`);
 }

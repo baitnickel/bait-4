@@ -6,14 +6,15 @@ const YamlFile = /\.ya?ml$/i;
  * server. On no response, alert the user and go back to the previously loaded
  * page.
  */
-export async function test(uri) {
+export async function test(uri, abort = true) {
     const response = await getResponse(uri);
     if (response)
         console.log(response);
-    else {
+    else if (abort) {
         window.alert(`Cannot connect to: ${uri}`);
         window.history.back();
     }
+    return (response !== null);
 }
 export async function text(uri) {
     let text = '';

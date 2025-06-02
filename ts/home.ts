@@ -73,6 +73,18 @@ export function render() {
 				if (test == 'spinner') testSpinner();
 			}
 		}
+
+		/* Test POST API */
+		const division = ThisPage.appendContent();
+		const postButton = document.createElement('button');
+		postButton.innerText = 'Test API Post';
+		division.append(postButton);
+		postButton.addEventListener('click', (e) => {
+			const now = Date.now();
+			const data = { id: now, name: `Item ${now}` };
+			const route = 'items';
+			testPost(data, route);
+		});
 	}
 }
 	// 	const testCollection = (tests.includes('collection'));
@@ -306,4 +318,17 @@ function testDialog() {
 	/** event handlers */
 	openModal.addEventListener('click', () => { modal.showModal() })
 	closeModal.addEventListener('click', () => { modal.close() })
+}
+
+/**
+* Post data to backend
+*/
+function testPost(data: any, route: string, backend = 'http://localhost:3000') {
+	fetch(`${backend}/${route}`, {
+		method: "POST",
+		body: JSON.stringify(data),
+		headers: { "Content-type": "application/json; charset=UTF-8" },
+	})
+	.then((response) => response.json())
+	.then((json) => console.log(json));
 }

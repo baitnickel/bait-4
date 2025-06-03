@@ -135,11 +135,16 @@ export function DateString(date, format = 0) {
  * - Capitalize nouns, pronouns, adjectives, verbs, adverbs, subordinating conjunctions
  * - Do not capitalize articles, prepositions, coordinating conjunctions
  * - (Capitalize words of 4 or more characters ... ignoring this rule for now)
+ *
+ * If `sortable` is true, remove leading "a", "an", or "the" and convert text to
+ * lowercase.
  */
-export function Title(text) {
+export function Title(text, sortable = false) {
     let title = '';
     const lowerWords = ['a', 'an', 'and', 'at', 'nor', 'of', 'or', 'the', 'with'];
     const words = text.trim().split(/\s+/);
+    if (sortable && ['a', 'an', 'the'].includes(words[0].toLowerCase()))
+        words.shift();
     const adjustedWords = [];
     for (let i = 0; i < words.length; i += 1) {
         let word = words[i];
@@ -153,7 +158,8 @@ export function Title(text) {
         word = firstLetter + word.substring(1);
         adjustedWords.push(word);
     }
-    if (adjustedWords.length)
-        title = adjustedWords.join(' ');
+    title = adjustedWords.join(' ');
+    if (sortable)
+        title = title.toLowerCase();
     return title;
 }

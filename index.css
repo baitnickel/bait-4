@@ -115,9 +115,9 @@ body {
 	float: right; /* move input element to the right */
 }
 #annotate-button {
-	font-size: 1em;
-	/* padding: 0, .5em; */
-	align-items: center;
+	font-size: 1.5em;
+	position: relative;
+	bottom: .3em;
 	color: var(--banner-text-color);
 }
 /* #annotate-button a:hover { */

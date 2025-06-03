@@ -9,6 +9,7 @@ import * as YAML from './yaml.js';
  *   pairs, if any
  * - `text`: the markdown text
  * - `textOffset`: the zero-based line number of the first `text` line
+ * - `metadataText`: the plain text of the metadata, including "---" lines
  * 
  * If the file contains only YAML metadata lines without markdown text, and the
  * YAML lines are not preceded by a "---" line and followed by a "---" line, set
@@ -28,6 +29,7 @@ export class Markdown {
 	metadata: any;
 	text: string;
 	textOffset: number;
+	metadataText: string;
 	errors: boolean;
 	metadataErrors: string[];
 
@@ -35,6 +37,7 @@ export class Markdown {
 		this.metadata = null;
 		this.text = '';
 		this.textOffset = -1;
+		this.metadataText = '';
 		this.errors = false;
 		this.metadataErrors = [];
 		const metadataLines: string[] = [];
@@ -63,6 +66,7 @@ export class Markdown {
 			textOffset += 1;
 		}
 		if (metadataLines.length) {
+			this.metadataText = metadataLines.join('\n');
 			const yaml = new YAML.YAML(metadataLines);
 			this.metadata = yaml.parse(convertStrings);
 			if (yaml.exceptions.length) {

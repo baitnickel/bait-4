@@ -177,7 +177,7 @@ export class Page {
             const annotateItem = document.createElement('li');
             const annotateButton = document.createElement('button');
             annotateButton.id = 'annotate-button';
-            const annotateLabel = 0x2606; //0x2020;
+            const annotateLabel = 0x2055; //0x2606; 0x2020;
             annotateButton.innerText = String.fromCodePoint(annotateLabel);
             annotateItem.append(annotateButton);
             unorderedList.append(annotateItem);

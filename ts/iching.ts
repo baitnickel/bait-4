@@ -16,6 +16,7 @@ let RangeValueSelection: HTMLDivElement;
 let RangeValueDisplay: HTMLDivElement;
 let IChingDisplay: HTMLDivElement;
 let Tables: HTMLDivElement;
+const DefaultTitle = 'I Ching';
 
 /** ###
  * Sortition: the action of selecting or determining something by the casting or
@@ -60,7 +61,7 @@ let range = newRange(Array.from(RangeTypes.keys())[0], NumberOfChapters);
  * - I Ching Display (texts from chosen I Ching chapter)
  */
 export function render() {
-	ThisPage.setTitle('I Ching');
+	ThisPage.setTitle(DefaultTitle);
 	ThisPage.addHeading('I Ching: The Book of Changes');
 	RangeTypeSelection = document.createElement('div');
 	RangeTypeSelection.id = 'iching-range-type';
@@ -138,6 +139,8 @@ function initializeRangeTypeSelection() {
 function initializeRange(range: Range) {
 	RangeValueDisplay.innerHTML = '';
 	IChingDisplay.innerHTML = '';
+	ThisPage.setTitle(DefaultTitle);
+
 	RangeValueSelection.innerHTML = ''; /* clear previous selection options, if any */
 	/* create Range Value Selection dropdowns and add them to `RangeValueSelection` */
 	const dropdowns: HTMLSelectElement[] = [];
@@ -167,8 +170,12 @@ function rangeValueChangeEvent(range: Range, dropdowns: HTMLSelectElement[]) {
 	if (!somePositiveValues) {
 		RangeValueDisplay.innerHTML = '';
 		IChingDisplay.innerHTML = '';
+		ThisPage.setTitle(DefaultTitle);
 	}
-	if (someZeroValues) IChingDisplay.innerHTML = '';
+	if (someZeroValues) {
+		IChingDisplay.innerHTML = '';
+		ThisPage.setTitle(DefaultTitle);
+	}
 	else {
 		/* all positive values are supplied */
 		let hexagramNumber = Number(range.tally(values));
@@ -210,6 +217,7 @@ function createTable(rows: number, columns: number, firstId: number, tableClass:
 function displayHexagram(hexagramNumber: number) {
 	// ThisPage.fadeOut(Table, 100);
 	IChingDisplay.innerHTML = '';
+	ThisPage.setTitle(DefaultTitle);
 	const hexagramSummary = document.createElement('div');
 	const hexagramCommentary = document.createElement('div');
 	const hexagramImage = document.createElement('div');
@@ -217,6 +225,7 @@ function displayHexagram(hexagramNumber: number) {
 
 	if (hexagramNumber >= 0 && hexagramNumber < 64) {
 		const hexagram = IChing.hexagrams[hexagramNumber];
+		ThisPage.setTitle(`${DefaultTitle} ${hexagram.character} Chapter ${hexagram.chapter}`);
 
 		const hexagramGlyph = document.createElement('span');
 		hexagramGlyph.classList.add('iching-hexagram');

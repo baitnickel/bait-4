@@ -179,7 +179,10 @@ function rangeValueChangeEvent(range: Range, dropdowns: HTMLSelectElement[]) {
 	else {
 		/* all positive values are supplied */
 		let hexagramNumber = Number(range.tally(values));
-		if (isNaN(hexagramNumber)) IChingDisplay.innerHTML = `<p><h2>Invalid - Try Again</h2></p>`;
+		if (isNaN(hexagramNumber)) {
+			IChingDisplay.innerHTML = `<p><h2>Invalid - Try Again</h2></p>`;
+			ThisPage.setTitle(DefaultTitle);
+		}
 		else displayHexagram(hexagramNumber);
 	}
 }

@@ -185,6 +185,7 @@ export class Page {
                 const annotation = window.prompt('Enter annotation:', '');
                 if (annotation) {
                     console.log(`annotation: ${annotation}`);
+                    postAnnotation(annotation);
                 }
             });
         }
@@ -531,6 +532,22 @@ function articleIDs(lists, listPattern, splitPattern) {
     for (const id of Array.from(idSet))
         articleIDs.push(id);
     return articleIDs;
+}
+function postAnnotation(annotation) {
+    const route = 'annotations';
+    const data = {
+        date: T.DateString(new Date(), 6),
+        query: window.location.search,
+        title: document.title,
+        note: annotation,
+    };
+    fetch(`${Backend}/${route}`, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-type": "application/json; charset=UTF-8" },
+    })
+        .then((response) => response.json())
+        .then((json) => console.log(json));
 }
 /**
  * General function to coerce data, provided in the argument, to another type.

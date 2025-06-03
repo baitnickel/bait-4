@@ -440,7 +440,7 @@ export type Quote = {
 
 export type Annotation = {
 	date: string;
-	uri: string;
+	query: string;
 	title: string;
 	note: string;
 }

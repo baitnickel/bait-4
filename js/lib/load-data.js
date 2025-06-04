@@ -14,6 +14,6 @@ import * as Fetch from './fetch.js';
  * tsconfig.json file--see error message TS 1378.
  */
 const PAGE = new Page();
-const Site = PAGE.session.site;
+const Site = PAGE.site;
 export const Pages = await Fetch.map(`${Site}/Indices/pages.json`);
 export const Articles = await Fetch.map(`${Site}/Indices/articles.json`);

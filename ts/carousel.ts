@@ -18,11 +18,13 @@ document.body.style['padding'] = '0';
 document.body.style['border'] = '0';
 document.body.style['gap'] = '0';
 
-const Backend = 'http://localhost:3000';
-await Fetch.test(`${Backend}/`); /** ensure that backend is running */
+if (!PAGE.backendAvailable) {
+	window.alert(`Cannot connect to: ${PAGE.backend}`);
+	window.history.back();
+}
 
 type MediaImageData = { album: string; filePaths: string[]; }
-const MediaImages = await Fetch.json<MediaImageData[]>(`${Backend}/media/images`);
+const MediaImages = await Fetch.json<MediaImageData[]>(`${PAGE.backend}/media/images`);
 const Albums = mediaImagesMap(MediaImages);
 // const MediaImages = `${PAGE.site}/data/test-Data/albums.yaml`;
 // const Albums = await Fetch.map<string[]>(MediaImages);

@@ -1,33 +1,24 @@
 import * as T from './types.js';
 import * as Fetch from './fetch.js';
 import { MarkupLine } from './markup.js';
-const Backend = 'http://localhost:3000';
-const BackendAvailable = await Fetch.test(`${Backend}/`, false);
-class Session {
-    constructor() {
-        this.local = (window.location.hostname == 'localhost' || window.location.hostname.startsWith('192.'));
-        this.built = Date.parse(document.lastModified);
-        /**
-         * When fetching site files from the localhost, the process is
-         * straightforward. When fetching from GitHub Pages, we must use a
-         * special "raw content" URL.
-        */
-        const repository = 'bait-4';
-        if (this.local)
-            this.site = `${window.location.origin}/${repository}`;
-        else {
-            const rawContent = 'https://raw.githubusercontent.com';
-            const username = 'baitnickel';
-            const branch = 'main';
-            this.site = `${rawContent}/${username}/${repository}/${branch}`;
-        }
-    }
+const REPOSITORY = 'bait-4';
+const USERNAME = 'baitnickel';
+const BACKEND = 'http://localhost:3000';
+const LOCAL = (window.location.hostname == 'localhost' || window.location.hostname.startsWith('192.'));
+let BACKEND_AVAILABLE = false;
+if (LOCAL)
+    BACKEND_AVAILABLE = await Fetch.test(`${BACKEND}/`);
+let SITE = `${window.location.origin}/${REPOSITORY}`;
+if (!LOCAL) {
+    /* When fetching from GitHub Pages we must use a special "raw content" URL. */
+    const rawContent = 'https://raw.githubusercontent.com';
+    const branch = 'main';
+    SITE = `${rawContent}/${USERNAME}/${REPOSITORY}/${branch}`;
 }
-const SESSION = new Session();
+const PAGES = await Fetch.map(`${SITE}/Indices/pages.json`);
 const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
-// const LOG: string[] = []; /**### doesn't work, see: Window: sessionStorage */
 /** List of Article IDs--list starts and ends with numbers, numbers are separated by commas */
 const ID_SEPARATOR = ',';
 const ID_SEPARATOR_PATTERN = new RegExp(`${ID_SEPARATOR}+`);
@@ -46,13 +37,13 @@ const MenuItems = [
     // {module: 'songbook', parameters: [], text: '\u266b', icon: 'songbook.svg'},
     // {module: 'articles', parameters: ['path=README.md'], text: '\u24d8', icon: ''},
 ];
-const Pages = await Fetch.map(`${SESSION.site}/Indices/pages.json`);
 export class Page {
     constructor(header = true, footer = true) {
-        this.session = SESSION;
         this.origin = window.location.origin;
-        this.site = this.session.site;
-        this.local = this.session.local;
+        this.site = SITE;
+        this.local = LOCAL;
+        this.backend = BACKEND;
+        this.backendAvailable = BACKEND_AVAILABLE;
         this.url = window.location.origin + window.location.pathname;
         /** Note: URLSearchParams decodes percent-encoding */
         this.parameters = new URLSearchParams(window.location.search);
@@ -69,16 +60,15 @@ export class Page {
         }
         this.ids = articleIDs(idLists, ID_LIST_PATTERN, ID_SEPARATOR_PATTERN);
         this.feedback = '';
-        /** get module file statistics from the Pages index map */
+        /** get module file statistics from the PAGES index map */
         let fileStats = null;
-        if (this.name !== null && Pages.has(this.name))
-            fileStats = Pages.get(this.name);
+        if (this.name !== null && PAGES.has(this.name))
+            fileStats = PAGES.get(this.name);
         this.options = new Map();
         this.access = (fileStats === null) ? 0 : fileStats.access;
-        this.revision = (fileStats === null) ? this.session.built : fileStats.revision;
-        /** 'head' and 'body' must be defined in index.html */
-        // const head = document.querySelector('head')!;
-        // this.body = document.querySelector('body')!;
+        this.built = Date.parse(document.lastModified);
+        this.revision = (fileStats === null) ? this.built : fileStats.revision;
+        /** we assume 'head' and 'body' are defined in index.html */
         this.header = document.createElement('div');
         this.header.id = 'header';
         this.content = document.createElement('div');
@@ -104,18 +94,6 @@ export class Page {
         if (footer)
             this.displayFooter();
     }
-    /**
-     * Post a `message` in PAGE.log.
-     * ### doesn't work, see: Window: sessionStorage
-     */
-    // static log(message: string) {
-    // 	const timestamp = T.DateString(new Date(), 2);
-    // 	const uri = `${window.location.pathname} ${window.location.search} ${window.location.hash}`;
-    // 	Session.log.push(`${timestamp} ${uri} ¶ ${message}`);
-    // }
-    // static logEntries() {
-    // 	return Session.log;
-    // }
     /**
      * Retrieve cookies, if any, and display special menus (append them to
      * the MenuItems array) when cookies associated with special privileges
@@ -172,7 +150,7 @@ export class Page {
                 }
             }
         });
-        if (BackendAvailable) {
+        if (BACKEND_AVAILABLE) {
             /** annotate button */
             const annotateItem = document.createElement('li');
             const annotateButton = document.createElement('button');
@@ -541,7 +519,7 @@ function postAnnotation(annotation) {
         title: document.title,
         note: annotation,
     };
-    fetch(`${Backend}/${route}`, {
+    fetch(`${BACKEND}/${route}`, {
         method: "POST",
         body: JSON.stringify(data),
         headers: { "Content-type": "application/json; charset=UTF-8" },
@@ -549,6 +527,15 @@ function postAnnotation(annotation) {
         .then((response) => response.json())
         .then((json) => console.log(json));
 }
+// function backendTest(url: string, imageFile: string) {
+// 	let connected = true;
+// 	const image = new Image();
+// 	image.addEventListener('load', (e) => {
+// 		console.log('Image Width:', image.width);
+// 	});
+// 	image.src = `${url}/${imageFile}`;
+// 	return connected;
+// }
 /**
  * General function to coerce data, provided in the argument, to another type.
  * Typically the data is a node in a complex structure, such as an object

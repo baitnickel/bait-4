@@ -17,6 +17,6 @@ import * as Fetch from './fetch.js';
  */
 
 const PAGE = new Page();
-const Site = PAGE.session.site;
+const Site = PAGE.site;
 export const Pages = await Fetch.map<T.FileStats>(`${Site}/Indices/pages.json`);
 export const Articles = await Fetch.map<T.ArticleProperties>(`${Site}/Indices/articles.json`);

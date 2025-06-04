@@ -3,34 +3,17 @@ const JsonFile = /\.json$/i;
 const YamlFile = /\.ya?ml$/i;
 /**
  * Test the connection to the given `uri`, typically the root API of a backend
- * server. On no response, alert the user and go back to the previously loaded
- * page.
+ * server.
  */
-export async function xtest(uri, abort = true) {
-    const response = await getResponse(uri);
-    if (response)
-        console.log(response);
-    else if (abort) {
-        window.alert(`Cannot connect to: ${uri}`);
-        window.history.back();
-    }
-    return (response !== null);
-}
-export async function test(uri, abort = true) {
+export async function test(uri) {
     let success = true;
     try {
         const response = await fetch(uri);
-        if (!response.ok)
-            success = false;
     }
     catch (error) {
         success = false;
     }
     finally {
-        if (!success && abort) {
-            window.alert(`Cannot connect to: ${uri}`);
-            window.history.back();
-        }
         return success;
     }
 }

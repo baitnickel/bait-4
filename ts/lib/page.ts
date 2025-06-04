@@ -2,40 +2,25 @@ import * as T from './types.js';
 import * as Fetch from './fetch.js';
 import { MarkupLine } from './markup.js';
 
-const Backend = 'http://localhost:3000';
-const BackendAvailable = await Fetch.test(`${Backend}/`, false);
-
-class Session {
-	// static log: string[] = []; /**### doesn't work, see: Window: sessionStorage */
-	local: boolean;
-	built: number; /** last modified date/time of document in milliseconds  */
-	site: string;
-
-	constructor() {
-		this.local = (window.location.hostname == 'localhost' || window.location.hostname.startsWith('192.'));
-		this.built = Date.parse(document.lastModified);
-		/**
-		 * When fetching site files from the localhost, the process is
-		 * straightforward. When fetching from GitHub Pages, we must use a
-		 * special "raw content" URL. 
-		*/
-		const repository = 'bait-4';
-		if (this.local) this.site = `${window.location.origin}/${repository}`;
-		else {
-			const rawContent = 'https://raw.githubusercontent.com';
-			const username = 'baitnickel';
-			const branch = 'main';
-			this.site = `${rawContent}/${username}/${repository}/${branch}`;
-		}
-	}
+const REPOSITORY = 'bait-4';
+const USERNAME = 'baitnickel';
+const BACKEND = 'http://localhost:3000';
+const LOCAL = (window.location.hostname == 'localhost' || window.location.hostname.startsWith('192.'));
+let BACKEND_AVAILABLE = false;
+if (LOCAL) BACKEND_AVAILABLE = await Fetch.test(`${BACKEND}/`);
+let SITE = `${window.location.origin}/${REPOSITORY}`;
+if (!LOCAL) {
+	/* When fetching from GitHub Pages we must use a special "raw content" URL. */
+	const rawContent = 'https://raw.githubusercontent.com';
+	const branch = 'main';
+	SITE = `${rawContent}/${USERNAME}/${REPOSITORY}/${branch}`;
 }
 
-const SESSION = new Session();
+const PAGES = await Fetch.map<T.FileStats>(`${SITE}/Indices/pages.json`);
+
 const NOW = new Date();
 const COPYRIGHT_YEAR = NOW.getFullYear().toString();
 const COPYRIGHT_HOLDER = 'D.Dickinson';
-
-// const LOG: string[] = []; /**### doesn't work, see: Window: sessionStorage */
 
 /** List of Article IDs--list starts and ends with numbers, numbers are separated by commas */
 const ID_SEPARATOR = ',';
@@ -69,31 +54,31 @@ const MenuItems: MenuItem[] = [
 	// {module: 'articles', parameters: ['path=README.md'], text: '\u24d8', icon: ''},
 ];
 
-const Pages = await Fetch.map<T.FileStats>(`${SESSION.site}/Indices/pages.json`);
-
 export class Page {
-	session: Session;               /** Session object, instantiated above when this module is loaded */
-	name: string;                   /** name of requested page (via query 'page=<name>') */
 	origin: string;                 /** The URL's scheme, domain, and port (e.g., 'http://www.example.com:80' */
 	url: string;                    /** URL origin + pathname (full URL without '?query') */
 	parameters: URLSearchParams;    /** URL query parameters */
+	name: string;                   /** name of requested page (via query 'page=<name>') */
 	ids: number[];                  /** Article ID numbers--entered as query (id=1,2,3 or simply 1,2,3) */
 	options: Map<string, string>;   /** Map of options */
-	local: boolean;                 /** is the server 'localhost'? */
+	local: boolean;                 /** is the page being served from 'localhost'? */
+	backend: string;                /** backend URL */
+	backendAvailable: boolean;      /** is the backend available? */
 	access: number;                 /** access number (permission/authorization) */
+	built: number;                  /** document's last modification date (milliseconds since 1/1/1970 UTC) */
 	revision: number;               /** revision date (milliseconds since 1/1/1970 UTC) */
 	site: string;                   /** root URL for content fetch operations */
-	// body: HTMLBodyElement;          /** HTML body element */
 	header: HTMLDivElement;         /** division at the top of the display, containing menu, etc. */
 	content: HTMLDivElement;        /** division containing main page content */
 	footer: HTMLDivElement;         /** division at the bottom of the display, containing modification date, ©, etc. */
 	feedback: string;               /** text entered into the menu input field */
 
 	constructor(header = true, footer = true) {
-		this.session = SESSION;
 		this.origin = window.location.origin;
-		this.site = this.session.site;
-		this.local = this.session.local;
+		this.site = SITE;
+		this.local = LOCAL;
+		this.backend = BACKEND;
+		this.backendAvailable = BACKEND_AVAILABLE;
 		this.url = window.location.origin + window.location.pathname;
 		/** Note: URLSearchParams decodes percent-encoding */
 		this.parameters = new URLSearchParams(window.location.search);
@@ -109,16 +94,15 @@ export class Page {
 
 		this.feedback = '';
 
-		/** get module file statistics from the Pages index map */
+		/** get module file statistics from the PAGES index map */
 		let fileStats: T.FileStats|null = null;
-		if (this.name !== null && Pages.has(this.name)) fileStats = Pages.get(this.name)!;
+		if (this.name !== null && PAGES.has(this.name)) fileStats = PAGES.get(this.name)!;
 
 		this.options = new Map<string, string>();
 		this.access = (fileStats === null) ? 0 : fileStats.access;
-		this.revision = (fileStats === null) ? this.session.built : fileStats.revision;
-		/** 'head' and 'body' must be defined in index.html */
-		// const head = document.querySelector('head')!;
-		// this.body = document.querySelector('body')!;
+		this.built = Date.parse(document.lastModified);
+		this.revision = (fileStats === null) ? this.built : fileStats.revision;
+		/** we assume 'head' and 'body' are defined in index.html */
 		this.header = document.createElement('div');
 		this.header.id = 'header';
 		this.content = document.createElement('div');
@@ -144,20 +128,6 @@ export class Page {
 		if (header) this.displayHeader();
 		if (footer) this.displayFooter();
 	}
-
-	/**
-	 * Post a `message` in PAGE.log.
-	 * ### doesn't work, see: Window: sessionStorage
-	 */
-	// static log(message: string) {
-	// 	const timestamp = T.DateString(new Date(), 2);
-	// 	const uri = `${window.location.pathname} ${window.location.search} ${window.location.hash}`;
-	// 	Session.log.push(`${timestamp} ${uri} ¶ ${message}`);
-	// }
-
-	// static logEntries() {
-	// 	return Session.log;
-	// }
 
 	/**
 	 * Retrieve cookies, if any, and display special menus (append them to
@@ -218,7 +188,7 @@ export class Page {
 			}
 		});
 		
-		if (BackendAvailable) {
+		if (BACKEND_AVAILABLE) {
 			/** annotate button */
 			const annotateItem = document.createElement('li');
 			const annotateButton = document.createElement('button');
@@ -603,7 +573,7 @@ function postAnnotation(annotation: string) {
 		title: document.title,
 		note: annotation,
 	}
-	fetch(`${Backend}/${route}`, {
+	fetch(`${BACKEND}/${route}`, {
 		method: "POST",
 		body: JSON.stringify(data),
 		headers: { "Content-type": "application/json; charset=UTF-8" },
@@ -612,7 +582,15 @@ function postAnnotation(annotation: string) {
 	.then((json) => console.log(json));
 }
 
-
+// function backendTest(url: string, imageFile: string) {
+// 	let connected = true;
+// 	const image = new Image();
+// 	image.addEventListener('load', (e) => {
+// 		console.log('Image Width:', image.width);
+// 	});
+// 	image.src = `${url}/${imageFile}`;
+// 	return connected;
+// }
 
 /**
  * General function to coerce data, provided in the argument, to another type.

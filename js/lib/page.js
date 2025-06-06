@@ -59,6 +59,7 @@ export class Page {
                 idLists.push(key);
         }
         this.ids = articleIDs(idLists, ID_LIST_PATTERN, ID_SEPARATOR_PATTERN);
+        this.articleID = null; /** set in module that displays article */
         this.feedback = '';
         /** get module file statistics from the PAGES index map */
         let fileStats = null;
@@ -159,11 +160,12 @@ export class Page {
             annotateButton.innerText = String.fromCodePoint(annotateLabel);
             annotateItem.append(annotateButton);
             unorderedList.append(annotateItem);
+            const articleID = this.articleID;
             annotateButton.addEventListener('click', (e) => {
                 const annotation = window.prompt('Enter annotation:', '');
                 if (annotation) {
-                    console.log(`annotation: ${annotation}`);
-                    postAnnotation(annotation);
+                    console.log(`annotation: ${annotation} article: ${articleID}`);
+                    postAnnotation(annotation, articleID);
                 }
             });
         }
@@ -511,12 +513,13 @@ function articleIDs(lists, listPattern, splitPattern) {
         articleIDs.push(id);
     return articleIDs;
 }
-function postAnnotation(annotation) {
+function postAnnotation(annotation, articleID) {
     const route = 'annotations';
     const data = {
         date: T.DateString(new Date(), 6),
         query: window.location.search,
         title: document.title,
+        id: articleID,
         note: annotation,
     };
     fetch(`${BACKEND}/${route}`, {

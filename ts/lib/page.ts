@@ -60,6 +60,7 @@ export class Page {
 	parameters: URLSearchParams;    /** URL query parameters */
 	name: string;                   /** name of requested page (via query 'page=<name>') */
 	ids: number[];                  /** Article ID numbers--entered as query (id=1,2,3 or simply 1,2,3) */
+	articleID: number|null;         /** ID of currently rendered article, if any */
 	options: Map<string, string>;   /** Map of options */
 	local: boolean;                 /** is the page being served from 'localhost'? */
 	backend: string;                /** backend URL */
@@ -91,6 +92,7 @@ export class Page {
 			else if (/^\d/.test(key)) idLists.push(key);
 		}
 		this.ids = articleIDs(idLists, ID_LIST_PATTERN, ID_SEPARATOR_PATTERN);
+		this.articleID = null; /** set in module that displays article */
 
 		this.feedback = '';
 
@@ -198,11 +200,12 @@ export class Page {
 			annotateItem.append(annotateButton);
 			unorderedList.append(annotateItem);
 			
+			const articleID = this.articleID;
 			annotateButton.addEventListener('click', (e) => {
 				const annotation = window.prompt('Enter annotation:', '');
 				if (annotation) {
-					console.log(`annotation: ${annotation}`);
-					postAnnotation(annotation);
+					console.log(`annotation: ${annotation} article: ${articleID}`);
+					postAnnotation(annotation, articleID);
 				}
 			})
 		}
@@ -565,12 +568,13 @@ function articleIDs(lists: string[], listPattern: RegExp, splitPattern: RegExp) 
 	return articleIDs;
 }
 
-function postAnnotation(annotation: string) {
+function postAnnotation(annotation: string, articleID: number|null) {
 	const route = 'annotations';
 	const data: T.Annotation = {
 		date: T.DateString(new Date(), 6),
 		query: window.location.search,
 		title: document.title,
+		id: articleID,
 		note: annotation,
 	}
 	fetch(`${BACKEND}/${route}`, {

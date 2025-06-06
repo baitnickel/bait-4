@@ -85,9 +85,15 @@ export function render() {
 }
 
 /**
+ * Given `allPaths` (an array of the keys--relative paths--from the articles
+ * index, e.g., "Content/Home.md"), `requestedPaths` (an array of zero or more
+ * relative paths provided in a "path" URL query), and `requestedIDs` (an array
+ * of zero or more article ID numbers provided in This.Page.ids), return an
+ * array of relative paths representing the requested articles.
+ * 
  * Only markdown (`.md`) files and directories (folders) are eligible, and only
  * those whose path names start with one of the given `requestedPaths` or those
- * with the `requestedIDs`.
+ * with the `requestedIDs`. Return an array of article paths.
  */
 function selectArticles(allPaths: string[], requestedPaths: string[], requestedIDs: number[]) {
 	const articles: string[] = [];
@@ -109,29 +115,35 @@ function selectArticles(allPaths: string[], requestedPaths: string[], requestedI
 		}
 	}
 	for (const path of Array.from(uniquePaths)) {
-		articles.push(`${ThisPage.site}/${path}`);
+		// articles.push(`${ThisPage.site}/${path}`);
+		articles.push(path);
 	}
 	articles.sort();
 	return articles;
 }
 
 /**
- * Given the `articles` array and the `index` of a selected article, fetch the
- * corresponding markdown file, mark it up, and display the HTML in the target
- * HTML element. This function is usually called by the event listeners in the
- * Widget.Navigator object.
+ * Given `article` (the relative path of an article), expand the relative path
+ * to a full path and fetch the corresponding markdown file, mark it up, and
+ * display the HTML in the target HTML element. This function is usually called
+ * by the event listeners in the Widget.Navigator object.
  */
+// function displayArticle(articles: string[], index: number) {
 function displayArticle(articles: string[], index: number) {
-	const articlePath = articles[index];
-	Fetch.text(articlePath).then((fileText) => {
+	// const article = Articles.get(articles[index]);
+	const articleFullPath = `${ThisPage.site}/${articles[index]}`;
+	Fetch.text(articleFullPath).then((fileText) => {
 		const markdown = new MD.Markdown(fileText);
 		let title = '';
 		if (markdown.metadata && 'title' in markdown.metadata) title = markdown.metadata['title'];
-		else if (articlePath == `${ThisPage.site}/README.md`) title = READMETitle;
+		else if (articleFullPath == `${ThisPage.site}/README.md`) title = READMETitle;
 		else { /* use file name as title */
-			const matches = articlePath.match(/.*\/(.*)\..*$/);
+			const matches = articleFullPath.match(/.*\/(.*)\..*$/);
 			if (matches !== null) title = matches[1];
 		}
+		// ThisPage.articleID = (article !== undefined) ? article.id : null;
+		ThisPage.articleID = (markdown.metadata && 'id' in markdown.metadata) ? markdown.metadata['id'] : null;
+		console.log(`ThisPage.articleID: ${ThisPage.articleID}`);
 		if (title) ThisPage.setTitle(title);
 		const heading = (title) ? `# ${title}\n` : ''
 		const markedUpText = Markup(heading + markdown.text);

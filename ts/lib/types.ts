@@ -442,5 +442,6 @@ export type Annotation = {
 	date: string;
 	query: string;
 	title: string;
+	id: number|null;
 	note: string;
 }

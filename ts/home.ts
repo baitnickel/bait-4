@@ -26,6 +26,8 @@ export function render() {
 	
 	const ArticleText = ThisPage.appendContent('#Article');
 	const markdown = new MD.Markdown(HomeText);
+	ThisPage.articleID = (markdown.metadata && 'id' in markdown.metadata) ? markdown.metadata['id'] : null;
+
 	/** adding heading above text, below quote */
 	ArticleText.innerHTML = Markup('# Home\n' + markdown.text);
 

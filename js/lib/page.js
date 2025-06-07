@@ -160,12 +160,11 @@ export class Page {
             annotateButton.innerText = String.fromCodePoint(annotateLabel);
             annotateItem.append(annotateButton);
             unorderedList.append(annotateItem);
-            const articleID = this.articleID;
             annotateButton.addEventListener('click', (e) => {
                 const annotation = window.prompt('Enter annotation:', '');
                 if (annotation) {
-                    console.log(`annotation: ${annotation} article: ${articleID}`);
-                    postAnnotation(annotation, articleID);
+                    console.log(`annotation: ${annotation}`);
+                    postAnnotation(annotation, this);
                 }
             });
         }
@@ -513,13 +512,13 @@ function articleIDs(lists, listPattern, splitPattern) {
         articleIDs.push(id);
     return articleIDs;
 }
-function postAnnotation(annotation, articleID) {
+function postAnnotation(annotation, thisPage) {
     const route = 'annotations';
     const data = {
         date: T.DateString(new Date(), 6),
         query: window.location.search,
         title: document.title,
-        id: articleID,
+        id: thisPage.articleID,
         note: annotation,
     };
     fetch(`${BACKEND}/${route}`, {
@@ -527,8 +526,9 @@ function postAnnotation(annotation, articleID) {
         body: JSON.stringify(data),
         headers: { "Content-type": "application/json; charset=UTF-8" },
     })
-        .then((response) => response.json())
-        .then((json) => console.log(json));
+        .then((response) => console.log(response));
+    // .then((response) => response.json())
+    // .then((json) => console.log(json));
 }
 // function backendTest(url: string, imageFile: string) {
 // 	let connected = true;

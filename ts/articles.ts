@@ -141,9 +141,7 @@ function displayArticle(articles: string[], index: number) {
 			const matches = articleFullPath.match(/.*\/(.*)\..*$/);
 			if (matches !== null) title = matches[1];
 		}
-		// ThisPage.articleID = (article !== undefined) ? article.id : null;
 		ThisPage.articleID = (markdown.metadata && 'id' in markdown.metadata) ? markdown.metadata['id'] : null;
-		console.log(`ThisPage.articleID: ${ThisPage.articleID}`);
 		if (title) ThisPage.setTitle(title);
 		const heading = (title) ? `# ${title}\n` : ''
 		const markedUpText = Markup(heading + markdown.text);

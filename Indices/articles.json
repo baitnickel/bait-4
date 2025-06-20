@@ -14,7 +14,7 @@
 	"Content/drafts/A Shadow Across My Eye.md": {
 		"id": 62,
 		"access": 0,
-		"revision": 1748293231097,
+		"revision": 1750197437165,
 		"aliases": [],
 		"tags": []
 	},
@@ -35,16 +35,16 @@
 	"Content/drafts/Santa Cruz.md": {
 		"id": 4,
 		"access": 0,
-		"revision": 1738967265610,
+		"revision": 1750280232348,
 		"aliases": [],
 		"tags": [
-			"memoir"
+			"memoir, era197409"
 		]
 	},
 	"Content/drafts/timeline.md": {
 		"id": 61,
 		"access": 0,
-		"revision": 1747782775700,
+		"revision": 1750454301567,
 		"aliases": [],
 		"tags": []
 	},
@@ -429,15 +429,19 @@
 	"Content/test-docs/fragments/Upgrade.md": {
 		"id": 7,
 		"access": 0,
-		"revision": 1736376515484,
+		"revision": 1750372780260,
 		"aliases": [],
-		"tags": []
+		"tags": [
+			"era202001"
+		]
 	},
 	"Content/test-docs/fragments/Yosemite Winter 2005.md": {
 		"id": 8,
 		"access": 0,
-		"revision": 1740688940781,
+		"revision": 1750372846198,
 		"aliases": [],
-		"tags": []
+		"tags": [
+			"era20050129"
+		]
 	}
 }

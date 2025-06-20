@@ -244,6 +244,13 @@
 		"date": "",
 		"source": "etc/legacy-quotes.md"
 	},
+	"civilized-dialog-is-our-last-best-hope-the-best": {
+		"text": "Civilized dialog is our last best hope.... The best idea will win.",
+		"attribution": "Terence McKenna",
+		"note": "",
+		"date": "2025-06-06T14:11:20.401Z",
+		"source": "notebook/2025-06-06 Fri.md"
+	},
 	"colors-are-the-deeds-and-sufferings-of-light": {
 		"text": "Colors are the deeds and sufferings of light.",
 		"attribution": "Johann Wolfgang von Goethe",
@@ -426,6 +433,13 @@
 		"date": "",
 		"source": "etc/legacy-quotes.md"
 	},
+	"everything-contains-a-reward-of-some-kind-its": {
+		"text": "Everything contains a reward of some kind. It's your job to find it.",
+		"attribution": "Jerry Seinfeld",
+		"note": "",
+		"date": "2025-05-27T20:49:53.000Z",
+		"source": "notebook/2025-05-27 Tue.md"
+	},
 	"everything-i-have-done-or-felt-has-been-in-some": {
 		"text": "Everything I have done or felt has been in some way influenced by the impact of the Natural Scene.",
 		"attribution": "Ansel Adams",
@@ -481,6 +495,13 @@
 		"note": "",
 		"date": "",
 		"source": "etc/legacy-quotes.md"
+	},
+	"give-me-your-tired-your-poor-your-huddled-masses": {
+		"text": "Give me your tired, your poor, your huddled masses yearning to breathe free.",
+		"attribution": "Emma Lazarus (inscribed of the Statue of Liberty). This is what we once stood for as a nation. Seeking purity we stain ourselves, Turning to anger we stir hatred all around.",
+		"note": "",
+		"date": "2025-05-25T13:55:03.000Z",
+		"source": "notebook/2025-05-25 Sun.md"
 	},
 	"great-spirits-have-always-encountered-violent": {
 		"text": "Great spirits have always encountered violent opposition from mediocre minds.",
@@ -1230,6 +1251,13 @@
 		"note": "",
 		"date": "2023-08-13T18:28:38.000Z",
 		"source": "Content/test-docs/fragments/Camping 2023.md"
+	},
+	"our-role-is-not-to-understand-but-to-appreciate": {
+		"text": "Our role is not to understand but to appreciate",
+		"attribution": "Terence McKenna",
+		"note": "",
+		"date": "2025-06-06T14:11:20.401Z",
+		"source": "notebook/2025-06-06 Fri.md"
 	},
 	"our-thoughts-and-ideas-are-nature-just-as-much": {
 		"text": "Our thoughts and ideas are nature, just as much as waves on the ocean or clouds in the sky.",
@@ -2406,6 +2434,13 @@
 		"note": "",
 		"date": "",
 		"source": "etc/legacy-quotes.md"
+	},
+	"your-life-is-not-your-own-it-is-the-delegated": {
+		"text": "Your life is not your own—it is the delegated adaptability of Tao.",
+		"attribution": "Alan Watts",
+		"note": "retelling a Chuang Tzu (aka Zhuang Zhou, or Zhuangzi) story",
+		"date": "2025-06-20T14:50:44.930Z",
+		"source": "notebook/2025-06-20 Fri.md"
 	},
 	"your-mind-is-not-in-your-head-your-head-is-in": {
 		"text": "Your mind is not in your head, your head is in your mind.",

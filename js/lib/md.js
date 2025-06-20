@@ -72,23 +72,37 @@ export class Markdown {
             this.text = textLines.join('\n');
     }
     /**
-     * Return an array of metadata hashtags (without the hash). The array is
-     * empty when there are no hashtags in the metadata, or when there is no
-     * metadata.
+     * Return an array of unique hashtags (without the hash). By default, the
+     * array is created only from the metadata "tags" property, and is empty
+     * when there are no hashtags in the metadata or when there is no metadata.
      *
-     * Tags may be properly enclosed in brackets, or improperly a simple string
-     * of comma-separated tags.
+     * Metadata tags may be enclosed in brackets, or in a simple string of
+     * comma-separated tags.
+     *
+     * When `includeEmbeddedTags` is true, hashtags that are embedded in the
+     * document text are also included.
      */
-    tags() {
-        let tags = [];
+    tags(includeEmbeddedTags = false) {
+        const uniqueTags = new Set();
         const keyword = 'tags';
         if (this.metadata !== null && this.metadata[keyword]) {
+            let tags = [];
             if (Array.isArray(this.metadata[keyword]))
                 tags = Array.from(this.metadata[keyword]);
             else
                 tags = this.metadata[keyword].split(/\s*,\s*/);
+            for (const tag of tags)
+                uniqueTags.add(tag);
         }
-        return tags;
+        if (includeEmbeddedTags) {
+            const tagPattern = new RegExp(/#[a-z][a-z\d_]*/, 'gi');
+            const tags = this.text.match(tagPattern);
+            if (tags) {
+                for (const tag of tags)
+                    uniqueTags.add(tag.substring(1));
+            }
+        }
+        return Array.from(uniqueTags.keys());
     }
     /**
      * Divide the markdown text into sections and return an array of sections.

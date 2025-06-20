@@ -156,6 +156,28 @@ export function Title(text: string, sortable = false) {
 // }
 
 /**
+ * For Stats details, see:
+ * https://nodejs.org/docs/latest-v16.x/api/fs.html#class-fsstats
+ *
+ * We are not adding all FS.Stats values here--only the ones that we are likely
+ * to use. Add additional ones as needed.
+ */
+export type File = {
+	name: string,          /* file name without extension */
+	base: string,          /* file name with extension */
+	extension: string,     /* file extension including "." converted to lowercase */
+	path: string,          /* full file path */
+	dirname: string,       /* full directory name without file name */
+	isFile: boolean,       /* true if regular file */
+	isDirectory: boolean,  /* true if directory */
+	created: Date,         /* Date created */
+	modified: Date,        /* Date modified */
+	accessed: Date,        /* Date accessed */
+	size: number,          /* number of bytes */
+	hash: string,          /* SHA hash */
+}
+
+/**
  * File Information is read from the OS file data and YAML metadata. These are
  * used determine how to sync files between the source and target systems.
 */

@@ -82,10 +82,11 @@ export function render() {
 		postButton.innerText = 'Test API Post';
 		division.append(postButton);
 		postButton.addEventListener('click', (e) => {
-			const now = Date.now();
-			const data = { id: now, name: `Item ${now}` };
+			const now = new Date();
+			const milliseconds = now.getTime();
+			const data = { id: milliseconds, name: `Item written ${T.DateString(now, 2)}` };
 			const route = 'items';
-			testPost(data, route);
+			testPost(data, route, division);
 		});
 		// /* Form POST */
 		// const formDivision = ThisPage.appendContent();
@@ -348,15 +349,37 @@ function testDialog() {
 
 /**
 * Post data to backend
+* see:
+* - https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+* - https://www.javascripttutorial.net/web-apis/javascript-fetch-api/
 */
-function testPost(data: any, route: string, backend = 'http://localhost:3000') {
+function testPost(data: any, route: string, division: HTMLElement, backend = 'http://localhost:3000') {
 	fetch(`${backend}/${route}`, {
 		method: "POST",
 		body: JSON.stringify(data),
 		headers: { "Content-type": "application/json; charset=UTF-8" },
 	})
-	.then((response) => response.json())
-	.then((json) => console.log(json));
+	/**
+	 * If the response contains JSON data, you can use the json() method of the
+	 * Response object to parse it. The json() method returns a Promise. (Other
+	 * Response methods: arrayBuffer(), blob(), bytes(), clone(), formData(),
+	 * text())
+	 */
+	.then((response) => {
+		if (!response.ok) {
+			throw new Error(`HTTP error! Status: ${response.status}`);
+		}
+		return response.json();
+	})
+	/**
+	 * The json() Promise resolves with the full "any" contents of the fetched
+	 * resource, allowing access to the JSON data.
+	 */
+	.then((json) => { 
+		const text = ` ID: ${json.id} ${json.name}`;
+		ThisPage.appendParagraph(division, text);
+		console.log(json);
+	 });
 }
 
 function postForm(form: HTMLFormElement, backend = 'http://localhost:3000') {

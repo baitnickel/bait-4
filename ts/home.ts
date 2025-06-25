@@ -6,27 +6,27 @@ import * as MD from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 import * as Widgets from './lib/widgets.js';
 
-const ThisPage = new Page();
-const IndicesPath = `${ThisPage.site}/Indices`;
+const PAGE = new Page();
+const IndicesPath = `${PAGE.site}/Indices`;
 const Articles = await Fetch.map<T.ArticleProperties>(`${IndicesPath}/articles.json`);
-const QuotesPath = `${ThisPage.site}/Indices/quotes.json`;
+const QuotesPath = `${PAGE.site}/Indices/quotes.json`;
 const HomeTextFile = 'Content/Home.md'
-const HomeTextPath = `${ThisPage.site}/${HomeTextFile}`;
+const HomeTextPath = `${PAGE.site}/${HomeTextFile}`;
 const Quotes = await Fetch.map<T.Quote>(QuotesPath);
 const HomeText = await Fetch.text(HomeTextPath);
 
 export function render() {
-	ThisPage.setTitle('Home');
+	PAGE.setTitle('Home');
 
-	const Quote = ThisPage.appendContent('#Quote');
+	const Quote = PAGE.appendContent('#Quote');
 	const keys = Array.from(Quotes.keys());
 	const randomKey = keys[Math.floor(Math.random() * keys.length)];
 	const randomQuote = Quotes.get(randomKey)!;
-	ThisPage.appendQuote(Quote, randomQuote);
+	PAGE.appendQuote(Quote, randomQuote);
 	
-	const ArticleText = ThisPage.appendContent('#Article');
+	const ArticleText = PAGE.appendContent('#Article');
 	const markdown = new MD.Markdown(HomeText);
-	ThisPage.articleID = (markdown.metadata && 'id' in markdown.metadata) ? markdown.metadata['id'] : null;
+	PAGE.articleID = (markdown.metadata && 'id' in markdown.metadata) ? markdown.metadata['id'] : null;
 
 	/** adding heading above text, below quote */
 	ArticleText.innerHTML = Markup('# Home\n' + markdown.text);
@@ -39,16 +39,17 @@ export function render() {
 	}
 
 	/**### testing--display hostname/IP */
-	ThisPage.appendParagraph(ArticleText, window.location.hostname);
+	PAGE.appendParagraph(ArticleText, window.location.hostname);
 	
-	ThisPage.displayFooter(revision);
+	PAGE.displayFooter(revision);
 
-	// ThisPage.appendPhoto(Photo, 'i-SDpf2qV', 'S');
-	// ThisPage.appendParagraph('');
-	// ThisPage.appendVideo(Video, '9MtLIkk2ihw', 400, 220);
+	// PAGE.appendPhoto(Photo, 'i-SDpf2qV', 'S');
+	// PAGE.appendParagraph('');
+	// PAGE.appendVideo(Video, '9MtLIkk2ihw', 400, 220);
 	
 	/** Test logic via URL queries, e.g.: ?page=home&tests=dialog,cookies */
-	if (ThisPage.local) {
+	if (PAGE.local) {
+		console.log(`Site: ${PAGE.site}`)
 		// type tester = () => void;
 		// const validTests = new Map<string, tester>();
 		// validTests.set('markdown', testMarkdown);
@@ -58,7 +59,7 @@ export function render() {
 		// validTests.set('cookies', testCookies);
 		// validTests.set('radio', testRadio);
 		// validTests.set('spinner', testSpinner);
-		const testQueries = ThisPage.parameters.get('tests');
+		const testQueries = PAGE.parameters.get('tests');
 		if (testQueries) {
 			const tests = testQueries.split(/[,\s ]/);
 			for (let test of tests) {
@@ -77,19 +78,27 @@ export function render() {
 		}
 
 		/* Test POST API */
-		const division = ThisPage.appendContent();
+		const buttonDivision = PAGE.appendContent();
+		const fetchOutput = PAGE.appendContent();
 		const postButton = document.createElement('button');
-		postButton.innerText = 'Test API Post';
-		division.append(postButton);
+		// postButton.innerText = 'Test API Post';
+		postButton.innerText = 'Test API Fetch';
+		buttonDivision.append(postButton);
 		postButton.addEventListener('click', (e) => {
-			const now = new Date();
-			const milliseconds = now.getTime();
-			const data = { id: milliseconds, name: `Item written ${T.DateString(now, 2)}` };
-			const route = 'items';
-			testPost(data, route, division);
+			fetchOutput.innerText = '';
+			let filePath = prompt('File Path');
+			if (filePath) {
+				if (!filePath.match(/\..*$/)) filePath += '.md'; /** assume '.md' if no extension */
+				testFetch(filePath, fetchOutput);
+			}
+			// const now = new Date();
+			// const milliseconds = now.getTime();
+			// const data = { id: milliseconds, name: `Item written ${T.DateString(now, 2)}` };
+			// const route = 'items';
+			// testPost(data, route, division);
 		});
 		// /* Form POST */
-		// const formDivision = ThisPage.appendContent();
+		// const formDivision = PAGE.appendContent();
 		// const form = document.createElement('form');
 		// form.action = '/items';
 		// form.method = 'POST';
@@ -115,7 +124,7 @@ export function render() {
 	}
 }
 	// 	const testCollection = (tests.includes('collection'));
-	// 	const TestCollection = ThisPage.appendContent('#TestCollection');
+	// 	const TestCollection = PAGE.appendContent('#TestCollection');
 
 	// 	const testMap = (tests.includes('map'));
 
@@ -134,22 +143,22 @@ export function render() {
 	// 	const testDialog = (tests.includes('dialog'));
 
 	// 	const testNode = (tests.includes('node'));
-	// 	const TestNode = ThisPage.appendContent('#TestNode');
+	// 	const TestNode = PAGE.appendContent('#TestNode');
 
 	// 	const testSpinner = (tests.includes('spinner'));
-	// 	const TestSpinner = ThisPage.appendContent('.spinner'); // .spinner--full-height');
+	// 	const TestSpinner = PAGE.appendContent('.spinner'); // .spinner--full-height');
 		
-	// 	const Photo = ThisPage.appendContent('#Photo');
-	// 	const Video = ThisPage.appendContent('#Video');
+	// 	const Photo = PAGE.appendContent('#Photo');
+	// 	const Video = PAGE.appendContent('#Video');
 	
 function testSpinner() {
 	/** all done in CSS ... ultimately turn off and on in JavaScript */
-	const TestSpinner = ThisPage.appendContent('.spinner'); // .spinner--full-height');
+	const TestSpinner = PAGE.appendContent('.spinner'); // .spinner--full-height');
 	console.log('Spinning...')
 }
 
 	// 	if (testCollection) {
-	// 		const songsIndexFile = `${ThisPage.site}/Indices/fakesheets.json`;
+	// 		const songsIndexFile = `${PAGE.site}/Indices/fakesheets.json`;
 	// 		Fetch.map<T.FakesheetLookups>(songsIndexFile).then((songsMap) => {
 	// 			const songs = new Datasets.Collection<T.FakesheetLookups>(songsMap);
 	// 			const dataLines: string[] = [];
@@ -181,13 +190,13 @@ function testSpinner() {
 	// 				}
 	// 			}
 
-	// 			ThisPage.appendParagraph(TestCollection, dataLines);
+	// 			PAGE.appendParagraph(TestCollection, dataLines);
 	// 		});
 	// 	}
 
 function testMap() {
-	const TestMap = ThisPage.appendContent('#TestMap');
-	const songsIndexFile = `${ThisPage.site}/Indices/fakesheets.json`;
+	const TestMap = PAGE.appendContent('#TestMap');
+	const songsIndexFile = `${PAGE.site}/Indices/fakesheets.json`;
 	Fetch.map<T.FakesheetLookups>(songsIndexFile).then((songsMap) => {
 		const dataLines: string[] = [];
 		const collection = new Datasets.Collection<T.FakesheetLookups>(songsMap);
@@ -197,18 +206,18 @@ function testMap() {
 			dataLines.push(`${entry}: ${record!.artist} - ${record!.title}`);
 			entry = collection.next();
 		}
-		ThisPage.appendParagraph(TestMap, dataLines);
+		PAGE.appendParagraph(TestMap, dataLines);
 	});
 }
 
 function testMarkdown() {
-	const TestMarkdown = ThisPage.appendContent('#TestMarkdown');
+	const TestMarkdown = PAGE.appendContent('#TestMarkdown');
 	const testMarkdownFile = 'data/test-markdown.md';
-	const testMarkdownPath = `${ThisPage.site}/${testMarkdownFile}`;
+	const testMarkdownPath = `${PAGE.site}/${testMarkdownFile}`;
 	Fetch.text(testMarkdownPath).then((fileContent) => {
 		if (!fileContent) {
 			const errorMessage = `Cannot read file: ${testMarkdownPath}`;
-			ThisPage.appendParagraph(TestMarkdown, errorMessage);
+			PAGE.appendParagraph(TestMarkdown, errorMessage);
 		}
 		else {
 			const markdownDocument = new MD.Markdown(fileContent);
@@ -216,15 +225,15 @@ function testMarkdown() {
 			markdownDocument.text = markdownDocument.text.replace('{LINE_NUMBER}', `${markdownDocument.textOffset + 1}`);
 			markdownDocument.text = markdownDocument.text.replace('{FILE_NAME}', `${testMarkdownFile}`);
 			const html = Markup(markdownDocument.text);
-			const paragraph = ThisPage.appendParagraph(TestMarkdown, '');
+			const paragraph = PAGE.appendParagraph(TestMarkdown, '');
 			paragraph.innerHTML = html;
 		}
 	});
 }
 
 function testYaml() {
-	const TestYaml = ThisPage.appendContent('#TestYaml');
-	const ReservationsPath = `${ThisPage.site}/data/camp/reservations.yaml`;
+	const TestYaml = PAGE.appendContent('#TestYaml');
+	const ReservationsPath = `${PAGE.site}/data/camp/reservations.yaml`;
 	Fetch.map<T.Reservation[]>(ReservationsPath).then((reservations) => {
 		const dataLines: string[] = [];
 		const reserved = reservations.get('smitty');
@@ -236,14 +245,14 @@ function testYaml() {
 				if (!limit) break;
 			}
 		}
-		ThisPage.appendParagraph(TestYaml, dataLines);
+		PAGE.appendParagraph(TestYaml, dataLines);
 	});
 }
 
 function testRadio() {
-	const TestRadio = ThisPage.appendContent('#TestRadio');
-	const division = ThisPage.appendContent();
-	const anotherDivision = ThisPage.appendContent();
+	const TestRadio = PAGE.appendContent('#TestRadio');
+	const division = PAGE.appendContent();
+	const anotherDivision = PAGE.appendContent();
 	const event = new Event('change-camper');
 	const radioButtons = new Widgets.RadioButtons('radio-button', 'active', event);
 	radioButtons.addButton('Purchasers');
@@ -273,7 +282,7 @@ function testRadio() {
 	*/
 	
 	// /* https://www.techiedelight.com/create-radio-button-dynamically-javascript/ */
-	// const division = ThisPage.appendContent();
+	// const division = PAGE.appendContent();
 	// const purchaserType = document.createElement('input');
 	// purchaserType.type = 'radio';
 	// purchaserType.id = 'purchaser';
@@ -294,37 +303,37 @@ function testRadio() {
 	// division.append(occupantsLabel);
 
 function testEmail() {
-	const division = ThisPage.appendContent();
+	const division = PAGE.appendContent();
 	const emailButton = document.createElement('button');
 	emailButton.innerText = 'Send Feedback';
 	division.append(emailButton);
 
 	emailButton.addEventListener('click', (e) => {
-		if (!ThisPage.feedback) alert('Don\'t know who to send feedback to!');
-		else window.location.href = `mailto:${ThisPage.feedback}?subject=${ThisPage.url}`;
+		if (!PAGE.feedback) alert('Don\'t know who to send feedback to!');
+		else window.location.href = `mailto:${PAGE.feedback}?subject=${PAGE.url}`;
 	});
 }
 
 // 	function testIconLink() {
-// 		// const division = ThisPage.appendContent();
+// 		// const division = PAGE.appendContent();
 // 		const iconButton = document.createElement('button');
-// 		// const icon = `${ThisPage.site}/images/icons/bluesky.png`;
+// 		// const icon = `${PAGE.site}/images/icons/bluesky.png`;
 // 		// iconButton.innerHTML = `<img src="${icon}" />`;
 // 		iconButton.id = 'footer-bluesky';
-// 		ThisPage.footer.append(iconButton);
+// 		PAGE.footer.append(iconButton);
 // 		// division.append(iconButton);
 // 	}
 
 function testCookies() {
-	const TestCookies = ThisPage.appendContent('#TestCookies');
+	const TestCookies = PAGE.appendContent('#TestCookies');
 	const output: string[] = [];
 	output.push('Cookies:');
 	for (const cookie of getCookies()) output.push(cookie)
-	ThisPage.appendParagraph(TestCookies, output);
+	PAGE.appendParagraph(TestCookies, output);
 }
 
 function testDialog() {
-	const TestDialog = ThisPage.appendContent('#TestDialog');
+	const TestDialog = PAGE.appendContent('#TestDialog');
 	/** add the button used to display the Modal dialog box */
 	const openModal = document.createElement('button');
 	openModal.innerText = 'Display Modal';
@@ -377,9 +386,24 @@ function testPost(data: any, route: string, division: HTMLElement, backend = 'ht
 	 */
 	.then((json) => { 
 		const text = ` ID: ${json.id} ${json.name}`;
-		ThisPage.appendParagraph(division, text);
+		PAGE.appendParagraph(division, text);
 		console.log(json);
 	 });
+}
+
+function testFetch(filePath: string, fetchOutput: HTMLElement) {
+	filePath = `${PAGE.backend}/${filePath}`;
+	Fetch.text(filePath).then((fileText) => {
+		if (filePath.endsWith('.md')) {
+			const markdown = new MD.Markdown(fileText);
+			const markedUpText = Markup(markdown.text);
+			fetchOutput.innerHTML = markedUpText;
+		}
+		else {
+			const fileLines = fileText.split('\n');
+			PAGE.appendParagraph(fetchOutput, fileLines);
+		}
+	});
 }
 
 function postForm(form: HTMLFormElement, backend = 'http://localhost:3000') {

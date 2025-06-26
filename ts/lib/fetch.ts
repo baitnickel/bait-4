@@ -9,7 +9,7 @@ const YamlFile = /\.ya?ml$/i;
  */
 export async function test(uri: string) {
 	let success = true;
-	try { const response = await fetch(uri); }
+	try { const response = await fetch(uri, { method: 'HEAD'}); }
 	catch(error) { success = false; }
 	finally { return success; }
 }

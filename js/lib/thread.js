@@ -98,16 +98,18 @@ export function getQueryTags(queryArguments, tagPrefix) {
  * number.
  */
 export function sortPassages(passages) {
-    passages.sort((a, b) => {
-        let result = 0;
-        result = a.tag.localeCompare(b.tag);
-        if (!result && a.file && b.file) {
-            const aTime = a.file.modified.getTime();
-            const bTime = b.file.modified.getTime();
-            result = aTime - bTime;
-        }
-        if (!result)
-            result = a.section - b.section;
-        return result;
-    });
+    if (passages.length > 1) {
+        passages.sort((a, b) => {
+            let result = 0;
+            result = a.tag.localeCompare(b.tag);
+            if (!result && a.file && b.file) {
+                const aTime = a.file.modified.getTime();
+                const bTime = b.file.modified.getTime();
+                result = aTime - bTime;
+            }
+            if (!result)
+                result = a.section - b.section;
+            return result;
+        });
+    }
 }

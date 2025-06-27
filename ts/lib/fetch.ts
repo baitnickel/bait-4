@@ -62,6 +62,18 @@ export async function blob(uri: string) {
 	return blob;
 }
 
+export async function post<Type>(uri: string, body: any) {
+	const response = await fetch(uri, {
+		method: 'POST',
+		body: JSON.stringify(body),
+		headers: { "Content-type": "application/json; charset=UTF-8" }
+	});
+	let data: Type;
+	if (!response.ok) return null;
+	else data = await response.json();
+	return data;
+}
+
 async function getResponse(uri: string) {
 	try {
 		const request = new Request(uri);

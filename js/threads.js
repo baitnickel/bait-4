@@ -7,20 +7,60 @@ if (!PAGE.backendAvailable) {
     window.history.back();
 }
 // const Passages = await Fetch.json<Thread.Passage[]>(`${PAGE.backend}/threads?tags=era+`);
-const Query = {
-    root: 'Content/chapters',
-    prefix: '',
-    tags: ['era197+', 'era196+'],
-};
-const Passages = await Fetch.post(`${PAGE.backend}/threads`, Query);
+// const Query: Thread.QueryOptions = {
+// 	root: 'Content/chapters',
+// 	prefix: '',
+// 	tags: ['era197+', 'era196+'],
+// };
+// const Passages = await Fetch.post<Thread.Passage[]>(`${PAGE.backend}/threads`, Query);
 export function render() {
+    const query = document.createElement('div');
+    const output = document.createElement('div');
+    PAGE.content.append(query);
+    PAGE.content.append(output);
+    getPassages(query, output);
+}
+function getPassages(queryDivision, outputDivision) {
+    const queryButton = document.createElement('button');
+    queryButton.innerText = 'Enter Query';
+    queryDivision.append(queryButton);
+    let queryString = '';
+    queryButton.addEventListener('click', (e) => {
+        const response = window.prompt('Enter root, (prefix-), tags...', queryString);
+        if (response !== null && response.trim()) {
+            queryString = response.trim();
+            const query = parseQueryString(queryString);
+            Fetch.post(`${PAGE.backend}/threads`, query).then((passages) => {
+                displayPassages(passages, outputDivision);
+            });
+        }
+    });
+}
+function parseQueryString(queryString) {
+    let query;
+    const components = queryString.split(/\s+/);
+    const root = components.shift();
+    let prefix = '';
+    if (components.length && components[0].length > 1 && components[0].endsWith('-')) {
+        prefix = components[0].slice(0, -1);
+        components.shift();
+    }
+    const tags = [];
+    for (const component of components) {
+        tags.push(component);
+    }
+    query = { root: root, prefix: prefix, tags: tags };
+    return query;
+}
+function displayPassages(passages, division) {
     const lines = [];
-    if (!Passages)
+    division.innerHTML = '';
+    if (!passages)
         lines.push('No threads found');
     else {
-        sortPassages(Passages);
+        sortPassages(passages);
         let priorTag = '';
-        for (const passage of Passages) {
+        for (const passage of passages) {
             if (passage.tag != priorTag)
                 lines.push(`# ${passage.tag}`);
             const fileName = (passage.file === null) ? '(none)' : `${passage.file.name}(${passage.section})`;
@@ -32,7 +72,7 @@ export function render() {
     }
     const text = lines.join('\n');
     const markup = Markup(lines);
-    PAGE.content.innerHTML = markup;
+    division.innerHTML = markup;
 }
 function sortPassages(passages) {
     passages.sort((a, b) => {

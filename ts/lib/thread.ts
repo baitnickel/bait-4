@@ -13,17 +13,14 @@ export type Passage = {
  */
 export type QueryOptions = {
 	root: string;
-	prefix: string;
 	tags: string[];
 }
 
-export function getPassages(markdownFiles: MD.MarkdownFile[]|null, queryTags: string[], wildcard: string) {
+export function getPassages(markdownFiles: MD.MarkdownFile[], queryTags: string[], wildcard: string) {
 	const passages: Passage[] = [];
-	if (markdownFiles !== null) {
-		for (const markdownFile of markdownFiles) {
-			const globalTagsMatched = globalPassages(markdownFile.file, markdownFile.markdown, queryTags, passages, wildcard);
-			if (!globalTagsMatched) sectionPassages(markdownFile.file, markdownFile.markdown, queryTags, passages, wildcard);
-		}
+	for (const markdownFile of markdownFiles) {
+		const globalTagsMatched = globalPassages(markdownFile.file, markdownFile.markdown, queryTags, passages, wildcard);
+		if (!globalTagsMatched) sectionPassages(markdownFile.file, markdownFile.markdown, queryTags, passages, wildcard);
 	}
 	return passages;
 }
@@ -104,10 +101,10 @@ export function matchingTags(queryTags: string[], hashTags: string[], wildcard: 
 }
 
 /**
- * Given an array of `queryArguments` and a `tagPrefix` (which may be ''), return
- * an array of unique query tags. 
+ * Given an array of `queryArguments` (hashtag names), return an array of unique
+ * query tags. 
  */
-export function getQueryTags(queryArguments: string[], tagPrefix: string) {
+export function getQueryTags(queryArguments: string[], tagPrefix = '') {
 	let tags = new Set<string>();
 	for (const queryArgument of queryArguments) {
 		tags.add(tagPrefix + queryArgument);

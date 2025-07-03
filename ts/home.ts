@@ -38,8 +38,8 @@ export function render() {
 		revision = articleProperties.revision;
 	}
 
-	/**### testing--display hostname/IP */
-	PAGE.appendParagraph(ArticleText, window.location.hostname);
+	// /**### testing--display hostname/IP */
+	// PAGE.appendParagraph(ArticleText, window.location.hostname);
 	
 	PAGE.displayFooter(revision);
 
@@ -77,26 +77,35 @@ export function render() {
 			}
 		}
 
-		/* Test POST API */
-		const buttonDivision = PAGE.appendContent();
-		const fetchOutput = PAGE.appendContent();
-		const postButton = document.createElement('button');
-		// postButton.innerText = 'Test API Post';
-		postButton.innerText = 'Test API Fetch';
-		buttonDivision.append(postButton);
-		postButton.addEventListener('click', (e) => {
-			fetchOutput.innerText = '';
-			let filePath = prompt('File Path');
-			if (filePath) {
-				if (!filePath.match(/\..*$/)) filePath += '.md'; /** assume '.md' if no extension */
-				testFetch(filePath, fetchOutput);
-			}
-			// const now = new Date();
-			// const milliseconds = now.getTime();
-			// const data = { id: milliseconds, name: `Item written ${T.DateString(now, 2)}` };
-			// const route = 'items';
-			// testPost(data, route, division);
-		});
+		if (PAGE.backendAvailable) {
+			/* Test POST API */
+			const buttonDivision = PAGE.appendContent();
+			const fetchOutput = PAGE.appendContent();
+			const postButton = document.createElement('button');
+			// postButton.innerText = 'Test API Post';
+			postButton.innerText = 'Test API';
+			buttonDivision.append(postButton);
+			postButton.addEventListener('click', (e) => {
+
+				// fetchOutput.innerText = '';
+				// let filePath = prompt('File Path');
+				// if (filePath) {
+				// 	if (!filePath.match(/\..*$/)) filePath += '.md'; /** assume '.md' if no extension */
+				// 	testFetch(filePath, fetchOutput);
+				// }
+
+				const rootPath = prompt('Root Path');
+				if (rootPath) {
+					getMarkdownFiles(rootPath, fetchOutput);
+				}
+
+				// const now = new Date();
+				// const milliseconds = now.getTime();
+				// const data = { id: milliseconds, name: `Item written ${T.DateString(now, 2)}` };
+				// const route = 'items';
+				// testPost(data, route, division);
+			});
+		}
 		// /* Form POST */
 		// const formDivision = PAGE.appendContent();
 		// const form = document.createElement('form');
@@ -403,6 +412,22 @@ function testFetch(filePath: string, fetchOutput: HTMLElement) {
 			const fileLines = fileText.split('\n');
 			PAGE.appendParagraph(fetchOutput, fileLines);
 		}
+	});
+}
+
+function getMarkdownFiles(rootPath: string, fetchOutput: HTMLElement) {
+	fetchOutput.innerHTML = '';
+	const outputLines: string[] = [];
+	Fetch.post<MD.MarkdownFile[]>(`${PAGE.backend}/markdown`, {root: rootPath}).then((markdownFiles) => {
+		if (markdownFiles) {
+			for (const markdownFile of markdownFiles) {
+				if (markdownFile.file) {
+					outputLines.push(markdownFile.file.path);
+				}
+			}
+		}
+		if (!outputLines.length) outputLines.push(`no files found in ${rootPath}`);
+		PAGE.appendParagraph(fetchOutput, outputLines);
 	});
 }
 

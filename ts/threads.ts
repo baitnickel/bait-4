@@ -8,13 +8,6 @@ if (!PAGE.backendAvailable) {
 	window.alert(`Cannot connect to: ${PAGE.backend}`);
 	window.history.back();
 }
-// const Passages = await Fetch.json<Thread.Passage[]>(`${PAGE.backend}/threads?tags=era+`);
-// const Query: Thread.QueryOptions = {
-// 	root: 'Content/chapters',
-// 	prefix: '',
-// 	tags: ['era197+', 'era196+'],
-// };
-// const Passages = await Fetch.post<Thread.Passage[]>(`${PAGE.backend}/threads`, Query);
 
 export function render() {
 	const query = document.createElement('div');
@@ -40,7 +33,6 @@ function getPassages(queryDivision: HTMLDivElement, outputDivision: HTMLDivEleme
 			});
 		}
 	});
-
 }
 
 function parseQueryString(queryString: string) {
@@ -54,9 +46,9 @@ function parseQueryString(queryString: string) {
 	}
 	const tags: string[] = [];
 	for (const component of components) {
-		tags.push(component);
+		tags.push(prefix + component);
 	}
-	query = { root: root, prefix: prefix, tags: tags };
+	query = { root: root, tags: tags };
 	return query;
 }
 

@@ -78,6 +78,61 @@ export async function post(uri, body) {
         data = await response.json();
     return data;
 }
+/**
+ * Perform an API call and return the HTTP status code and response data
+ * (formatted in an object).
+ *
+ * - `route` is the resource (e.g., "http://example.com/rest/api/2/foo")
+ * - `parameters` is (an optional object) a string representing a URL query string
+ *   (a series of field-value pairs)
+ * - `body` is the optional request body to be posted (typically an object)
+ *
+ * By default, `method` is GET when there is no body (`body` === null) and POST
+ * when body is provided.
+ */
+// type apiResponse = { status: number, statusText: string, responseData: any };
+// export async function api(route: string, parameters = '', body: string|object|null = null, method = '') {
+export async function api(route, body = null, method = '') {
+    let response = new Response();
+    // if (parameters) { const queryString = encodeURI(parameters); route += '?' + queryString; }
+    // if (typeof body == 'object') body = JSON.stringify(body); /** convert object to JSON string */
+    // if (body) body = encodeURI(body); /** convert string to bytes object (valid URI) */
+    body = JSON.stringify(body); /** convert object to JSON string */
+    const headers = { "Content-type": "application/json; charset=UTF-8" };
+    if (!method)
+        method = (body) ? 'POST' : 'GET';
+    const options = { headers: headers, body: body, method: method };
+    const request = new Request(route, options);
+    try {
+        response = await fetch(request);
+    }
+    catch (error) {
+        console.error(error);
+    }
+    finally {
+        return response;
+    }
+    // fetch(request).then((response) => {
+    // 	try {
+    // 		responseData = JSON.stringify(response.body);
+    // 		status = response.status;
+    // 		statusText = response.statusText;
+    // 	}
+    // 	catch {
+    // 		responseData = {};
+    // 		status = 0;
+    // 		statusText = 'error';
+    // 	}
+    // 	return { responseData, status, statusText };
+    // });
+    // .then((response) => {
+    // 	if (!response.ok) throw new Error(`Error: ${response.status} - ${response.statusText}`);
+    // 	return response.json();
+    // })
+    // .catch((error) => {
+    // 	console.error(error);
+    // });
+}
 async function getResponse(uri) {
     try {
         const request = new Request(uri);

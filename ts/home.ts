@@ -83,7 +83,7 @@ export function render() {
 			const fetchOutput = PAGE.appendContent();
 			const postButton = document.createElement('button');
 			// postButton.innerText = 'Test API Post';
-			postButton.innerText = 'Test API';
+			postButton.innerText = 'Test Fetch.api';
 			buttonDivision.append(postButton);
 			postButton.addEventListener('click', (e) => {
 
@@ -94,7 +94,8 @@ export function render() {
 				// 	testFetch(filePath, fetchOutput);
 				// }
 
-				const rootPath = prompt('Root Path');
+				// const rootPath = prompt('Root Path', 'Content/chapters');
+				const rootPath = 'Content/chapters';
 				if (rootPath) {
 					getMarkdownFiles(rootPath, fetchOutput);
 				}
@@ -415,9 +416,17 @@ function testFetch(filePath: string, fetchOutput: HTMLElement) {
 	});
 }
 
-function getMarkdownFiles(rootPath: string, fetchOutput: HTMLElement) {
+// type apiResponse = { status: number, statusText: string, responseData: any };
+async function getMarkdownFiles(rootPath: string, fetchOutput: HTMLElement) {
 	fetchOutput.innerHTML = '';
 	const outputLines: string[] = [];
+
+	// const response = await Fetch.api(`${PAGE.backend}/markdown`, {root: rootPath});
+	// console.log(response);
+	// outputLines.push(`Status ${response.status} ${response.statusText}`);
+	// outputLines.push(`OK: ${response.ok}`);
+	// outputLines.push(`response.body: ${response.body}`);
+	
 	Fetch.post<MD.MarkdownFile[]>(`${PAGE.backend}/markdown`, {root: rootPath}).then((markdownFiles) => {
 		if (markdownFiles) {
 			for (const markdownFile of markdownFiles) {

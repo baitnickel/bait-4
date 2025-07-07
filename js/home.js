@@ -388,7 +388,7 @@ async function getMarkdownFiles(rootPath, fetchOutput) {
     // outputLines.push(`Status ${response.status} ${response.statusText}`);
     // outputLines.push(`OK: ${response.ok}`);
     // outputLines.push(`response.body: ${response.body}`);
-    Fetch.post(`${PAGE.backend}/markdown`, { root: rootPath }).then((markdownFiles) => {
+    Fetch.api(`${PAGE.backend}/markdown`, { root: rootPath }).then((markdownFiles) => {
         if (markdownFiles) {
             for (const markdownFile of markdownFiles) {
                 if (markdownFile.file) {

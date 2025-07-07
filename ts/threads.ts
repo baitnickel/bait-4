@@ -28,7 +28,7 @@ function getPassages(queryDivision: HTMLDivElement, outputDivision: HTMLDivEleme
 		if (response !== null && response.trim()) {
 			queryString = response.trim();
 			const query = parseQueryString(queryString);
-			Fetch.post<Thread.Passage[]>(`${PAGE.backend}/threads`, query).then((passages) => {
+			Fetch.api<Thread.Passage[]>(`${PAGE.backend}/threads`, query).then((passages) => {
 				displayPassages(passages, outputDivision);
 			});
 		}

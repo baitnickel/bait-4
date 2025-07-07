@@ -427,7 +427,7 @@ async function getMarkdownFiles(rootPath: string, fetchOutput: HTMLElement) {
 	// outputLines.push(`OK: ${response.ok}`);
 	// outputLines.push(`response.body: ${response.body}`);
 	
-	Fetch.post<MD.MarkdownFile[]>(`${PAGE.backend}/markdown`, {root: rootPath}).then((markdownFiles) => {
+	Fetch.api<MD.MarkdownFile[]>(`${PAGE.backend}/markdown`, {root: rootPath}).then((markdownFiles) => {
 		if (markdownFiles) {
 			for (const markdownFile of markdownFiles) {
 				if (markdownFile.file) {

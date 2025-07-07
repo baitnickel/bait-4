@@ -5,7 +5,11 @@ const YamlFile = /\.ya?ml$/i;
 
 /**
  * Test the connection to the given `uri`, typically the root API of a backend
- * server. 
+ * server. Return `true` if the request is successful, otherwise `false`.
+ * 
+ * Example (from the `page` module):
+ * 
+ * - if (LOCAL) BACKEND_AVAILABLE = await Fetch.test(`${BACKEND}/`);
  */
 export async function test(uri: string) {
 	let success = true;
@@ -14,6 +18,15 @@ export async function test(uri: string) {
 	finally { return success; }
 }
 
+/**
+ * Return text from a plain text resource specified in `uri`. Return an empty
+ * string ('') if the request fails.
+ * 
+ * Examples:
+ * 
+ * - Fetch.text(articleFullPath).then((fileText) => { ... });
+ * - const HomeText = await Fetch.text(HomeTextPath);
+ */
 export async function text(uri: string) {
 	let text = '';
 	const response = await getResponse(uri);
@@ -27,6 +40,18 @@ export async function json<Type>(uri: string) {
 	return data;
 }
 
+/**
+ * Return a complex object from the file specified in `uri` into an object
+ * specified in the generic `Type`. The data file specified in `uri` can be
+ * either a JSON file or a YAML file; if YAML, numeric and boolean data will be
+ * converted to strings by default, but this can be overridden by passing
+ * `false` as a second argument. Return an empty object of `Type` if the fetch
+ * request fails.
+ * 
+ * Example:
+ *
+ * - const IChing = await Fetch.object<T.IChing>(IChingPath);
+ */
 export async function object<Type>(uri: string, convertYamlStrings = true) {
 	let data = <Type>{}; /* empty object */
 	const response = await getResponse(uri);
@@ -34,6 +59,17 @@ export async function object<Type>(uri: string, convertYamlStrings = true) {
 	return data;
 }
 
+/**
+ * Return an array from the resource specified in `uri` where the array data is
+ * of type `Type`. The data resource can be either JSON or YAML; if YAML,
+ * numeric and boolean data will be converted to strings by default, but this
+ * can be overridden by passing `false` as a second argument. Return an empty
+ * array if the request fails.
+ * 
+ * Example:
+ * 
+ * - const records = await Fetch.array<MoonData>(uri);
+ */
 export async function array<Type>(uri: string, convertYamlStrings = true) {
 	let array = new Array<Type>(); /* empty array */
 	const response = await getResponse(uri);
@@ -43,6 +79,17 @@ export async function array<Type>(uri: string, convertYamlStrings = true) {
 	return array;
 }
 
+/**
+ * Return a Map with a string key and a data type specified in the generic
+ * `Type`. The data resource specified in `uri` can be either JSON or YAML; if
+ * YAML, numeric and boolean data will be converted to strings by default, but
+ * this can be overridden by passing `false` as a second argument. Return an
+ * empty Map if the fetch request fails.
+ * 
+ * For example, where `Articles` is a Map<string, T.FileStats>:
+ * 
+ * - const Articles = await Fetch.map<T.FileStats>(ArticlesIndex);
+ */
 export async function map<Type>(uri: string, convertYamlStrings = true) {
 	let map: Map<string, Type>;
 	const response = await getResponse(uri);
@@ -55,6 +102,10 @@ export async function map<Type>(uri: string, convertYamlStrings = true) {
 	return map;
 }
 
+/**
+ * Return a blob (binary data) from the resource specified in `uri`. Return null
+ * if the request fails.
+ */
 export async function blob(uri: string) {
 	let blob = null;
 	const response = await getResponse(uri);
@@ -62,93 +113,23 @@ export async function blob(uri: string) {
 	return blob;
 }
 
-export async function post<Type>(uri: string, body: any) {
+/**
+ * Call the API resource, `uri`, which may include a query string, and return
+ * JSON data from the call. When `body` data is provided, it will be converted
+ * to JSON. If a `method` is not provided, we will assume GET unless body data
+ * is provided, in which case we will assume POST.
+ */
+export async function api<Type>(uri: string, body: any = null, method: string = '') {
+	if (!method) method = (body) ? 'POST' : 'GET';
+	if (body) body = JSON.stringify(body);
 	const response = await fetch(uri, {
-		method: 'POST',
-		body: JSON.stringify(body),
+		method: method,
+		body: body,
 		headers: { "Content-type": "application/json; charset=UTF-8" }
 	});
 	let data: Type;
 	if (!response.ok) return null;
 	else data = await response.json();
-	return data;
-}
-
-/**
- * Perform an API call and return the HTTP status code and response data
- * (formatted in an object).
- * 
- * - `route` is the resource (e.g., "http://example.com/rest/api/2/foo")
- * - `parameters` is (an optional object) a string representing a URL query string
- *   (a series of field-value pairs)
- * - `body` is the optional request body to be posted (typically an object)
- * 
- * By default, `method` is GET when there is no body (`body` === null) and POST
- * when body is provided.
- */
-// type apiResponse = { status: number, statusText: string, responseData: any };
-// export async function api(route: string, parameters = '', body: string|object|null = null, method = '') {
-export async function api(route: string, body: string|object|null = null, method = '') {
-	let response = new Response();
-	// if (parameters) { const queryString = encodeURI(parameters); route += '?' + queryString; }
-	// if (typeof body == 'object') body = JSON.stringify(body); /** convert object to JSON string */
-	// if (body) body = encodeURI(body); /** convert string to bytes object (valid URI) */
-	body = JSON.stringify(body); /** convert object to JSON string */
-	const headers = { "Content-type": "application/json; charset=UTF-8" };
-	if (!method) method = (body) ? 'POST' : 'GET';
-	const options = { headers: headers, body: body, method: method };
-	const request = new Request(route, options);
-
-	try { response = await fetch(request); }
-	catch(error) { console.error(error); }
-	finally { return response; }
-
-	// fetch(request).then((response) => {
-	// 	try {
-	// 		responseData = JSON.stringify(response.body);
-	// 		status = response.status;
-	// 		statusText = response.statusText;
-	// 	}
-	// 	catch {
-	// 		responseData = {};
-	// 		status = 0;
-	// 		statusText = 'error';
-	// 	}
-	// 	return { responseData, status, statusText };
-	// });
-
-		// .then((response) => {
-		// 	if (!response.ok) throw new Error(`Error: ${response.status} - ${response.statusText}`);
-		// 	return response.json();
-		// })
-		// .catch((error) => {
-		// 	console.error(error);
-		// });
-}
-
-async function getResponse(uri: string) {
-	try {
-		const request = new Request(uri);
-		const response = await fetch(request);
-		if (!response.ok) return null;
-		return response;
-	}
-	catch(error) {
-		console.error(error); 
-		return null;
-	}
-}
-
-async function getData(uri: string, response: Response | null, convertYamlStrings: boolean) {
-	let data = null;
-	if (response !== null) {
-		if (JsonFile.test(uri)) data = await response.json();
-		else if (YamlFile.test(uri)) {
-			const text = await response.text();
-			const yaml = new YAML(text);
-			data = yaml.parse(convertYamlStrings);
-		}
-	}
 	return data;
 }
 
@@ -170,70 +151,70 @@ export function uppercaseKeys<Type>(map: Map<string, Type>) {
 	}
 }
 
-/** --------------- deprecated functions --------------- */
+/**
+ * Given a `uri` resource, create a Request object and fetch a Response. If
+ * successful, return the Response object. Otherwise return null. 
+ */
+async function getResponse(uri: string) {
+	try {
+		const request = new Request(uri);
+		const response = await fetch(request);
+		if (!response.ok) return null;
+		return response;
+	}
+	catch(error) {
+		console.error(error); 
+		return null;
+	}
+}
 
 /**
- * Read the file given in `path` containing data of `type` (default is 'text').
- * JSON files and blobs are handled differently than text files. When no `type`
- * is specified, files will be processed as JSON if they have a '.json'
- * extension. Data of type `any` is returned; on errors, null is returned.
+ * Given a `uri` resource (either a JSON file or a YAML file), a `response`
+ * object (or null), and a boolean switch indicating whether or not YAML strings
+ * (if any) should be converted to their true types, return the resource data
+ * (or null on errors). 
  */
-// export async function fetchData(path: string, type: string = 'text') {
-// 	try {
-// 		const uri = new Request(path);
-// 		const response = await fetch(uri);
-// 		if (!response.ok) return null;
-// 		let data: any;
-// 		if (type == 'json' || path.endsWith('.json')) data = await response.json();
-// 		else if (type == 'blob') data = await response.blob();
-// 		else data = await response.text();
-// 		return data;
-// 	}
-// 	catch(error) {
-// 		console.error(error); 
-// 		return null;
-// 	}
-// }
+async function getData(uri: string, response: Response | null, convertYamlStrings: boolean) {
+	let data = null;
+	if (response !== null) {
+		if (JsonFile.test(uri)) data = await response.json();
+		else if (YamlFile.test(uri)) {
+			const text = await response.text();
+			const yaml = new YAML(text);
+			data = yaml.parse(convertYamlStrings);
+		}
+	}
+	return data;
+}
 
 /**
- * Read the JSON file given in `path` and return a Map with string keys and
- * values of type `Value`. On errors, return an empty Map.
+ * Perform an API call and return the HTTP status code and response data
+ * (formatted in an object).
+ * 
+ * - `route` is the resource (e.g., "http://example.com/rest/api/2/foo")
+ * - `parameters` is (an optional object) a string representing a URL query string
+ *   (a series of field-value pairs)
+ * - `body` is the optional request body to be posted (typically an object)
+ * 
+ * By default, `method` is GET when there is no body (`body` === null) and POST
+ * when body is provided.
  */
-// export async function fetchMap<Value>(path: string) {
-// 	try {
-// 		const uri = new Request(path);
-// 		const response = await fetch(uri);
-// 		if (!response.ok) throw `cannot fetch ${path}`;
-// 		if (!path.toLowerCase().endsWith('.json')) throw `${path} is not a JSON file`;
-// 		let data: any = await response.json();
-// 		let map = new Map<string, Value>(Object.entries(data));
-// 		return map;
-// 	}
-// 	catch(error) {
-// 		console.error(error);
-// 		let map = new Map<string, Value>(); /* empty Map */
-// 		return map;
-// 	}
+// type apiResponse = { status: number, statusText: string, responseData: any };
+// export async function api(route: string, parameters = '', body: string|object|null = null, method = '') {
+
+// export async function api(route: string, body: string|object|null = null, method = '') {
+// 	let response = new Response();
+// 	// if (parameters) { const queryString = encodeURI(parameters); route += '?' + queryString; }
+// 	// if (typeof body == 'object') body = JSON.stringify(body); /** convert object to JSON string */
+// 	// if (body) body = encodeURI(body); /** convert string to bytes object (valid URI) */
+// 	body = JSON.stringify(body); /** convert object to JSON string */
+// 	const headers = { "Content-type": "application/json; charset=UTF-8" };
+// 	if (!method) method = (body) ? 'POST' : 'GET';
+// 	const options = { headers: headers, body: body, method: method };
+// 	const request = new Request(route, options);
+
+// 	try { response = await fetch(request); }
+// 	catch(error) { console.error(error); }
+// 	finally { return response; }
 // }
 
-/**
- * Read the JSON file given in `path` and return a Collection (defined in the
- * custom Datasets module) with string keys and values of type `Value`. On
- * errors, return an empty Collection.
- */
-// export async function fetchCollection<Value>(path: string) {
-// 	try {
-// 		const uri = new Request(path);
-// 		const response = await fetch(uri);
-// 		if (!response.ok) throw `cannot fetch ${path}`;
-// 		if (!path.toLowerCase().endsWith('.json')) throw `${path} is not a JSON file`;
-// 		const data: any = await response.json();
-// 		const collection = new Datasets.Collection<Value>(data);
-// 		return collection;
-// 	}
-// 	catch(error) {
-// 		console.error(error);
-// 		let collection = new Datasets.Collection<Value>(); /* empty Collection */
-// 		return collection;
-// 	}
-// }

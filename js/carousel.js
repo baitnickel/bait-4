@@ -18,10 +18,8 @@ if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
     window.history.back();
 }
-const MediaImages = await Fetch.json(`${PAGE.backend}/media/images`);
+const MediaImages = await Fetch.api(`${PAGE.backend}/media/images`);
 const Albums = mediaImagesMap(MediaImages);
-// const MediaImages = `${PAGE.site}/data/test-Data/albums.yaml`;
-// const Albums = await Fetch.map<string[]>(MediaImages);
 export function render() {
     let album = (PAGE.parameters.has('album')) ? PAGE.parameters.get('album') : '';
     let interval = (PAGE.parameters.has('interval')) ? Number(PAGE.parameters.get('interval')) : 0;
@@ -244,7 +242,9 @@ function smugURI(id, size = 'O', type = 'jpg') {
 }
 function mediaImagesMap(mediaImages) {
     const imagesMap = new Map();
-    for (const mediaImage of mediaImages)
-        imagesMap.set(mediaImage.album, mediaImage.filePaths);
+    if (mediaImages !== null) {
+        for (const mediaImage of mediaImages)
+            imagesMap.set(mediaImage.album, mediaImage.filePaths);
+    }
     return imagesMap;
 }

@@ -24,10 +24,8 @@ if (!PAGE.backendAvailable) {
 }
 
 type MediaImageData = { album: string; filePaths: string[]; }
-const MediaImages = await Fetch.json<MediaImageData[]>(`${PAGE.backend}/media/images`);
+const MediaImages = await Fetch.api<MediaImageData[]>(`${PAGE.backend}/media/images`);
 const Albums = mediaImagesMap(MediaImages);
-// const MediaImages = `${PAGE.site}/data/test-Data/albums.yaml`;
-// const Albums = await Fetch.map<string[]>(MediaImages);
 
 export function render() {
 	let album = (PAGE.parameters.has('album')) ? PAGE.parameters.get('album')! : '';
@@ -264,8 +262,10 @@ function smugURI(id: string, size = 'O', type = 'jpg') {
 	return uri;
 }
 
-function mediaImagesMap(mediaImages: MediaImageData[]) {
+function mediaImagesMap(mediaImages: MediaImageData[]|null) {
 	const imagesMap = new Map<string, string[]>();
-	for (const mediaImage of mediaImages) imagesMap.set(mediaImage.album, mediaImage.filePaths);
+	if (mediaImages !== null) {
+		for (const mediaImage of mediaImages) imagesMap.set(mediaImage.album, mediaImage.filePaths);
+	}
 	return imagesMap;
 }

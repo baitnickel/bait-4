@@ -1,8 +1,83 @@
+export class Widget {
+	id: string;
+	className: string;
+
+	constructor(id: string, className: string) {
+		this.id = id;
+		this.className = className;
+	}
+}
+
+/*
+	columns: number;
+	constructor() {
+		super([TABLE_TAG], true, true);
+		this.columns = 0;
+	}
+*/
+
+/**
+ * Dialog box (modal or non-modal), optionally with fieldset.
+ */
+export class Dialog extends Widget {
+	element: HTMLDialogElement;
+	fieldSet: HTMLFieldSetElement;
+	legend: HTMLLegendElement;
+	componentList: HTMLUListElement;
+
+	constructor(id: string, className: string, legend: string) {
+		super(id, className);
+		this.element = document.createElement('dialog');
+		this.element.id = id;
+		this.element.className = className;
+		this.fieldSet = document.createElement('fieldset');
+		this.legend = document.createElement('legend');
+		this.legend.innerText = legend;
+		this.fieldSet.append(this.legend);
+		this.componentList = document.createElement('ul');
+	}
+
+	/** called for each component to be added to the dialog */
+	addComponent(component: HTMLElement) {
+		const listItem = document.createElement('li');
+		this.componentList.append(listItem);
+	}
+
+	/** complete and return dialog element */
+	// modal() {
+	// 	this.fieldSet.append(this.componentList);
+	// 	return this.element;
+	// }
+
+	/** complete and display dialog element in container element */
+	displayModal(container: HTMLElement) {
+		this.fieldSet.append(this.componentList);
+		container.append(this.element);
+		this.element.showModal();
+	}
+}
+
+export class Text extends Widget {
+
+}
+
+export class Checkbox2 extends Widget { // `Checkbox` name conflict
+
+}
+
+export class Range extends Widget {
+
+}
+
+export class Button extends Widget {
+
+}
+
 /**
  * The Navigator class manages a set of buttons (First, Previous, Next, Last)
  * for navigating through a set of documents (an array of file path names).
  */
-export class Navigator {
+export class Navigator { // used in `articles`
 	index: number;
 	readonly documents: string[];
 	firstButton: HTMLButtonElement;
@@ -111,7 +186,7 @@ export class Navigator {
  * value).
  */
 // export type RadioSelection = (activeButton: string) => void;
-export class RadioButtons {
+export class RadioButtons { // used in `camp`, `home`, `reservations`
 	buttons: HTMLButtonElement[];
 	classNames: string[];
 	activeClass: string;

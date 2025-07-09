@@ -1,3 +1,56 @@
+export class Widget {
+    constructor(id, className) {
+        this.id = id;
+        this.className = className;
+    }
+}
+/*
+    columns: number;
+    constructor() {
+        super([TABLE_TAG], true, true);
+        this.columns = 0;
+    }
+*/
+/**
+ * Dialog box (modal or non-modal), optionally with fieldset.
+ */
+export class Dialog extends Widget {
+    constructor(id, className, legend) {
+        super(id, className);
+        this.element = document.createElement('dialog');
+        this.element.id = id;
+        this.element.className = className;
+        this.fieldSet = document.createElement('fieldset');
+        this.legend = document.createElement('legend');
+        this.legend.innerText = legend;
+        this.fieldSet.append(this.legend);
+        this.componentList = document.createElement('ul');
+    }
+    /** called for each component to be added to the dialog */
+    addComponent(component) {
+        const listItem = document.createElement('li');
+        this.componentList.append(listItem);
+    }
+    /** complete and return dialog element */
+    // modal() {
+    // 	this.fieldSet.append(this.componentList);
+    // 	return this.element;
+    // }
+    /** complete and display dialog element in container element */
+    displayModal(container) {
+        this.fieldSet.append(this.componentList);
+        container.append(this.element);
+        this.element.showModal();
+    }
+}
+export class Text extends Widget {
+}
+export class Checkbox2 extends Widget {
+}
+export class Range extends Widget {
+}
+export class Button extends Widget {
+}
 /**
  * The Navigator class manages a set of buttons (First, Previous, Next, Last)
  * for navigating through a set of documents (an array of file path names).

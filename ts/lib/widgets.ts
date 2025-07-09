@@ -1,32 +1,26 @@
 export class Widget {
+	element: HTMLElement;
 	id: string;
 	className: string;
 
-	constructor(id: string, className: string) {
+	constructor(elementType: string, id: string, className: string) {
+		this.element = document.createElement(elementType);
 		this.id = id;
 		this.className = className;
 	}
 }
 
-/*
-	columns: number;
-	constructor() {
-		super([TABLE_TAG], true, true);
-		this.columns = 0;
-	}
-*/
-
 /**
  * Dialog box (modal or non-modal), optionally with fieldset.
  */
-export class Dialog extends Widget {
+export class Dialog /* extends Widget */ {
 	element: HTMLDialogElement;
 	fieldSet: HTMLFieldSetElement;
 	legend: HTMLLegendElement;
 	componentList: HTMLUListElement;
 
 	constructor(id: string, className: string, legend: string) {
-		super(id, className);
+		// super('dialog', id, className);
 		this.element = document.createElement('dialog');
 		this.element.id = id;
 		this.element.className = className;
@@ -40,36 +34,71 @@ export class Dialog extends Widget {
 	/** called for each component to be added to the dialog */
 	addComponent(component: HTMLElement) {
 		const listItem = document.createElement('li');
+		listItem.append(component);
 		this.componentList.append(listItem);
 	}
-
-	/** complete and return dialog element */
-	// modal() {
-	// 	this.fieldSet.append(this.componentList);
-	// 	return this.element;
-	// }
 
 	/** complete and display dialog element in container element */
 	displayModal(container: HTMLElement) {
 		this.fieldSet.append(this.componentList);
+		this.element.append(this.fieldSet);
 		container.append(this.element);
-		this.element.showModal();
+		(this.element as HTMLDialogElement).showModal();
 	}
 }
 
-export class Text extends Widget {
+export class Text /* extends Widget */ {
+	element: HTMLInputElement;
+	value: string;
+	labelElement: HTMLLabelElement;
+
+	constructor(id: string, className: string, value: string, labelText: string) {
+		// super('input', id, className);
+		this.element = document.createElement('input');
+		this.element.id = id;
+		this.element.className = className;
+		this.element.name = id; /** for Form submission */
+		this.value = value;
+		this.element.value = value;
+		this.labelElement = document.createElement('label');
+		this.labelElement.htmlFor = this.element.id;
+		this.labelElement.innerText = labelText;
+		this.labelElement.append(this.element);
+
+		this.element.addEventListener('change', () => {
+			this.value = this.element.value;
+		});
+	}
+}
+
+export class Checkbox2 /* extends Widget */ { // `Checkbox` name conflict
+	element: HTMLInputElement;
+	checked: boolean;
+	labelElement: HTMLLabelElement;
+
+	constructor(id: string, className: string, checked: boolean, labelText: string) {
+		this.element = document.createElement('input');
+		this.element.type = 'checkbox';
+		this.element.id = id;
+		this.element.className = className;
+		this.checked = checked;
+		this.element.checked = checked;
+		this.labelElement = document.createElement('label');
+		this.labelElement.htmlFor = this.element.id;
+		this.labelElement.innerText = labelText;
+		this.labelElement.append(this.element);
+
+		this.element.addEventListener('change', () => {
+			this.checked = this.element.checked;
+		});
+	}
+}
+
+export class Range /* extends Widget */ {
 
 }
 
-export class Checkbox2 extends Widget { // `Checkbox` name conflict
-
-}
-
-export class Range extends Widget {
-
-}
-
-export class Button extends Widget {
+export class Button /* extends Widget */ {
 
 }
 

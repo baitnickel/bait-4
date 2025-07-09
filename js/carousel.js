@@ -1,5 +1,6 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
+import * as W from './lib/widgets.js';
 const PAGE = new Page(false, false);
 PAGE.header.remove();
 PAGE.content.remove();
@@ -20,16 +21,32 @@ if (!PAGE.backendAvailable) {
 }
 const MediaImages = await Fetch.api(`${PAGE.backend}/media/images`);
 const Albums = mediaImagesMap(MediaImages);
+let Album = '';
+let Shuffle = false;
+let Interval = 0;
 export function render() {
-    let album = (PAGE.parameters.has('album')) ? PAGE.parameters.get('album') : '';
-    let interval = (PAGE.parameters.has('interval')) ? Number(PAGE.parameters.get('interval')) : 0;
-    if (isNaN(interval) || interval < 0)
-        interval = 0;
-    let shuffle = (PAGE.parameters.has('shuffle')) ? true : false;
+    if (PAGE.parameters.has('album'))
+        Album = PAGE.parameters.get('album');
+    if (PAGE.parameters.has('interval'))
+        Interval = Number(PAGE.parameters.get('interval'));
+    if (isNaN(Interval) || Interval < 0)
+        Interval = 0;
+    if (PAGE.parameters.has('shuffle'))
+        Shuffle = true;
     if (PAGE.parameters.has('interval') || PAGE.parameters.has('shuffle'))
-        runCarousel(album, shuffle, interval);
+        runCarousel( /* Album, Shuffle, Interval */);
+    else if (PAGE.parameters.has('widget'))
+        widgetTest();
     else
-        modalDialog(album, shuffle, interval);
+        modalDialog( /* album, shuffle, interval */);
+}
+function widgetTest() {
+    const textInput = new W.Text('album', '', '', 'Album: ');
+    const checkbox = new W.Checkbox2('shuffleOption', '', false, 'Shuffle Slides ');
+    const modal = new W.Dialog('', 'carousel-dialog', 'Carousel Options');
+    modal.addComponent(textInput.labelElement);
+    modal.addComponent(checkbox.labelElement);
+    modal.displayModal(document.body);
 }
 class ImageSet {
     constructor(images, shuffle = false) {
@@ -70,8 +87,8 @@ class ImageSet {
         }
     }
 }
-function runCarousel(album, shuffle, interval) {
-    const images = albumImages(album);
+function runCarousel( /* album: string, shuffle: boolean, interval: number */) {
+    const images = albumImages(Album);
     if (!images.length) {
         alert('No images have been selected!');
         location.reload();
@@ -82,7 +99,7 @@ function runCarousel(album, shuffle, interval) {
         document.body.append(carousel);
         carousel.className = 'carousel';
         carousel.dataset.carousel = '';
-        const imageSet = new ImageSet(images, shuffle);
+        const imageSet = new ImageSet(images, Shuffle);
         const slide = document.createElement('div');
         slide.className = 'slide';
         slide.dataset.active = '';
@@ -92,9 +109,9 @@ function runCarousel(album, shuffle, interval) {
         slide.append(imageElement);
         // await image.decode(); /** wait till the image is ready to use */
         addExitButton(carousel);
-        if (interval) {
+        if (Interval) {
             const changeImageFunction = () => imageElement.src = imageSet.nextImage();
-            const intervalID = setInterval(changeImageFunction, interval * 1000, carousel);
+            const intervalID = setInterval(changeImageFunction, Interval * 1000, carousel);
         }
         else {
             const buttons = addNavigationButtons(carousel);
@@ -125,9 +142,9 @@ function addExitButton(parent) {
     returnButton.className = 'carousel-button return';
     returnButton.innerHTML = '&times;';
     parent.append(returnButton);
-    returnButton.addEventListener('click', () => { window.history.back(); });
+    returnButton.addEventListener('click', () => { /* modalDialog(); */ window.history.back(); });
 }
-function modalDialog(album, shuffle, interval) {
+function modalDialog( /* album: string, shuffle: boolean, interval: number */) {
     /** open modal dialog to set options */
     const modal = document.createElement('dialog');
     modal.className = 'carousel-dialog';
@@ -143,7 +160,7 @@ function modalDialog(album, shuffle, interval) {
     const albumSelection = document.createElement('input');
     albumSelection.id = 'album';
     albumSelection.name = 'album';
-    albumSelection.value = album;
+    albumSelection.value = Album;
     const albumLabel = document.createElement('label');
     albumLabel.htmlFor = albumSelection.id;
     albumLabel.innerText = 'Album: ';
@@ -154,7 +171,7 @@ function modalDialog(album, shuffle, interval) {
     const shuffleCheckbox = document.createElement('input');
     shuffleCheckbox.type = 'checkbox';
     shuffleCheckbox.id = 'shuffleOption';
-    shuffleCheckbox.checked = shuffle;
+    shuffleCheckbox.checked = Shuffle;
     const shuffleLabel = document.createElement('label');
     shuffleLabel.htmlFor = shuffleCheckbox.id;
     shuffleLabel.innerText = 'Shuffle Slides ';
@@ -196,14 +213,14 @@ function modalDialog(album, shuffle, interval) {
     document.body.append(modal);
     modal.showModal();
     albumSelection.addEventListener('change', () => {
-        album = albumSelection.value;
+        Album = albumSelection.value;
     });
     shuffleCheckbox.addEventListener('change', () => {
-        shuffle = shuffleCheckbox.checked;
+        Shuffle = shuffleCheckbox.checked;
     });
     intervalSelection.addEventListener('input', () => {
-        interval = Number(intervalSelection.value);
-        intervalOutput.innerHTML = `<br>Number of Seconds: ${interval}`;
+        Interval = Number(intervalSelection.value);
+        intervalOutput.innerHTML = `<br>Number of Seconds: ${Interval}`;
     });
     cancelButton.addEventListener('click', () => {
         modal.close();
@@ -211,7 +228,7 @@ function modalDialog(album, shuffle, interval) {
     });
     confirmButton.addEventListener('click', () => {
         modal.close();
-        runCarousel(album, shuffle, interval);
+        runCarousel( /* album, shuffle, interval */);
     });
 }
 function albumImages(albumName) {

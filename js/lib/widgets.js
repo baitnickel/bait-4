@@ -1,22 +1,16 @@
 export class Widget {
-    constructor(id, className) {
+    constructor(elementType, id, className) {
+        this.element = document.createElement(elementType);
         this.id = id;
         this.className = className;
     }
 }
-/*
-    columns: number;
-    constructor() {
-        super([TABLE_TAG], true, true);
-        this.columns = 0;
-    }
-*/
 /**
  * Dialog box (modal or non-modal), optionally with fieldset.
  */
-export class Dialog extends Widget {
+export class Dialog /* extends Widget */ {
     constructor(id, className, legend) {
-        super(id, className);
+        // super('dialog', id, className);
         this.element = document.createElement('dialog');
         this.element.id = id;
         this.element.className = className;
@@ -29,27 +23,55 @@ export class Dialog extends Widget {
     /** called for each component to be added to the dialog */
     addComponent(component) {
         const listItem = document.createElement('li');
+        listItem.append(component);
         this.componentList.append(listItem);
     }
-    /** complete and return dialog element */
-    // modal() {
-    // 	this.fieldSet.append(this.componentList);
-    // 	return this.element;
-    // }
     /** complete and display dialog element in container element */
     displayModal(container) {
         this.fieldSet.append(this.componentList);
+        this.element.append(this.fieldSet);
         container.append(this.element);
         this.element.showModal();
     }
 }
-export class Text extends Widget {
+export class Text /* extends Widget */ {
+    constructor(id, className, value, labelText) {
+        // super('input', id, className);
+        this.element = document.createElement('input');
+        this.element.id = id;
+        this.element.className = className;
+        this.element.name = id; /** for Form submission */
+        this.value = value;
+        this.element.value = value;
+        this.labelElement = document.createElement('label');
+        this.labelElement.htmlFor = this.element.id;
+        this.labelElement.innerText = labelText;
+        this.labelElement.append(this.element);
+        this.element.addEventListener('change', () => {
+            this.value = this.element.value;
+        });
+    }
 }
-export class Checkbox2 extends Widget {
+export class Checkbox2 /* extends Widget */ {
+    constructor(id, className, checked, labelText) {
+        this.element = document.createElement('input');
+        this.element.type = 'checkbox';
+        this.element.id = id;
+        this.element.className = className;
+        this.checked = checked;
+        this.element.checked = checked;
+        this.labelElement = document.createElement('label');
+        this.labelElement.htmlFor = this.element.id;
+        this.labelElement.innerText = labelText;
+        this.labelElement.append(this.element);
+        this.element.addEventListener('change', () => {
+            this.checked = this.element.checked;
+        });
+    }
 }
-export class Range extends Widget {
+export class Range /* extends Widget */ {
 }
-export class Button extends Widget {
+export class Button /* extends Widget */ {
 }
 /**
  * The Navigator class manages a set of buttons (First, Previous, Next, Last)

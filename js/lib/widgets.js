@@ -20,10 +20,19 @@ export class Dialog /* extends Widget */ {
         this.fieldSet.append(this.legend);
         this.componentList = document.createElement('ul');
     }
-    /** called for each component to be added to the dialog */
-    addComponent(component) {
+    /**
+     * Called for each component to be added to the dialog. When components is
+     * an array, all will be added to the same list item (li). Otherwise one
+     * component is added to one list item.
+     */
+    addComponents(components) {
         const listItem = document.createElement('li');
-        listItem.append(component);
+        if (Array.isArray(components)) {
+            for (const component of components)
+                listItem.append(component);
+        }
+        else
+            listItem.append(components);
         this.componentList.append(listItem);
     }
     /** complete and display dialog element in container element */
@@ -58,20 +67,53 @@ export class Checkbox2 /* extends Widget */ {
         this.element.type = 'checkbox';
         this.element.id = id;
         this.element.className = className;
-        this.checked = checked;
+        // this.checked = checked;
+        this.value = checked;
         this.element.checked = checked;
         this.labelElement = document.createElement('label');
         this.labelElement.htmlFor = this.element.id;
         this.labelElement.innerText = labelText;
         this.labelElement.append(this.element);
         this.element.addEventListener('change', () => {
-            this.checked = this.element.checked;
+            this.value = this.element.checked;
         });
     }
 }
 export class Range /* extends Widget */ {
+    constructor(id, className, value, labelText, outputLabel, minimum, maximum, step) {
+        this.element = document.createElement('input');
+        this.element.type = 'range';
+        this.element.id = id;
+        this.element.className = className;
+        this.value = value;
+        this.element.value = `${value}`;
+        this.element.min = `${minimum}`;
+        this.element.max = `${maximum}`;
+        this.element.step = `${step}`;
+        this.labelElement = document.createElement('label');
+        this.labelElement.htmlFor = this.element.id;
+        this.labelElement.innerHTML = `${labelText}<br>`;
+        this.labelElement.append(this.element);
+        this.output = document.createElement('output');
+        this.output.innerHTML = `<br>${outputLabel}${this.element.value}`;
+        this.labelElement.append(this.output);
+        this.element.addEventListener('input', () => {
+            this.output.innerHTML = `<br>${outputLabel}${this.element.value}`;
+            this.value = Number(this.element.value);
+        });
+    }
 }
 export class Button /* extends Widget */ {
+    constructor(id, className, labelText, event) {
+        this.element = document.createElement('button');
+        this.element.id = id;
+        this.element.className = className;
+        this.element.innerText = labelText;
+        this.event = event;
+        this.element.addEventListener('click', () => {
+            document.dispatchEvent(this.event);
+        });
+    }
 }
 /**
  * The Navigator class manages a set of buttons (First, Previous, Next, Last)

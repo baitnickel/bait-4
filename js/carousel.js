@@ -40,15 +40,14 @@ export function render() {
     if (PAGE.parameters.has('shuffle'))
         Shuffle = true;
     if (PAGE.parameters.has('interval') || PAGE.parameters.has('shuffle'))
-        runCarousel(Album, Shuffle, Interval);
-    // else if (PAGE.parameters.has('x')) xModalDialog(Album, Shuffle, Interval);
+        runCarousel();
     else
-        modalDialog(Album, Shuffle, Interval);
+        modalDialog();
 }
-function modalDialog(album, shuffle, interval) {
-    const textInput = new W.Text('album', '', album, 'Album: ');
-    const checkbox = new W.Checkbox2('shuffleOption', '', shuffle, 'Shuffle Slides ');
-    const range = new W.Range('intervalSelection', '', interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
+function modalDialog() {
+    const textInput = new W.Text('album', '', Album, 'Album: ');
+    const checkbox = new W.Checkbox2('shuffleOption', '', Shuffle, 'Shuffle Slides ');
+    const range = new W.Range('intervalSelection', '', Interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
     const cancelButton = new W.Button('', '', 'Cancel', CancelEvent);
     const confirmButton = new W.Button('', '', 'Confirm', ConfirmEvent);
     const modal = new W.Dialog('', 'carousel-dialog', 'Carousel Options');
@@ -66,8 +65,76 @@ function modalDialog(album, shuffle, interval) {
         Album = textInput.value;
         Shuffle = checkbox.value;
         Interval = range.value;
-        console.log('Album:', Album, 'Shuffle:', Shuffle, 'Interval:', Interval);
-        runCarousel(Album, Shuffle, Interval);
+        runCarousel();
+    });
+}
+function runCarousel() {
+    const images = albumImages(Album);
+    if (!images.length) {
+        alert('No images have been selected!');
+        location.reload();
+    }
+    else {
+        /** create the <div> element that will contain the slides */
+        const carousel = document.createElement('div');
+        document.body.append(carousel);
+        carousel.className = 'carousel';
+        carousel.dataset.carousel = '';
+        const imageSet = new ImageSet(images, Shuffle);
+        const slide = document.createElement('div');
+        slide.className = 'slide';
+        slide.dataset.active = '';
+        carousel.append(slide);
+        const imageElement = document.createElement('img');
+        imageElement.src = imageSet.images[imageSet.index];
+        slide.append(imageElement);
+        // await image.decode(); /** wait till the image is ready to use */
+        addExitButton(carousel);
+        let intervalID = 0;
+        if (Interval) {
+            const changeImageFunction = () => imageElement.src = imageSet.nextImage();
+            intervalID = setInterval(changeImageFunction, Interval * 1000, carousel);
+        }
+        else {
+            const buttons = addNavigationButtons(carousel);
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const reverse = button.dataset.carouselButton === 'prev';
+                    imageElement.src = imageSet.nextImage(reverse);
+                });
+            });
+        }
+        /** stop the RunCarousel loop and clear the slide div */
+        document.addEventListener(ExitCarousel, () => {
+            if (intervalID)
+                clearInterval(intervalID);
+            carousel.remove();
+            // modalDialog(); // doesn't work, a closure problem?
+            window.location.reload();
+        });
+    }
+}
+function addNavigationButtons(parent) {
+    const previousButton = document.createElement('button');
+    previousButton.className = 'carousel-button prev';
+    previousButton.dataset.carouselButton = 'prev';
+    previousButton.innerHTML = '&lt;'; // '&larr;';
+    parent.append(previousButton);
+    const nextButton = document.createElement('button');
+    nextButton.className = 'carousel-button next';
+    nextButton.dataset.carouselButton = 'next';
+    nextButton.innerHTML = '&gt;'; // '&rarr;';
+    parent.append(nextButton);
+    return [previousButton, nextButton];
+}
+function addExitButton(parent) {
+    const returnButton = document.createElement('button');
+    returnButton.className = 'carousel-button return';
+    returnButton.innerHTML = '&times;';
+    parent.append(returnButton);
+    // returnButton.addEventListener('click', () => { /* xModalDialog(); */ window.history.back(); });
+    returnButton.addEventListener('click', () => {
+        document.dispatchEvent(ExitCarouselEvent);
     });
 }
 class ImageSet {
@@ -109,161 +176,6 @@ class ImageSet {
         }
     }
 }
-function runCarousel(album, shuffle, interval) {
-    const images = albumImages(album);
-    if (!images.length) {
-        alert('No images have been selected!');
-        location.reload();
-    }
-    else {
-        /** create the <div> element that will contain the slides */
-        const carousel = document.createElement('div');
-        document.body.append(carousel);
-        carousel.className = 'carousel';
-        carousel.dataset.carousel = '';
-        const imageSet = new ImageSet(images, shuffle);
-        const slide = document.createElement('div');
-        slide.className = 'slide';
-        slide.dataset.active = '';
-        carousel.append(slide);
-        const imageElement = document.createElement('img');
-        imageElement.src = imageSet.images[imageSet.index];
-        slide.append(imageElement);
-        // await image.decode(); /** wait till the image is ready to use */
-        addExitButton(carousel);
-        let intervalID = 0;
-        if (interval) {
-            const changeImageFunction = () => imageElement.src = imageSet.nextImage();
-            intervalID = setInterval(changeImageFunction, interval * 1000, carousel);
-        }
-        else {
-            const buttons = addNavigationButtons(carousel);
-            buttons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const reverse = button.dataset.carouselButton === 'prev';
-                    imageElement.src = imageSet.nextImage(reverse);
-                });
-            });
-        }
-        /** stop the RunCarousel loop and clear the slide div */
-        document.addEventListener(ExitCarousel, () => {
-            if (intervalID)
-                clearInterval(intervalID);
-            carousel.remove();
-            modalDialog(Album, Shuffle, Interval);
-        });
-    }
-}
-function addNavigationButtons(parent) {
-    const previousButton = document.createElement('button');
-    previousButton.className = 'carousel-button prev';
-    previousButton.dataset.carouselButton = 'prev';
-    previousButton.innerHTML = '&lt;'; // '&larr;';
-    parent.append(previousButton);
-    const nextButton = document.createElement('button');
-    nextButton.className = 'carousel-button next';
-    nextButton.dataset.carouselButton = 'next';
-    nextButton.innerHTML = '&gt;'; // '&rarr;';
-    parent.append(nextButton);
-    return [previousButton, nextButton];
-}
-function addExitButton(parent) {
-    const returnButton = document.createElement('button');
-    returnButton.className = 'carousel-button return';
-    returnButton.innerHTML = '&times;';
-    parent.append(returnButton);
-    // returnButton.addEventListener('click', () => { /* xModalDialog(); */ window.history.back(); });
-    returnButton.addEventListener('click', () => {
-        document.dispatchEvent(ExitCarouselEvent);
-    });
-}
-// function xModalDialog(album: string, shuffle: boolean, interval: number) {
-// 	/** open modal dialog to set options */
-// 	const modal = document.createElement('dialog');
-// 	modal.className = 'carousel-dialog';
-// 	/** fieldset */
-// 	const modalFieldSet = document.createElement('fieldset');
-// 	const modalLegend = document.createElement('legend');
-// 	modalLegend.innerText = 'Carousel Options';
-// 	modalFieldSet.append(modalLegend);
-// 	/** create options list */
-// 	const optionList = document.createElement('ul');
-// 	/** album selection */
-// 	const albumOption = document.createElement('li');
-// 	const albumSelection = document.createElement('input');
-// 	albumSelection.id = 'album';
-// 	albumSelection.name = 'album';
-// 	albumSelection.value = Album;
-// 	const albumLabel = document.createElement('label');
-// 	albumLabel.htmlFor = albumSelection.id;
-// 	albumLabel.innerText = 'Album: ';
-// 	albumLabel.append(albumSelection);
-// 	albumOption.append(albumLabel);
-// 	/** shuffle checkbox */
-// 	const shuffleOption = document.createElement('li');
-// 	const shuffleCheckbox = document.createElement('input');
-// 	shuffleCheckbox.type = 'checkbox';
-// 	shuffleCheckbox.id = 'shuffleOption';
-// 	shuffleCheckbox.checked = Shuffle;
-// 	const shuffleLabel = document.createElement('label');
-// 	shuffleLabel.htmlFor = shuffleCheckbox.id;
-// 	shuffleLabel.innerText = 'Shuffle Slides ';
-// 	shuffleLabel.append(shuffleCheckbox);
-// 	shuffleOption.append(shuffleLabel);
-// 	/** interval seconds */
-// 	const intervalOption = document.createElement('li');
-// 	const intervalSelection = document.createElement('input');
-// 	intervalSelection.type = 'range';
-// 	intervalSelection.id = 'intervalSelection';
-// 	intervalSelection.min = '0';
-// 	intervalSelection.max = '60';
-// 	intervalSelection.step = '1';
-// 	intervalSelection.value = '0';
-// 	const intervalOutput = document.createElement('output');
-// 	intervalOutput.innerHTML = `<br>Number of Seconds: ${intervalSelection.value}`;
-// 	const intervalLabel = document.createElement('label');
-// 	intervalLabel.htmlFor = 'intervalSelection';
-// 	intervalLabel.innerHTML = 'Interval Between Slides:<br>';
-// 	intervalLabel.append(intervalSelection);
-// 	intervalLabel.append(intervalOutput);
-// 	intervalOption.append(intervalLabel);
-// 	/** cancel and confirm buttons */
-// 	const buttonsOption = document.createElement('li');
-// 	const cancelButton = document.createElement('button');
-// 	cancelButton.innerText = 'Cancel';
-// 	buttonsOption.append(cancelButton);
-// 	const confirmButton = document.createElement('button');
-// 	confirmButton.innerText = 'Confirm';
-// 	buttonsOption.append(confirmButton);
-// 	/** add list of options to options list and add options list to fieldset */
-// 	optionList.append(albumOption);
-// 	optionList.append(shuffleOption);
-// 	optionList.append(intervalOption);
-// 	optionList.append(buttonsOption);
-// 	modalFieldSet.append(optionList);
-// 	/** add fieldset to modal and modal to body and display modal */
-// 	modal.append(modalFieldSet);
-// 	document.body.append(modal);
-// 	modal.showModal();
-// 	albumSelection.addEventListener('change', () => {
-// 		Album = albumSelection.value;
-// 	});
-// 	shuffleCheckbox.addEventListener('change', () => {
-// 		Shuffle = shuffleCheckbox.checked;
-// 	});
-// 	intervalSelection.addEventListener('input', () => {
-// 		Interval = Number(intervalSelection.value);
-// 		intervalOutput.innerHTML = `<br>Number of Seconds: ${Interval}`;
-// 	});
-// 	cancelButton.addEventListener('click', () => {
-// 		modal.close();
-// 		window.history.back();
-// 	});
-// 	confirmButton.addEventListener('click', () => {
-// 		modal.close();
-// 		runCarousel(album, shuffle, interval);
-// 	});
-// }
 function albumImages(albumName) {
     let images = [];
     if (Albums.has(albumName)) {
@@ -278,8 +190,9 @@ function albumImages(albumName) {
     return images;
 }
 /**
- * Logged into SmugMug, a photo's URL contains its photo `id`.
- * In the URL below, the `id` is: i-g6HGgRQ
+ * To find a SmugMug photo's `id`, log into SmugMug and display the photo. The
+ * URL will contain the `id`. In the example URL below, the `id` is: i-g6HGgRQ
+ *
  * https://dand.smugmug.com/Travels/Sierra-Nevada/Yosemite-05/i-g6HGgRQ/A
  */
 function smugURI(id, size = 'O', type = 'jpg') {

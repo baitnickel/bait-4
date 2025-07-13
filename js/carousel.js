@@ -21,33 +21,35 @@ if (!PAGE.backendAvailable) {
 }
 const MediaImages = await Fetch.api(`${PAGE.backend}/media/images`);
 const Albums = mediaImagesMap(MediaImages);
-let Album = '';
-let Shuffle = false;
-let Interval = 0;
 const Confirm = 'bait:confirm';
 const ConfirmEvent = new Event(Confirm);
 const Cancel = 'bait:cancel';
 const CancelEvent = new Event(Cancel);
 const ExitCarousel = 'bait:exit-carousel';
 const ExitCarouselEvent = new Event(ExitCarousel);
+//### looping - ||: Exit button clicked, modalDialog started :||
+//### make eventListeners global
+//### maybe create global `carousel` and `slide` divs; can be .hidden (or not), innerHTML set to ''
 export function render() {
+    const selection = { album: 'test', shuffle: false, interval: 0 };
     if (PAGE.parameters.has('album'))
-        Album = PAGE.parameters.get('album');
+        selection.album = PAGE.parameters.get('album');
     if (PAGE.parameters.has('interval'))
-        Interval = Number(PAGE.parameters.get('interval'));
-    if (isNaN(Interval) || Interval < 0)
-        Interval = 0;
+        selection.interval = Number(PAGE.parameters.get('interval'));
+    if (isNaN(selection.interval) || selection.interval < 0)
+        selection.interval = 0;
     if (PAGE.parameters.has('shuffle'))
-        Shuffle = true;
+        selection.shuffle = true;
     if (PAGE.parameters.has('interval') || PAGE.parameters.has('shuffle'))
-        runCarousel();
+        runCarousel(selection);
     else
-        modalDialog();
+        modalDialog(selection);
 }
-function modalDialog() {
-    const textInput = new W.Text('album', '', Album, 'Album: ');
-    const checkbox = new W.Checkbox2('shuffleOption', '', Shuffle, 'Shuffle Slides ');
-    const range = new W.Range('intervalSelection', '', Interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
+function modalDialog(selection) {
+    console.log(`modalDialog started with: ${selection.album},${selection.shuffle},${selection.interval}`);
+    const textInput = new W.Text('album', '', selection.album, 'Album: ');
+    const checkbox = new W.Checkbox2('shuffleOption', '', selection.shuffle, 'Shuffle Slides ');
+    const range = new W.Range('intervalSelection', '', selection.interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
     const cancelButton = new W.Button('', '', 'Cancel', CancelEvent);
     const confirmButton = new W.Button('', '', 'Confirm', ConfirmEvent);
     const modal = new W.Dialog('', 'carousel-dialog', 'Carousel Options');
@@ -62,14 +64,18 @@ function modalDialog() {
     });
     document.addEventListener(Confirm, () => {
         modal.element.close();
-        Album = textInput.value;
-        Shuffle = checkbox.value;
-        Interval = range.value;
-        runCarousel();
-    });
+        // selection = { album: textInput.value, shuffle: checkbox.value, interval: range.value };
+        selection.album = textInput.value;
+        selection.shuffle = checkbox.value;
+        selection.interval = range.value;
+        console.log(`Confirm clicked with: ${selection.album},${selection.shuffle},${selection.interval}`);
+        runCarousel(selection);
+    }, { capture: false, once: true, passive: false }); // doesn't seem to help
 }
-function runCarousel() {
-    const images = albumImages(Album);
+function runCarousel(selection) {
+    console.log(`runCarousel with: ${selection.album},${selection.shuffle},${selection.interval}`);
+    const images = albumImages(selection.album);
+    // console.log(`Carousel Image 1: ${images[0]}`);
     if (!images.length) {
         alert('No images have been selected!');
         location.reload();
@@ -80,7 +86,7 @@ function runCarousel() {
         document.body.append(carousel);
         carousel.className = 'carousel';
         carousel.dataset.carousel = '';
-        const imageSet = new ImageSet(images, Shuffle);
+        const imageSet = new ImageSet(images, selection.shuffle);
         const slide = document.createElement('div');
         slide.className = 'slide';
         slide.dataset.active = '';
@@ -91,9 +97,9 @@ function runCarousel() {
         // await image.decode(); /** wait till the image is ready to use */
         addExitButton(carousel);
         let intervalID = 0;
-        if (Interval) {
+        if (selection.interval) {
             const changeImageFunction = () => imageElement.src = imageSet.nextImage();
-            intervalID = setInterval(changeImageFunction, Interval * 1000, carousel);
+            intervalID = setInterval(changeImageFunction, selection.interval * 1000, carousel);
         }
         else {
             const buttons = addNavigationButtons(carousel);
@@ -109,8 +115,9 @@ function runCarousel() {
             if (intervalID)
                 clearInterval(intervalID);
             carousel.remove();
-            // modalDialog(); // doesn't work, a closure problem?
-            window.location.reload();
+            console.log(`Exit button clicked with: ${selection.album},${selection.shuffle},${selection.interval}`);
+            modalDialog(selection); // a closure problem?
+            // window.location.reload();
         });
     }
 }
@@ -134,7 +141,7 @@ function addExitButton(parent) {
     parent.append(returnButton);
     // returnButton.addEventListener('click', () => { /* xModalDialog(); */ window.history.back(); });
     returnButton.addEventListener('click', () => {
-        document.dispatchEvent(ExitCarouselEvent);
+        document.dispatchEvent(ExitCarouselEvent); //###
     });
 }
 class ImageSet {

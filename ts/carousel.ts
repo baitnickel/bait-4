@@ -28,30 +28,35 @@ type MediaImageData = { album: string; filePaths: string[]; }
 const MediaImages = await Fetch.api<MediaImageData[]>(`${PAGE.backend}/media/images`);
 const Albums = mediaImagesMap(MediaImages);
 
-let Album = '';
-let Shuffle = false;
-let Interval = 0;
+type Selection = { album: string, shuffle: boolean, interval: number };
 
 const Confirm = 'bait:confirm';
-const ConfirmEvent = new Event(Confirm);
+const ConfirmEvent = new Event(Confirm, );
 const Cancel = 'bait:cancel';
 const CancelEvent = new Event(Cancel);
 const ExitCarousel = 'bait:exit-carousel';
 const ExitCarouselEvent = new Event(ExitCarousel);
 
+//### looping - ||: Exit button clicked, modalDialog started :||
+//### make eventListeners global
+//### maybe create global `carousel` and `slide` divs; can be .hidden (or not), innerHTML set to ''
+
 export function render() {
-	if (PAGE.parameters.has('album')) Album = PAGE.parameters.get('album')!;
-	if (PAGE.parameters.has('interval')) Interval = Number(PAGE.parameters.get('interval'));
-	if (isNaN(Interval) || Interval < 0) Interval = 0;
-	if (PAGE.parameters.has('shuffle')) Shuffle = true;
-	if (PAGE.parameters.has('interval') || PAGE.parameters.has('shuffle')) runCarousel();
-	else modalDialog();
+	const selection: Selection = { album: 'test', shuffle: false, interval: 0 };
+	if (PAGE.parameters.has('album')) selection.album = PAGE.parameters.get('album')!;
+	if (PAGE.parameters.has('interval')) selection.interval = Number(PAGE.parameters.get('interval'));
+	if (isNaN(selection.interval) || selection.interval < 0) selection.interval = 0;
+	if (PAGE.parameters.has('shuffle')) selection.shuffle = true;
+	if (PAGE.parameters.has('interval') || PAGE.parameters.has('shuffle')) runCarousel(selection);
+	else modalDialog(selection);
 }
 
-function modalDialog() {
-	const textInput = new W.Text('album', '', Album, 'Album: ');
-	const checkbox = new W.Checkbox2('shuffleOption', '', Shuffle, 'Shuffle Slides ');
-	const range = new W.Range('intervalSelection', '', Interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
+function modalDialog(selection: Selection) {
+	console.log(`modalDialog started with: ${selection.album},${selection.shuffle},${selection.interval}`);
+
+	const textInput = new W.Text('album', '', selection.album, 'Album: ');
+	const checkbox = new W.Checkbox2('shuffleOption', '', selection.shuffle, 'Shuffle Slides ');
+	const range = new W.Range('intervalSelection', '', selection.interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
 	const cancelButton = new W.Button('', '', 'Cancel', CancelEvent);
 	const confirmButton = new W.Button('', '', 'Confirm', ConfirmEvent);
 
@@ -62,22 +67,28 @@ function modalDialog() {
 	modal.addComponents([cancelButton.element, confirmButton.element]);
 	modal.displayModal(document.body);
 
-	document.addEventListener(Cancel, () => {
+	document.addEventListener(Cancel, () => { //###
 		modal.element.close();
 		window.history.back();
 	});
 
-	document.addEventListener(Confirm, () => {
+	document.addEventListener(Confirm, () => { //###
 		modal.element.close();
-		Album = textInput.value;
-		Shuffle = checkbox.value;
-		Interval = range.value;
-		runCarousel();
-	});
+		// selection = { album: textInput.value, shuffle: checkbox.value, interval: range.value };
+		selection.album = textInput.value;
+		selection.shuffle = checkbox.value;
+		selection.interval = range.value;
+		console.log(`Confirm clicked with: ${selection.album},${selection.shuffle},${selection.interval}`);
+
+		runCarousel(selection);
+	}, {capture: false, once: true, passive: false}); // doesn't seem to help
 }
 
-function runCarousel() {
-	const images = albumImages(Album);
+function runCarousel(selection: Selection) {
+	console.log(`runCarousel with: ${selection.album},${selection.shuffle},${selection.interval}`);
+
+	const images = albumImages(selection.album);
+	// console.log(`Carousel Image 1: ${images[0]}`);
 	if (!images.length) {
 		alert('No images have been selected!');
 		location.reload();
@@ -89,7 +100,7 @@ function runCarousel() {
 		carousel.className = 'carousel';
 		carousel.dataset.carousel = '';
 
-		const imageSet = new ImageSet(images, Shuffle);
+		const imageSet = new ImageSet(images, selection.shuffle);
 		const slide = document.createElement('div');
 		slide.className = 'slide';
 		slide.dataset.active = '';
@@ -100,14 +111,14 @@ function runCarousel() {
 		// await image.decode(); /** wait till the image is ready to use */
 		addExitButton(carousel);
 		let intervalID = 0;
-		if (Interval) {
+		if (selection.interval) {
 			const changeImageFunction = () => imageElement.src = imageSet.nextImage();
-			intervalID = setInterval(changeImageFunction, Interval * 1000, carousel);
+			intervalID = setInterval(changeImageFunction, selection.interval * 1000, carousel);
 		}
 		else {
 			const buttons = addNavigationButtons(carousel);
 			buttons.forEach(button => {
-				button.addEventListener('click', () => {
+				button.addEventListener('click', () => { //###
 					const reverse = button.dataset.carouselButton === 'prev';
 					imageElement.src = imageSet.nextImage(reverse);
 				});
@@ -115,11 +126,12 @@ function runCarousel() {
 		}
 		
 		/** stop the RunCarousel loop and clear the slide div */
-		document.addEventListener(ExitCarousel, () => {
+		document.addEventListener(ExitCarousel, () => { //###
 			if (intervalID) clearInterval(intervalID);
 			carousel.remove();
-			// modalDialog(); // doesn't work, a closure problem?
-			window.location.reload();
+			console.log(`Exit button clicked with: ${selection.album},${selection.shuffle},${selection.interval}`);
+			modalDialog(selection); // a closure problem?
+			// window.location.reload();
 		});
 	}
 }
@@ -144,8 +156,8 @@ function addExitButton(parent: HTMLElement) {
 	returnButton.innerHTML = '&times;';
 	parent.append(returnButton);
 	// returnButton.addEventListener('click', () => { /* xModalDialog(); */ window.history.back(); });
-	returnButton.addEventListener('click', () => {
-		document.dispatchEvent(ExitCarouselEvent);
+	returnButton.addEventListener('click', () => { //###
+		document.dispatchEvent(ExitCarouselEvent); //###
 	});
 }
 

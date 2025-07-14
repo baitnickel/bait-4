@@ -78,7 +78,7 @@ export class Text /* extends Widget */ {
 	}
 }
 
-export class Checkbox2 /* extends Widget */ { // `Checkbox` name conflict
+export class Checkbox /* extends Widget */ { // `Checkbox` name conflict
 	element: HTMLInputElement;
 	// checked: boolean;
 	value: boolean;
@@ -310,7 +310,7 @@ export class RadioButtons { // used in `camp`, `home`, `reservations`
 	}
 }
 
-export class Checkbox {
+export class Checkbox1 {
 	checkbox: HTMLInputElement;
 	label: HTMLLabelElement;
 	classNames: string[];

@@ -61,7 +61,7 @@ export class Text /* extends Widget */ {
         });
     }
 }
-export class Checkbox2 /* extends Widget */ {
+export class Checkbox /* extends Widget */ {
     constructor(id, className, checked, labelText) {
         this.element = document.createElement('input');
         this.element.type = 'checkbox';
@@ -254,7 +254,7 @@ export class RadioButtons {
         });
     }
 }
-export class Checkbox {
+export class Checkbox1 {
     constructor(id, label, classNames, event, checked = false) {
         this.checkbox = document.createElement('input');
         this.label = document.createElement('label');

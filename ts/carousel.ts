@@ -37,10 +37,6 @@ const CancelEvent = new Event(Cancel);
 const ExitCarousel = 'bait:exit-carousel';
 const ExitCarouselEvent = new Event(ExitCarousel);
 
-//### looping - ||: Exit button clicked, modalDialog started :||
-//### make eventListeners global
-//### maybe create global `carousel` and `slide` divs; can be .hidden (or not), innerHTML set to ''
-
 export function render() {
 	const selection: Selection = { album: 'test', shuffle: false, interval: 0 };
 	if (PAGE.parameters.has('album')) selection.album = PAGE.parameters.get('album')!;
@@ -52,10 +48,8 @@ export function render() {
 }
 
 function modalDialog(selection: Selection) {
-	console.log(`modalDialog started with: ${selection.album},${selection.shuffle},${selection.interval}`);
-
 	const textInput = new W.Text('album', '', selection.album, 'Album: ');
-	const checkbox = new W.Checkbox2('shuffleOption', '', selection.shuffle, 'Shuffle Slides ');
+	const checkbox = new W.Checkbox('shuffleOption', '', selection.shuffle, 'Shuffle Slides ');
 	const range = new W.Range('intervalSelection', '', selection.interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
 	const cancelButton = new W.Button('', '', 'Cancel', CancelEvent);
 	const confirmButton = new W.Button('', '', 'Confirm', ConfirmEvent);
@@ -67,28 +61,26 @@ function modalDialog(selection: Selection) {
 	modal.addComponents([cancelButton.element, confirmButton.element]);
 	modal.displayModal(document.body);
 
-	document.addEventListener(Cancel, () => { //###
+	document.addEventListener(Cancel, () => {
 		modal.element.close();
 		window.history.back();
-	});
+	}, { once: true });
 
-	document.addEventListener(Confirm, () => { //###
+	/**
+	 * modalDialog may be called multiple times. The "once" option ensures that
+	 * only one Confirm listener at a time will be active.
+	 */
+	document.addEventListener(Confirm, () => {
 		modal.element.close();
-		// selection = { album: textInput.value, shuffle: checkbox.value, interval: range.value };
 		selection.album = textInput.value;
 		selection.shuffle = checkbox.value;
 		selection.interval = range.value;
-		console.log(`Confirm clicked with: ${selection.album},${selection.shuffle},${selection.interval}`);
-
 		runCarousel(selection);
-	}, {capture: false, once: true, passive: false}); // doesn't seem to help
+	}, { once: true });
 }
 
 function runCarousel(selection: Selection) {
-	console.log(`runCarousel with: ${selection.album},${selection.shuffle},${selection.interval}`);
-
 	const images = albumImages(selection.album);
-	// console.log(`Carousel Image 1: ${images[0]}`);
 	if (!images.length) {
 		alert('No images have been selected!');
 		location.reload();
@@ -118,21 +110,26 @@ function runCarousel(selection: Selection) {
 		else {
 			const buttons = addNavigationButtons(carousel);
 			buttons.forEach(button => {
-				button.addEventListener('click', () => { //###
+				button.addEventListener('click', () => {
 					const reverse = button.dataset.carouselButton === 'prev';
 					imageElement.src = imageSet.nextImage(reverse);
 				});
 			});
 		}
 		
-		/** stop the RunCarousel loop and clear the slide div */
-		document.addEventListener(ExitCarousel, () => { //###
+		/**
+		 * Stop the runCarousel Interval loop (if any) and remove the carousel
+		 * (and slide) divs to restore the default page background. Then display
+		 * the modal dialog to allow the user to enter new selection criteria or
+		 * cancel out of the page. The "once: true" option prevents the system
+		 * from creating an undesired queue of listeners by ensuring that the
+		 * listener is removed after each use.
+		 */
+		document.addEventListener(ExitCarousel, () => {
 			if (intervalID) clearInterval(intervalID);
 			carousel.remove();
-			console.log(`Exit button clicked with: ${selection.album},${selection.shuffle},${selection.interval}`);
-			modalDialog(selection); // a closure problem?
-			// window.location.reload();
-		});
+			modalDialog(selection);
+		}, { once: true });
 	}
 }
 
@@ -155,9 +152,8 @@ function addExitButton(parent: HTMLElement) {
 	returnButton.className = 'carousel-button return';
 	returnButton.innerHTML = '&times;';
 	parent.append(returnButton);
-	// returnButton.addEventListener('click', () => { /* xModalDialog(); */ window.history.back(); });
-	returnButton.addEventListener('click', () => { //###
-		document.dispatchEvent(ExitCarouselEvent); //###
+	returnButton.addEventListener('click', () => {
+		document.dispatchEvent(ExitCarouselEvent);
 	});
 }
 

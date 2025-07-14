@@ -20,7 +20,8 @@ if (!PAGE.backendAvailable) {
     window.history.back();
 }
 const MediaImages = await Fetch.api(`${PAGE.backend}/media/images`);
-const Albums = mediaImagesMap(MediaImages);
+const Dots = PAGE.parameters.has('dots');
+const Albums = mediaImagesMap(MediaImages, Dots);
 const Confirm = 'bait:confirm';
 const ConfirmEvent = new Event(Confirm);
 const Cancel = 'bait:cancel';
@@ -43,13 +44,17 @@ export function render() {
         modalDialog(selection);
 }
 function modalDialog(selection) {
-    const textInput = new W.Text('album', '', selection.album, 'Album: ');
+    const albumNames = Array.from(Albums.keys());
+    albumNames.sort((a, b) => b.localeCompare(a));
+    // const textInput = new W.Text('album', '', selection.album, 'Album: ');
+    const select = new W.Select('album', '', albumNames, 'Album: ');
     const checkbox = new W.Checkbox('shuffleOption', '', selection.shuffle, 'Shuffle Slides ');
     const range = new W.Range('intervalSelection', '', selection.interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
     const cancelButton = new W.Button('', '', 'Cancel', CancelEvent);
     const confirmButton = new W.Button('', '', 'Confirm', ConfirmEvent);
     const modal = new W.Dialog('', 'carousel-dialog', 'Carousel Options');
-    modal.addComponents(textInput.labelElement); // textInput.component or widget
+    // modal.addComponents(textInput.labelElement); // textInput.component or widget
+    modal.addComponents(select.labelElement);
     modal.addComponents(checkbox.labelElement);
     modal.addComponents(range.labelElement);
     modal.addComponents([cancelButton.element, confirmButton.element]);
@@ -64,7 +69,8 @@ function modalDialog(selection) {
      */
     document.addEventListener(Confirm, () => {
         modal.element.close();
-        selection.album = textInput.value;
+        // selection.album = textInput.value;
+        selection.album = select.value;
         selection.shuffle = checkbox.value;
         selection.interval = range.value;
         runCarousel(selection);
@@ -209,11 +215,14 @@ function smugURI(id, size = 'O', type = 'jpg') {
         uri.replace('-O', '');
     return uri;
 }
-function mediaImagesMap(mediaImages) {
+function mediaImagesMap(mediaImages, dotDirectories = false) {
     const imagesMap = new Map();
     if (mediaImages !== null) {
-        for (const mediaImage of mediaImages)
-            imagesMap.set(mediaImage.album, mediaImage.filePaths);
+        for (const mediaImage of mediaImages) {
+            if (dotDirectories || !mediaImage.album.startsWith('.')) {
+                imagesMap.set(mediaImage.album, mediaImage.filePaths);
+            }
+        }
     }
     return imagesMap;
 }

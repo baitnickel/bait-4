@@ -78,6 +78,31 @@ export class Text /* extends Widget */ {
 	}
 }
 
+export class Select {
+	element: HTMLSelectElement;
+	value: string;
+	labelElement: HTMLLabelElement;
+
+	constructor(id: string, className: string, options: string[], labelText: string) {
+		this.element = document.createElement('select');
+		this.element.id = id;
+		this.element.className = className;
+		this.element.name = id; /** for Form submission */
+		this.value = options[0];
+		// this.element.value = options[0];
+		for (const option of options) this.element.add(new Option(option, option));
+		this.labelElement = document.createElement('label');
+		this.labelElement.htmlFor = this.element.id;
+		this.labelElement.innerText = labelText;
+		this.labelElement.append(this.element);
+
+		this.element.addEventListener('change', (e) => {
+			const element = e.target as HTMLSelectElement; /** "as" type casting required for TypeScript */
+			this.value = element.value;
+		});
+	}
+}
+
 export class Checkbox /* extends Widget */ { // `Checkbox` name conflict
 	element: HTMLInputElement;
 	// checked: boolean;

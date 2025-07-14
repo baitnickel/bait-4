@@ -61,6 +61,26 @@ export class Text /* extends Widget */ {
         });
     }
 }
+export class Select {
+    constructor(id, className, options, labelText) {
+        this.element = document.createElement('select');
+        this.element.id = id;
+        this.element.className = className;
+        this.element.name = id; /** for Form submission */
+        this.value = options[0];
+        // this.element.value = options[0];
+        for (const option of options)
+            this.element.add(new Option(option, option));
+        this.labelElement = document.createElement('label');
+        this.labelElement.htmlFor = this.element.id;
+        this.labelElement.innerText = labelText;
+        this.labelElement.append(this.element);
+        this.element.addEventListener('change', (e) => {
+            const element = e.target; /** "as" type casting required for TypeScript */
+            this.value = element.value;
+        });
+    }
+}
 export class Checkbox /* extends Widget */ {
     constructor(id, className, checked, labelText) {
         this.element = document.createElement('input');

@@ -82,15 +82,16 @@ export class Select {
 	element: HTMLSelectElement;
 	value: string;
 	labelElement: HTMLLabelElement;
+	// options: HTMLOptionElement[];
 
-	constructor(id: string, className: string, options: string[], labelText: string) {
+	constructor(id: string, className: string, options: HTMLOptionElement[], labelText: string) {
 		this.element = document.createElement('select');
 		this.element.id = id;
 		this.element.className = className;
 		this.element.name = id; /** for Form submission */
-		this.value = options[0];
+		this.value = options[0].value;
 		// this.element.value = options[0];
-		for (const option of options) this.element.add(new Option(option, option));
+		for (const option of options) this.element.add(option);
 		this.labelElement = document.createElement('label');
 		this.labelElement.htmlFor = this.element.id;
 		this.labelElement.innerText = labelText;
@@ -103,9 +104,8 @@ export class Select {
 	}
 }
 
-export class Checkbox /* extends Widget */ { // `Checkbox` name conflict
+export class Checkbox /* extends Widget */ {
 	element: HTMLInputElement;
-	// checked: boolean;
 	value: boolean;
 	labelElement: HTMLLabelElement;
 
@@ -114,7 +114,6 @@ export class Checkbox /* extends Widget */ { // `Checkbox` name conflict
 		this.element.type = 'checkbox';
 		this.element.id = id;
 		this.element.className = className;
-		// this.checked = checked;
 		this.value = checked;
 		this.element.checked = checked;
 		this.labelElement = document.createElement('label');
@@ -175,6 +174,18 @@ export class Button /* extends Widget */ {
 		})
 	}
 }
+
+// export class SelectOption {
+// 	element: HTMLOptionElement;
+
+// 	constructor(text: string, value = '', defaultSelected = false, selected = false) {
+// 		this.element = document.createElement('option');
+// 		this.element.text = text;
+// 		if (value) this.element.value = value;
+// 		if (defaultSelected) this.element.defaultSelected = defaultSelected;
+// 		if (selected) this.element.selected = selected;
+// 	}
+// }
 
 /**
  * The Navigator class manages a set of buttons (First, Previous, Next, Last)

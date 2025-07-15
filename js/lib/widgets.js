@@ -62,15 +62,16 @@ export class Text /* extends Widget */ {
     }
 }
 export class Select {
+    // options: HTMLOptionElement[];
     constructor(id, className, options, labelText) {
         this.element = document.createElement('select');
         this.element.id = id;
         this.element.className = className;
         this.element.name = id; /** for Form submission */
-        this.value = options[0];
+        this.value = options[0].value;
         // this.element.value = options[0];
         for (const option of options)
-            this.element.add(new Option(option, option));
+            this.element.add(option);
         this.labelElement = document.createElement('label');
         this.labelElement.htmlFor = this.element.id;
         this.labelElement.innerText = labelText;
@@ -87,7 +88,6 @@ export class Checkbox /* extends Widget */ {
         this.element.type = 'checkbox';
         this.element.id = id;
         this.element.className = className;
-        // this.checked = checked;
         this.value = checked;
         this.element.checked = checked;
         this.labelElement = document.createElement('label');
@@ -135,6 +135,16 @@ export class Button /* extends Widget */ {
         });
     }
 }
+// export class SelectOption {
+// 	element: HTMLOptionElement;
+// 	constructor(text: string, value = '', defaultSelected = false, selected = false) {
+// 		this.element = document.createElement('option');
+// 		this.element.text = text;
+// 		if (value) this.element.value = value;
+// 		if (defaultSelected) this.element.defaultSelected = defaultSelected;
+// 		if (selected) this.element.selected = selected;
+// 	}
+// }
 /**
  * The Navigator class manages a set of buttons (First, Previous, Next, Last)
  * for navigating through a set of documents (an array of file path names).

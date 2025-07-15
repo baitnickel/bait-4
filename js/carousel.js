@@ -20,8 +20,7 @@ if (!PAGE.backendAvailable) {
     window.history.back();
 }
 const MediaImages = await Fetch.api(`${PAGE.backend}/media/images`);
-const Dots = PAGE.parameters.has('dots');
-const Albums = mediaImagesMap(MediaImages, Dots);
+const Albums = mediaImagesMap(MediaImages);
 const Confirm = 'bait:confirm';
 const ConfirmEvent = new Event(Confirm);
 const Cancel = 'bait:cancel';
@@ -45,9 +44,10 @@ export function render() {
 }
 function modalDialog(selection) {
     const albumNames = Array.from(Albums.keys());
-    albumNames.sort((a, b) => b.localeCompare(a));
+    albumNames.sort((a, b) => a.localeCompare(b));
+    const options = getOptions(albumNames, selection);
     // const textInput = new W.Text('album', '', selection.album, 'Album: ');
-    const select = new W.Select('album', '', albumNames, 'Album: ');
+    const select = new W.Select('album', '', options, 'Album: ');
     const checkbox = new W.Checkbox('shuffleOption', '', selection.shuffle, 'Shuffle Slides ');
     const range = new W.Range('intervalSelection', '', selection.interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
     const cancelButton = new W.Button('', '', 'Cancel', CancelEvent);
@@ -77,6 +77,7 @@ function modalDialog(selection) {
     }, { once: true });
 }
 function runCarousel(selection) {
+    console.log(selection);
     const images = albumImages(selection.album);
     if (!images.length) {
         alert('No images have been selected!');
@@ -189,6 +190,15 @@ class ImageSet {
         }
     }
 }
+function getOptions(albumNames, selection) {
+    const options = [];
+    for (const albumName of albumNames) {
+        const selected = (albumName === selection.album);
+        const option = new Option(albumName, albumName, selected, selected);
+        options.push(option);
+    }
+    return options;
+}
 function albumImages(albumName) {
     let images = [];
     if (Albums.has(albumName)) {
@@ -215,13 +225,11 @@ function smugURI(id, size = 'O', type = 'jpg') {
         uri.replace('-O', '');
     return uri;
 }
-function mediaImagesMap(mediaImages, dotDirectories = false) {
+function mediaImagesMap(mediaImages) {
     const imagesMap = new Map();
     if (mediaImages !== null) {
         for (const mediaImage of mediaImages) {
-            if (dotDirectories || !mediaImage.album.startsWith('.')) {
-                imagesMap.set(mediaImage.album, mediaImage.filePaths);
-            }
+            imagesMap.set(mediaImage.album, mediaImage.filePaths);
         }
     }
     return imagesMap;

@@ -114,15 +114,18 @@ export async function blob(uri: string) {
 }
 
 /**
- * Call the API resource, `uri`, which may include a query string, and return
- * JSON data from the call. When `body` data is provided, it will be converted
+ * Call the API resource, `uri`, adding the query string
+ * (window.location.search), if any, and return JSON data from the call. The
+ * query string values can be retrieved by the Express backend using
+ * "request.query.<key>"; if the key is not present in the query string, the
+ * value will be "undefined". When `body` data is provided, it will be converted
  * to JSON. If a `method` is not provided, we will assume GET unless body data
  * is provided, in which case we will assume POST.
  */
 export async function api<Type>(uri: string, body: any = null, method: string = '') {
 	if (!method) method = (body) ? 'POST' : 'GET';
 	if (body) body = JSON.stringify(body);
-	const response = await fetch(uri, {
+	const response = await fetch(uri + window.location.search, {
 		method: method,
 		body: body,
 		headers: { "Content-type": "application/json; charset=UTF-8" }

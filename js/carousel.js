@@ -21,14 +21,32 @@ if (!PAGE.backendAvailable) {
 }
 const MediaImages = await Fetch.api(`${PAGE.backend}/media/images`);
 const Albums = mediaImagesMap(MediaImages);
+const DefaultAlbum = 'test';
 const Confirm = 'bait:confirm';
 const ConfirmEvent = new Event(Confirm);
 const Cancel = 'bait:cancel';
 const CancelEvent = new Event(Cancel);
 const ExitCarousel = 'bait:exit-carousel';
 const ExitCarouselEvent = new Event(ExitCarousel);
+const Carousel = document.createElement('div');
+document.body.append(Carousel);
+Carousel.className = 'carousel';
+const Slide = document.createElement('div');
+Slide.className = 'slide';
+Carousel.append(Slide);
 export function render() {
-    const selection = { album: 'test', shuffle: false, interval: 0 };
+    const selection = getQuerySelection();
+    const modal = createModalDialog(selection);
+    if (selection.album)
+        runCarousel(selection, modal);
+    else
+        modal.element.showModal();
+}
+/**
+ * Get selection criteria from URL query, if any.
+ */
+function getQuerySelection() {
+    const selection = { album: '', shuffle: false, interval: 0 };
     if (PAGE.parameters.has('album'))
         selection.album = PAGE.parameters.get('album');
     if (PAGE.parameters.has('interval'))
@@ -37,32 +55,30 @@ export function render() {
         selection.interval = 0;
     if (PAGE.parameters.has('shuffle'))
         selection.shuffle = true;
-    if (PAGE.parameters.has('interval') || PAGE.parameters.has('shuffle'))
-        runCarousel(selection);
-    else
-        modalDialog(selection);
+    return selection;
 }
-function modalDialog(selection) {
+function createModalDialog(selection) {
     const albumNames = Array.from(Albums.keys());
     albumNames.sort((a, b) => a.localeCompare(b));
     const options = getOptions(albumNames, selection);
     // const textInput = new W.Text('album', '', selection.album, 'Album: ');
-    const select = new W.Select('album', '', options, 'Album: ');
+    const dropDown = new W.Select('album', '', options, 'Album: ');
     const checkbox = new W.Checkbox('shuffleOption', '', selection.shuffle, 'Shuffle Slides ');
     const range = new W.Range('intervalSelection', '', selection.interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
     const cancelButton = new W.Button('', '', 'Cancel', CancelEvent);
     const confirmButton = new W.Button('', '', 'Confirm', ConfirmEvent);
     const modal = new W.Dialog('', 'carousel-dialog', 'Carousel Options');
     // modal.addComponents(textInput.labelElement); // textInput.component or widget
-    modal.addComponents(select.labelElement);
+    modal.addComponents(dropDown.labelElement);
     modal.addComponents(checkbox.labelElement);
     modal.addComponents(range.labelElement);
     modal.addComponents([cancelButton.element, confirmButton.element]);
-    modal.displayModal(document.body);
+    modal.complete(document.body);
     document.addEventListener(Cancel, () => {
         modal.element.close();
         window.history.back();
-    }, { once: true });
+        // }, { once: true });
+    });
     /**
      * modalDialog may be called multiple times. The "once" option ensures that
      * only one Confirm listener at a time will be active.
@@ -70,62 +86,58 @@ function modalDialog(selection) {
     document.addEventListener(Confirm, () => {
         modal.element.close();
         // selection.album = textInput.value;
-        selection.album = select.value;
+        selection.album = dropDown.value;
         selection.shuffle = checkbox.value;
         selection.interval = range.value;
-        runCarousel(selection);
-    }, { once: true });
+        runCarousel(selection, modal);
+        // }, { once: true });
+    });
+    return modal;
 }
-function runCarousel(selection) {
+function runCarousel(selection, modal) {
     console.log(selection);
     const images = albumImages(selection.album);
     if (!images.length) {
         alert('No images have been selected!');
-        location.reload();
+        modal.element.showModal(); //### was: location.reload();
     }
     else {
-        /** create the <div> element that will contain the slides */
-        const carousel = document.createElement('div');
-        document.body.append(carousel);
-        carousel.className = 'carousel';
-        carousel.dataset.carousel = '';
         const imageSet = new ImageSet(images, selection.shuffle);
-        const slide = document.createElement('div');
-        slide.className = 'slide';
-        slide.dataset.active = '';
-        carousel.append(slide);
+        // Carousel.hidden = false;
+        Carousel.dataset.carousel = '';
+        Slide.dataset.active = '';
         const imageElement = document.createElement('img');
         imageElement.src = imageSet.images[imageSet.index];
-        slide.append(imageElement);
+        Slide.append(imageElement);
         // await image.decode(); /** wait till the image is ready to use */
-        addExitButton(carousel);
+        addExitButton(Carousel);
         let intervalID = 0;
         if (selection.interval) {
             const changeImageFunction = () => imageElement.src = imageSet.nextImage();
-            intervalID = setInterval(changeImageFunction, selection.interval * 1000, carousel);
+            intervalID = setInterval(changeImageFunction, selection.interval * 1000, Carousel);
         }
         else {
-            const buttons = addNavigationButtons(carousel);
+            const buttons = addNavigationButtons(Carousel);
             buttons.forEach(button => {
                 button.addEventListener('click', () => {
                     const reverse = button.dataset.carouselButton === 'prev';
                     imageElement.src = imageSet.nextImage(reverse);
                 });
+                // }, { once: true });
             });
         }
         /**
-         * Stop the runCarousel Interval loop (if any) and remove the carousel
-         * (and slide) divs to restore the default page background. Then display
-         * the modal dialog to allow the user to enter new selection criteria or
-         * cancel out of the page. The "once: true" option prevents the system
-         * from creating an undesired queue of listeners by ensuring that the
-         * listener is removed after each use.
+         * Stop the Interval loop (if any) and hide the carousel (and slide)
+         * divs. Show the modal dialog for new selection criteria or cancel out
+         * of the page.
          */
         document.addEventListener(ExitCarousel, () => {
             if (intervalID)
                 clearInterval(intervalID);
-            carousel.remove();
-            modalDialog(selection);
+            Slide.innerHTML = '';
+            Carousel.innerHTML = '';
+            // Carousel.hidden = true;
+            modal.element.showModal();
         }, { once: true });
     }
 }
@@ -159,9 +171,7 @@ class ImageSet {
         if (this.shuffling)
             this.shuffle();
     }
-    /**
-     * Return the next image.
-     */
+    /** Return the next image */
     nextImage(reverse = false) {
         const offset = (reverse) ? -1 : 1;
         this.index += offset;

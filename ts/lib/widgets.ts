@@ -45,12 +45,12 @@ export class Dialog /* extends Widget */ {
 		this.componentList.append(listItem);
 	}
 
-	/** complete and display dialog element in container element */
-	displayModal(container: HTMLElement) {
+	/** complete dialog element in container element */
+	complete(container: HTMLElement) {
 		this.fieldSet.append(this.componentList);
 		this.element.append(this.fieldSet);
 		container.append(this.element);
-		(this.element as HTMLDialogElement).showModal();
+		// (this.element as HTMLDialogElement).showModal();
 	}
 }
 

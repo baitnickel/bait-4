@@ -83,6 +83,7 @@ export class Page {
             MenuItems.push({ module: 'articles', parameters: ['path=Content/drafts'], text: 'Drafts', icon: '' });
             MenuItems.push({ module: 'threads', parameters: [], text: 'Threads', icon: '' });
             MenuItems.push({ module: 'carousel', parameters: [], text: 'Carousel', icon: '' });
+            MenuItems.push({ module: 'carousel', parameters: ['album=test'], text: 'Carousel Test', icon: '' });
             // MenuItems.push({module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: ''});
             // MenuItems.push({module: 'test-cookies', parameters: [], text: 'Cookies', icon: ''});
             // MenuItems.push({module: 'test-lyrics', parameters: [], text: 'Lyrics', icon: ''});

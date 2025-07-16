@@ -35,12 +35,12 @@ export class Dialog /* extends Widget */ {
             listItem.append(components);
         this.componentList.append(listItem);
     }
-    /** complete and display dialog element in container element */
-    displayModal(container) {
+    /** complete dialog element in container element */
+    complete(container) {
         this.fieldSet.append(this.componentList);
         this.element.append(this.fieldSet);
         container.append(this.element);
-        this.element.showModal();
+        // (this.element as HTMLDialogElement).showModal();
     }
 }
 export class Text /* extends Widget */ {

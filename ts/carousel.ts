@@ -31,7 +31,7 @@ const Albums = mediaImagesMap(MediaImages);
 type Selection = { album: string, shuffle: boolean, interval: number };
 
 const Confirm = 'bait:confirm';
-const ConfirmEvent = new Event(Confirm, );
+const ConfirmEvent = new Event(Confirm);
 const Cancel = 'bait:cancel';
 const CancelEvent = new Event(Cancel);
 const ExitCarousel = 'bait:exit-carousel';

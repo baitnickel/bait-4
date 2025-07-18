@@ -19,6 +19,15 @@ export function render() {
     const randomKey = keys[Math.floor(Math.random() * keys.length)];
     const randomQuote = Quotes.get(randomKey);
     PAGE.appendQuote(Quote, randomQuote);
+    if (PAGE.local) {
+        Quote.addEventListener('click', () => {
+            const copy = window.confirm('Copy quote to clipboard?');
+            if (copy)
+                console.log(`would copy: "${randomQuote.text}" ~ ${randomQuote.attribution}`);
+            else
+                console.log('not copying');
+        });
+    }
     const ArticleText = PAGE.appendContent('#Article');
     const markdown = new MD.Markdown(HomeText);
     PAGE.articleID = (markdown.metadata && 'id' in markdown.metadata) ? markdown.metadata['id'] : null;

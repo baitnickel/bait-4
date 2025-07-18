@@ -1,62 +1,78 @@
-/** Dialog box (modal or non-modal), optionally with fieldset */
+/**
+ * Dialog box (modal or non-modal) with fieldset.
+ *
+ * The caller will open a modal Dialog with "modal.element.showModal()", and a
+ * non-modal Dialog with "modal.element.show()". "modal.element.close()" will
+ * close either type of Dialog.
+ *
+ * Create Widgets using the classes below, then create the Dialog and add the
+ * Widgets to it in top-to-bottom order.
+ */
 export class Dialog {
-    constructor(id, className, legend) {
+    constructor(legend) {
         this.element = document.createElement('dialog');
-        this.element.id = id;
-        this.element.className = className;
         this.fieldSet = document.createElement('fieldset');
         this.legend = document.createElement('legend');
-        this.legend.innerText = legend;
+        this.legend.innerHTML = legend;
         this.fieldSet.append(this.legend);
-        this.componentList = document.createElement('ul');
+        this.widgetList = document.createElement('ul');
     }
-    /** add a single component as a list item (li) */
-    addComponent(component) {
+    /** add a single widget as a list item (li) */
+    addWidget(widget) {
         const listItem = document.createElement('li');
-        listItem.append(component);
-        this.componentList.append(listItem);
+        listItem.append(widget);
+        this.widgetList.append(listItem);
     }
-    /** add an array of components to the same list item (li) */
-    addComponents(components) {
+    /** add an array of widgets to a single list item (li) */
+    addWidgets(widgets) {
         const listItem = document.createElement('li');
-        for (const component of components)
-            listItem.append(component);
-        this.componentList.append(listItem);
+        for (const widget of widgets)
+            listItem.append(widget);
+        this.widgetList.append(listItem);
     }
     /** complete dialog element and append to container element */
     appendTo(container) {
-        this.fieldSet.append(this.componentList);
+        this.fieldSet.append(this.widgetList);
         this.element.append(this.fieldSet);
         container.append(this.element);
     }
 }
+/**
+ * Basic single-line text input widget. The `value` property will hold a string.
+ */
 export class Text {
-    constructor(value, labelText) {
+    constructor(value, labelHTML) {
         this.element = document.createElement('input');
         this.value = value;
         this.element.value = value;
-        this.labelElement = document.createElement('label');
-        this.labelElement.htmlFor = this.element.id;
-        this.labelElement.innerText = labelText;
-        this.labelElement.append(this.element);
+        this.labelElement = label(this.element, labelHTML);
+        this.widget = this.labelElement;
         this.element.addEventListener('change', () => {
             this.value = this.element.value;
         });
     }
 }
+/**
+ * Drop-Down Selection widget. The `value` property will hold a string.
+ */
 export class Select {
-    constructor(labelText) {
+    constructor(labelHTML) {
         this.element = document.createElement('select');
         this.value = '';
-        this.labelElement = document.createElement('label');
-        this.labelElement.htmlFor = this.element.id;
-        this.labelElement.innerText = labelText;
-        this.labelElement.append(this.element);
+        this.labelElement = label(this.element, labelHTML);
+        this.widget = this.labelElement;
         this.element.addEventListener('change', (e) => {
-            const element = e.target; /** type casting required for TypeScript */
+            const element = e.target; /** TypeScript requires cast */
             this.value = element.value;
         });
     }
+    /**
+     * Given an array of `texts`, create an array of Option Elements, each one
+     * representing a drop-down value. When a `headerOption` is supplied (e.g.,
+     * '--select--'), it will appear as the default (and disabled) initial
+     * selection. After any header, option texts will be sorted alphabetically
+     * unless the `sorted` option is overridden to false.
+     */
     addOptions(texts, headerOption = '', sorted = true) {
         const options = [];
         if (sorted)
@@ -75,23 +91,28 @@ export class Select {
             this.element.add(option);
     }
 }
+/**
+ * Checkbox widget. The `value` property will hold a boolean.
+ */
 export class Checkbox {
-    constructor(checked, labelText) {
+    constructor(checked, labelHTML) {
         this.element = document.createElement('input');
         this.element.type = 'checkbox';
         this.value = checked;
         this.element.checked = checked;
-        this.labelElement = document.createElement('label');
-        this.labelElement.htmlFor = this.element.id;
-        this.labelElement.innerText = labelText;
-        this.labelElement.append(this.element);
+        this.labelElement = label(this.element, labelHTML);
+        this.widget = this.labelElement;
         this.element.addEventListener('change', () => {
             this.value = this.element.checked;
         });
     }
 }
+/**
+ * Range widget. A slider control is created for setting the `value` property (a
+ * number between `minimum` and `maximum`, inclusive).
+ */
 export class Range {
-    constructor(value, labelText, outputLabel, minimum, maximum, step) {
+    constructor(value, labelHTML, outputLabel, minimum, maximum, step) {
         this.element = document.createElement('input');
         this.element.type = 'range';
         this.value = value;
@@ -99,10 +120,8 @@ export class Range {
         this.element.min = `${minimum}`;
         this.element.max = `${maximum}`;
         this.element.step = `${step}`;
-        this.labelElement = document.createElement('label');
-        this.labelElement.htmlFor = this.element.id;
-        this.labelElement.innerHTML = `${labelText}<br>`;
-        this.labelElement.append(this.element);
+        this.labelElement = label(this.element, labelHTML);
+        this.widget = this.labelElement;
         this.output = document.createElement('output');
         this.output.innerHTML = `<br>${outputLabel}${this.element.value}`;
         this.labelElement.append(this.output);
@@ -112,16 +131,33 @@ export class Range {
         });
     }
 }
+/**
+ * Button widget. In addition to the button label given in `labelHTML`, an
+ * `event` must be provided which will be dispatched when the button is clicked.
+ */
 export class Button {
-    constructor(labelText, event) {
+    constructor(labelHTML, event) {
         this.element = document.createElement('button');
-        this.element.innerText = labelText;
+        this.element.innerHTML = labelHTML;
         this.event = event;
+        this.widget = this.element;
         this.element.addEventListener('click', () => {
             document.dispatchEvent(this.event);
         });
     }
 }
+/**
+ * Wrap the label specified in `labelHTML` around the given `element` and return
+ * the label element.
+ */
+function label(element, labelHTML) {
+    const labelElement = document.createElement('label');
+    labelElement.htmlFor = element.id;
+    labelElement.innerHTML = labelHTML;
+    labelElement.append(element);
+    return labelElement;
+}
+/** ------------ end of Widgets designed for use in Dialog boxes ------------ */
 /**
  * The Navigator class manages a set of buttons (First, Previous, Next, Last)
  * for navigating through a set of documents (an array of file path names).

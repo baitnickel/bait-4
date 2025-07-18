@@ -1,56 +1,65 @@
-/** Dialog box (modal or non-modal), optionally with fieldset */
+/**
+ * Dialog box (modal or non-modal) with fieldset.
+ * 
+ * The caller will open a modal Dialog with "modal.element.showModal()", and a
+ * non-modal Dialog with "modal.element.show()". "modal.element.close()" will
+ * close either type of Dialog.
+ * 
+ * Create Widgets using the classes below, then create the Dialog and add the
+ * Widgets to it in top-to-bottom order.
+ */
 export class Dialog {
 	element: HTMLDialogElement;
 	fieldSet: HTMLFieldSetElement;
 	legend: HTMLLegendElement;
-	componentList: HTMLUListElement;
+	widgetList: HTMLUListElement;
 
-	constructor(id: string, className: string, legend: string) {
+	constructor(legend: string) {
 		this.element = document.createElement('dialog');
-		this.element.id = id;
-		this.element.className = className;
 		this.fieldSet = document.createElement('fieldset');
 		this.legend = document.createElement('legend');
-		this.legend.innerText = legend;
+		this.legend.innerHTML = legend;
 		this.fieldSet.append(this.legend);
-		this.componentList = document.createElement('ul');
+		this.widgetList = document.createElement('ul');
 	}
 
-	/** add a single component as a list item (li) */
-	addComponent(component: HTMLElement) {
+	/** add a single widget as a list item (li) */
+	addWidget(widget: HTMLElement) {
 		const listItem = document.createElement('li');
-		listItem.append(component);
-		this.componentList.append(listItem);
+		listItem.append(widget);
+		this.widgetList.append(listItem);
 	}
 
-	/** add an array of components to the same list item (li) */
-	addComponents(components: HTMLElement[]) {
+	/** add an array of widgets to a single list item (li) */
+	addWidgets(widgets: HTMLElement[]) {
 		const listItem = document.createElement('li');
-		for (const component of components) listItem.append(component);
-		this.componentList.append(listItem);
+		for (const widget of widgets) listItem.append(widget);
+		this.widgetList.append(listItem);
 	}
 
 	/** complete dialog element and append to container element */
 	appendTo(container: HTMLElement) {
-		this.fieldSet.append(this.componentList);
+		this.fieldSet.append(this.widgetList);
 		this.element.append(this.fieldSet);
 		container.append(this.element);
 	}
 }
 
+/**
+ * Basic single-line text input widget. The `value` property will hold a string.
+ */
 export class Text {
 	element: HTMLInputElement;
 	value: string;
+	widget: HTMLElement;
 	labelElement: HTMLLabelElement;
 
-	constructor(value: string, labelText: string) {
+	constructor(value: string, labelHTML: string) {
 		this.element = document.createElement('input');
 		this.value = value;
 		this.element.value = value;
-		this.labelElement = document.createElement('label');
-		this.labelElement.htmlFor = this.element.id;
-		this.labelElement.innerText = labelText;
-		this.labelElement.append(this.element);
+		this.labelElement = label(this.element, labelHTML);
+		this.widget = this.labelElement;
 
 		this.element.addEventListener('change', () => {
 			this.value = this.element.value;
@@ -58,25 +67,34 @@ export class Text {
 	}
 }
 
+/**
+ * Drop-Down Selection widget. The `value` property will hold a string.
+ */
 export class Select {
 	element: HTMLSelectElement;
 	value: string;
+	widget: HTMLElement;
 	labelElement: HTMLLabelElement;
 
-	constructor(labelText: string) {
+	constructor(labelHTML: string) {
 		this.element = document.createElement('select');
 		this.value = '';
-		this.labelElement = document.createElement('label');
-		this.labelElement.htmlFor = this.element.id;
-		this.labelElement.innerText = labelText;
-		this.labelElement.append(this.element);
+		this.labelElement = label(this.element, labelHTML);
+		this.widget = this.labelElement;
 
 		this.element.addEventListener('change', (e) => {
-			const element = e.target as HTMLSelectElement; /** type casting required for TypeScript */
+			const element = e.target as HTMLSelectElement; /** TypeScript requires cast */
 			this.value = element.value;
 		});
 	}
 
+	/**
+	 * Given an array of `texts`, create an array of Option Elements, each one
+	 * representing a drop-down value. When a `headerOption` is supplied (e.g.,
+	 * '--select--'), it will appear as the default (and disabled) initial
+	 * selection. After any header, option texts will be sorted alphabetically
+	 * unless the `sorted` option is overridden to false.
+	 */
 	addOptions(texts: string[], headerOption = '', sorted = true) {
 		const options: HTMLOptionElement[] = [];
 		if (sorted) texts.sort((a,b) => a.localeCompare(b));
@@ -94,20 +112,22 @@ export class Select {
 	}
 }
 
+/**
+ * Checkbox widget. The `value` property will hold a boolean.
+ */
 export class Checkbox {
 	element: HTMLInputElement;
 	value: boolean;
+	widget: HTMLElement;
 	labelElement: HTMLLabelElement;
 
-	constructor(checked: boolean, labelText: string) {
+	constructor(checked: boolean, labelHTML: string) {
 		this.element = document.createElement('input');
 		this.element.type = 'checkbox';
 		this.value = checked;
 		this.element.checked = checked;
-		this.labelElement = document.createElement('label');
-		this.labelElement.htmlFor = this.element.id;
-		this.labelElement.innerText = labelText;
-		this.labelElement.append(this.element);
+		this.labelElement = label(this.element, labelHTML);
+		this.widget = this.labelElement;
 
 		this.element.addEventListener('change', () => {
 			this.value = this.element.checked;
@@ -115,13 +135,18 @@ export class Checkbox {
 	}
 }
 
+/**
+ * Range widget. A slider control is created for setting the `value` property (a
+ * number between `minimum` and `maximum`, inclusive).
+ */
 export class Range {
 	element: HTMLInputElement;
 	value: number;
+	widget: HTMLElement;
 	labelElement: HTMLLabelElement;
 	output: HTMLOutputElement;
 
-	constructor(value: number, labelText: string, outputLabel: string, minimum: number, maximum: number, step: number) {
+	constructor(value: number, labelHTML: string, outputLabel: string, minimum: number, maximum: number, step: number) {
 		this.element = document.createElement('input');
 		this.element.type = 'range';
 		this.value = value;
@@ -129,10 +154,9 @@ export class Range {
 		this.element.min = `${minimum}`;
 		this.element.max = `${maximum}`;
 		this.element.step = `${step}`;
-		this.labelElement = document.createElement('label');
-		this.labelElement.htmlFor = this.element.id;
-		this.labelElement.innerHTML = `${labelText}<br>`;
-		this.labelElement.append(this.element);
+		this.labelElement = label(this.element, labelHTML);
+		this.widget = this.labelElement;
+
 		this.output = document.createElement('output');
 		this.output.innerHTML = `<br>${outputLabel}${this.element.value}`;
 		this.labelElement.append(this.output);
@@ -144,20 +168,41 @@ export class Range {
 	}
 }
 
+/**
+ * Button widget. In addition to the button label given in `labelHTML`, an
+ * `event` must be provided which will be dispatched when the button is clicked.
+ */
 export class Button {
 	element: HTMLButtonElement;
+	widget: HTMLElement;
 	event: Event;
 
-	constructor(labelText: string, event: Event) {
+	constructor(labelHTML: string, event: Event) {
 		this.element = document.createElement('button');
-		this.element.innerText = labelText;
+		this.element.innerHTML = labelHTML;
 		this.event = event;
+		this.widget = this.element;
 		
 		this.element.addEventListener('click', () => {
 			document.dispatchEvent(this.event);
 		})
 	}
 }
+
+/**
+ * Wrap the label specified in `labelHTML` around the given `element` and return
+ * the label element.
+ */
+function label(element: HTMLElement, labelHTML: string) {
+	const labelElement = document.createElement('label');
+	labelElement.htmlFor = element.id;
+	labelElement.innerHTML = labelHTML;
+	labelElement.append(element);
+	return labelElement;
+}
+
+/** ------------ end of Widgets designed for use in Dialog boxes ------------ */
+
 
 /**
  * The Navigator class manages a set of buttons (First, Previous, Next, Last)
@@ -318,7 +363,7 @@ export class RadioButtons { // used in `camp`, `home`, `reservations`
 	}
 }
 
-export class Checkbox1 {
+export class Checkbox1 { // used in `camp`, `test-yaml`
 	checkbox: HTMLInputElement;
 	label: HTMLLabelElement;
 	classNames: string[];

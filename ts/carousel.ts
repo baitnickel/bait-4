@@ -61,24 +61,25 @@ function getQuerySelection() {
 }
 
 function createModalDialog(selection: Selection) {
-	const dropDown = new W.Select('Album: ');
-	dropDown.element.id = 'album';
-	dropDown.addOptions(Array.from(Albums.keys()), '--select--');
+	const albumDropDown = new W.Select('Album: ');
+	albumDropDown.element.id = 'album';
+	albumDropDown.addOptions(Array.from(Albums.keys()), '--select--');
 
-	const checkbox = new W.Checkbox(selection.shuffle, 'Shuffle Slides ');
-	checkbox.element.id = 'shuffleOption';
+	const shuffleCheckbox = new W.Checkbox(selection.shuffle, 'Shuffle Slides: ');
+	shuffleCheckbox.element.id = 'shuffleOption';
 
-	const range = new W.Range(selection.interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
-	range.element.id = 'intervalSelection';
+	const intervalRange = new W.Range(selection.interval, 'Interval Between Slides:<br>', 'Seconds: ', 0,60,1);
+	intervalRange.element.id = 'intervalSelection';
 
 	const cancelButton = new W.Button('Cancel', CancelEvent);
 	const confirmButton = new W.Button('Confirm', ConfirmEvent);
 
-	const modal = new W.Dialog('', 'carousel-dialog', 'Carousel Options');
-	modal.addComponent(dropDown.labelElement);
-	modal.addComponent(checkbox.labelElement);
-	modal.addComponent(range.labelElement);
-	modal.addComponents([cancelButton.element, confirmButton.element]);
+	const modal = new W.Dialog('Carousel Options');
+	modal.element.className = 'carousel-dialog';
+	modal.addWidget(albumDropDown.widget);
+	modal.addWidget(shuffleCheckbox.widget);
+	modal.addWidget(intervalRange.widget);
+	modal.addWidgets([cancelButton.widget, confirmButton.widget]);
 	modal.appendTo(document.body);
 
 	document.addEventListener(Cancel, () => {
@@ -87,9 +88,9 @@ function createModalDialog(selection: Selection) {
 	});
 	document.addEventListener(Confirm, () => {
 		modal.element.close();
-		selection.album = dropDown.value;
-		selection.shuffle = checkbox.value;
-		selection.interval = range.value;
+		selection.album = albumDropDown.value;
+		selection.shuffle = shuffleCheckbox.value;
+		selection.interval = intervalRange.value;
 		runCarousel(selection, modal);
 	});
 	return modal;

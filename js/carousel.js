@@ -54,20 +54,21 @@ function getQuerySelection() {
     return selection;
 }
 function createModalDialog(selection) {
-    const albumNames = Array.from(Albums.keys());
-    albumNames.sort((a, b) => a.localeCompare(b));
-    const options = getOptions(albumNames);
-    const dropDown = new W.Select('album', '', options, 'Album: ');
-    const checkbox = new W.Checkbox('shuffleOption', '', selection.shuffle, 'Shuffle Slides ');
-    const range = new W.Range('intervalSelection', '', selection.interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
-    const cancelButton = new W.Button('', '', 'Cancel', CancelEvent);
-    const confirmButton = new W.Button('', '', 'Confirm', ConfirmEvent);
+    const dropDown = new W.Select('Album: ');
+    dropDown.element.id = 'album';
+    dropDown.addOptions(Array.from(Albums.keys()), '--select--');
+    const checkbox = new W.Checkbox(selection.shuffle, 'Shuffle Slides ');
+    checkbox.element.id = 'shuffleOption';
+    const range = new W.Range(selection.interval, 'Interval Between Slides:', 'Seconds: ', 0, 60, 1);
+    range.element.id = 'intervalSelection';
+    const cancelButton = new W.Button('Cancel', CancelEvent);
+    const confirmButton = new W.Button('Confirm', ConfirmEvent);
     const modal = new W.Dialog('', 'carousel-dialog', 'Carousel Options');
-    modal.addComponents(dropDown.labelElement);
-    modal.addComponents(checkbox.labelElement);
-    modal.addComponents(range.labelElement);
+    modal.addComponent(dropDown.labelElement);
+    modal.addComponent(checkbox.labelElement);
+    modal.addComponent(range.labelElement);
     modal.addComponents([cancelButton.element, confirmButton.element]);
-    modal.complete(document.body);
+    modal.appendTo(document.body);
     document.addEventListener(Cancel, () => {
         modal.element.close();
         window.history.back();
@@ -183,17 +184,6 @@ class ImageSet {
             this.images.push(randomImage);
         }
     }
-}
-function getOptions(albumNames) {
-    const options = [];
-    const headerOption = new Option('--select--', '', true, true);
-    headerOption.disabled = true;
-    options.push(headerOption);
-    for (const albumName of albumNames) {
-        const option = new Option(albumName);
-        options.push(option);
-    }
-    return options;
 }
 function albumImages(albumName) {
     let images = [];

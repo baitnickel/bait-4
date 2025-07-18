@@ -1,26 +1,11 @@
-export class Widget {
-	element: HTMLElement;
-	id: string;
-	className: string;
-
-	constructor(elementType: string, id: string, className: string) {
-		this.element = document.createElement(elementType);
-		this.id = id;
-		this.className = className;
-	}
-}
-
-/**
- * Dialog box (modal or non-modal), optionally with fieldset.
- */
-export class Dialog /* extends Widget */ {
+/** Dialog box (modal or non-modal), optionally with fieldset */
+export class Dialog {
 	element: HTMLDialogElement;
 	fieldSet: HTMLFieldSetElement;
 	legend: HTMLLegendElement;
 	componentList: HTMLUListElement;
 
 	constructor(id: string, className: string, legend: string) {
-		// super('dialog', id, className);
 		this.element = document.createElement('dialog');
 		this.element.id = id;
 		this.element.className = className;
@@ -31,40 +16,35 @@ export class Dialog /* extends Widget */ {
 		this.componentList = document.createElement('ul');
 	}
 
-	/** 
-	 * Called for each component to be added to the dialog. When components is
-	 * an array, all will be added to the same list item (li). Otherwise one
-	 * component is added to one list item.
-	 */
-	addComponents(components: HTMLElement|HTMLElement[]) {
+	/** add a single component as a list item (li) */
+	addComponent(component: HTMLElement) {
 		const listItem = document.createElement('li');
-		if (Array.isArray(components)) {
-			for (const component of components) listItem.append(component);
-		}
-		else listItem.append(components);
+		listItem.append(component);
 		this.componentList.append(listItem);
 	}
 
-	/** complete dialog element in container element */
-	complete(container: HTMLElement) {
+	/** add an array of components to the same list item (li) */
+	addComponents(components: HTMLElement[]) {
+		const listItem = document.createElement('li');
+		for (const component of components) listItem.append(component);
+		this.componentList.append(listItem);
+	}
+
+	/** complete dialog element and append to container element */
+	appendTo(container: HTMLElement) {
 		this.fieldSet.append(this.componentList);
 		this.element.append(this.fieldSet);
 		container.append(this.element);
-		// (this.element as HTMLDialogElement).showModal();
 	}
 }
 
-export class Text /* extends Widget */ {
+export class Text {
 	element: HTMLInputElement;
 	value: string;
 	labelElement: HTMLLabelElement;
 
-	constructor(id: string, className: string, value: string, labelText: string) {
-		// super('input', id, className);
+	constructor(value: string, labelText: string) {
 		this.element = document.createElement('input');
-		this.element.id = id;
-		this.element.className = className;
-		this.element.name = id; /** for Form submission */
 		this.value = value;
 		this.element.value = value;
 		this.labelElement = document.createElement('label');
@@ -82,38 +62,46 @@ export class Select {
 	element: HTMLSelectElement;
 	value: string;
 	labelElement: HTMLLabelElement;
-	// options: HTMLOptionElement[];
 
-	constructor(id: string, className: string, options: HTMLOptionElement[], labelText: string) {
+	constructor(labelText: string) {
 		this.element = document.createElement('select');
-		this.element.id = id;
-		this.element.className = className;
-		this.element.name = id; /** for Form submission */
-		this.value = options[0].value;
-		// this.element.value = options[0];
-		for (const option of options) this.element.add(option);
+		this.value = '';
 		this.labelElement = document.createElement('label');
 		this.labelElement.htmlFor = this.element.id;
 		this.labelElement.innerText = labelText;
 		this.labelElement.append(this.element);
 
 		this.element.addEventListener('change', (e) => {
-			const element = e.target as HTMLSelectElement; /** "as" type casting required for TypeScript */
+			const element = e.target as HTMLSelectElement; /** type casting required for TypeScript */
 			this.value = element.value;
 		});
 	}
+
+	addOptions(texts: string[], headerOption = '', sorted = true) {
+		const options: HTMLOptionElement[] = [];
+		if (sorted) texts.sort((a,b) => a.localeCompare(b));
+		if (headerOption) {
+			const option = new Option(headerOption, '', true, true);
+			option.disabled = true;
+			options.push(option);
+		}
+		for (const text of texts) {
+			const option = new Option(text);
+			options.push(option);
+		}
+		this.value = options[0].value;
+		for (const option of options) this.element.add(option);
+	}
 }
 
-export class Checkbox /* extends Widget */ {
+export class Checkbox {
 	element: HTMLInputElement;
 	value: boolean;
 	labelElement: HTMLLabelElement;
 
-	constructor(id: string, className: string, checked: boolean, labelText: string) {
+	constructor(checked: boolean, labelText: string) {
 		this.element = document.createElement('input');
 		this.element.type = 'checkbox';
-		this.element.id = id;
-		this.element.className = className;
 		this.value = checked;
 		this.element.checked = checked;
 		this.labelElement = document.createElement('label');
@@ -127,17 +115,15 @@ export class Checkbox /* extends Widget */ {
 	}
 }
 
-export class Range /* extends Widget */ {
+export class Range {
 	element: HTMLInputElement;
 	value: number;
 	labelElement: HTMLLabelElement;
 	output: HTMLOutputElement;
 
-	constructor(id: string, className: string, value: number, labelText: string, outputLabel: string, minimum: number, maximum: number, step: number) {
+	constructor(value: number, labelText: string, outputLabel: string, minimum: number, maximum: number, step: number) {
 		this.element = document.createElement('input');
 		this.element.type = 'range';
-		this.element.id = id;
-		this.element.className = className;
 		this.value = value;
 		this.element.value = `${value}`;
 		this.element.min = `${minimum}`;
@@ -158,14 +144,12 @@ export class Range /* extends Widget */ {
 	}
 }
 
-export class Button /* extends Widget */ {
+export class Button {
 	element: HTMLButtonElement;
 	event: Event;
 
-	constructor(id: string, className: string, labelText: string, event: Event) {
+	constructor(labelText: string, event: Event) {
 		this.element = document.createElement('button');
-		this.element.id = id;
-		this.element.className = className;
 		this.element.innerText = labelText;
 		this.event = event;
 		
@@ -174,18 +158,6 @@ export class Button /* extends Widget */ {
 		})
 	}
 }
-
-// export class SelectOption {
-// 	element: HTMLOptionElement;
-
-// 	constructor(text: string, value = '', defaultSelected = false, selected = false) {
-// 		this.element = document.createElement('option');
-// 		this.element.text = text;
-// 		if (value) this.element.value = value;
-// 		if (defaultSelected) this.element.defaultSelected = defaultSelected;
-// 		if (selected) this.element.selected = selected;
-// 	}
-// }
 
 /**
  * The Navigator class manages a set of buttons (First, Previous, Next, Last)

@@ -45,7 +45,7 @@ export function render() {
 	const selection = getQuerySelection();
 	const modal = createModalDialog(selection);
 	if (selection.album) runCarousel(selection, modal);
-	else modal.element.showModal();
+	else modal.open();
 }
 
 /**
@@ -68,7 +68,9 @@ function createModalDialog(selection: Selection) {
 	const shuffleCheckbox = new W.Checkbox(selection.shuffle, 'Shuffle Slides: ');
 	shuffleCheckbox.element.id = 'shuffleOption';
 
-	const intervalRange = new W.Range(selection.interval, 'Interval Between Slides:<br>', 'Seconds: ', 0,60,1);
+	// const intervalRange = new W.Range(selection.interval, 'Interval Between Slides:<br>', 'Seconds: ', 0,60,1);
+	const outputTexts = ['<br>Manually', '<br>Every Second', '<br>Every %% Seconds'];
+	const intervalRange = new W.Range(selection.interval, 'Change Slides:<br>', 0,60,1, outputTexts);
 	intervalRange.element.id = 'intervalSelection';
 
 	const cancelButton = new W.Button('Cancel', CancelEvent);
@@ -80,14 +82,14 @@ function createModalDialog(selection: Selection) {
 	modal.addWidget(shuffleCheckbox.widget);
 	modal.addWidget(intervalRange.widget);
 	modal.addWidgets([cancelButton.widget, confirmButton.widget]);
-	modal.appendTo(document.body);
+	modal.layout(document.body);
 
 	document.addEventListener(Cancel, () => {
-		modal.element.close();
+		modal.close();
 		window.history.back();
 	});
 	document.addEventListener(Confirm, () => {
-		modal.element.close();
+		modal.close();
 		selection.album = albumDropDown.value;
 		selection.shuffle = shuffleCheckbox.value;
 		selection.interval = intervalRange.value;
@@ -100,7 +102,7 @@ function runCarousel(selection: Selection, modal: W.Dialog) {
 	const images = albumImages(selection.album);
 	if (!images.length) {
 		alert('No images have been selected!');
-		modal.element.showModal();
+		modal.open();
 	}
 	else {
 		const imageSet = new ImageSet(images, selection.shuffle);
@@ -137,22 +139,14 @@ function runCarousel(selection: Selection, modal: W.Dialog) {
 		document.addEventListener(ExitCarousel, () => {
 			if (intervalID) clearInterval(intervalID);
 			Carousel.innerHTML = '';
-			modal.element.showModal();
+			modal.open();
 		});
 	}
 }
 
 function addNavigationButtons(parent: HTMLElement) {
-	const previousButton = document.createElement('button');
-	previousButton.className = 'carousel-button prev';
-	previousButton.dataset.carouselButton = 'prev';
-	previousButton.innerHTML = '&lt;'; // '&larr;';
-	parent.append(previousButton);
-	const nextButton = document.createElement('button');
-	nextButton.className = 'carousel-button next';
-	nextButton.dataset.carouselButton = 'next';
-	nextButton.innerHTML = '&gt;'; // '&rarr;';
-	parent.append(nextButton);
+	const previousButton = navigationButton(parent, 'prev', '&lt;') // '&larr;';
+	const nextButton = navigationButton(parent, 'next', '&gt;') // '&rarr;';
 	return [previousButton, nextButton];
 }
 
@@ -164,6 +158,15 @@ function addExitButton(parent: HTMLElement) {
 	returnButton.addEventListener('click', () => {
 		document.dispatchEvent(ExitCarouselEvent);
 	});
+}
+
+function navigationButton(parent: HTMLElement, direction: 'prev'|'next', character: string) {
+	const button = document.createElement('button');
+	button.className = `carousel-button ${direction}`;
+	button.dataset.carouselButton = direction;
+	button.innerHTML = character;
+	parent.append(button);
+	return button;
 }
 
 class ImageSet {

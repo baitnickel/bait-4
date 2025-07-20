@@ -1,16 +1,16 @@
 /**
  * Dialog box (modal or non-modal) with fieldset.
  *
- * The caller will open a modal Dialog with "modal.element.showModal()", and a
- * non-modal Dialog with "modal.element.show()". "modal.element.close()" will
- * close either type of Dialog.
+ * The caller will open a Dialog with "Dialog.open()" and close it with
+ * "Dialog.close()".
  *
  * Create Widgets using the classes below, then create the Dialog and add the
  * Widgets to it in top-to-bottom order.
  */
 export class Dialog {
-    constructor(legend) {
+    constructor(legend, modal = true) {
         this.element = document.createElement('dialog');
+        this.modal = modal;
         this.fieldSet = document.createElement('fieldset');
         this.legend = document.createElement('legend');
         this.legend.innerHTML = legend;
@@ -31,10 +31,19 @@ export class Dialog {
         this.widgetList.append(listItem);
     }
     /** complete dialog element and append to container element */
-    appendTo(container) {
+    layout(container) {
         this.fieldSet.append(this.widgetList);
         this.element.append(this.fieldSet);
         container.append(this.element);
+    }
+    open() {
+        if (this.modal)
+            this.element.showModal();
+        else
+            this.element.show();
+    }
+    close() {
+        this.element.close();
     }
 }
 /**
@@ -112,7 +121,7 @@ export class Checkbox {
  * number between `minimum` and `maximum`, inclusive).
  */
 export class Range {
-    constructor(value, labelHTML, outputLabel, minimum, maximum, step) {
+    constructor(value, labelHTML, minimum, maximum, step, outputTexts) {
         this.element = document.createElement('input');
         this.element.type = 'range';
         this.value = value;
@@ -121,14 +130,29 @@ export class Range {
         this.element.max = `${maximum}`;
         this.element.step = `${step}`;
         this.labelElement = label(this.element, labelHTML);
+        this.outputWildcard = '%%';
+        this.outputTexts = outputTexts;
         this.widget = this.labelElement;
         this.output = document.createElement('output');
-        this.output.innerHTML = `<br>${outputLabel}${this.element.value}`;
+        // this.output.innerHTML = `<br>${outputLabel}${this.element.value}`;
+        this.output.innerHTML = `${this.outputText()}`;
         this.labelElement.append(this.output);
         this.element.addEventListener('input', () => {
-            this.output.innerHTML = `<br>${outputLabel}${this.element.value}`;
+            // this.output.innerHTML = `<br>${outputLabel}${this.element.value}`;
             this.value = Number(this.element.value);
+            this.output.innerHTML = `${this.outputText()}`;
         });
+    }
+    outputText() {
+        let outputText = '';
+        while (this.outputTexts.length < 3)
+            this.outputTexts.push('');
+        if (this.value < 2)
+            outputText = this.outputTexts[this.value];
+        else
+            outputText = this.outputTexts[2];
+        outputText = outputText.replace(this.outputWildcard, this.element.value);
+        return outputText;
     }
 }
 /**

@@ -1,14 +1,33 @@
 /**
- * Dialog box (modal or non-modal) with fieldset.
- *
- * The caller will open a Dialog with "Dialog.open()" and close it with
- * "Dialog.close()".
- *
- * Create Widgets using the classes below, then create the Dialog and add the
- * Widgets to it in top-to-bottom order.
+ * The Widget superclass. The `exposedElement` property holds the subclass HTMLElement
+ * which will be rendered; for some widgets, this may be the label that contains
+ * the control element.
  */
-export class Dialog {
+export class Widget {
+    constructor() {
+        this.exposedElement = null;
+    }
+    /**
+     * Wrap the label specified in `labelHTML` around the given `element` and
+     * return the label element.
+     */
+    label(element, labelHTML) {
+        const labelElement = document.createElement('label');
+        labelElement.htmlFor = element.id;
+        labelElement.innerHTML = labelHTML;
+        labelElement.append(element);
+        return labelElement;
+    }
+}
+/**
+ * Dialog box (modal or non-modal) with fieldset. The caller will open a Dialog
+ * with "Dialog.open()" and close it with "Dialog.close()". Create Widgets using
+ * the classes below, then create the Dialog and add the Widgets to it in
+ * top-to-bottom order.
+ */
+export class Dialog extends Widget {
     constructor(legend, modal = true) {
+        super();
         this.element = document.createElement('dialog');
         this.modal = modal;
         this.fieldSet = document.createElement('fieldset');
@@ -19,16 +38,26 @@ export class Dialog {
     }
     /** add a single widget as a list item (li) */
     addWidget(widget) {
-        const listItem = document.createElement('li');
-        listItem.append(widget);
-        this.widgetList.append(listItem);
+        if (widget.exposedElement) {
+            const listItem = document.createElement('li');
+            listItem.append(widget.exposedElement);
+            this.widgetList.append(listItem);
+        }
     }
     /** add an array of widgets to a single list item (li) */
     addWidgets(widgets) {
         const listItem = document.createElement('li');
-        for (const widget of widgets)
-            listItem.append(widget);
-        this.widgetList.append(listItem);
+        let widgetsAdded = 0;
+        for (const widget of widgets) {
+            if (widget.exposedElement) {
+                listItem.append(widget.exposedElement);
+                widgetsAdded += 1;
+            }
+        }
+        if (widgetsAdded)
+            this.widgetList.append(listItem);
+        else
+            listItem.remove();
     }
     /** complete dialog element and append to container element */
     layout(container) {
@@ -49,13 +78,14 @@ export class Dialog {
 /**
  * Basic single-line text input widget. The `value` property will hold a string.
  */
-export class Text {
+export class Text extends Widget {
     constructor(value, labelHTML) {
+        super();
         this.element = document.createElement('input');
         this.value = value;
         this.element.value = value;
-        this.labelElement = label(this.element, labelHTML);
-        this.widget = this.labelElement;
+        this.labelElement = this.label(this.element, labelHTML);
+        this.exposedElement = this.labelElement;
         this.element.addEventListener('change', () => {
             this.value = this.element.value;
         });
@@ -64,12 +94,13 @@ export class Text {
 /**
  * Drop-Down Selection widget. The `value` property will hold a string.
  */
-export class Select {
+export class Select extends Widget {
     constructor(labelHTML) {
+        super();
         this.element = document.createElement('select');
         this.value = '';
-        this.labelElement = label(this.element, labelHTML);
-        this.widget = this.labelElement;
+        this.labelElement = this.label(this.element, labelHTML);
+        this.exposedElement = this.labelElement;
         this.element.addEventListener('change', (e) => {
             const element = e.target; /** TypeScript requires cast */
             this.value = element.value;
@@ -103,14 +134,15 @@ export class Select {
 /**
  * Checkbox widget. The `value` property will hold a boolean.
  */
-export class Checkbox {
+export class Checkbox extends Widget {
     constructor(checked, labelHTML) {
+        super();
         this.element = document.createElement('input');
         this.element.type = 'checkbox';
         this.value = checked;
         this.element.checked = checked;
-        this.labelElement = label(this.element, labelHTML);
-        this.widget = this.labelElement;
+        this.labelElement = this.label(this.element, labelHTML);
+        this.exposedElement = this.labelElement;
         this.element.addEventListener('change', () => {
             this.value = this.element.checked;
         });
@@ -118,10 +150,17 @@ export class Checkbox {
 }
 /**
  * Range widget. A slider control is created for setting the `value` property (a
- * number between `minimum` and `maximum`, inclusive).
+ * number between `minimum` and `maximum`, inclusive). `outputTexts` is an array
+ * of up to 3 strings used to construct an "output" string (following the slider
+ * control). For example, ['<br>Manually', '<br>Every Second', '<br>Every %%
+ * Seconds']. The first string is used when Range.value is 0, the second string
+ * is used when the value is 1, and the third value is used when the value is
+ * more than one. "%%" here is the default wildcard (which may be overridden in
+ * `this.outputWildcard`); the Range value will replace the wildcard.
  */
-export class Range {
+export class Range extends Widget {
     constructor(value, labelHTML, minimum, maximum, step, outputTexts) {
+        super();
         this.element = document.createElement('input');
         this.element.type = 'range';
         this.value = value;
@@ -129,16 +168,14 @@ export class Range {
         this.element.min = `${minimum}`;
         this.element.max = `${maximum}`;
         this.element.step = `${step}`;
-        this.labelElement = label(this.element, labelHTML);
+        this.labelElement = this.label(this.element, labelHTML);
         this.outputWildcard = '%%';
         this.outputTexts = outputTexts;
-        this.widget = this.labelElement;
+        this.exposedElement = this.labelElement;
         this.output = document.createElement('output');
-        // this.output.innerHTML = `<br>${outputLabel}${this.element.value}`;
         this.output.innerHTML = `${this.outputText()}`;
         this.labelElement.append(this.output);
         this.element.addEventListener('input', () => {
-            // this.output.innerHTML = `<br>${outputLabel}${this.element.value}`;
             this.value = Number(this.element.value);
             this.output.innerHTML = `${this.outputText()}`;
         });
@@ -159,27 +196,17 @@ export class Range {
  * Button widget. In addition to the button label given in `labelHTML`, an
  * `event` must be provided which will be dispatched when the button is clicked.
  */
-export class Button {
+export class Button extends Widget {
     constructor(labelHTML, event) {
+        super();
         this.element = document.createElement('button');
         this.element.innerHTML = labelHTML;
         this.event = event;
-        this.widget = this.element;
+        this.exposedElement = this.element;
         this.element.addEventListener('click', () => {
             document.dispatchEvent(this.event);
         });
     }
-}
-/**
- * Wrap the label specified in `labelHTML` around the given `element` and return
- * the label element.
- */
-function label(element, labelHTML) {
-    const labelElement = document.createElement('label');
-    labelElement.htmlFor = element.id;
-    labelElement.innerHTML = labelHTML;
-    labelElement.append(element);
-    return labelElement;
 }
 /** ------------ end of Widgets designed for use in Dialog boxes ------------ */
 /**

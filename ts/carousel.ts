@@ -78,10 +78,10 @@ function createModalDialog(selection: Selection) {
 
 	const modal = new W.Dialog('Carousel Options');
 	modal.element.className = 'carousel-dialog';
-	modal.addWidget(albumDropDown.widget);
-	modal.addWidget(shuffleCheckbox.widget);
-	modal.addWidget(intervalRange.widget);
-	modal.addWidgets([cancelButton.widget, confirmButton.widget]);
+	modal.addWidget(albumDropDown);
+	modal.addWidget(shuffleCheckbox);
+	modal.addWidget(intervalRange);
+	modal.addWidgets([cancelButton, confirmButton]);
 	modal.layout(document.body);
 
 	document.addEventListener(Cancel, () => {

@@ -59,7 +59,6 @@ function createModalDialog(selection) {
     albumDropDown.addOptions(Array.from(Albums.keys()), '--select--');
     const shuffleCheckbox = new W.Checkbox(selection.shuffle, 'Shuffle Slides: ');
     shuffleCheckbox.element.id = 'shuffleOption';
-    // const intervalRange = new W.Range(selection.interval, 'Interval Between Slides:<br>', 'Seconds: ', 0,60,1);
     const outputTexts = ['<br>Manually', '<br>Every Second', '<br>Every %% Seconds'];
     const intervalRange = new W.Range(selection.interval, 'Change Slides:<br>', 0, 60, 1, outputTexts);
     intervalRange.element.id = 'intervalSelection';

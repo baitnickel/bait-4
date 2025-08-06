@@ -24,13 +24,11 @@ export function render() {
 	const randomQuote = Quotes.get(randomKey)!;
 	PAGE.appendQuote(Quote, randomQuote);
 
-	if (PAGE.local) {
-		Quote.addEventListener('click', () => {
-			const copy = window.confirm('Copy quote to clipboard?');
-			if (copy) console.log(`would copy: "${randomQuote.text}" ~ ${randomQuote.attribution}`);
-			else console.log('not copying');
-		});
-	}
+	Quote.addEventListener('click', () => {
+		if (window.confirm('Copy quote to clipboard?')) {
+			navigator.clipboard.writeText(`"${randomQuote.text}" ~ ${randomQuote.attribution}`);
+		}
+	});
 	
 	const ArticleText = PAGE.appendContent('#Article');
 	const markdown = new MD.Markdown(HomeText);

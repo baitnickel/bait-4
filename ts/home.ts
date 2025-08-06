@@ -26,7 +26,9 @@ export function render() {
 
 	Quote.addEventListener('click', () => {
 		if (window.confirm('Copy quote to clipboard?')) {
-			navigator.clipboard.writeText(`"${randomQuote.text}" ~ ${randomQuote.attribution}`);
+			let quote = `"${randomQuote.text}" ~ ${randomQuote.attribution}`;
+			if (randomQuote.note) quote += ` (${randomQuote.note})`;
+			navigator.clipboard.writeText(quote);
 		}
 	});
 	

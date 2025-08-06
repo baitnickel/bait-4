@@ -62,16 +62,10 @@ function getQuerySelection() {
 
 function createModalDialog(selection: Selection) {
 	const albumDropDown = new W.Select('Album: ');
-	albumDropDown.element.id = 'album';
 	albumDropDown.addOptions(Array.from(Albums.keys()), '--select--');
-
-	const shuffleCheckbox = new W.Checkbox(selection.shuffle, 'Shuffle Slides: ');
-	shuffleCheckbox.element.id = 'shuffleOption';
-
+	const shuffleCheckbox = new W.Checkbox('Shuffle Slides: ', selection.shuffle);
 	const outputTexts = ['<br>Manually', '<br>Every Second', '<br>Every %% Seconds'];
-	const intervalRange = new W.Range(selection.interval, 'Change Slides:<br>', 0,60,1, outputTexts);
-	intervalRange.element.id = 'intervalSelection';
-
+	const intervalRange = new W.Range('Change Slides:<br>', selection.interval, 0,60,1, outputTexts);
 	const cancelButton = new W.Button('Cancel', CancelEvent);
 	const confirmButton = new W.Button('Confirm', ConfirmEvent);
 

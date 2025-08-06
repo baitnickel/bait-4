@@ -2,10 +2,23 @@
  * The Widget superclass. The `exposedElement` property holds the subclass HTMLElement
  * which will be rendered; for some widgets, this may be the label that contains
  * the control element.
+ *
+ * All Widget elements are automatically assigned IDs here--the calling programs
+ * should not set element.id, and should only use class selectors in CSS.
  */
 export class Widget {
     constructor() {
         this.exposedElement = null;
+    }
+    /**
+     * For automatic element.id assignments, get and return the next ID number
+     * and increment the odometer.
+     */
+    nextID() {
+        const base = 'widget';
+        const suffix = Widget.odometer.toString();
+        Widget.odometer += 1;
+        return `${base}-${suffix}`;
     }
     /**
      * Wrap the label specified in `labelHTML` around the given `element` and
@@ -13,12 +26,14 @@ export class Widget {
      */
     label(element, labelHTML) {
         const labelElement = document.createElement('label');
+        labelElement.id = this.nextID();
         labelElement.htmlFor = element.id;
         labelElement.innerHTML = labelHTML;
         labelElement.append(element);
         return labelElement;
     }
 }
+Widget.odometer = 0;
 /**
  * Dialog box (modal or non-modal) with fieldset. The caller will open a Dialog
  * with "Dialog.open()" and close it with "Dialog.close()". Create Widgets using
@@ -29,17 +44,22 @@ export class Dialog extends Widget {
     constructor(legend, modal = true) {
         super();
         this.element = document.createElement('dialog');
+        this.element.id = this.nextID();
         this.modal = modal;
         this.fieldSet = document.createElement('fieldset');
+        this.fieldSet.id = this.nextID();
         this.legend = document.createElement('legend');
+        this.legend.id = this.nextID();
         this.legend.innerHTML = legend;
         this.fieldSet.append(this.legend);
         this.widgetList = document.createElement('ul');
+        this.widgetList.id = this.nextID();
     }
     /** add a single widget as a list item (li) */
     addWidget(widget) {
         if (widget.exposedElement) {
             const listItem = document.createElement('li');
+            listItem.id = this.nextID();
             listItem.append(widget.exposedElement);
             this.widgetList.append(listItem);
         }
@@ -47,6 +67,7 @@ export class Dialog extends Widget {
     /** add an array of widgets to a single list item (li) */
     addWidgets(widgets) {
         const listItem = document.createElement('li');
+        listItem.id = this.nextID();
         let widgetsAdded = 0;
         for (const widget of widgets) {
             if (widget.exposedElement) {
@@ -79,9 +100,10 @@ export class Dialog extends Widget {
  * Basic single-line text input widget. The `value` property will hold a string.
  */
 export class Text extends Widget {
-    constructor(value, labelHTML) {
+    constructor(labelHTML, value) {
         super();
         this.element = document.createElement('input');
+        this.element.id = this.nextID();
         this.value = value;
         this.element.value = value;
         this.labelElement = this.label(this.element, labelHTML);
@@ -98,6 +120,7 @@ export class Select extends Widget {
     constructor(labelHTML) {
         super();
         this.element = document.createElement('select');
+        this.element.id = this.nextID();
         this.value = '';
         this.labelElement = this.label(this.element, labelHTML);
         this.exposedElement = this.labelElement;
@@ -135,9 +158,10 @@ export class Select extends Widget {
  * Checkbox widget. The `value` property will hold a boolean.
  */
 export class Checkbox extends Widget {
-    constructor(checked, labelHTML) {
+    constructor(labelHTML, checked) {
         super();
         this.element = document.createElement('input');
+        this.element.id = this.nextID();
         this.element.type = 'checkbox';
         this.value = checked;
         this.element.checked = checked;
@@ -159,9 +183,10 @@ export class Checkbox extends Widget {
  * `this.outputWildcard`); the Range value will replace the wildcard.
  */
 export class Range extends Widget {
-    constructor(value, labelHTML, minimum, maximum, step, outputTexts) {
+    constructor(labelHTML, value, minimum, maximum, step, outputTexts) {
         super();
         this.element = document.createElement('input');
+        this.element.id = this.nextID();
         this.element.type = 'range';
         this.value = value;
         this.element.value = `${value}`;
@@ -173,6 +198,7 @@ export class Range extends Widget {
         this.outputTexts = outputTexts;
         this.exposedElement = this.labelElement;
         this.output = document.createElement('output');
+        this.output.id = this.nextID();
         this.output.innerHTML = `${this.outputText()}`;
         this.labelElement.append(this.output);
         this.element.addEventListener('input', () => {
@@ -200,6 +226,7 @@ export class Button extends Widget {
     constructor(labelHTML, event) {
         super();
         this.element = document.createElement('button');
+        this.element.id = this.nextID();
         this.element.innerHTML = labelHTML;
         this.event = event;
         this.exposedElement = this.element;

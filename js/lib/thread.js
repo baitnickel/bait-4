@@ -1,3 +1,14 @@
+/**
+ * Given an array of `MarkdownFile` objects, an array of `queryTags` (tags
+ * supplied in the search query), and a `wildcard` character (or character
+ * string), return an array of Passage objects. Passages may be global or
+ * restricted to a section--global passages are comprised of the entire text of
+ * a file when the queryTag appears in the file's metadata, whereas section
+ * passages are comprised of only those text lines that follow a line in the
+ * file text that contains only tags (including the queryTag), or a line in
+ * which the queryTag is embedded. When a `wildcard` is supplied, tags are
+ * selected if they start with the queryTag.
+ */
 export function getPassages(markdownFiles, queryTags, wildcard) {
     const passages = [];
     for (const markdownFile of markdownFiles) {
@@ -7,6 +18,13 @@ export function getPassages(markdownFiles, queryTags, wildcard) {
     }
     return passages;
 }
+/**
+ * Given a `file`, a `markdown` object, an array of `queryTags`, and an array of
+ * `passages`, add the entire text of the markdown file to the passages array if
+ * the file's metadata includes one or more of the queryTag search strings. One
+ * passage will be created for every search string match. Global passages are
+ * always assigned section number 0.
+ */
 export function globalPassages(file, markdown, queryTags, passages, wildcard) {
     let globalTagsMatched = false;
     const globalTags = markdown.tags();
@@ -17,10 +35,13 @@ export function globalPassages(file, markdown, queryTags, passages, wildcard) {
     return globalTagsMatched;
 }
 /**
- * Given a `file`, a `markdown` object, an array of `queryTags`, and an array
- * of `passages`, add the relevant text of the markdown file to the passages
- * array if the text includes one or more of the tag search strings. One passage
- * will be created for every search string match.
+ * Given a `file`, a `markdown` object, an array of `queryTags`, and an array of
+ * `passages`, add the section or line of text of the markdown file to the
+ * passages array if the section or line includes one or more of the tag search
+ * strings. One passage will be created for every search string match. Sections
+ * are separated by "horizontal rule" lines (e.g., "___") in the markdown text,
+ * and are numbered sequentially from 1 to N, where N is the number of sections
+ * in the file).
  */
 export function sectionPassages(file, markdown, queryTags, passages, wildcard) {
     let textLines = [];
@@ -62,8 +83,10 @@ export function sectionPassages(file, markdown, queryTags, passages, wildcard) {
     }
 }
 /**
- * Given an array of `queryTags` and an array of `hashTags`, return an array of
- * unique hashTags (without the hash) that satisfy the queryTags criteria.
+ * Given an array of `queryTags`, an array of `hashTags`, and a `wildcard`,
+ * return an array of unique hashTags (without the hash) that satisfy the
+ * queryTags criteria. When a wildcard is supplied, any tag that begins with a
+ * queryTag is selected as a match.
  */
 export function matchingTags(queryTags, hashTags, wildcard) {
     const matchingTags = new Set();
@@ -82,7 +105,7 @@ export function matchingTags(queryTags, hashTags, wildcard) {
 }
 /**
  * Given an array of `queryArguments` (hashtag names), return an array of unique
- * query tags.
+ * query tags (i.e., remove duplicate query tags).
  */
 export function getQueryTags(queryArguments, tagPrefix = '') {
     let tags = new Set();

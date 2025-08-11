@@ -2,16 +2,25 @@
 id: 55
 access: 0
 ---
+## Startup Scripts
+Zsh always executes `zshenv`. Then, depending on the case:
 
+- run as a login shell, it executes `~/.zprofile`
+- run as an interactive, it executes `~/.zshrc`
+- run as a login shell, it executes `~/.zlogin` *(not on my system)* 
+
+At the end of a login session, it executes zlogout, but in reverse order, the user-specific file first, then the system-wide one, constituting a chiasmus with the zlogin files.
+
+## Hidden Files, Env, Dot-Execution
 (In Finder and File > Open dialogs, show hidden files with `Shift-Command-.`)
 Define environment variables and aliases in `~/.zprofile`
 Run `. ~/.zprofile` to refresh the current shell's environment variables and aliases
 Define the terminal prompt in `~/.zshrc`
 
-#### IP Address
+## IP Address
 Find your current IP address using the command: `ipconfig getifaddr en0`. This will return the IP equivalent to `localhost` (e.g., 192.168.1.70), which can then be used from any device (on the same local network only?) as a URL: `http://192.168.1.70/bait-4/index.html`.
 
-#### Background vs Foreground Processes
+## Background vs Foreground Processes
 To execute a command in the background (e.g., `start-server`), there are two choices:
 
 ```
@@ -28,14 +37,14 @@ In the second option, the command starts in the foreground, `CTRL-Z` suspends it
 
 Re scheduling jobs to run at system startup, see: [launchd](https://en.wikipedia.org/wiki/Launchd) and [How to Use launchd](https://www.maketecheasier.com/use-launchd-run-scripts-on-schedule-macos/)
 
-#### inodes
+## inodes
 The theoretical maximum inode number is 2^32, allowing for 4,294,967,295 files in a single file system (disk, disk partition). The `df` command reports statistics on each connected disk volume, including disk/partition capacity and use, and inodes free and used. Use the `-h` option (`df -h`) to get more compact and readable output.
 
 `ls -i foo.txt` reports the inode assigned to the file `foo.txt` (or all files in the directory, including subdirectory files when executed as: `ls -i *`). `ls -id bar` reports the inode assigned to the directory `bar`.
 
 Hard links (`ln foo.txt bar.txt`) create files with the same inode (allowed only when creating an additional file on the same file system). `ls -s foo.txt bar.txt` creates a symbolic (soft) link, each file having its own inode (possibly on different file systems). In a symbolic link, the redirections between two files are maintained in disk block "files".
 
-#### Zsh vs Bash
+## Zsh vs Bash
 
 From: https://apple.stackexchange.com/questions/361870/what-are-the-practical-differences-between-bash-and-zsh
 

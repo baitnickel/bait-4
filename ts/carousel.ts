@@ -1,4 +1,5 @@
 import { Page } from './lib/page.js';
+import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
 
@@ -24,8 +25,7 @@ if (!PAGE.backendAvailable) {
 	window.history.back();
 }
 
-type MediaImageData = { album: string; filePaths: string[]; }
-const MediaImages = await Fetch.api<MediaImageData[]>(`${PAGE.backend}/media/images`);
+const MediaImages = await Fetch.api<T.MediaImageData[]>(`${PAGE.backend}/media/images`);
 const Albums = mediaImagesMap(MediaImages);
 
 type Selection = { album: string, shuffle: boolean, interval: number };
@@ -228,7 +228,7 @@ function smugURI(id: string, size = 'O', type = 'jpg') {
 	return uri;
 }
 
-function mediaImagesMap(mediaImages: MediaImageData[]|null) {
+function mediaImagesMap(mediaImages: T.MediaImageData[]|null) {
 	const imagesMap = new Map<string, string[]>();
 	if (mediaImages !== null) {
 		for (const mediaImage of mediaImages) {

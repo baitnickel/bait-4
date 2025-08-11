@@ -1,7 +1,7 @@
 import { Page } from './lib/page.js';
 import { Markup } from './lib/markup.js';
 import * as Fetch from './lib/fetch.js';
-import * as Thread from './lib/thread.js';
+import * as T from './lib/types.js';
 
 const PAGE = new Page();
 if (!PAGE.backendAvailable) {
@@ -28,7 +28,7 @@ function getPassages(queryDivision: HTMLDivElement, outputDivision: HTMLDivEleme
 		if (response !== null && response.trim()) {
 			queryString = response.trim();
 			const query = parseQueryString(queryString);
-			Fetch.api<Thread.Passage[]>(`${PAGE.backend}/threads`, query).then((passages) => {
+			Fetch.api<T.ThreadPassage[]>(`${PAGE.backend}/threads`, query).then((passages) => {
 				displayPassages(passages, outputDivision);
 			});
 		}
@@ -36,7 +36,7 @@ function getPassages(queryDivision: HTMLDivElement, outputDivision: HTMLDivEleme
 }
 
 function parseQueryString(queryString: string) {
-	let query: Thread.QueryOptions;
+	let query: T.ThreadQuery;
 	const components = queryString.split(/\s+/);
 	const root = components.shift()!;
 	let prefix = '';
@@ -52,7 +52,7 @@ function parseQueryString(queryString: string) {
 	return query;
 }
 
-function displayPassages(passages: Thread.Passage[]|null, division: HTMLDivElement) {
+function displayPassages(passages: T.ThreadPassage[]|null, division: HTMLDivElement) {
 	const lines: string[] = [];
 	division.innerHTML = '';
 	if (!passages) lines.push('No threads found');
@@ -73,8 +73,8 @@ function displayPassages(passages: Thread.Passage[]|null, division: HTMLDivEleme
 	division.innerHTML = markup;
 }
 
-function sortPassages(passages: Thread.Passage[]) {
-	passages.sort((a: Thread.Passage, b: Thread.Passage) => {
+function sortPassages(passages: T.ThreadPassage[]) {
+	passages.sort((a: T.ThreadPassage, b: T.ThreadPassage) => {
 		let result = 0;
 		result = a.tag.localeCompare(b.tag);
 		if (!result && a.file !== null && b.file !== null) {

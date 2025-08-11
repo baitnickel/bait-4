@@ -467,3 +467,20 @@ export type Annotation = {
 	id: number|null;
 	note: string;
 }
+
+export type MediaImageData = {
+	album: string;
+	filePaths: string[];
+}
+
+export type ThreadPassage = {
+	file: File|null;
+	section: number;
+	tag: string;
+	text: string;
+}
+
+export type ThreadQuery = {
+	root: string;
+	tags: string[];
+}

@@ -394,6 +394,12 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	color: #a76f6f;
 }
 
+/* Threads ====================================================================== */
+
+.threads-dialog > ul {
+	list-style: none;
+}
+
 /* Carousel ====================================================================== */
 
 .carousel {

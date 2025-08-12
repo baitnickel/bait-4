@@ -1,35 +1,40 @@
 import { Page } from './lib/page.js';
 import { Markup } from './lib/markup.js';
 import * as Fetch from './lib/fetch.js';
+import * as W from './lib/widgets.js';
+const Confirm = 'bait:confirm';
+const ConfirmEvent = new Event(Confirm);
+const Cancel = 'bait:cancel';
+const CancelEvent = new Event(Cancel);
 const PAGE = new Page();
 if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
     window.history.back();
 }
+const QueryElement = document.createElement('div');
+const OutputElement = document.createElement('div');
 export function render() {
-    const query = document.createElement('div');
-    const output = document.createElement('div');
-    PAGE.content.append(query);
-    PAGE.content.append(output);
-    getPassages(query, output);
+    PAGE.content.append(QueryElement);
+    PAGE.content.append(OutputElement);
+    const modal = createModalDialog('', '');
+    addQueryButton(modal);
 }
-function getPassages(queryDivision, outputDivision) {
+function addQueryButton(modal) {
     const queryButton = document.createElement('button');
     queryButton.innerText = 'Enter Query';
-    queryDivision.append(queryButton);
-    let queryString = '';
+    QueryElement.append(queryButton);
     queryButton.addEventListener('click', (e) => {
-        const response = window.prompt('Enter root, (prefix-), tags...', queryString);
-        if (response !== null && response.trim()) {
-            queryString = response.trim();
-            const query = parseQueryString(queryString);
-            Fetch.api(`${PAGE.backend}/threads`, query).then((passages) => {
-                displayPassages(passages, outputDivision);
-            });
-        }
+        modal.open();
+    });
+}
+function getPassages(queryString) {
+    const query = parseQueryString(queryString);
+    Fetch.api(`${PAGE.backend}/threads`, query).then((passages) => {
+        displayPassages(passages, OutputElement);
     });
 }
 function parseQueryString(queryString) {
+    queryString = queryString.trim();
     let query;
     const components = queryString.split(/\s+/);
     const root = components.shift();
@@ -90,4 +95,32 @@ function sortPassages(passages) {
             result = a.section - b.section;
         return result;
     });
+}
+function createModalDialog(rootPath, tags, tagPrefix = '') {
+    const rootValues = ['.', 'Content', 'Content/chapters', 'Content/drafts', 'Content/technical', 'Content/test-docs', 'notebook'];
+    const rootDropDown = new W.Select('Root Path: ');
+    rootDropDown.addOptions(rootValues, '--select--');
+    const tagPrefixText = new W.Text('Optional Tag Prefix: ', tagPrefix);
+    const tagsText = new W.Text('Space-Separated Tags: ', tags);
+    const cancelButton = new W.Button('Cancel', CancelEvent);
+    const confirmButton = new W.Button('Confirm', ConfirmEvent);
+    const modal = new W.Dialog('Query Options');
+    modal.element.className = 'threads-dialog';
+    modal.addWidget(rootDropDown);
+    modal.addWidget(tagPrefixText);
+    modal.addWidget(tagsText);
+    modal.addWidgets([cancelButton, confirmButton]);
+    modal.layout(document.body);
+    document.addEventListener(Cancel, () => {
+        modal.close();
+    });
+    document.addEventListener(Confirm, () => {
+        modal.close();
+        let queryString = rootDropDown.value;
+        if (tagPrefixText.value)
+            queryString += ` ${tagPrefixText.value}-`;
+        queryString += ` ${tagsText.value}`;
+        getPassages(queryString);
+    });
+    return modal;
 }

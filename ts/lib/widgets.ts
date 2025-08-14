@@ -93,7 +93,7 @@ export class Dialog extends Widget {
 	}
 
 	/** complete dialog element and append to container element */
-	layout(container: HTMLElement) {
+	finish(container: HTMLElement) {
 		this.fieldSet.append(this.widgetList);
 		this.element.append(this.fieldSet);
 		container.append(this.element);

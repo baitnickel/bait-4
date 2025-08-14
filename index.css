@@ -396,8 +396,14 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 
 /* Threads ====================================================================== */
 
-.threads-dialog > ul {
-	list-style: none;
+dialog.threads-dialog > fieldset > ul > li {
+	list-style-type: none;
+	margin: 0 3rem 1rem 1rem;
+}
+
+dialog.threads-dialog > fieldset > ul > li > button {
+	font-size: .75rem;
+	margin: 1rem .5rem 0 .5rem;
 }
 
 /* Carousel ====================================================================== */

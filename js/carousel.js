@@ -67,7 +67,7 @@ function createModalDialog(selection) {
     modal.addWidget(shuffleCheckbox);
     modal.addWidget(intervalRange);
     modal.addWidgets([cancelButton, confirmButton]);
-    modal.layout(document.body);
+    modal.finish(document.body);
     document.addEventListener(Cancel, () => {
         modal.close();
         window.history.back();

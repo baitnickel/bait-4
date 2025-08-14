@@ -16,7 +16,7 @@ const OutputElement = document.createElement('div');
 export function render() {
     PAGE.content.append(QueryElement);
     PAGE.content.append(OutputElement);
-    const modal = createModalDialog('', '');
+    const modal = createModalDialog();
     addQueryButton(modal);
 }
 function addQueryButton(modal) {
@@ -53,7 +53,7 @@ function parseQueryString(queryString) {
 function displayPassages(passages, division) {
     const lines = [];
     division.innerHTML = '';
-    if (!passages)
+    if (!passages || !passages.length)
         lines.push('No threads found');
     else {
         sortPassages(passages);
@@ -96,7 +96,7 @@ function sortPassages(passages) {
         return result;
     });
 }
-function createModalDialog(rootPath, tags, tagPrefix = '') {
+function createModalDialog(rootPath = '', tags = '', tagPrefix = '') {
     const rootValues = ['.', 'Content', 'Content/chapters', 'Content/drafts', 'Content/technical', 'Content/test-docs', 'notebook'];
     const rootDropDown = new W.Select('Root Path: ');
     rootDropDown.addOptions(rootValues, '--select--');
@@ -110,7 +110,7 @@ function createModalDialog(rootPath, tags, tagPrefix = '') {
     modal.addWidget(tagPrefixText);
     modal.addWidget(tagsText);
     modal.addWidgets([cancelButton, confirmButton]);
-    modal.layout(document.body);
+    modal.finish(document.body);
     document.addEventListener(Cancel, () => {
         modal.close();
     });

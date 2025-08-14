@@ -81,7 +81,7 @@ export class Dialog extends Widget {
             listItem.remove();
     }
     /** complete dialog element and append to container element */
-    layout(container) {
+    finish(container) {
         this.fieldSet.append(this.widgetList);
         this.element.append(this.fieldSet);
         container.append(this.element);

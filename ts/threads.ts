@@ -21,7 +21,7 @@ const OutputElement = document.createElement('div');
 export function render() {
 	PAGE.content.append(QueryElement);
 	PAGE.content.append(OutputElement);
-	const modal = createModalDialog('', '');
+	const modal = createModalDialog();
 	addQueryButton(modal);
 }
 
@@ -63,7 +63,7 @@ function parseQueryString(queryString: string) {
 function displayPassages(passages: T.ThreadPassage[]|null, division: HTMLDivElement) {
 	const lines: string[] = [];
 	division.innerHTML = '';
-	if (!passages) lines.push('No threads found');
+	if (!passages || !passages.length) lines.push('No threads found');
 	else {
 		sortPassages(passages);
 		let priorTag = '';
@@ -107,7 +107,7 @@ function sortPassages(passages: T.ThreadPassage[]) {
 	});
 }
 
-function createModalDialog(rootPath: string, tags: string, tagPrefix = '') {
+function createModalDialog(rootPath = '', tags = '', tagPrefix = '') {
 	const rootValues = ['.', 'Content','Content/chapters','Content/drafts','Content/technical','Content/test-docs', 'notebook'];
 	const rootDropDown = new W.Select('Root Path: ');
 	rootDropDown.addOptions(rootValues, '--select--');
@@ -122,7 +122,7 @@ function createModalDialog(rootPath: string, tags: string, tagPrefix = '') {
 	modal.addWidget(tagPrefixText);
 	modal.addWidget(tagsText);
 	modal.addWidgets([cancelButton, confirmButton]);
-	modal.layout(document.body);
+	modal.finish(document.body);
 
 	document.addEventListener(Cancel, () => {
 		modal.close();

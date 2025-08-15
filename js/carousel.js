@@ -27,6 +27,8 @@ const Cancel = 'bait:cancel';
 const CancelEvent = new Event(Cancel);
 const ExitCarousel = 'bait:exit-carousel';
 const ExitCarouselEvent = new Event(ExitCarousel);
+const Flag = 'bait:flag';
+const FlagEvent = new Event(Flag);
 const Carousel = document.createElement('div');
 document.body.append(Carousel);
 Carousel.className = 'carousel';
@@ -99,6 +101,7 @@ function runCarousel(selection, modal) {
         slide.append(imageElement);
         // await image.decode(); /** wait till the image is ready to use */
         addExitButton(Carousel);
+        addFlagButton(Carousel);
         let intervalID = 0;
         if (selection.interval) {
             const changeImageFunction = () => imageElement.src = imageSet.nextImage();
@@ -113,6 +116,18 @@ function runCarousel(selection, modal) {
                 });
             });
         }
+        document.addEventListener(Flag, () => {
+            const logEntry = `Flagged Image: ${imageSet.images[imageSet.index]}`;
+            console.log(logEntry);
+            // const logEntry: LogEntry = { entry: `Flagged Image: ${imageSet.images[imageSet.index]}` };
+            // Fetch.api<string>(`${PAGE.backend}/logpost`, logEntry).then((response) => { console.log(response)});
+            // fetch(`${PAGE.backend}/log`, {
+            // 	method: 'POST',
+            // 	body: logEntry,
+            // 	headers: { 'Content-type': 'text/plain; charset=utf-8' },
+            // })
+            // .then((response) => console.log(response));
+        });
         /**
          * Stop the Interval loop (if any) and clear the carousel div. Show the
          * modal dialog for new selection or cancellation.
@@ -137,6 +152,15 @@ function addExitButton(parent) {
     parent.append(returnButton);
     returnButton.addEventListener('click', () => {
         document.dispatchEvent(ExitCarouselEvent);
+    });
+}
+function addFlagButton(parent) {
+    const flagButton = document.createElement('button');
+    flagButton.className = 'carousel-button flag';
+    flagButton.innerHTML = '\u2690';
+    parent.append(flagButton);
+    flagButton.addEventListener('click', () => {
+        document.dispatchEvent(FlagEvent);
     });
 }
 function navigationButton(parent, direction, character) {

@@ -29,6 +29,8 @@ const MediaImages = await Fetch.api<T.MediaImageData[]>(`${PAGE.backend}/media/i
 const Albums = mediaImagesMap(MediaImages);
 
 type Selection = { album: string, shuffle: boolean, interval: number };
+type LogEntry = { entry: string };
+
 
 const Confirm = 'bait:confirm';
 const ConfirmEvent = new Event(Confirm);
@@ -36,6 +38,8 @@ const Cancel = 'bait:cancel';
 const CancelEvent = new Event(Cancel);
 const ExitCarousel = 'bait:exit-carousel';
 const ExitCarouselEvent = new Event(ExitCarousel);
+const Flag = 'bait:flag';
+const FlagEvent = new Event(Flag);
 
 const Carousel = document.createElement('div');
 document.body.append(Carousel);
@@ -110,6 +114,7 @@ function runCarousel(selection: Selection, modal: W.Dialog) {
 		slide.append(imageElement);
 		// await image.decode(); /** wait till the image is ready to use */
 		addExitButton(Carousel);
+		addFlagButton(Carousel);
 		let intervalID = 0;
 		if (selection.interval) {
 			const changeImageFunction = () => imageElement.src = imageSet.nextImage();
@@ -124,6 +129,21 @@ function runCarousel(selection: Selection, modal: W.Dialog) {
 				});
 			});
 		}
+
+		document.addEventListener(Flag, () => {
+			const logEntry = `Flagged Image: ${imageSet.images[imageSet.index]}`;
+			console.log(logEntry);
+
+			// const logEntry: LogEntry = { entry: `Flagged Image: ${imageSet.images[imageSet.index]}` };
+			// Fetch.api<string>(`${PAGE.backend}/logpost`, logEntry).then((response) => { console.log(response)});
+
+			// fetch(`${PAGE.backend}/log`, {
+			// 	method: 'POST',
+			// 	body: logEntry,
+			// 	headers: { 'Content-type': 'text/plain; charset=utf-8' },
+			// })
+			// .then((response) => console.log(response));
+		});
 		
 		/**
 		 * Stop the Interval loop (if any) and clear the carousel div. Show the
@@ -150,6 +170,16 @@ function addExitButton(parent: HTMLElement) {
 	parent.append(returnButton);
 	returnButton.addEventListener('click', () => {
 		document.dispatchEvent(ExitCarouselEvent);
+	});
+}
+
+function addFlagButton(parent: HTMLElement) {
+	const flagButton = document.createElement('button');
+	flagButton.className = 'carousel-button flag';
+	flagButton.innerHTML = '\u2690';
+	parent.append(flagButton);
+	flagButton.addEventListener('click', () => {
+		document.dispatchEvent(FlagEvent);
 	});
 }
 

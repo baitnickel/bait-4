@@ -483,6 +483,11 @@ dialog.threads-dialog > fieldset > ul > li > button {
 	right: 1rem;
 }
 
+.carousel-button.flag {
+	bottom: 3%;
+	right: 1rem;
+}
+
 dialog.carousel-dialog > fieldset > ul > li {
 	list-style-type: none;
 	margin: 0 3rem 1rem 1rem;

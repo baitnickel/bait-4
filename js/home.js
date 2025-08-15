@@ -3,7 +3,7 @@ import * as Fetch from './lib/fetch.js';
 import * as Datasets from './lib/datasets.js';
 import * as MD from './lib/md.js';
 import { Markup } from './lib/markup.js';
-import * as Widgets from './lib/widgets.js';
+import * as W from './lib/widgets.js';
 const PAGE = new Page();
 const IndicesPath = `${PAGE.site}/Indices`;
 const Articles = await Fetch.map(`${IndicesPath}/articles.json`);
@@ -47,6 +47,8 @@ export function render() {
     /** Test logic via URL queries, e.g.: ?page=home&tests=dialog,cookies */
     if (PAGE.local) {
         console.log(`Site: ${PAGE.site}`);
+        // gridTest();
+        testModal();
         // type tester = () => void;
         // const validTests = new Map<string, tester>();
         // validTests.set('markdown', testMarkdown);
@@ -244,7 +246,7 @@ function testRadio() {
     const division = PAGE.appendContent();
     const anotherDivision = PAGE.appendContent();
     const event = new Event('change-camper');
-    const radioButtons = new Widgets.RadioButtons('radio-button', 'active', event);
+    const radioButtons = new W.RadioButtons('radio-button', 'active', event);
     radioButtons.addButton('Purchasers');
     radioButtons.addButton('Occupants');
     radioButtons.addButton('None');
@@ -411,4 +413,57 @@ async function getMarkdownFiles(rootPath, fetchOutput) {
 }
 function postForm(form, backend = 'http://localhost:3000') {
     console.log(`posted`);
+}
+function gridTest() {
+    const container = document.createElement('div');
+    container.className = 'grid-container';
+    for (let i = 1; i <= 8; i += 1) {
+        const item = document.createElement('div');
+        item.className = 'grid-cell';
+        let value = `Item Number ${i}`;
+        if (i % 2 == 0)
+            value += '<br>as Specified in the code';
+        item.innerHTML = value;
+        container.append(item);
+    }
+    PAGE.content.append(container);
+}
+function testModal() {
+    const modal = createModalDialog();
+    const modalButton = document.createElement('button');
+    modalButton.innerText = 'Test Modal';
+    PAGE.content.append(modalButton);
+    modalButton.addEventListener('click', (e) => { modal.open(); });
+}
+function createModalDialog(rootPath = '', tags = '', tagPrefix = '') {
+    const cancelEvent = 'bait:cancel';
+    const confirmEvent = 'bait:confirm';
+    /** @todo
+     * - Select, Text, etc. should take optional last argument: Dialog object to be added to.
+     * - Buttons are properties of Dialog and should default to Cancel/Confirm
+     *   unless overridden by Dialog method.
+     * - It should not be necessary to define button events--they are Dialog
+     *   properties/methods.
+     */
+    const rootDropDown = new W.Select2('Root Path', ['First', 'Second', 'Third*', 'Fourth*']);
+    const tagPrefixText = new W.Text2('Optional Tag Prefix', tagPrefix);
+    const tagsText = new W.Text2('Space-Separated Tags', tags);
+    const cancelButton = new W.Button2('Cancel', cancelEvent);
+    const confirmButton = new W.Button2('Confirm', confirmEvent);
+    const modal = new W.Dialog2('Query Options');
+    modal.element.className = 'threads-dialog';
+    modal.addWidget(rootDropDown);
+    modal.addWidget(tagPrefixText);
+    modal.addWidget(tagsText);
+    modal.addWidgets([cancelButton, confirmButton]);
+    modal.finish(document.body);
+    document.addEventListener(cancelEvent, () => {
+        modal.close();
+        console.log(`Canceling`);
+    });
+    document.addEventListener(confirmEvent, () => {
+        modal.close();
+        console.log(`Confirming`);
+    });
+    return modal;
 }

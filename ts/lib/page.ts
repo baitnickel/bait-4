@@ -133,7 +133,17 @@ export class Page {
 		if (footer) this.displayFooter();
 	}
 
-	/**
+	/** 
+	 * @todo
+	 * Both displayHeader and displayFooter should probably being using a
+	 * Flexbox approach, e.g. for menu bar:
+	 * - .flex .nav-list {
+	 * -   display: flex;
+	 * -   gap: 1em;
+	 * - }
+	 */
+
+	/** 
 	 * Retrieve cookies, if any, and display special menus (append them to
 	 * the MenuItems array) when cookies associated with special privileges
 	 * are present.

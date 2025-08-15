@@ -135,7 +135,7 @@ function runCarousel(selection: Selection, modal: W.Dialog) {
 			console.log(logEntry);
 
 			// const logEntry: LogEntry = { entry: `Flagged Image: ${imageSet.images[imageSet.index]}` };
-			// Fetch.api<string>(`${PAGE.backend}/logpost`, logEntry).then((response) => { console.log(response)});
+			Fetch.api<string>(`${PAGE.backend}/log/`, { entry: logEntry }).then((response) => { console.log(response)});
 
 			// fetch(`${PAGE.backend}/log`, {
 			// 	method: 'POST',

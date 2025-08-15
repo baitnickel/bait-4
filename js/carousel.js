@@ -120,7 +120,7 @@ function runCarousel(selection, modal) {
             const logEntry = `Flagged Image: ${imageSet.images[imageSet.index]}`;
             console.log(logEntry);
             // const logEntry: LogEntry = { entry: `Flagged Image: ${imageSet.images[imageSet.index]}` };
-            // Fetch.api<string>(`${PAGE.backend}/logpost`, logEntry).then((response) => { console.log(response)});
+            Fetch.api(`${PAGE.backend}/log/`, { entry: logEntry }).then((response) => { console.log(response); });
             // fetch(`${PAGE.backend}/log`, {
             // 	method: 'POST',
             // 	body: logEntry,

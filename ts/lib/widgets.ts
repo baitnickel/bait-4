@@ -15,12 +15,20 @@
  * 
  * Note - "1fr" indicates 1 fractional unit in grid
  */
+
+// type DialogButton = {
+// 	name: string;
+// 	event: string;
+// }
+
 export class Widget {
 	static odometer = 0;
 	exposedElement: HTMLElement|null;
+	labelHTML: string;
 
-	constructor() {
+	constructor(labelHTML: string) {
 		this.exposedElement = null;
+		this.labelHTML = labelHTML;
 	}
 
 	/**
@@ -62,9 +70,11 @@ export class Dialog2 extends Widget {
 	fieldSet: HTMLFieldSetElement;
 	legend: HTMLLegendElement;
 	widgetList: HTMLUListElement;
+	components: Widget[];
+	// buttons: DialogButton[];
 
-	constructor(legend: string, modal = true) {
-		super();
+	constructor(legend: string, buttons: string[] = ['Cancel','Confirm'], modal = true) {
+		super(legend);
 		this.element = document.createElement('dialog');
 		this.element.id = this.nextID();
 		this.modal = modal;
@@ -76,6 +86,34 @@ export class Dialog2 extends Widget {
 		this.fieldSet.append(this.legend);
 		this.widgetList = document.createElement('ul');
 		this.widgetList.id = this.nextID();
+		this.components = [];
+		// this.buttons = [];
+		for (const button of buttons) {
+			// this.buttons.push({name: button, event: `bait:dialog:${button}`});
+			/**
+			 * actually, create button Widgets and add an array of them to the
+			 * Dialog object, assigning the event name as above. Then, do as
+			 * we've done using addWidgets to append them to the Dialog
+			 * FieldSet. I think we still need a method to retrieve button event
+			 * names from the Button widgets.
+			 */
+		}
+	}
+
+	// buttonEvent(buttonName: string) {
+	// 	let event = '';
+	// 	for (const button of this.buttons) {
+	// 		if (button.name == buttonName) {
+	// 			event = button.event;
+	// 			break;
+	// 		}
+	// 	}
+	// 	return event;
+	// }
+
+	/** add component element */
+	addComponent(widget: Widget) {
+		this.components.push(widget);
 	}
 
 	/** add a single widget as a list item (li) */
@@ -103,6 +141,13 @@ export class Dialog2 extends Widget {
 		else listItem.remove();
 	}
 
+	// /** complete dialog element and append to container element */
+	// build(container: HTMLElement) {
+	// 	for (const component of this.components)
+	// 		this.fieldSet.append(component.exposedElement);
+
+	// }
+
 	/** complete dialog element and append to container element */
 	finish(container: HTMLElement) {
 		this.fieldSet.append(this.widgetList);
@@ -128,14 +173,15 @@ export class Text2 extends Widget {
 	value: string;
 	labelElement: HTMLLabelElement;
 
-	constructor(labelHTML: string, value: string) {
-		super();
+	constructor(labelHTML: string, value: string, dialog: Dialog2|null = null) {
+		super(labelHTML);
 		this.element = document.createElement('input');
 		this.element.id = this.nextID();
 		this.value = value;
 		this.element.value = value;
 		this.labelElement = this.label(this.element, labelHTML);
 		this.exposedElement = this.labelElement;
+		if (dialog) dialog.addWidget(this);
 
 		this.element.addEventListener('change', () => {
 			this.value = this.element.value;
@@ -151,14 +197,15 @@ export class Select2 extends Widget {
 	value: string;
 	labelElement: HTMLLabelElement;
 
-	constructor(labelHTML: string, options: string[]) {
-		super();
+	constructor(labelHTML: string, options: string[], dialog: Dialog2|null = null) {
+		super(labelHTML);
 		this.element = document.createElement('select');
 		this.element.id = this.nextID();
 		this.value = '';
 		this.labelElement = this.label(this.element, labelHTML);
 		this.exposedElement = this.labelElement;
 		this.addOptions(options);
+		if (dialog) dialog.addWidget(this);
 
 		this.element.addEventListener('change', (e) => {
 			const element = e.target as HTMLSelectElement; /** TypeScript requires cast */
@@ -227,8 +274,8 @@ export class Checkbox2 extends Widget {
 	value: boolean;
 	labelElement: HTMLLabelElement;
 
-	constructor(labelHTML: string, checked: boolean) {
-		super();
+	constructor(labelHTML: string, checked: boolean, dialog: Dialog2|null = null) {
+		super(labelHTML);
 		this.element = document.createElement('input');
 		this.element.id = this.nextID();
 		this.element.type = 'checkbox';
@@ -236,6 +283,7 @@ export class Checkbox2 extends Widget {
 		this.element.checked = checked;
 		this.labelElement = this.label(this.element, labelHTML);
 		this.exposedElement = this.labelElement;
+		if (dialog) dialog.addWidget(this);
 
 		this.element.addEventListener('change', () => {
 			this.value = this.element.checked;
@@ -261,8 +309,16 @@ export class Range2 extends Widget {
 	outputWildcard: string;
 	outputTexts: string[];
 
-	constructor(labelHTML: string, value: number, minimum: number, maximum: number, step: number, outputTexts: string[]) {
-		super();
+	constructor(
+		labelHTML: string,
+		value: number,
+		minimum: number,
+		maximum: number,
+		step: number,
+		outputTexts: string[],
+		dialog: Dialog2|null = null
+	) {
+		super(labelHTML);
 		this.element = document.createElement('input');
 		this.element.id = this.nextID();
 		this.element.type = 'range';
@@ -280,6 +336,7 @@ export class Range2 extends Widget {
 		this.output.id = this.nextID();
 		this.output.innerHTML = `${this.outputText()}`;
 		this.labelElement.append(this.output);
+		if (dialog) dialog.addWidget(this);
 
 		this.element.addEventListener('input', () => {
 			this.value = Number(this.element.value);
@@ -305,13 +362,14 @@ export class Button2 extends Widget {
 	element: HTMLButtonElement;
 	event: Event;
 
-	constructor(labelHTML: string, eventType: string) {
-		super();
+	constructor(labelHTML: string, eventType: string, dialog: Dialog2|null = null) {
+		super(labelHTML);
 		this.element = document.createElement('button');
 		this.element.id = this.nextID();
 		this.element.innerHTML = labelHTML;
 		this.event = new Event(eventType);
 		this.exposedElement = this.element;
+		if (dialog) dialog.addWidget(this);
 		
 		this.element.addEventListener('click', () => {
 			document.dispatchEvent(this.event);
@@ -334,7 +392,7 @@ export class Dialog extends Widget {
 	widgetList: HTMLUListElement;
 
 	constructor(legend: string, modal = true) {
-		super();
+		super(legend);
 		this.element = document.createElement('dialog');
 		this.element.id = this.nextID();
 		this.modal = modal;
@@ -399,7 +457,7 @@ export class Text extends Widget {
 	labelElement: HTMLLabelElement;
 
 	constructor(labelHTML: string, value: string) {
-		super();
+		super(labelHTML);
 		this.element = document.createElement('input');
 		this.element.id = this.nextID();
 		this.value = value;
@@ -422,7 +480,7 @@ export class Select extends Widget {
 	labelElement: HTMLLabelElement;
 
 	constructor(labelHTML: string) {
-		super();
+		super(labelHTML);
 		this.element = document.createElement('select');
 		this.element.id = this.nextID();
 		this.value = '';
@@ -468,7 +526,7 @@ export class Checkbox extends Widget {
 	labelElement: HTMLLabelElement;
 
 	constructor(labelHTML: string, checked: boolean) {
-		super();
+		super(labelHTML);
 		this.element = document.createElement('input');
 		this.element.id = this.nextID();
 		this.element.type = 'checkbox';
@@ -502,7 +560,7 @@ export class Range extends Widget {
 	outputTexts: string[];
 
 	constructor(labelHTML: string, value: number, minimum: number, maximum: number, step: number, outputTexts: string[]) {
-		super();
+		super(labelHTML);
 		this.element = document.createElement('input');
 		this.element.id = this.nextID();
 		this.element.type = 'range';
@@ -546,7 +604,7 @@ export class Button extends Widget {
 	event: Event;
 
 	constructor(labelHTML: string, event: Event) {
-		super();
+		super(labelHTML);
 		this.element = document.createElement('button');
 		this.element.id = this.nextID();
 		this.element.innerHTML = labelHTML;

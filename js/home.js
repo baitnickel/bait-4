@@ -436,26 +436,31 @@ function testModal() {
     modalButton.addEventListener('click', (e) => { modal.open(); });
 }
 function createModalDialog(rootPath = '', tags = '', tagPrefix = '') {
-    const cancelEvent = 'bait:cancel';
-    const confirmEvent = 'bait:confirm';
     /** @todo
      * - Select, Text, etc. should take optional last argument: Dialog object to be added to.
      * - Buttons are properties of Dialog and should default to Cancel/Confirm
      *   unless overridden by Dialog method.
      * - It should not be necessary to define button events--they are Dialog
      *   properties/methods.
-     */
-    const rootDropDown = new W.Select2('Root Path', ['First', 'Second', 'Third*', 'Fourth*']);
-    const tagPrefixText = new W.Text2('Optional Tag Prefix', tagPrefix);
-    const tagsText = new W.Text2('Space-Separated Tags', tags);
-    const cancelButton = new W.Button2('Cancel', cancelEvent);
-    const confirmButton = new W.Button2('Confirm', confirmEvent);
-    const modal = new W.Dialog2('Query Options');
+    */
+    const cancelEvent = 'bait:cancel';
+    const confirmEvent = 'bait:confirm';
+    const modal = new W.Dialog2('Test Dialog');
     modal.element.className = 'threads-dialog';
-    modal.addWidget(rootDropDown);
-    modal.addWidget(tagPrefixText);
-    modal.addWidget(tagsText);
-    modal.addWidgets([cancelButton, confirmButton]);
+    const rootDropDown = new W.Select2('Root Path', ['First', 'Second', 'Third*', 'Fourth*'], modal);
+    const tagPrefixText = new W.Text2('Optional Tag Prefix', tagPrefix, modal);
+    const tagsText = new W.Text2('Space-Separated Tags', tags, modal);
+    /**
+     * modal.addButtons(['Cancel', 'Confirm']) (or add in constructor)
+     * (creates buttons array in modal object, assigning Event names)
+     * (modal.event('Cancel') retrieves Event name for addEventListener)
+     */
+    const cancelButton = new W.Button2('Cancel', cancelEvent, modal);
+    const confirmButton = new W.Button2('Confirm', confirmEvent, modal);
+    // modal.addWidget(rootDropDown);
+    // modal.addWidget(tagPrefixText);
+    // modal.addWidget(tagsText);
+    // modal.addWidgets([cancelButton, confirmButton]);
     modal.finish(document.body);
     document.addEventListener(cancelEvent, () => {
         modal.close();

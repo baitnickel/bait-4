@@ -29,9 +29,6 @@ const ExitCarousel = 'bait:exit-carousel';
 const ExitCarouselEvent = new Event(ExitCarousel);
 const Flag = 'bait:flag';
 const FlagEvent = new Event(Flag);
-const Carousel = document.createElement('div');
-document.body.append(Carousel);
-Carousel.className = 'carousel';
 export function render() {
     const selection = getQuerySelection();
     const modal = createModalDialog(selection);
@@ -91,24 +88,27 @@ function runCarousel(selection, modal) {
     }
     else {
         const imageSet = new ImageSet(images, selection.shuffle);
-        Carousel.dataset.carousel = '';
+        const carousel = document.createElement('div');
+        document.body.append(carousel);
+        carousel.className = 'carousel';
+        carousel.dataset.carousel = '';
         const slide = document.createElement('div');
         slide.className = 'slide';
-        Carousel.append(slide);
+        carousel.append(slide);
         slide.dataset.active = '';
         const imageElement = document.createElement('img');
         imageElement.src = imageSet.images[imageSet.index];
         slide.append(imageElement);
         // await image.decode(); /** wait till the image is ready to use */
-        addExitButton(Carousel);
-        addFlagButton(Carousel);
+        const flagButton = addFlagButton(carousel);
+        const exitButton = addExitButton(carousel);
         let intervalID = 0;
         if (selection.interval) {
             const changeImageFunction = () => imageElement.src = imageSet.nextImage();
-            intervalID = setInterval(changeImageFunction, selection.interval * 1000, Carousel);
+            intervalID = setInterval(changeImageFunction, selection.interval * 1000, carousel);
         }
         else {
-            const buttons = addNavigationButtons(Carousel);
+            const buttons = addNavigationButtons(carousel);
             buttons.forEach(button => {
                 button.addEventListener('click', () => {
                     const reverse = button.dataset.carouselButton === 'prev';
@@ -116,26 +116,23 @@ function runCarousel(selection, modal) {
                 });
             });
         }
-        document.addEventListener(Flag, () => {
-            const logEntry = `Flagged Image: ${imageSet.images[imageSet.index]}`;
-            console.log(logEntry);
-            // const logEntry: LogEntry = { entry: `Flagged Image: ${imageSet.images[imageSet.index]}` };
-            Fetch.api(`${PAGE.backend}/log/`, { entry: logEntry }).then((response) => { console.log(response); });
-            // fetch(`${PAGE.backend}/log`, {
-            // 	method: 'POST',
-            // 	body: logEntry,
-            // 	headers: { 'Content-type': 'text/plain; charset=utf-8' },
-            // })
-            // .then((response) => console.log(response));
+        /**
+         * Flag the currently displayed image, i.e., call the API to add an
+         * entry to server log, recording basic image info.
+         */
+        flagButton.addEventListener('click', () => {
+            const entry = `Flagged Image: ${imageSet.images[imageSet.index]}`;
+            const logEntry = { entry: entry };
+            Fetch.api(`${PAGE.backend}/log/`, logEntry).then((response) => { console.log(response); });
         });
         /**
-         * Stop the Interval loop (if any) and clear the carousel div. Show the
+         * Stop the Interval loop (if any) and remove the carousel div. Show the
          * modal dialog for new selection or cancellation.
          */
-        document.addEventListener(ExitCarousel, () => {
+        exitButton.addEventListener('click', () => {
             if (intervalID)
                 clearInterval(intervalID);
-            Carousel.innerHTML = '';
+            carousel.remove();
             modal.open();
         });
     }
@@ -145,23 +142,19 @@ function addNavigationButtons(parent) {
     const nextButton = navigationButton(parent, 'next', '&gt;'); // '&rarr;';
     return [previousButton, nextButton];
 }
-function addExitButton(parent) {
-    const returnButton = document.createElement('button');
-    returnButton.className = 'carousel-button return';
-    returnButton.innerHTML = '&times;';
-    parent.append(returnButton);
-    returnButton.addEventListener('click', () => {
-        document.dispatchEvent(ExitCarouselEvent);
-    });
-}
 function addFlagButton(parent) {
-    const flagButton = document.createElement('button');
-    flagButton.className = 'carousel-button flag';
-    flagButton.innerHTML = '\u2690';
-    parent.append(flagButton);
-    flagButton.addEventListener('click', () => {
-        document.dispatchEvent(FlagEvent);
-    });
+    const button = document.createElement('button');
+    button.className = 'carousel-button flag';
+    button.innerHTML = '\u2690';
+    parent.append(button);
+    return button;
+}
+function addExitButton(parent) {
+    const button = document.createElement('button');
+    button.className = 'carousel-button return';
+    button.innerHTML = '&times;';
+    parent.append(button);
+    return button;
 }
 function navigationButton(parent, direction, character) {
     const button = document.createElement('button');

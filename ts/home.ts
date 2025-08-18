@@ -5,6 +5,7 @@ import * as Datasets from './lib/datasets.js';
 import * as MD from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 import * as W from './lib/widgets.js';
+import * as W2 from './lib/widgets-2.js';
 
 const PAGE = new Page();
 const IndicesPath = `${PAGE.site}/Indices`;
@@ -489,19 +490,19 @@ function createModalDialog(rootPath = '', tags = '', tagPrefix = '') {
 	const cancelEvent = 'bait:cancel';
 	const confirmEvent = 'bait:confirm';
 	
-	const modal = new W.Dialog2('Test Dialog')
+	const modal = new W2.Dialog('Test Dialog')
 	modal.element.className = 'threads-dialog';
 	
-	const rootDropDown = new W.Select2('Root Path', ['First','Second','Third*','Fourth*'], modal);
-	const tagPrefixText = new W.Text2('Optional Tag Prefix', tagPrefix, modal);
-	const tagsText = new W.Text2('Space-Separated Tags', tags, modal);
+	const rootDropDown = new W2.Select('Root Path', ['First','Second','Third*','Fourth*'], modal);
+	const tagPrefixText = new W2.Text('Optional Tag Prefix', tagPrefix, modal);
+	const tagsText = new W2.Text('Space-Separated Tags', tags, modal);
 	/**
 	 * modal.addButtons(['Cancel', 'Confirm']) (or add in constructor)
 	 * (creates buttons array in modal object, assigning Event names)
 	 * (modal.event('Cancel') retrieves Event name for addEventListener)
 	 */
-	const cancelButton = new W.Button2('Cancel', cancelEvent, modal);
-	const confirmButton = new W.Button2('Confirm', confirmEvent, modal);
+	const cancelButton = new W2.Button('Cancel', cancelEvent, modal);
+	const confirmButton = new W2.Button('Confirm', confirmEvent, modal);
 
 	// modal.addWidget(rootDropDown);
 	// modal.addWidget(tagPrefixText);

@@ -1,7 +1,7 @@
 import { Page } from './lib/page.js';
 import { Markup } from './lib/markup.js';
 import * as Fetch from './lib/fetch.js';
-import * as W from './lib/widgets.js';
+import * as W from './lib/widgets-1.js';
 const Confirm = 'bait:confirm';
 const ConfirmEvent = new Event(Confirm);
 const Cancel = 'bait:cancel';

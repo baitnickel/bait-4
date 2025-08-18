@@ -460,6 +460,12 @@ export type Quote = {
 	source: string;
 }
 
+/** for `log` API */
+export type LogEntry = {
+	text: string;
+}
+
+/** for `annotations` API */
 export type Annotation = {
 	date: string;
 	query: string;
@@ -468,19 +474,20 @@ export type Annotation = {
 	note: string;
 }
 
+/** for `media/images` API */
 export type MediaImageData = {
 	album: string;
 	filePaths: string[];
 }
 
+/** for `threads` API */
+export type ThreadQuery = {
+	root: string;
+	tags: string[];
+}
 export type ThreadPassage = {
 	file: File|null;
 	section: number;
 	tag: string;
 	text: string;
-}
-
-export type ThreadQuery = {
-	root: string;
-	tags: string[];
 }

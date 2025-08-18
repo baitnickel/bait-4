@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
-import * as W from './lib/widgets.js';
+import * as W from './lib/widgets-1.js';
 const PAGE = new Page(false, false);
 PAGE.header.remove();
 PAGE.content.remove();
@@ -25,10 +25,6 @@ const Confirm = 'bait:confirm';
 const ConfirmEvent = new Event(Confirm);
 const Cancel = 'bait:cancel';
 const CancelEvent = new Event(Cancel);
-const ExitCarousel = 'bait:exit-carousel';
-const ExitCarouselEvent = new Event(ExitCarousel);
-const Flag = 'bait:flag';
-const FlagEvent = new Event(Flag);
 export function render() {
     const selection = getQuerySelection();
     const modal = createModalDialog(selection);
@@ -100,8 +96,8 @@ function runCarousel(selection, modal) {
         imageElement.src = imageSet.images[imageSet.index];
         slide.append(imageElement);
         // await image.decode(); /** wait till the image is ready to use */
-        const flagButton = addFlagButton(carousel);
-        const exitButton = addExitButton(carousel);
+        const flagButton = addButton(carousel, '\u2690', 'carousel-button flag');
+        const exitButton = addButton(carousel, '&times;', 'carousel-button return');
         let intervalID = 0;
         if (selection.interval) {
             const changeImageFunction = () => imageElement.src = imageSet.nextImage();
@@ -121,8 +117,8 @@ function runCarousel(selection, modal) {
          * entry to server log, recording basic image info.
          */
         flagButton.addEventListener('click', () => {
-            const entry = `Flagged Image: ${imageSet.images[imageSet.index]}`;
-            const logEntry = { entry: entry };
+            const text = `Flagged Image: ${imageSet.images[imageSet.index]}`;
+            const logEntry = { text: text };
             Fetch.api(`${PAGE.backend}/log/`, logEntry).then((response) => { console.log(response); });
         });
         /**
@@ -138,29 +134,22 @@ function runCarousel(selection, modal) {
     }
 }
 function addNavigationButtons(parent) {
-    const previousButton = navigationButton(parent, 'prev', '&lt;'); // '&larr;';
-    const nextButton = navigationButton(parent, 'next', '&gt;'); // '&rarr;';
+    const previousButton = navigationButton(parent, 'prev', '&lt;');
+    const nextButton = navigationButton(parent, 'next', '&gt;');
     return [previousButton, nextButton];
-}
-function addFlagButton(parent) {
-    const button = document.createElement('button');
-    button.className = 'carousel-button flag';
-    button.innerHTML = '\u2690';
-    parent.append(button);
-    return button;
-}
-function addExitButton(parent) {
-    const button = document.createElement('button');
-    button.className = 'carousel-button return';
-    button.innerHTML = '&times;';
-    parent.append(button);
-    return button;
 }
 function navigationButton(parent, direction, character) {
     const button = document.createElement('button');
+    button.innerHTML = character;
     button.className = `carousel-button ${direction}`;
     button.dataset.carouselButton = direction;
-    button.innerHTML = character;
+    parent.append(button);
+    return button;
+}
+function addButton(parent, innerHTML, className) {
+    const button = document.createElement('button');
+    button.innerHTML = innerHTML;
+    button.className = className;
     parent.append(button);
     return button;
 }

@@ -92,7 +92,7 @@ export function render() {
 		const buttonsElement = document.createElement('div');
 		const yearSelection = document.createElement('select');
 		const radioButtons = new Widgets.RadioButtons('radio-button', 'active', newReservationsView);
-		const accountingOption = new Widgets.Checkbox1('accounting', 'Show Accounting: ', 'camp-checkbox', accountingOptionChanged, showAccounting);
+		const accountingOption = new Widgets.Checkbox('accounting', 'Show Accounting: ', 'camp-checkbox', accountingOptionChanged, showAccounting);
 
 		/* create elements for accounting report */
 		const accountingDiv = document.createElement('div')

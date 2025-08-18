@@ -3,7 +3,7 @@ import * as Fetch from './lib/fetch.js';
 import * as Datasets from './lib/datasets.js';
 import * as MD from './lib/md.js';
 import { Markup } from './lib/markup.js';
-import * as W from './lib/widgets.js';
+// import * as W from './lib/widgets.js';
 import * as W2 from './lib/widgets-2.js';
 const PAGE = new Page();
 const IndicesPath = `${PAGE.site}/Indices`;
@@ -76,8 +76,7 @@ export function render() {
                     testDialog();
                 if (test == 'cookies')
                     testCookies();
-                if (test == 'radio')
-                    testRadio();
+                // if (test == 'radio') testRadio();
                 if (test == 'spinner')
                     testSpinner();
             }
@@ -242,21 +241,20 @@ function testYaml() {
         PAGE.appendParagraph(TestYaml, dataLines);
     });
 }
-function testRadio() {
-    const TestRadio = PAGE.appendContent('#TestRadio');
-    const division = PAGE.appendContent();
-    const anotherDivision = PAGE.appendContent();
-    const event = new Event('change-camper');
-    const radioButtons = new W.RadioButtons('radio-button', 'active', event);
-    radioButtons.addButton('Purchasers');
-    radioButtons.addButton('Occupants');
-    radioButtons.addButton('None');
-    for (let button of radioButtons.buttons)
-        division.append(button);
-    document.addEventListener('change-camper', () => {
-        anotherDivision.innerText = radioButtons.activeButton;
-    });
-}
+// function testRadio() {
+// 	const TestRadio = PAGE.appendContent('#TestRadio');
+// 	const division = PAGE.appendContent();
+// 	const anotherDivision = PAGE.appendContent();
+// 	const event = new Event('change-camper');
+// 	const radioButtons = new W.RadioButtons('radio-button', 'active', event);
+// 	radioButtons.addButton('Purchasers');
+// 	radioButtons.addButton('Occupants');
+// 	radioButtons.addButton('None');
+// 	for (let button of radioButtons.buttons) division.append(button);
+// 	document.addEventListener('change-camper', () => {
+// 		anotherDivision.innerText = radioButtons.activeButton;
+// 	});
+// }
 /*
 // https://www.youtube.com/watch?v=DzZXRvk3EGg
 const myEvent = new Event('myCustomEvent');

@@ -634,6 +634,20 @@ font-family: sans-serif;
 	padding: 0px 15px 10px;
 }
 
+/* from: https://htmlcodeexamples.com/html-forms/ */
+.dialog-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 1rem;
+}
+.dialog-group {
+	display: flex;
+	flex-direction: column;
+}
+.dialog-full-width {
+	grid-column: 1 / -1;
+}
+
 /*
 	Spinner
 	From: https://www.youtube.com/watch?v=trsuokl2Fp4&t=25s

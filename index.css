@@ -500,6 +500,12 @@ dialog.carousel-dialog > fieldset > ul > li > button {
 
 /* Tests, etc. =================================================================== */
 
+.grid-buttons {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, 100px);
+	gap: 1rem;
+}
+
 .grid-container {
 	display: grid;
 	grid-template-columns: 2fr 1fr;

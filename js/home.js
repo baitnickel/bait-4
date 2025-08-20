@@ -41,12 +41,8 @@ export function render() {
         const articleProperties = Articles.get(HomeTextFile);
         revision = articleProperties.revision;
     }
-    // /**### testing--display hostname/IP */
-    // PAGE.appendParagraph(ArticleText, window.location.hostname);
+    // PAGE.appendParagraph(ArticleText, window.location.hostname); /* display hostname/IP */
     PAGE.displayFooter(revision);
-    // PAGE.appendPhoto(Photo, 'i-SDpf2qV', 'S');
-    // PAGE.appendParagraph('');
-    // PAGE.appendVideo(Video, '9MtLIkk2ihw', 400, 220);
     /**
      * Test functions
      *
@@ -62,11 +58,12 @@ export function render() {
         PAGE.content.append(TestOutput);
         TestOutput.style['margin'] = '1em';
         const testers = [];
-        testers.push({ name: 'Test Modal', function: testModal });
+        testers.push({ name: 'Test Dialog', function: testDialog });
+        // testers.push( {name: 'Test Modal', function: testModal } );
         testers.push({ name: 'Test Grid', function: gridTest });
         // testers.push( {name: 'Test Spinner', function: testSpinner } );
+        // testers.push( {name: 'Test Images', function: testImages } );
         if (PAGE.backendAvailable) {
-            /* for tests that require the backend server to be running */
             testers.push({ name: 'Test Fetch.api', function: getMarkdownFiles });
         }
         for (const tester of testers) {
@@ -76,6 +73,80 @@ export function render() {
             TestButtons.append(button);
         }
     }
+}
+function testDialog() {
+    // const dialog = document.createElement('dialog');
+    // const fieldset = document.createElement('fieldset');
+    // const legend = document.createElement('legend');
+    // legend.innerHTML = 'Field Set';
+    // fieldset.append(legend);
+    // const controls = document.createElement('div');
+    // controls.className = 'dialog-grid';
+    // for (let i = 1; i <= 3; i += 1) {
+    // 	const checkbox = document.createElement('input');
+    // 	checkbox.id = `${i}`;
+    // 	checkbox.type = 'checkbox';
+    // 	const label = document.createElement('label');
+    // 	label.htmlFor = checkbox.id;
+    // 	label.innerHTML = `Checkbox Number ${i}:`;
+    // 	controls.append(label, checkbox);
+    // }
+    // fieldset.append(controls);
+    // const buttonsDiv = document.createElement('div');
+    // buttonsDiv.className = 'dialog-button-group';
+    // const cancelButton = document.createElement('button');
+    // cancelButton.className = 'dialog-button';
+    // cancelButton.innerText = 'Cancel';
+    // cancelButton.addEventListener('click', () => { dialog.close() });
+    // const confirmButton = document.createElement('button');
+    // confirmButton.className = 'dialog-button';
+    // confirmButton.innerText = 'Confirm';
+    // confirmButton.addEventListener('click', () => { dialog.close() });
+    // buttonsDiv.append(cancelButton);
+    // buttonsDiv.append(confirmButton);
+    // dialog.append(fieldset);
+    // dialog.append(buttonsDiv);
+    const dialog = new W2.Dialog('Big Test');
+    const box1 = dialog.addCheckbox('This Works');
+    const box2 = dialog.addCheckbox('This Does Not Work', true);
+    const box3 = dialog.addCheckbox('This Might Work');
+    document.body.append(dialog.element);
+    dialog.element.showModal();
+}
+// function testModal() {
+// 	let rootPath = '';
+// 	let tags = '';
+// 	let tagPrefix = '';
+// 	const cancelEvent = 'bait:cancel';
+// 	const confirmEvent = 'bait:confirm';
+// 	const modal = new W2.Dialog('Test Dialog')
+// 	modal.element.className = 'threads-dialog';
+// 	const rootDropDown = new W2.Select('Root Path', ['First','Second','Third*','Fourth*'], modal);
+// 	const tagPrefixText = new W2.Text('Optional Tag Prefix', tagPrefix, modal);
+// 	const tagsText = new W2.Text('Space-Separated Tags', tags, modal);
+// 	/**
+// 	 * modal.addButtons(['Cancel', 'Confirm']) (or add in constructor)
+// 	 * (creates buttons array in modal object, assigning Event names)
+// 	 * (modal.event('Cancel') retrieves Event name for addEventListener)
+// 	 */
+// 	const cancelButton = new W2.Button('Cancel', cancelEvent, modal);
+// 	const confirmButton = new W2.Button('Confirm', confirmEvent, modal);
+// 	modal.finish(document.body);
+// 	modal.open();
+// 	cancelButton.element.addEventListener('click', () => {
+// 		modal.close();
+// 		console.log(`Canceling`);
+// 	});
+// 	confirmButton.element.addEventListener('click', () => {
+// 		modal.close();
+// 		console.log(`Confirming`);
+// 	});
+// }
+function testImages() {
+    TestOutput.innerHTML = '';
+    PAGE.appendPhoto(TestOutput, 'i-SDpf2qV', 'S');
+    PAGE.appendParagraph(TestOutput, '');
+    PAGE.appendVideo(TestOutput, 'INlBnm_1-sg?si=nJRxtTyUgduZWElR', 400, 220);
 }
 function testSpinner() {
     /** all done in CSS ... ultimately turn off and on in JavaScript */
@@ -154,27 +225,6 @@ function testCookies() {
     for (const cookie of getCookies())
         output.push(cookie);
     PAGE.appendParagraph(TestCookies, output);
-}
-function testDialog() {
-    const TestDialog = PAGE.appendContent('#TestDialog');
-    /** add the button used to display the Modal dialog box */
-    const openModal = document.createElement('button');
-    openModal.innerText = 'Display Modal';
-    TestDialog.append(openModal);
-    /** dialog element */
-    const modal = document.createElement('dialog');
-    TestDialog.append(modal);
-    /** div element for dialog text */
-    const modalDiv = document.createElement('div');
-    modalDiv.innerHTML = '<p>This is the Modal Dialog</p>';
-    modal.append(modalDiv);
-    /** button to close dialog */
-    const closeModal = document.createElement('button');
-    closeModal.innerText = 'Close';
-    modal.append(closeModal);
-    /** event handlers */
-    openModal.addEventListener('click', () => { modal.showModal(); });
-    closeModal.addEventListener('click', () => { modal.close(); });
 }
 /**
 * Post data to backend
@@ -255,35 +305,6 @@ function gridTest() {
     }
     TestOutput.innerHTML = '';
     TestOutput.append(container);
-}
-function testModal() {
-    let rootPath = '';
-    let tags = '';
-    let tagPrefix = '';
-    const cancelEvent = 'bait:cancel';
-    const confirmEvent = 'bait:confirm';
-    const modal = new W2.Dialog('Test Dialog');
-    modal.element.className = 'threads-dialog';
-    const rootDropDown = new W2.Select('Root Path', ['First', 'Second', 'Third*', 'Fourth*'], modal);
-    const tagPrefixText = new W2.Text('Optional Tag Prefix', tagPrefix, modal);
-    const tagsText = new W2.Text('Space-Separated Tags', tags, modal);
-    /**
-     * modal.addButtons(['Cancel', 'Confirm']) (or add in constructor)
-     * (creates buttons array in modal object, assigning Event names)
-     * (modal.event('Cancel') retrieves Event name for addEventListener)
-     */
-    const cancelButton = new W2.Button('Cancel', cancelEvent, modal);
-    const confirmButton = new W2.Button('Confirm', confirmEvent, modal);
-    modal.finish(document.body);
-    modal.open();
-    document.addEventListener(cancelEvent, () => {
-        modal.close();
-        console.log(`Canceling`);
-    });
-    document.addEventListener(confirmEvent, () => {
-        modal.close();
-        console.log(`Confirming`);
-    });
 }
 // /* Form POST */
 // const formDivision = PAGE.appendContent();

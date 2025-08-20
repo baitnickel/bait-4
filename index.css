@@ -638,7 +638,7 @@ font-family: sans-serif;
 .dialog-grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	gap: 1rem;
+	gap: .5rem;
 }
 .dialog-group {
 	display: flex;
@@ -646,6 +646,20 @@ font-family: sans-serif;
 }
 .dialog-full-width {
 	grid-column: 1 / -1;
+}
+.dialog-button-group {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, 75px);
+	justify-content: center;
+	gap: 2rem;
+	padding: 1rem;
+}
+.dialog-button {
+	font-size: .8rem;
+	padding: .4rem;
+	background-color: rgb(218, 238, 250);
+	border: 1px solid darkgray;
+	border-radius: .5rem;
 }
 
 /*

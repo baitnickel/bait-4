@@ -4,8 +4,8 @@ import * as Fetch from './lib/fetch.js'
 import * as Datasets from './lib/datasets.js';
 import * as MD from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
-// import * as W from './lib/widgets.js';
-import * as W2 from './lib/widgets-2.js';
+import * as W from './lib/widgets.js';
+// import * as W2 from './lib/widgets-2.js';
 
 type Tester = { name: string; function: () => void; }
 
@@ -90,49 +90,37 @@ export function render() {
 }
 
 function testDialog() {
-	// const dialog = document.createElement('dialog');
+	TestOutput.innerHTML = '';
 
-	// const fieldset = document.createElement('fieldset');
-	// const legend = document.createElement('legend');
-	// legend.innerHTML = 'Field Set';
-	// fieldset.append(legend);
-
-	// const controls = document.createElement('div');
-	// controls.className = 'dialog-grid';
-	// for (let i = 1; i <= 3; i += 1) {
-	// 	const checkbox = document.createElement('input');
-	// 	checkbox.id = `${i}`;
-	// 	checkbox.type = 'checkbox';
-	// 	const label = document.createElement('label');
-	// 	label.htmlFor = checkbox.id;
-	// 	label.innerHTML = `Checkbox Number ${i}:`;
-	// 	controls.append(label, checkbox);
-	// }
-	// fieldset.append(controls);
-
-	// const buttonsDiv = document.createElement('div');
-	// buttonsDiv.className = 'dialog-button-group';
-	// const cancelButton = document.createElement('button');
-	// cancelButton.className = 'dialog-button';
-	// cancelButton.innerText = 'Cancel';
-	// cancelButton.addEventListener('click', () => { dialog.close() });
-	// const confirmButton = document.createElement('button');
-	// confirmButton.className = 'dialog-button';
-	// confirmButton.innerText = 'Confirm';
-	// confirmButton.addEventListener('click', () => { dialog.close() });
-	// buttonsDiv.append(cancelButton);
-	// buttonsDiv.append(confirmButton);
-
-	// dialog.append(fieldset);
-	// dialog.append(buttonsDiv);
-
-	const dialog = new W2.Dialog('Big Test');
-	const box1 = dialog.addCheckbox('This Works');
-	const box2 = dialog.addCheckbox('This Does Not Work', true);
-	const box3 = dialog.addCheckbox('This Might Work');
+	const dialog = new W.Dialog('Big Test');
+	const box1 = dialog.addCheckbox('This Works:', false);
+	const box2 = dialog.addCheckbox('This Does Not Work:', true);
+	const box3 = dialog.addCheckbox('This Might Work:', false);
+	const text1 = dialog.addText('Add some random text:', '');
+	const select1 = dialog.addSelect('Pick One:', ['First','Second','Third','Fourth']);
+	const outputTexts = ['Manually', 'Every Second', 'Every %% Seconds'];
+	const range = dialog.addRange('Change Slides:', 0, 0,60,1, outputTexts);
+	
 	document.body.append(dialog.element);
 
 	dialog.element.showModal();
+
+	dialog.cancelButton.addEventListener('click', () => {
+		PAGE.appendParagraph(TestOutput, 'Cancelled');
+	});
+	dialog.confirmButton.addEventListener('click', () => {
+		PAGE.appendParagraph(
+			TestOutput,
+			[
+				'Confirmed',
+				`box1 checked? ${box1.checked}`,
+				`random text: ${text1.value}`,
+				`selection: |${select1.value}|`,
+				`range: ${range.value}`,
+			]
+		);
+	});
+
 }
 
 // function testModal() {

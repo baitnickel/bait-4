@@ -1,3 +1,166 @@
+export class Dialog {
+    constructor(legendText) {
+        this.element = document.createElement('dialog');
+        this.fieldset = document.createElement('fieldset');
+        const legend = document.createElement('legend');
+        legend.innerHTML = legendText;
+        this.fieldset.append(legend);
+        this.controls = document.createElement('div');
+        this.controls.className = 'dialog-grid';
+        this.fieldset.append(this.controls);
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.className = 'dialog-button-group';
+        this.cancelButton = document.createElement('button');
+        this.cancelButton.className = 'dialog-button';
+        this.cancelButton.innerText = 'Cancel';
+        this.cancelButton.addEventListener('click', () => { this.element.close(); });
+        this.confirmButton = document.createElement('button');
+        this.confirmButton.className = 'dialog-button';
+        this.confirmButton.innerText = 'Confirm';
+        this.confirmButton.addEventListener('click', () => { this.element.close(); });
+        buttonsDiv.append(this.cancelButton);
+        buttonsDiv.append(this.confirmButton);
+        this.element.append(this.fieldset);
+        this.element.append(buttonsDiv);
+    }
+    nextID() {
+        Dialog.odometer += 1;
+        const base = 'dialog';
+        const suffix = Dialog.odometer.toString();
+        return `${base}-${suffix}`;
+    }
+    addCheckbox(labelHTML, checked) {
+        const widget = checkboxElement(labelHTML, checked, this.nextID());
+        this.controls.append(widget.label, widget.element);
+        return widget.element;
+    }
+    addText(labelHTML, value) {
+        const widget = textElement(labelHTML, value, this.nextID());
+        this.controls.append(widget.label, widget.element);
+        return widget.element;
+    }
+    addRange(labelHTML, value, minimum, maximum, step, outputTexts) {
+        const widget = rangeElement(labelHTML, value, minimum, maximum, step, outputTexts, this.nextID());
+        this.controls.append(widget.label, widget.element);
+        return widget.element;
+    }
+    addSelect(labelHTML, options) {
+        const widget = selectElement(labelHTML, options, this.nextID());
+        this.controls.append(widget.label, widget.element);
+        return widget.element;
+    }
+}
+Dialog.odometer = 0;
+export function checkboxElement(labelHTML, checked, id = '') {
+    const element = document.createElement('input');
+    if (id)
+        element.id = id;
+    element.type = 'checkbox';
+    element.checked = checked;
+    const label = labelElement(element, labelHTML);
+    const widget = { element: element, label: label };
+    return widget;
+}
+export function textElement(labelHTML, value, id = '') {
+    const element = document.createElement('input');
+    if (id)
+        element.id = id;
+    element.value = value;
+    const label = labelElement(element, labelHTML);
+    const widget = { element: element, label: label };
+    return widget;
+}
+export function rangeElement(labelHTML, value, minimum, maximum, step, outputTexts, id = '') {
+    const element = document.createElement('input');
+    if (id)
+        element.id = id;
+    element.type = 'range';
+    element.value = value.toString();
+    element.min = minimum.toString();
+    element.max = maximum.toString();
+    element.step = step.toString();
+    const label = labelElement(element, labelHTML);
+    const output = document.createElement('output');
+    output.innerHTML = outputText(element, outputTexts);
+    label.append(output);
+    const widget = { element: element, label: label };
+    element.addEventListener('input', () => {
+        // element.value = Number(element.value);
+        output.innerHTML = `${outputText(element, outputTexts)}`;
+    });
+    return widget;
+}
+function outputText(element, outputTexts) {
+    let outputText = '';
+    const wildcard = '%%';
+    const numericValue = Number(element.value);
+    while (outputTexts.length < 3)
+        outputTexts.push('');
+    if (numericValue < 2)
+        outputText = outputTexts[numericValue];
+    else
+        outputText = outputTexts[2];
+    outputText = '<br>' + outputText.replace(wildcard, element.value);
+    return outputText;
+}
+export function selectElement(labelHTML, options, id = '') {
+    const element = document.createElement('select');
+    if (id)
+        element.id = id;
+    element.value = '';
+    const label = labelElement(element, labelHTML);
+    addOptions(element, options);
+    const widget = { element: element, label: label };
+    return widget;
+}
+/**
+ * ### attempting to support a default option here (other than the disabled
+ * "--select--" option), by treating the first option having a "*" suffix as the
+ * default, but it doesn't work. The starred option, when chosen always sets the
+ * Select element's value to ''.
+ */
+function addOptions(element, options) {
+    const optionElements = [];
+    const defaultOption = '--select--';
+    let activeOption = '';
+    options = options.map((option) => option.trim());
+    for (let i = 0; i < options.length; i += 1) {
+        let option = options[i];
+        if (option.endsWith('*')) {
+            options[i] = option.slice(0, -1).trim();
+            if (!activeOption)
+                activeOption = options[i];
+        }
+    }
+    if (!activeOption) {
+        options.unshift(defaultOption);
+        activeOption = defaultOption;
+    }
+    for (let option of options) {
+        let optionElement;
+        if (option == activeOption) {
+            optionElement = new Option(option, '', true, true);
+            if (option == defaultOption)
+                optionElement.disabled = true;
+        }
+        else
+            optionElement = new Option(option);
+        optionElements.push(optionElement);
+    }
+    console.log(element);
+    if (activeOption != defaultOption)
+        element.value = activeOption;
+    for (const optionElement of optionElements)
+        element.add(optionElement);
+    console.log(element);
+}
+function labelElement(element, labelHTML) {
+    const label = document.createElement('label');
+    label.htmlFor = element.id;
+    label.innerHTML = labelHTML;
+    return label;
+}
+/********* old code *********************************************************/
 /**
  * The Navigator class manages a set of buttons (First, Previous, Next, Last)
  * for navigating through a set of documents (an array of file path names).

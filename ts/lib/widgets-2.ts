@@ -1,8 +1,15 @@
+export type Widget = {
+	element: HTMLElement;
+	label: HTMLLabelElement;
+}
+
 export class Dialog {
 	static odometer = 0;
 	element: HTMLDialogElement;
 	fieldset: HTMLFieldSetElement;
 	controls: HTMLDivElement;
+	cancelButton: HTMLButtonElement;
+	confirmButton: HTMLButtonElement;
 
 	constructor(legendText: string) {
 		this.element = document.createElement('dialog');
@@ -18,16 +25,16 @@ export class Dialog {
 
 		const buttonsDiv = document.createElement('div');
 		buttonsDiv.className = 'dialog-button-group';
-		const cancelButton = document.createElement('button');
-		cancelButton.className = 'dialog-button';
-		cancelButton.innerText = 'Cancel';
-		cancelButton.addEventListener('click', () => { this.element.close() });
-		const confirmButton = document.createElement('button');
-		confirmButton.className = 'dialog-button';
-		confirmButton.innerText = 'Confirm';
-		confirmButton.addEventListener('click', () => { this.element.close() });
-		buttonsDiv.append(cancelButton);
-		buttonsDiv.append(confirmButton);
+		this.cancelButton = document.createElement('button');
+		this.cancelButton.className = 'dialog-button';
+		this.cancelButton.innerText = 'Cancel';
+		this.cancelButton.addEventListener('click', () => { this.element.close() });
+		this.confirmButton = document.createElement('button');
+		this.confirmButton.className = 'dialog-button';
+		this.confirmButton.innerText = 'Confirm';
+		this.confirmButton.addEventListener('click', () => { this.element.close() });
+		buttonsDiv.append(this.cancelButton);
+		buttonsDiv.append(this.confirmButton);
 
 		this.element.append(this.fieldset);
 		this.element.append(buttonsDiv);
@@ -40,17 +47,141 @@ export class Dialog {
 		return `${base}-${suffix}`;
 	}
 
-	addCheckbox(labelHTML: string, checked = false) {
-		const checkbox = document.createElement('input');
-		checkbox.id = this.nextID();
-		checkbox.type = 'checkbox';
-		checkbox.checked = checked;
-		const label = document.createElement('label');
-		label.htmlFor = checkbox.id;
-		label.innerHTML = labelHTML;
-		this.controls.append(label, checkbox);
-		return checkbox;
+	addCheckbox(labelHTML: string, checked: boolean) {
+		const widget = checkboxElement(labelHTML, checked, this.nextID());
+		this.controls.append(widget.label, widget.element);
+		return widget.element as HTMLInputElement;
 	}
+
+	addText(labelHTML: string, value: string) {
+		const widget = textElement(labelHTML, value, this.nextID());
+		this.controls.append(widget.label, widget.element);
+		return widget.element as HTMLInputElement;
+	}
+
+	addRange(labelHTML: string, value: number, minimum: number, maximum: number, step: number, outputTexts: string[]) {
+		const widget = rangeElement(labelHTML, value, minimum, maximum, step, outputTexts, this.nextID());
+		this.controls.append(widget.label, widget.element);
+		return widget.element as HTMLInputElement;
+	}
+
+	addSelect(labelHTML: string, options: string[]) {
+		const widget = selectElement(labelHTML, options, this.nextID());
+		this.controls.append(widget.label, widget.element);
+		return widget.element as HTMLSelectElement;
+	}
+}
+
+export function checkboxElement(labelHTML: string, checked: boolean, id = '') {
+	const element = document.createElement('input');
+	if (id) element.id = id;
+	element.type = 'checkbox';
+	element.checked = checked;
+	const label = labelElement(element, labelHTML);
+	const widget: Widget = { element: element, label: label };
+	return widget;
+}
+
+export function textElement(labelHTML: string, value: string, id = '') {
+	const element = document.createElement('input');
+	if (id) element.id = id;
+	element.value = value;
+	const label = labelElement(element, labelHTML);
+	const widget: Widget = { element: element, label: label };
+	return widget;
+}
+
+export function rangeElement(
+	labelHTML: string,
+	value: number,
+	minimum: number,
+	maximum: number,
+	step: number,
+	outputTexts: string[],
+	id = '')
+{
+	const element = document.createElement('input');
+	if (id) element.id = id;
+	element.type = 'range';
+	element.value = value.toString();
+	element.min = minimum.toString();
+	element.max = maximum.toString();
+	element.step = step.toString();
+	const label = labelElement(element, labelHTML);
+	const output = document.createElement('output');
+	output.innerHTML = outputText(element, outputTexts);
+	label.append(output);
+	const widget: Widget = { element: element, label: label };
+	element.addEventListener('input', () => {
+		// element.value = Number(element.value);
+		output.innerHTML = `${outputText(element, outputTexts)}`;
+	});
+	return widget;
+}
+
+function outputText(element: HTMLInputElement, outputTexts: string[]) {
+	let outputText = '';
+	const wildcard = '%%';
+	const numericValue = Number(element.value);
+	while (outputTexts.length < 3) outputTexts.push('');
+	if (numericValue < 2) outputText = outputTexts[numericValue];
+	else outputText = outputTexts[2];
+	outputText = '<br>' + outputText.replace(wildcard, element.value);
+	return outputText;
+}
+
+export function selectElement(labelHTML: string, options: string[], id = '') {
+	const element = document.createElement('select');
+	if (id) element.id = id;
+	element.value = '';
+	const label = labelElement(element, labelHTML);
+	addOptions(element, options);
+	const widget: Widget = { element: element, label: label };
+	return widget;
+}
+
+/**
+ * ### attempting to support a default option here (other than the disabled
+ * "--select--" option), by treating the first option having a "*" suffix as the
+ * default, but it doesn't work. The starred option, when chosen always sets the
+ * Select element's value to ''.
+ */
+function addOptions(element: HTMLSelectElement, options: string[]) {
+	const optionElements: HTMLOptionElement[] = [];
+	const defaultOption = '--select--';
+	let activeOption = '';
+	options = options.map((option) => option.trim());
+	for (let i = 0; i < options.length; i += 1) {
+		let option = options[i];
+		if (option.endsWith('*')) {
+			options[i] = option.slice(0, -1).trim();
+			if (!activeOption) activeOption = options[i];
+		}
+	}
+	if (!activeOption) {
+		options.unshift(defaultOption);
+		activeOption = defaultOption;
+	} 
+	for (let option of options) {
+		let optionElement: HTMLOptionElement;
+		if (option == activeOption) {
+			optionElement = new Option(option, '', true, true);
+			if (option == defaultOption) optionElement.disabled = true;
+		}
+		else optionElement = new Option(option);
+		optionElements.push(optionElement);
+	}
+	console.log(element);
+	if (activeOption != defaultOption) element.value = activeOption;
+	for (const optionElement of optionElements) element.add(optionElement);
+	console.log(element);
+}
+
+function labelElement(element: HTMLElement, labelHTML: string) {
+	const label = document.createElement('label');
+	label.htmlFor = element.id;
+	label.innerHTML = labelHTML;
+	return label;
 }
 
 // export class Widget {

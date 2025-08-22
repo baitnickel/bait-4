@@ -1,6 +1,23 @@
-export type Widget = {
+export class Widget {
+	static odometer = 0;
+
 	element: HTMLElement;
 	label: HTMLLabelElement;
+
+	constructor(element: HTMLElement, labelHTML = '') {
+		this.element = element;
+		element.id = Widget.nextID();
+		this.label = document.createElement('label');
+		this.label.htmlFor = element.id;
+		this.label.innerHTML = labelHTML;
+	}
+
+	static nextID() {
+		Widget.odometer += 1;
+		const base = 'dialog';
+		const suffix = Widget.odometer.toString();
+		return `${base}-${suffix}`;
+	}
 }
 
 export class Dialog {
@@ -11,8 +28,9 @@ export class Dialog {
 	cancelButton: HTMLButtonElement;
 	confirmButton: HTMLButtonElement;
 
-	constructor(legendText: string) {
+	constructor(legendText: string, target = document.body) {
 		this.element = document.createElement('dialog');
+		target.append(this.element);
 
 		this.fieldset = document.createElement('fieldset');
 		const legend = document.createElement('legend');
@@ -40,83 +58,80 @@ export class Dialog {
 		this.element.append(buttonsDiv);
 	}
 
-	nextID() {
-		Dialog.odometer += 1;
-		const base = 'dialog';
-		const suffix = Dialog.odometer.toString();
-		return `${base}-${suffix}`;
-	}
-
 	addCheckbox(labelHTML: string, checked: boolean) {
-		const widget = checkboxElement(labelHTML, checked, this.nextID());
+		const widget = new CheckboxElement(labelHTML, checked);
 		this.controls.append(widget.label, widget.element);
 		return widget.element as HTMLInputElement;
 	}
 
 	addText(labelHTML: string, value: string) {
-		const widget = textElement(labelHTML, value, this.nextID());
+		const widget = new TextElement(labelHTML, value);
 		this.controls.append(widget.label, widget.element);
 		return widget.element as HTMLInputElement;
 	}
 
 	addRange(labelHTML: string, value: number, minimum: number, maximum: number, step: number, outputTexts: string[]) {
-		const widget = rangeElement(labelHTML, value, minimum, maximum, step, outputTexts, this.nextID());
+		const widget = new RangeElement(labelHTML, value, minimum, maximum, step, outputTexts);
 		this.controls.append(widget.label, widget.element);
 		return widget.element as HTMLInputElement;
 	}
 
 	addSelect(labelHTML: string, options: string[]) {
-		const widget = selectElement(labelHTML, options, this.nextID());
+		const widget = new SelectElement(labelHTML, options);
 		this.controls.append(widget.label, widget.element);
 		return widget.element as HTMLSelectElement;
 	}
 }
 
-export function checkboxElement(labelHTML: string, checked: boolean, id = '') {
-	const element = document.createElement('input');
-	if (id) element.id = id;
-	element.type = 'checkbox';
-	element.checked = checked;
-	const label = labelElement(element, labelHTML);
-	const widget: Widget = { element: element, label: label };
-	return widget;
+export class CheckboxElement extends Widget {
+	constructor(labelHTML: string, checked: boolean) {
+		const element = document.createElement('input') as HTMLInputElement;
+		super(element, labelHTML);
+		element.type = 'checkbox';
+		element.checked = checked;
+	}
 }
 
-export function textElement(labelHTML: string, value: string, id = '') {
-	const element = document.createElement('input');
-	if (id) element.id = id;
-	element.value = value;
-	const label = labelElement(element, labelHTML);
-	const widget: Widget = { element: element, label: label };
-	return widget;
+export class TextElement extends Widget {
+	constructor(labelHTML: string, value: string) {
+		const element = document.createElement('input') as HTMLInputElement;
+		super(element, labelHTML);
+		element.value = value;
+	}
 }
 
-export function rangeElement(
-	labelHTML: string,
-	value: number,
-	minimum: number,
-	maximum: number,
-	step: number,
-	outputTexts: string[],
-	id = '')
-{
-	const element = document.createElement('input');
-	if (id) element.id = id;
-	element.type = 'range';
-	element.value = value.toString();
-	element.min = minimum.toString();
-	element.max = maximum.toString();
-	element.step = step.toString();
-	const label = labelElement(element, labelHTML);
-	const output = document.createElement('output');
-	output.innerHTML = outputText(element, outputTexts);
-	label.append(output);
-	const widget: Widget = { element: element, label: label };
-	element.addEventListener('input', () => {
-		// element.value = Number(element.value);
-		output.innerHTML = `${outputText(element, outputTexts)}`;
-	});
-	return widget;
+export class RangeElement extends Widget {
+	constructor(
+		labelHTML: string,
+		value: number,
+		minimum: number,
+		maximum: number,
+		step: number,
+		outputTexts: string[]
+	) {
+		const element = document.createElement('input') as HTMLInputElement;
+		super(element, labelHTML);
+		element.type = 'range';
+		element.value = value.toString();
+		element.min = minimum.toString();
+		element.max = maximum.toString();
+		element.step = step.toString();
+		const output = document.createElement('output');
+		output.innerHTML = outputText(element, outputTexts);
+		this.label.append(output);
+		element.addEventListener('input', () => {
+			output.innerHTML = `${outputText(element, outputTexts)}`;
+		});
+	}
+}
+
+export class SelectElement extends Widget {
+	constructor(labelHTML: string, options: string[]) {
+		const element = document.createElement('select') as HTMLSelectElement;
+		super(element, labelHTML);
+		element.value = '';
+		addOptions(element, options);
+	}
 }
 
 function outputText(element: HTMLInputElement, outputTexts: string[]) {
@@ -128,16 +143,6 @@ function outputText(element: HTMLInputElement, outputTexts: string[]) {
 	else outputText = outputTexts[2];
 	outputText = '<br>' + outputText.replace(wildcard, element.value);
 	return outputText;
-}
-
-export function selectElement(labelHTML: string, options: string[], id = '') {
-	const element = document.createElement('select');
-	if (id) element.id = id;
-	element.value = '';
-	const label = labelElement(element, labelHTML);
-	addOptions(element, options);
-	const widget: Widget = { element: element, label: label };
-	return widget;
 }
 
 /**
@@ -177,7 +182,9 @@ function addOptions(element: HTMLSelectElement, options: string[]) {
 	console.log(element);
 }
 
+/**### This is (mostly?) obsolete--the Widget superclass handles it*/
 function labelElement(element: HTMLElement, labelHTML: string) {
+	console.log(labelHTML, element.id);
 	const label = document.createElement('label');
 	label.htmlFor = element.id;
 	label.innerHTML = labelHTML;
@@ -209,10 +216,6 @@ export class Navigator { // used in `articles`
 		this.event = event;
 
 		/** default button texts */
-		// this.firstButton.innerText = '|<';
-		// this.previousButton.innerText = '<';
-		// this.nextButton.innerText = '>';
-		// this.lastButton.innerText = '>|';
 		this.firstButton.innerHTML = '&larrb;';
 		this.previousButton.innerHTML = '&larr;';
 		this.nextButton.innerHTML = '&rarr;';

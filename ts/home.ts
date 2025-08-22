@@ -17,13 +17,15 @@ const HomeTextFile = 'Content/Home.md'
 const HomeTextPath = `${PAGE.site}/${HomeTextFile}`;
 const Quotes = await Fetch.map<T.Quote>(QuotesPath);
 const HomeText = await Fetch.text(HomeTextPath);
+const ExternalSection = document.createElement('div');
 const TestButtons = document.createElement('div');
 const TestOutput = document.createElement('div');
 
 export function render() {
 	PAGE.setTitle('Home');
 
-	const Quote = PAGE.appendContent('#Quote');
+	PAGE.content.append(ExternalSection);
+	const Quote = PAGE.appendContent('#Quote', ExternalSection);
 	const keys = Array.from(Quotes.keys());
 	const randomKey = keys[Math.floor(Math.random() * keys.length)];
 	const randomQuote = Quotes.get(randomKey)!;
@@ -37,7 +39,7 @@ export function render() {
 		}
 	});
 	
-	const ArticleText = PAGE.appendContent('#Article');
+	const ArticleText = PAGE.appendContent('#Article', ExternalSection);
 	const markdown = new MD.Markdown(HomeText);
 	PAGE.articleID = (markdown.metadata && 'id' in markdown.metadata) ? markdown.metadata['id'] : null;
 
@@ -65,33 +67,46 @@ export function render() {
 	 * - TestOutput.innerHTML = '';
 	 */
 	if (PAGE.local) {
+		ExternalSection.innerHTML += '<hr>';
 		PAGE.content.append(TestButtons);
 		TestButtons.className = 'grid-buttons';
 		PAGE.content.append(TestOutput);
 		TestOutput.style['margin'] = '1em';
 
 		const testers: Tester[] = [];
-		testers.push( {name: 'Test Dialog', function: testDialog } );
-		// testers.push( {name: 'Test Modal', function: testModal } );
-		testers.push( {name: 'Test Grid', function: gridTest } );
-		// testers.push( {name: 'Test Spinner', function: testSpinner } );
-		// testers.push( {name: 'Test Images', function: testImages } );
+		testers.push( {name: 'Dialog', function: testDialog } );
+		testers.push( {name: 'Grid', function: gridTest } );
+		testers.push( {name: 'Spinner', function: testSpinner } );
+		testers.push( {name: 'Images', function: testImages } );
+		testers.push( {name: 'Map', function: testMap } );
+		testers.push( {name: 'Markdown', function: testMarkdown } );
+		testers.push( {name: 'YAML', function: testYaml } );
+		testers.push( {name: 'Email', function: testEmail } );
+		testers.push( {name: 'Cookies', function: testCookies } );
 		if (PAGE.backendAvailable) {
-			testers.push( {name: 'Test Fetch.api', function: getMarkdownFiles } );
+			testers.push( {name: 'Fetch.api', function: testFetchAPI } );
 		}
 
 		for (const tester of testers) {
 			const button = document.createElement('button');
 			button.innerText = tester.name;
-			button.addEventListener('click', () => { tester.function() });
+			button.addEventListener('click', () => {
+				ExternalSection.hidden = true;
+				TestOutput.innerHTML = '';
+				tester.function();
+			});
 			TestButtons.append(button);
 		}
+		const recycle = document.createElement('button');
+		recycle.innerHTML = '♻️';
+		recycle.style['backgroundColor'] = '#0000';
+		recycle.style['border'] = '0';
+		recycle.addEventListener('click', () => { TestOutput.innerHTML = ''; })
+		TestButtons.append(recycle);
 	}
 }
 
 function testDialog() {
-	TestOutput.innerHTML = '';
-
 	const dialog = new W.Dialog('Big Test');
 	const box1 = dialog.addCheckbox('This Works:', false);
 	const box2 = dialog.addCheckbox('This Does Not Work:', true);
@@ -109,55 +124,12 @@ function testDialog() {
 		PAGE.appendParagraph(TestOutput, 'Cancelled');
 	});
 	dialog.confirmButton.addEventListener('click', () => {
-		PAGE.appendParagraph(
-			TestOutput,
-			[
-				'Confirmed',
-				`box1 checked? ${box1.checked}`,
-				`random text: ${text1.value}`,
-				`selection: |${select1.value}|`,
-				`range: ${range.value}`,
-			]
+		PAGE.appendParagraph( TestOutput, [ 'Confirmed', `box1 checked? ${box1.checked}`, `random text: ${text1.value}`, `selection: |${select1.value}|`, `range: ${range.value}`]
 		);
 	});
-
 }
 
-// function testModal() {
-// 	let rootPath = '';
-// 	let tags = '';
-// 	let tagPrefix = '';
-// 	const cancelEvent = 'bait:cancel';
-// 	const confirmEvent = 'bait:confirm';
-	
-// 	const modal = new W2.Dialog('Test Dialog')
-// 	modal.element.className = 'threads-dialog';
-	
-// 	const rootDropDown = new W2.Select('Root Path', ['First','Second','Third*','Fourth*'], modal);
-// 	const tagPrefixText = new W2.Text('Optional Tag Prefix', tagPrefix, modal);
-// 	const tagsText = new W2.Text('Space-Separated Tags', tags, modal);
-// 	/**
-// 	 * modal.addButtons(['Cancel', 'Confirm']) (or add in constructor)
-// 	 * (creates buttons array in modal object, assigning Event names)
-// 	 * (modal.event('Cancel') retrieves Event name for addEventListener)
-// 	 */
-// 	const cancelButton = new W2.Button('Cancel', cancelEvent, modal);
-// 	const confirmButton = new W2.Button('Confirm', confirmEvent, modal);
-// 	modal.finish(document.body);
-// 	modal.open();
-
-// 	cancelButton.element.addEventListener('click', () => {
-// 		modal.close();
-// 		console.log(`Canceling`);
-// 	});
-// 	confirmButton.element.addEventListener('click', () => {
-// 		modal.close();
-// 		console.log(`Confirming`);
-// 	});
-// }
-
 function testImages() {
-	TestOutput.innerHTML = '';
 	PAGE.appendPhoto(TestOutput, 'i-SDpf2qV', 'S');
 	PAGE.appendParagraph(TestOutput, '');
 	PAGE.appendVideo(TestOutput, 'INlBnm_1-sg?si=nJRxtTyUgduZWElR', 400, 220);
@@ -167,10 +139,16 @@ function testSpinner() {
 	/** all done in CSS ... ultimately turn off and on in JavaScript */
 	const TestSpinner = PAGE.appendContent('.spinner'); // .spinner--full-height');
 	console.log('Spinning...')
+	const stop = document.createElement('button');
+	stop.innerHTML = '🛑 STOP';
+	stop.style['backgroundColor'] = '#0000';
+	stop.style['border'] = '0';
+	stop.addEventListener('click', () => { TestSpinner.remove(); })
+	TestOutput.append(stop);
 }
 
 function testMap() {
-	const TestMap = PAGE.appendContent('#TestMap');
+	const TestMap = PAGE.appendContent('#TestMap', TestOutput);
 	const songsIndexFile = `${PAGE.site}/Indices/fakesheets.json`;
 	Fetch.map<T.FakesheetLookups>(songsIndexFile).then((songsMap) => {
 		const dataLines: string[] = [];
@@ -186,7 +164,7 @@ function testMap() {
 }
 
 function testMarkdown() {
-	const TestMarkdown = PAGE.appendContent('#TestMarkdown');
+	const TestMarkdown = PAGE.appendContent('#TestMarkdown', TestOutput);
 	const testMarkdownFile = 'data/test-markdown.md';
 	const testMarkdownPath = `${PAGE.site}/${testMarkdownFile}`;
 	Fetch.text(testMarkdownPath).then((fileContent) => {
@@ -207,7 +185,7 @@ function testMarkdown() {
 }
 
 function testYaml() {
-	const TestYaml = PAGE.appendContent('#TestYaml');
+	const TestYaml = PAGE.appendContent('#TestYaml', TestOutput);
 	const ReservationsPath = `${PAGE.site}/data/camp/reservations.yaml`;
 	Fetch.map<T.Reservation[]>(ReservationsPath).then((reservations) => {
 		const dataLines: string[] = [];
@@ -225,7 +203,7 @@ function testYaml() {
 }
 
 function testEmail() {
-	const division = PAGE.appendContent();
+	const division = PAGE.appendContent('', TestOutput);
 	const emailButton = document.createElement('button');
 	emailButton.innerText = 'Send Feedback';
 	division.append(emailButton);
@@ -237,66 +215,15 @@ function testEmail() {
 }
 
 function testCookies() {
-	const TestCookies = PAGE.appendContent('#TestCookies');
+	const TestCookies = PAGE.appendContent('#TestCookies', TestOutput);
 	const output: string[] = [];
 	output.push('Cookies:');
 	for (const cookie of getCookies()) output.push(cookie)
 	PAGE.appendParagraph(TestCookies, output);
 }
 
-/**
-* Post data to backend
-* see:
-* - https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-* - https://www.javascripttutorial.net/web-apis/javascript-fetch-api/
-*/
-function testPost(data: any, route: string, division: HTMLElement, backend = 'http://localhost:3000') {
-	fetch(`${backend}/${route}`, {
-		method: "POST",
-		body: JSON.stringify(data),
-		headers: { "Content-type": "application/json; charset=UTF-8" },
-	})
-	/**
-	 * If the response contains JSON data, you can use the json() method of the
-	 * Response object to parse it. The json() method returns a Promise. (Other
-	 * Response methods: arrayBuffer(), blob(), bytes(), clone(), formData(),
-	 * text())
-	 */
-	.then((response) => {
-		if (!response.ok) {
-			throw new Error(`HTTP error! Status: ${response.status}`);
-		}
-		return response.json();
-	})
-	/**
-	 * The json() Promise resolves with the full "any" contents of the fetched
-	 * resource, allowing access to the JSON data.
-	 */
-	.then((json) => { 
-		const text = ` ID: ${json.id} ${json.name}`;
-		PAGE.appendParagraph(division, text);
-		console.log(json);
-	 });
-}
-
-function testFetch(filePath: string, fetchOutput: HTMLElement) {
-	filePath = `${PAGE.backend}/${filePath}`;
-	Fetch.text(filePath).then((fileText) => {
-		if (filePath.endsWith('.md')) {
-			const markdown = new MD.Markdown(fileText);
-			const markedUpText = Markup(markdown.text);
-			fetchOutput.innerHTML = markedUpText;
-		}
-		else {
-			const fileLines = fileText.split('\n');
-			PAGE.appendParagraph(fetchOutput, fileLines);
-		}
-	});
-}
-
-async function getMarkdownFiles() {
+async function testFetchAPI() {
 	const rootPath = 'Content/chapters';
-	TestOutput.innerHTML = '';
 	const outputLines: string[] = [];
 	Fetch.api<MD.MarkdownFile[]>(`${PAGE.backend}/markdown`, {root: rootPath}).then((markdownFiles) => {
 		if (markdownFiles) {
@@ -322,7 +249,6 @@ function gridTest() {
 		item.innerHTML = value;
 		container.append(item);
 	}
-	TestOutput.innerHTML = '';
 	TestOutput.append(container);
 }
 

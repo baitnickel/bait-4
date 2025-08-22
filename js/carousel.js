@@ -24,7 +24,6 @@ const Albums = mediaImagesMap(MediaImages);
 export function render() {
     const selection = getQuerySelection();
     const dialog = createModalDialog(selection);
-    document.body.append(dialog.element);
     if (selection.album)
         runCarousel(selection, dialog);
     else
@@ -50,7 +49,7 @@ function createModalDialog(selection) {
     const albumDropDown = dialog.addSelect('Album:', Array.from(Albums.keys()));
     const shuffleCheckbox = dialog.addCheckbox('Shuffle Slides:', selection.shuffle);
     const outputTexts = ['Manually', 'Every Second', 'Every %% Seconds'];
-    const intervalRange = dialog.addRange('Change Slides:<br>', selection.interval, 0, 60, 1, outputTexts);
+    const intervalRange = dialog.addRange('Change Slides:', selection.interval, 0, 60, 1, outputTexts);
     dialog.cancelButton.addEventListener('click', () => {
         window.history.back();
     });

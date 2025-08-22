@@ -1,6 +1,23 @@
+export class Widget {
+    constructor(element, labelHTML = '') {
+        this.element = element;
+        element.id = Widget.nextID();
+        this.label = document.createElement('label');
+        this.label.htmlFor = element.id;
+        this.label.innerHTML = labelHTML;
+    }
+    static nextID() {
+        Widget.odometer += 1;
+        const base = 'dialog';
+        const suffix = Widget.odometer.toString();
+        return `${base}-${suffix}`;
+    }
+}
+Widget.odometer = 0;
 export class Dialog {
-    constructor(legendText) {
+    constructor(legendText, target = document.body) {
         this.element = document.createElement('dialog');
+        target.append(this.element);
         this.fieldset = document.createElement('fieldset');
         const legend = document.createElement('legend');
         legend.innerHTML = legendText;
@@ -23,72 +40,67 @@ export class Dialog {
         this.element.append(this.fieldset);
         this.element.append(buttonsDiv);
     }
-    nextID() {
-        Dialog.odometer += 1;
-        const base = 'dialog';
-        const suffix = Dialog.odometer.toString();
-        return `${base}-${suffix}`;
-    }
     addCheckbox(labelHTML, checked) {
-        const widget = checkboxElement(labelHTML, checked, this.nextID());
+        const widget = new CheckboxElement(labelHTML, checked);
         this.controls.append(widget.label, widget.element);
         return widget.element;
     }
     addText(labelHTML, value) {
-        const widget = textElement(labelHTML, value, this.nextID());
+        const widget = new TextElement(labelHTML, value);
         this.controls.append(widget.label, widget.element);
         return widget.element;
     }
     addRange(labelHTML, value, minimum, maximum, step, outputTexts) {
-        const widget = rangeElement(labelHTML, value, minimum, maximum, step, outputTexts, this.nextID());
+        const widget = new RangeElement(labelHTML, value, minimum, maximum, step, outputTexts);
         this.controls.append(widget.label, widget.element);
         return widget.element;
     }
     addSelect(labelHTML, options) {
-        const widget = selectElement(labelHTML, options, this.nextID());
+        const widget = new SelectElement(labelHTML, options);
         this.controls.append(widget.label, widget.element);
         return widget.element;
     }
 }
 Dialog.odometer = 0;
-export function checkboxElement(labelHTML, checked, id = '') {
-    const element = document.createElement('input');
-    if (id)
-        element.id = id;
-    element.type = 'checkbox';
-    element.checked = checked;
-    const label = labelElement(element, labelHTML);
-    const widget = { element: element, label: label };
-    return widget;
+export class CheckboxElement extends Widget {
+    constructor(labelHTML, checked) {
+        const element = document.createElement('input');
+        super(element, labelHTML);
+        element.type = 'checkbox';
+        element.checked = checked;
+    }
 }
-export function textElement(labelHTML, value, id = '') {
-    const element = document.createElement('input');
-    if (id)
-        element.id = id;
-    element.value = value;
-    const label = labelElement(element, labelHTML);
-    const widget = { element: element, label: label };
-    return widget;
+export class TextElement extends Widget {
+    constructor(labelHTML, value) {
+        const element = document.createElement('input');
+        super(element, labelHTML);
+        element.value = value;
+    }
 }
-export function rangeElement(labelHTML, value, minimum, maximum, step, outputTexts, id = '') {
-    const element = document.createElement('input');
-    if (id)
-        element.id = id;
-    element.type = 'range';
-    element.value = value.toString();
-    element.min = minimum.toString();
-    element.max = maximum.toString();
-    element.step = step.toString();
-    const label = labelElement(element, labelHTML);
-    const output = document.createElement('output');
-    output.innerHTML = outputText(element, outputTexts);
-    label.append(output);
-    const widget = { element: element, label: label };
-    element.addEventListener('input', () => {
-        // element.value = Number(element.value);
-        output.innerHTML = `${outputText(element, outputTexts)}`;
-    });
-    return widget;
+export class RangeElement extends Widget {
+    constructor(labelHTML, value, minimum, maximum, step, outputTexts) {
+        const element = document.createElement('input');
+        super(element, labelHTML);
+        element.type = 'range';
+        element.value = value.toString();
+        element.min = minimum.toString();
+        element.max = maximum.toString();
+        element.step = step.toString();
+        const output = document.createElement('output');
+        output.innerHTML = outputText(element, outputTexts);
+        this.label.append(output);
+        element.addEventListener('input', () => {
+            output.innerHTML = `${outputText(element, outputTexts)}`;
+        });
+    }
+}
+export class SelectElement extends Widget {
+    constructor(labelHTML, options) {
+        const element = document.createElement('select');
+        super(element, labelHTML);
+        element.value = '';
+        addOptions(element, options);
+    }
 }
 function outputText(element, outputTexts) {
     let outputText = '';
@@ -102,16 +114,6 @@ function outputText(element, outputTexts) {
         outputText = outputTexts[2];
     outputText = '<br>' + outputText.replace(wildcard, element.value);
     return outputText;
-}
-export function selectElement(labelHTML, options, id = '') {
-    const element = document.createElement('select');
-    if (id)
-        element.id = id;
-    element.value = '';
-    const label = labelElement(element, labelHTML);
-    addOptions(element, options);
-    const widget = { element: element, label: label };
-    return widget;
 }
 /**
  * ### attempting to support a default option here (other than the disabled
@@ -154,7 +156,9 @@ function addOptions(element, options) {
         element.add(optionElement);
     console.log(element);
 }
+/**### This is (mostly?) obsolete--the Widget superclass handles it*/
 function labelElement(element, labelHTML) {
+    console.log(labelHTML, element.id);
     const label = document.createElement('label');
     label.htmlFor = element.id;
     label.innerHTML = labelHTML;
@@ -175,10 +179,6 @@ export class Navigator {
         this.lastButton = document.createElement('button');
         this.event = event;
         /** default button texts */
-        // this.firstButton.innerText = '|<';
-        // this.previousButton.innerText = '<';
-        // this.nextButton.innerText = '>';
-        // this.lastButton.innerText = '>|';
         this.firstButton.innerHTML = '&larrb;';
         this.previousButton.innerHTML = '&larr;';
         this.nextButton.innerHTML = '&rarr;';

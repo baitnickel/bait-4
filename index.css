@@ -414,11 +414,12 @@ dialog.threads-dialog button {
 	position: relative;
 }
 
-.carousel > ul { /* get rid of <ul>'s default padding and spacing */
+/* get rid of <ul>'s default padding and spacing */
+/* .carousel > ul {
 	margin: 0;
 	padding: 0;
 	list-style: none;
-}
+} */
 
 .slide {
 	position: absolute;
@@ -488,7 +489,7 @@ dialog.threads-dialog button {
 	right: 1rem;
 }
 
-dialog.carousel-dialog > fieldset > ul > li {
+/* dialog.carousel-dialog > fieldset > ul > li {
 	list-style-type: none;
 	margin: 0 3rem 1rem 1rem;
 }
@@ -496,14 +497,14 @@ dialog.carousel-dialog > fieldset > ul > li {
 dialog.carousel-dialog > fieldset > ul > li > button {
 	font-size: .75rem;
 	margin: 1rem .5rem 0 .5rem;
-}
+} */
 
 /* Tests, etc. =================================================================== */
 
 .grid-buttons {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, 100px);
-	gap: 1rem;
+	grid-template-columns: repeat(auto-fit, 75px);
+	gap: .5rem;
 }
 
 .grid-container {

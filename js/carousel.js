@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
-import * as W from './lib/widgets-1.js';
+import * as W from './lib/widgets.js';
 const PAGE = new Page(false, false);
 PAGE.header.remove();
 PAGE.content.remove();
@@ -21,17 +21,14 @@ if (!PAGE.backendAvailable) {
 }
 const MediaImages = await Fetch.api(`${PAGE.backend}/media/images`);
 const Albums = mediaImagesMap(MediaImages);
-const Confirm = 'bait:confirm';
-const ConfirmEvent = new Event(Confirm);
-const Cancel = 'bait:cancel';
-const CancelEvent = new Event(Cancel);
 export function render() {
     const selection = getQuerySelection();
-    const modal = createModalDialog(selection);
+    const dialog = createModalDialog(selection);
+    document.body.append(dialog.element);
     if (selection.album)
-        runCarousel(selection, modal);
+        runCarousel(selection, dialog);
     else
-        modal.open();
+        dialog.element.showModal();
 }
 /**
  * Get selection criteria from URL query, if any.
@@ -49,38 +46,27 @@ function getQuerySelection() {
     return selection;
 }
 function createModalDialog(selection) {
-    const albumDropDown = new W.Select('Album: ');
-    albumDropDown.addOptions(Array.from(Albums.keys()), '--select--');
-    const shuffleCheckbox = new W.Checkbox('Shuffle Slides: ', selection.shuffle);
-    const outputTexts = ['<br>Manually', '<br>Every Second', '<br>Every %% Seconds'];
-    const intervalRange = new W.Range('Change Slides:<br>', selection.interval, 0, 60, 1, outputTexts);
-    const cancelButton = new W.Button('Cancel', CancelEvent);
-    const confirmButton = new W.Button('Confirm', ConfirmEvent);
-    const modal = new W.Dialog('Carousel Options');
-    modal.element.className = 'carousel-dialog';
-    modal.addWidget(albumDropDown);
-    modal.addWidget(shuffleCheckbox);
-    modal.addWidget(intervalRange);
-    modal.addWidgets([cancelButton, confirmButton]);
-    modal.finish(document.body);
-    document.addEventListener(Cancel, () => {
-        modal.close();
+    const dialog = new W.Dialog('Carousel Options');
+    const albumDropDown = dialog.addSelect('Album:', Array.from(Albums.keys()));
+    const shuffleCheckbox = dialog.addCheckbox('Shuffle Slides:', selection.shuffle);
+    const outputTexts = ['Manually', 'Every Second', 'Every %% Seconds'];
+    const intervalRange = dialog.addRange('Change Slides:<br>', selection.interval, 0, 60, 1, outputTexts);
+    dialog.cancelButton.addEventListener('click', () => {
         window.history.back();
     });
-    document.addEventListener(Confirm, () => {
-        modal.close();
+    dialog.confirmButton.addEventListener('click', () => {
         selection.album = albumDropDown.value;
-        selection.shuffle = shuffleCheckbox.value;
-        selection.interval = intervalRange.value;
-        runCarousel(selection, modal);
+        selection.shuffle = shuffleCheckbox.checked;
+        selection.interval = Number(intervalRange.value);
+        runCarousel(selection, dialog);
     });
-    return modal;
+    return dialog;
 }
-function runCarousel(selection, modal) {
+function runCarousel(selection, dialog) {
     const images = albumImages(selection.album);
     if (!images.length) {
         alert('No images have been selected!');
-        modal.open();
+        dialog.element.showModal();
     }
     else {
         const imageSet = new ImageSet(images, selection.shuffle);
@@ -129,7 +115,7 @@ function runCarousel(selection, modal) {
             if (intervalID)
                 clearInterval(intervalID);
             carousel.remove();
-            modal.open();
+            dialog.element.showModal();
         });
     }
 }

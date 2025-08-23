@@ -4,113 +4,52 @@ export class Widget {
 	element: HTMLElement;
 	label: HTMLLabelElement;
 
-	constructor(element: HTMLElement, labelHTML = '') {
+	constructor(element: HTMLElement, labelHTML = '', appendElement = true) {
 		this.element = element;
 		element.id = Widget.nextID();
 		this.label = document.createElement('label');
 		this.label.htmlFor = element.id;
 		this.label.innerHTML = labelHTML;
+		if (appendElement) this.label.append(this.element);
 	}
 
 	static nextID() {
 		Widget.odometer += 1;
-		const base = 'dialog';
+		const base = 'widget';
 		const suffix = Widget.odometer.toString();
 		return `${base}-${suffix}`;
 	}
 }
 
-export class Dialog {
-	static odometer = 0;
-	element: HTMLDialogElement;
-	fieldset: HTMLFieldSetElement;
-	controls: HTMLDivElement;
-	cancelButton: HTMLButtonElement;
-	confirmButton: HTMLButtonElement;
-
-	constructor(legendText: string, target = document.body) {
-		this.element = document.createElement('dialog');
-		target.append(this.element);
-
-		this.fieldset = document.createElement('fieldset');
-		const legend = document.createElement('legend');
-		legend.innerHTML = legendText;
-		this.fieldset.append(legend);
-
-		this.controls = document.createElement('div');
-		this.controls.className = 'dialog-grid';
-		this.fieldset.append(this.controls);
-
-		const buttonsDiv = document.createElement('div');
-		buttonsDiv.className = 'dialog-button-group';
-		this.cancelButton = document.createElement('button');
-		this.cancelButton.className = 'dialog-button';
-		this.cancelButton.innerText = 'Cancel';
-		this.cancelButton.addEventListener('click', () => { this.element.close() });
-		this.confirmButton = document.createElement('button');
-		this.confirmButton.className = 'dialog-button';
-		this.confirmButton.innerText = 'Confirm';
-		this.confirmButton.addEventListener('click', () => { this.element.close() });
-		buttonsDiv.append(this.cancelButton);
-		buttonsDiv.append(this.confirmButton);
-
-		this.element.append(this.fieldset);
-		this.element.append(buttonsDiv);
-	}
-
-	addCheckbox(labelHTML: string, checked: boolean) {
-		const widget = new CheckboxElement(labelHTML, checked);
-		this.controls.append(widget.label, widget.element);
-		return widget.element as HTMLInputElement;
-	}
-
-	addText(labelHTML: string, value: string) {
-		const widget = new TextElement(labelHTML, value);
-		this.controls.append(widget.label, widget.element);
-		return widget.element as HTMLInputElement;
-	}
-
-	addRange(labelHTML: string, value: number, minimum: number, maximum: number, step: number, outputTexts: string[]) {
-		const widget = new RangeElement(labelHTML, value, minimum, maximum, step, outputTexts);
-		this.controls.append(widget.label, widget.element);
-		return widget.element as HTMLInputElement;
-	}
-
-	addSelect(labelHTML: string, options: string[]) {
-		const widget = new SelectElement(labelHTML, options);
-		this.controls.append(widget.label, widget.element);
-		return widget.element as HTMLSelectElement;
-	}
-}
-
-export class CheckboxElement extends Widget {
-	constructor(labelHTML: string, checked: boolean) {
-		const element = document.createElement('input') as HTMLInputElement;
-		super(element, labelHTML);
+export class CheckboxWidget extends Widget {
+	constructor(labelHTML: string, checked: boolean, appendElement = true) {
+		const element = document.createElement('input'); // as HTMLInputElement;
+		super(element, labelHTML, appendElement);
 		element.type = 'checkbox';
 		element.checked = checked;
 	}
 }
 
-export class TextElement extends Widget {
-	constructor(labelHTML: string, value: string) {
-		const element = document.createElement('input') as HTMLInputElement;
-		super(element, labelHTML);
+export class TextWidget extends Widget {
+	constructor(labelHTML: string, value: string, appendElement = true) {
+		const element = document.createElement('input'); // as HTMLInputElement;
+		super(element, labelHTML, appendElement);
 		element.value = value;
 	}
 }
 
-export class RangeElement extends Widget {
+export class RangeWidget extends Widget {
 	constructor(
 		labelHTML: string,
 		value: number,
 		minimum: number,
 		maximum: number,
 		step: number,
-		outputTexts: string[]
+		outputTexts: string[],
+		appendElement = true
 	) {
-		const element = document.createElement('input') as HTMLInputElement;
-		super(element, labelHTML);
+		const element = document.createElement('input'); // as HTMLInputElement;
+		super(element, labelHTML, appendElement);
 		element.type = 'range';
 		element.value = value.toString();
 		element.min = minimum.toString();
@@ -125,10 +64,10 @@ export class RangeElement extends Widget {
 	}
 }
 
-export class SelectElement extends Widget {
-	constructor(labelHTML: string, options: string[]) {
-		const element = document.createElement('select') as HTMLSelectElement;
-		super(element, labelHTML);
+export class SelectWidget extends Widget {
+	constructor(labelHTML: string, options: string[], appendElement = true) {
+		const element = document.createElement('select'); // as HTMLSelectElement;
+		super(element, labelHTML, appendElement);
 		element.value = '';
 		addOptions(element, options);
 	}
@@ -183,12 +122,84 @@ function addOptions(element: HTMLSelectElement, options: string[]) {
 }
 
 /**### This is (mostly?) obsolete--the Widget superclass handles it*/
-function labelElement(element: HTMLElement, labelHTML: string) {
-	console.log(labelHTML, element.id);
-	const label = document.createElement('label');
-	label.htmlFor = element.id;
-	label.innerHTML = labelHTML;
-	return label;
+// function labelElement(element: HTMLElement, labelHTML: string) {
+// 	console.log(labelHTML, element.id);
+// 	const label = document.createElement('label');
+// 	label.htmlFor = element.id;
+// 	label.innerHTML = labelHTML;
+// 	return label;
+// }
+
+/**
+ * Create a Dialog element, including a FieldSet with assorted controls (Text,
+ * Checkbox, Range, Select) and standardized Cancel and Confirm buttons. The
+ * following classNames are applied by default:
+ * 
+ * - dialog-grid (two-column grid for labels and elements)
+ * - dialog-button-group (area for Cancel and Confirm buttons)
+ * - dialog-button (styling for Cancel and Confirm buttons)
+ */
+export class Dialog {
+	static odometer = 0;
+	element: HTMLDialogElement;
+	fieldset: HTMLFieldSetElement;
+	controls: HTMLDivElement;
+	cancelButton: HTMLButtonElement;
+	confirmButton: HTMLButtonElement;
+
+	constructor(legendText: string, target = document.body) {
+		this.element = document.createElement('dialog');
+		target.append(this.element);
+
+		this.fieldset = document.createElement('fieldset');
+		const legend = document.createElement('legend');
+		legend.innerHTML = legendText;
+		this.fieldset.append(legend);
+
+		this.controls = document.createElement('div');
+		this.controls.className = 'dialog-grid';
+		this.fieldset.append(this.controls);
+
+		const buttonsDiv = document.createElement('div');
+		buttonsDiv.className = 'dialog-button-group';
+		this.cancelButton = document.createElement('button');
+		this.cancelButton.className = 'dialog-button';
+		this.cancelButton.innerText = 'Cancel';
+		this.cancelButton.addEventListener('click', () => { this.element.close() });
+		this.confirmButton = document.createElement('button');
+		this.confirmButton.className = 'dialog-button';
+		this.confirmButton.innerText = 'Confirm';
+		this.confirmButton.addEventListener('click', () => { this.element.close() });
+		buttonsDiv.append(this.cancelButton);
+		buttonsDiv.append(this.confirmButton);
+
+		this.element.append(this.fieldset);
+		this.element.append(buttonsDiv);
+	}
+
+	addText(labelHTML: string, value: string) {
+		const widget = new TextWidget(labelHTML, value, false);
+		this.controls.append(widget.label, widget.element);
+		return widget.element as HTMLInputElement;
+	}
+
+	addCheckbox(labelHTML: string, checked: boolean) {
+		const widget = new CheckboxWidget(labelHTML, checked, false);
+		this.controls.append(widget.label, widget.element);
+		return widget.element as HTMLInputElement;
+	}
+
+	addRange(labelHTML: string, value: number, minimum: number, maximum: number, step: number, outputTexts: string[]) {
+		const widget = new RangeWidget(labelHTML, value, minimum, maximum, step, outputTexts, false);
+		this.controls.append(widget.label, widget.element);
+		return widget.element as HTMLInputElement;
+	}
+
+	addSelect(labelHTML: string, options: string[]) {
+		const widget = new SelectWidget(labelHTML, options, false);
+		this.controls.append(widget.label, widget.element);
+		return widget.element as HTMLSelectElement;
+	}
 }
 
 /********* old code *********************************************************/
@@ -348,32 +359,32 @@ export class RadioButtons { // used in `camp`, `home`, `reservations`
 	}
 }
 
-export class Checkbox { // used in `camp`, `test-yaml`
-	checkbox: HTMLInputElement;
-	label: HTMLLabelElement;
-	classNames: string[];
-	event: Event;
+// export class Checkbox { // used in `camp`, `test-yaml`
+// 	checkbox: HTMLInputElement;
+// 	label: HTMLLabelElement;
+// 	classNames: string[];
+// 	event: Event;
 
-	constructor(id: string, label: string, classNames: string|string[], event: Event, checked = false) {
-		this.checkbox = document.createElement('input');
-		this.label = document.createElement('label');
-		if (Array.isArray(classNames)) this.classNames = classNames;
-		else this.classNames = [classNames];
-		this.event = event;
+// 	constructor(id: string, label: string, classNames: string|string[], event: Event, checked = false) {
+// 		this.checkbox = document.createElement('input');
+// 		this.label = document.createElement('label');
+// 		if (Array.isArray(classNames)) this.classNames = classNames;
+// 		else this.classNames = [classNames];
+// 		this.event = event;
 
-		this.checkbox.id = id;
-		this.checkbox.type = 'checkbox';
-		this.checkbox.checked = checked;
-		this.label.htmlFor = this.checkbox.id;
-		this.label.innerText = label;
-		for (let className of this.classNames) this.label.classList.add(className);
-		this.label.append(this.checkbox);
+// 		this.checkbox.id = id;
+// 		this.checkbox.type = 'checkbox';
+// 		this.checkbox.checked = checked;
+// 		this.label.htmlFor = this.checkbox.id;
+// 		this.label.innerText = label;
+// 		for (let className of this.classNames) this.label.classList.add(className);
+// 		this.label.append(this.checkbox);
 
-		this.checkbox.addEventListener('change', () => {
-			document.dispatchEvent(this.event);
-		})
-	}
-}
+// 		this.checkbox.addEventListener('change', () => {
+// 			document.dispatchEvent(this.event);
+// 		})
+// 	}
+// }
 
 /* ### not ready
 Tables = document.createElement('div');
@@ -399,33 +410,33 @@ ThisPage.content.append(Tables);
  * fewer values are supplied than the number of cells, cell text is set to: '1'
  * through `${number of cells}`;
  */
-export class Matrix {
-	readonly element: HTMLTableElement;
-	readonly cellValues: string[];
-	readonly selectedValue: string;
+// export class Matrix {
+// 	readonly element: HTMLTableElement;
+// 	readonly cellValues: string[];
+// 	readonly selectedValue: string;
 
-	constructor(id: string, rows: number, columns: number, values: string[] = []) {
-		this.element = document.createElement('table');
-		this.element.id = id;
-		this.cellValues = [];
-		this.selectedValue = '';
-		for (let row = 0; row < rows; row += 1) {
-			const newRow = this.element.insertRow();
-			newRow.className = `${this.element.id}-row`;
-			for (let column = 0; column < columns; column += 1) {
-				const newCell = newRow.insertCell(column);
-				newCell.className = `${this.element.id}-cell`;
-				const cellNumber = (row * columns) + column;
-				newCell.id = `${this.element.id}-${cellNumber}`;
-				if (values.length == rows * columns) newCell.innerText = values[cellNumber];
-				else newCell.innerText = `${cellNumber + 1}`;
-				this.cellValues.push(newCell.innerText);
-			}
-		}
-	}
+// 	constructor(id: string, rows: number, columns: number, values: string[] = []) {
+// 		this.element = document.createElement('table');
+// 		this.element.id = id;
+// 		this.cellValues = [];
+// 		this.selectedValue = '';
+// 		for (let row = 0; row < rows; row += 1) {
+// 			const newRow = this.element.insertRow();
+// 			newRow.className = `${this.element.id}-row`;
+// 			for (let column = 0; column < columns; column += 1) {
+// 				const newCell = newRow.insertCell(column);
+// 				newCell.className = `${this.element.id}-cell`;
+// 				const cellNumber = (row * columns) + column;
+// 				newCell.id = `${this.element.id}-${cellNumber}`;
+// 				if (values.length == rows * columns) newCell.innerText = values[cellNumber];
+// 				else newCell.innerText = `${cellNumber + 1}`;
+// 				this.cellValues.push(newCell.innerText);
+// 			}
+// 		}
+// 	}
 
-	/**
-	 * When a cell is clicked, a method here should be called to set (or
-	 * clear--set to null) this.selectedValue.
-	 */
-}
+// 	/**
+// 	 * When a cell is clicked, a method here should be called to set (or
+// 	 * clear--set to null) this.selectedValue.
+// 	 */
+// }

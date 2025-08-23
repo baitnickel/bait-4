@@ -2,7 +2,7 @@ import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
 import * as Table from './lib/table.js';
 import * as Reservations from './lib/reservations.js';
-import * as Widgets from './lib/widgets.js';
+import * as W from './lib/widgets.js';
 const PAGE = new Page();
 // const Site = PAGE.site;
 const NewReservationsViewEvent = 'bait:update-reservation-view';
@@ -81,8 +81,15 @@ export function render() {
         const reservationsTableElement = document.createElement('table');
         const buttonsElement = document.createElement('div');
         const yearSelection = document.createElement('select');
-        const radioButtons = new Widgets.RadioButtons('radio-button', 'active', newReservationsView);
-        const accountingOption = new Widgets.Checkbox('accounting', 'Show Accounting: ', 'camp-checkbox', accountingOptionChanged, showAccounting);
+        const radioButtons = new W.RadioButtons('radio-button', 'active', newReservationsView);
+        //### const accountingOption = new W.Checkbox('accounting', 'Show Accounting: ', 'camp-checkbox', accountingOptionChanged, showAccounting);
+        const accountingWidget = new W.CheckboxWidget('Show Accounting: ', showAccounting);
+        const accountingOption = accountingWidget.element;
+        const accountingOptionLabel = accountingWidget.label;
+        accountingOptionLabel.className = 'camp-checkbox';
+        accountingOption.addEventListener('change', () => {
+            document.dispatchEvent(accountingOptionChanged);
+        });
         /* create elements for accounting report */
         const accountingDiv = document.createElement('div');
         const reportParagraph = document.createElement('p');
@@ -101,8 +108,10 @@ export function render() {
         for (let button of radioButtons.buttons)
             buttonsElement.append(button);
         /* add accounting checkbox option (hidden until event listener verifies finalized year) */
-        accountingOption.label.hidden = true;
-        buttonsElement.append(accountingOption.label);
+        //### accountingOption.label.hidden = true;
+        //### buttonsElement.append(accountingOption.label);
+        accountingOptionLabel.hidden = true;
+        buttonsElement.append(accountingOptionLabel);
         detailsElement.append(buttonsElement);
         detailsElement.append(reservationsTableElement);
         reservationParagraph.append(detailsElement);
@@ -117,7 +126,8 @@ export function render() {
             /* Generate campsite reservation table */
             Reservations.displayReservationTable(reservationsTableElement, year, ParkReservations, Groups, radioButtons);
             if (ParkFinalizedYears.includes(year) || testing) {
-                accountingOption.label.hidden = false;
+                //### accountingOption.label.hidden = false;
+                accountingOptionLabel.hidden = false;
                 if (showAccounting) {
                     /* Generate campsite accounting report */
                     const reportLines = Reservations.accounting(year, Groups, ParkReservations, ParkAdjustments, ParkCosts);
@@ -130,11 +140,12 @@ export function render() {
             }
             else {
                 accountingDiv.hidden = true;
-                accountingOption.label.hidden = true;
+                //### accountingOption.label.hidden = true;
+                accountingOptionLabel.hidden = true;
             }
         });
         document.addEventListener(AccountingOptionEvent, () => {
-            showAccounting = accountingOption.checkbox.checked;
+            showAccounting = accountingOption.checked; /*### */
             document.dispatchEvent(newReservationsView);
         });
         /* on initial rendering, trigger display of campsite reservation info */

@@ -1,5 +1,5 @@
 import * as T from './types.js';
-import * as Widgets from './widgets.js';
+import * as W from './widgets.js';
 
 /**
  * Special module to support the `camp` module's reservation tables and expense
@@ -32,7 +32,7 @@ export function displayReservationTable(
 	thisYear: number,
 	reservations: T.Reservation[],
 	groups: Map<string, T.CampGroup>,
-	radioButtons: Widgets.RadioButtons,
+	radioButtons: W.RadioButtons,
 ) {
 	let adjustedReservations: AdjustedReservations = {};
 	let beginDate: Date|null = null;
@@ -102,7 +102,7 @@ function writeTableRows(
 	tableElement: HTMLTableElement,
 	adjustedReservations: AdjustedReservations,
 	groups: Map<string, T.CampGroup>,
-	radioButtons: Widgets.RadioButtons
+	radioButtons: W.RadioButtons
 ) {
 	let sites = sortAdjustedReservations(adjustedReservations);
 	for (let site of sites) {
@@ -331,7 +331,7 @@ function processExpenseAdjustments(
 	let foundAdjustments = false;
 	for (const adjustment of adjustments) {
 		const uppercaseGroup = adjustment.group.toUpperCase(); /* group keys are uppercase */
-		/* only adjustments with amounts greater than 0 are included as shared expenses */
+		/* only adjustments with amounts greater than zero are included as shared expenses */
 		if (adjustment.year == year && adjustment.amount > 0 && groups.get(uppercaseGroup) !== undefined) {
 			if (!foundAdjustments) {
 				foundAdjustments = true;

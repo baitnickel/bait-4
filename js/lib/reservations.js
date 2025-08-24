@@ -279,7 +279,7 @@ function processExpenseAdjustments(year, adjustments, groups, groupKeys, partici
     let foundAdjustments = false;
     for (const adjustment of adjustments) {
         const uppercaseGroup = adjustment.group.toUpperCase(); /* group keys are uppercase */
-        /* only adjustments with amounts greater than 0 are included as shared expenses */
+        /* only adjustments with amounts greater than zero are included as shared expenses */
         if (adjustment.year == year && adjustment.amount > 0 && groups.get(uppercaseGroup) !== undefined) {
             if (!foundAdjustments) {
                 foundAdjustments = true;

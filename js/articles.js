@@ -2,7 +2,7 @@ import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
 import { Markup } from './lib/markup.js';
 import * as MD from './lib/md.js';
-import * as Widget from './lib/widgets.js';
+import * as W from './lib/widgets.js';
 /**
  * Example: http://localhost/bait-4/index.html?page=articles&path=README.md,Content/drafts
  *
@@ -59,7 +59,7 @@ export function render() {
      * When there are multiple Articles to be displayed, define navigation buttons.
      */
     if (selectedArticles.length > 1) {
-        const navigator = new Widget.Navigator(selectedArticles, updateNavigation);
+        const navigator = new W.Navigator(selectedArticles, updateNavigation);
         navigator.addButtons(NavigationElement, 'article-navigation-button');
         NavigationElement.append(ProgressElement);
         /* listen for navigation button clicks and display previous/next article */
@@ -110,7 +110,7 @@ function selectArticles(allPaths, requestedPaths, requestedIDs) {
  * Given `article` (the relative path of an article), expand the relative path
  * to a full path and fetch the corresponding markdown file, mark it up, and
  * display the HTML in the target HTML element. This function is usually called
- * by the event listeners in the Widget.Navigator object.
+ * by the event listeners in the W.Navigator object.
  */
 // function displayArticle(articles: string[], index: number) {
 function displayArticle(articles, index) {

@@ -1,12 +1,19 @@
+/**
+ * The Widget superclass manages element.id assignments automatically, using its
+ * static `odometer`. We are assuming that the ID is usually needed only for
+ * tying the label element to the widget (control) element. By default, we
+ * enclose the widget element inside the label element. The Dialog and, perhaps,
+ * future Form classes will override this as they will layout the label and
+ * widgets in a grid.
+ */
 export class Widget {
     constructor(element, labelHTML = '', appendElement = true) {
-        this.element = element;
         element.id = Widget.nextID();
         this.label = document.createElement('label');
         this.label.htmlFor = element.id;
         this.label.innerHTML = labelHTML;
         if (appendElement)
-            this.label.append(this.element);
+            this.label.append(element);
     }
     static nextID() {
         Widget.odometer += 1;
@@ -16,46 +23,59 @@ export class Widget {
     }
 }
 Widget.odometer = 0;
+/**
+ * Each of the Widget subclasses must maintain its own `element` property so
+ * that the correct HTML Element type is associated with the subclass.
+ */
 export class CheckboxWidget extends Widget {
     constructor(labelHTML, checked, appendElement = true) {
-        const element = document.createElement('input'); // as HTMLInputElement;
+        const element = document.createElement('input');
         super(element, labelHTML, appendElement);
-        element.type = 'checkbox';
-        element.checked = checked;
+        this.element = element;
+        this.element.type = 'checkbox';
+        this.element.checked = checked;
     }
 }
 export class TextWidget extends Widget {
     constructor(labelHTML, value, appendElement = true) {
-        const element = document.createElement('input'); // as HTMLInputElement;
+        const element = document.createElement('input');
         super(element, labelHTML, appendElement);
-        element.value = value;
+        this.element = element;
+        this.element.value = value;
     }
 }
 export class RangeWidget extends Widget {
     constructor(labelHTML, value, minimum, maximum, step, outputTexts, appendElement = true) {
-        const element = document.createElement('input'); // as HTMLInputElement;
+        const element = document.createElement('input');
         super(element, labelHTML, appendElement);
-        element.type = 'range';
-        element.value = value.toString();
-        element.min = minimum.toString();
-        element.max = maximum.toString();
-        element.step = step.toString();
+        this.element = element;
+        this.element.type = 'range';
+        this.element.value = value.toString();
+        this.element.min = minimum.toString();
+        this.element.max = maximum.toString();
+        this.element.step = step.toString();
         const output = document.createElement('output');
         output.innerHTML = outputText(element, outputTexts);
         this.label.append(output);
-        element.addEventListener('input', () => {
-            output.innerHTML = `${outputText(element, outputTexts)}`;
+        this.element.addEventListener('input', () => {
+            output.innerHTML = `${outputText(this.element, outputTexts)}`;
         });
     }
 }
 export class SelectWidget extends Widget {
     constructor(labelHTML, options, appendElement = true) {
-        const element = document.createElement('select'); // as HTMLSelectElement;
+        const element = document.createElement('select');
         super(element, labelHTML, appendElement);
-        element.value = '';
-        addOptions(element, options);
+        this.element = element;
+        this.element.value = '';
+        addOptions(this.element, options);
     }
 }
+/**
+ * Currently used only for the `RangeWidget`--could be moved into the
+ * RangeWidget subclass as a method if we don't find some general usage for it
+ * here.
+ */
 function outputText(element, outputTexts) {
     let outputText = '';
     const wildcard = '%%';
@@ -70,7 +90,11 @@ function outputText(element, outputTexts) {
     return outputText;
 }
 /**
- * ### attempting to support a default option here (other than the disabled
+ * Currently used only for the `SelectWidget`--could be moved into the
+ * SelectWidget subclass as a method if we don't find some general usage for it
+ * here.
+ *
+ * ### We were attempting to support a default option here (other than the disabled
  * "--select--" option), by treating the first option having a "*" suffix as the
  * default, but it doesn't work. The starred option, when chosen always sets the
  * Select element's value to ''.
@@ -110,14 +134,6 @@ function addOptions(element, options) {
         element.add(optionElement);
     console.log(element);
 }
-/**### This is (mostly?) obsolete--the Widget superclass handles it*/
-// function labelElement(element: HTMLElement, labelHTML: string) {
-// 	console.log(labelHTML, element.id);
-// 	const label = document.createElement('label');
-// 	label.htmlFor = element.id;
-// 	label.innerHTML = labelHTML;
-// 	return label;
-// }
 /**
  * Create a Dialog element, including a FieldSet with assorted controls (Text,
  * Checkbox, Range, Select) and standardized Cancel and Confirm buttons. The
@@ -125,7 +141,7 @@ function addOptions(element, options) {
  *
  * - dialog-grid (two-column grid for labels and elements)
  * - dialog-button-group (area for Cancel and Confirm buttons)
- * - dialog-button (styling for Cancel and Confirm buttons)
+ * - dialog-button (styling for each of the Cancel and Confirm buttons)
  */
 export class Dialog {
     constructor(legendText, target = document.body) {
@@ -175,7 +191,7 @@ export class Dialog {
     }
 }
 Dialog.odometer = 0;
-/********* old code *********************************************************/
+/********* pre-Widget code *********************************************************/
 /**
  * The Navigator class manages a set of buttons (First, Previous, Next, Last)
  * for navigating through a set of documents (an array of file path names).

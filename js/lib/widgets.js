@@ -17,7 +17,7 @@ export class Widget {
     }
     static nextID() {
         Widget.odometer += 1;
-        const base = 'widget';
+        const base = 'Widget';
         const suffix = Widget.odometer.toString();
         return `${base}-${suffix}`;
     }
@@ -27,7 +27,7 @@ Widget.odometer = 0;
  * Each of the Widget subclasses must maintain its own `element` property so
  * that the correct HTML Element type is associated with the subclass.
  */
-export class CheckboxWidget extends Widget {
+export class Checkbox extends Widget {
     constructor(labelHTML, checked, appendElement = true) {
         const element = document.createElement('input');
         super(element, labelHTML, appendElement);
@@ -36,7 +36,7 @@ export class CheckboxWidget extends Widget {
         this.element.checked = checked;
     }
 }
-export class TextWidget extends Widget {
+export class Text extends Widget {
     constructor(labelHTML, value, appendElement = true) {
         const element = document.createElement('input');
         super(element, labelHTML, appendElement);
@@ -44,7 +44,7 @@ export class TextWidget extends Widget {
         this.element.value = value;
     }
 }
-export class RangeWidget extends Widget {
+export class Range extends Widget {
     constructor(labelHTML, value, minimum, maximum, step, outputTexts, appendElement = true) {
         const element = document.createElement('input');
         super(element, labelHTML, appendElement);
@@ -62,7 +62,7 @@ export class RangeWidget extends Widget {
         });
     }
 }
-export class SelectWidget extends Widget {
+export class Select extends Widget {
     constructor(labelHTML, options, appendElement = true) {
         const element = document.createElement('select');
         super(element, labelHTML, appendElement);
@@ -72,9 +72,8 @@ export class SelectWidget extends Widget {
     }
 }
 /**
- * Currently used only for the `RangeWidget`--could be moved into the
- * RangeWidget subclass as a method if we don't find some general usage for it
- * here.
+ * Currently used only for the `Range` Widget--could be moved into the `Range`
+ * subclass as a method if we don't find some general usage for it here.
  */
 function outputText(element, outputTexts) {
     let outputText = '';
@@ -90,9 +89,8 @@ function outputText(element, outputTexts) {
     return outputText;
 }
 /**
- * Currently used only for the `SelectWidget`--could be moved into the
- * SelectWidget subclass as a method if we don't find some general usage for it
- * here.
+ * Currently used only for the `Select` Widget--could be moved into the `Select`
+ * subclass as a method if we don't find some general usage for it here.
  *
  * ### We were attempting to support a default option here (other than the disabled
  * "--select--" option), by treating the first option having a "*" suffix as the
@@ -170,22 +168,22 @@ export class Dialog {
         this.element.append(buttonsDiv);
     }
     addText(labelHTML, value) {
-        const widget = new TextWidget(labelHTML, value, false);
+        const widget = new Text(labelHTML, value, false);
         this.controls.append(widget.label, widget.element);
         return widget.element;
     }
     addCheckbox(labelHTML, checked) {
-        const widget = new CheckboxWidget(labelHTML, checked, false);
+        const widget = new Checkbox(labelHTML, checked, false);
         this.controls.append(widget.label, widget.element);
         return widget.element;
     }
     addRange(labelHTML, value, minimum, maximum, step, outputTexts) {
-        const widget = new RangeWidget(labelHTML, value, minimum, maximum, step, outputTexts, false);
+        const widget = new Range(labelHTML, value, minimum, maximum, step, outputTexts, false);
         this.controls.append(widget.label, widget.element);
         return widget.element;
     }
     addSelect(labelHTML, options) {
-        const widget = new SelectWidget(labelHTML, options, false);
+        const widget = new Select(labelHTML, options, false);
         this.controls.append(widget.label, widget.element);
         return widget.element;
     }

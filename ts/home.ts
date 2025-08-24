@@ -5,7 +5,6 @@ import * as Datasets from './lib/datasets.js';
 import * as MD from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 import * as W from './lib/widgets.js';
-// import * as W2 from './lib/widgets-2.js';
 
 type Tester = { name: string; function: () => void; }
 

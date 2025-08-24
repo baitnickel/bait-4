@@ -93,7 +93,7 @@ export function render() {
 		const yearSelection = document.createElement('select');
 		const radioButtons = new W.RadioButtons('radio-button', 'active', newReservationsView);
 
-		const accountingWidget = new W.CheckboxWidget('Show Accounting: ', showAccounting);
+		const accountingWidget = new W.Checkbox('Show Accounting: ', showAccounting);
 		accountingWidget.label.className = 'camp-checkbox';
 		accountingWidget.element.addEventListener('change', () => {
 			document.dispatchEvent(accountingOptionChanged);

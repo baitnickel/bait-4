@@ -20,7 +20,7 @@ export class Widget {
 
 	static nextID() {
 		Widget.odometer += 1;
-		const base = 'widget';
+		const base = 'Widget';
 		const suffix = Widget.odometer.toString();
 		return `${base}-${suffix}`;
 	}
@@ -31,7 +31,7 @@ export class Widget {
  * that the correct HTML Element type is associated with the subclass.
  */
 
-export class CheckboxWidget extends Widget {
+export class Checkbox extends Widget {
 	element: HTMLInputElement;
 
 	constructor(labelHTML: string, checked: boolean, appendElement = true) {
@@ -43,7 +43,7 @@ export class CheckboxWidget extends Widget {
 	}
 }
 
-export class TextWidget extends Widget {
+export class Text extends Widget {
 	element: HTMLInputElement;
 
 	constructor(labelHTML: string, value: string, appendElement = true) {
@@ -54,7 +54,7 @@ export class TextWidget extends Widget {
 	}
 }
 
-export class RangeWidget extends Widget {
+export class Range extends Widget {
 	element: HTMLInputElement;
 
 	constructor(
@@ -83,7 +83,7 @@ export class RangeWidget extends Widget {
 	}
 }
 
-export class SelectWidget extends Widget {
+export class Select extends Widget {
 	element: HTMLSelectElement;
 
 	constructor(labelHTML: string, options: string[], appendElement = true) {
@@ -96,9 +96,8 @@ export class SelectWidget extends Widget {
 }
 
 /**
- * Currently used only for the `RangeWidget`--could be moved into the
- * RangeWidget subclass as a method if we don't find some general usage for it
- * here.
+ * Currently used only for the `Range` Widget--could be moved into the `Range`
+ * subclass as a method if we don't find some general usage for it here.
  */
 function outputText(element: HTMLInputElement, outputTexts: string[]) {
 	let outputText = '';
@@ -112,9 +111,8 @@ function outputText(element: HTMLInputElement, outputTexts: string[]) {
 }
 
 /**
- * Currently used only for the `SelectWidget`--could be moved into the
- * SelectWidget subclass as a method if we don't find some general usage for it
- * here.
+ * Currently used only for the `Select` Widget--could be moved into the `Select`
+ * subclass as a method if we don't find some general usage for it here.
  * 
  * ### We were attempting to support a default option here (other than the disabled
  * "--select--" option), by treating the first option having a "*" suffix as the
@@ -200,25 +198,25 @@ export class Dialog {
 	}
 
 	addText(labelHTML: string, value: string) {
-		const widget = new TextWidget(labelHTML, value, false);
+		const widget = new Text(labelHTML, value, false);
 		this.controls.append(widget.label, widget.element);
 		return widget.element as HTMLInputElement;
 	}
 
 	addCheckbox(labelHTML: string, checked: boolean) {
-		const widget = new CheckboxWidget(labelHTML, checked, false);
+		const widget = new Checkbox(labelHTML, checked, false);
 		this.controls.append(widget.label, widget.element);
 		return widget.element as HTMLInputElement;
 	}
 
 	addRange(labelHTML: string, value: number, minimum: number, maximum: number, step: number, outputTexts: string[]) {
-		const widget = new RangeWidget(labelHTML, value, minimum, maximum, step, outputTexts, false);
+		const widget = new Range(labelHTML, value, minimum, maximum, step, outputTexts, false);
 		this.controls.append(widget.label, widget.element);
 		return widget.element as HTMLInputElement;
 	}
 
 	addSelect(labelHTML: string, options: string[]) {
-		const widget = new SelectWidget(labelHTML, options, false);
+		const widget = new Select(labelHTML, options, false);
 		this.controls.append(widget.label, widget.element);
 		return widget.element as HTMLSelectElement;
 	}

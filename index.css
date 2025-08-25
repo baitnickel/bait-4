@@ -130,7 +130,6 @@ body {
 	float: right; /* move input element to the right */
 }
 
-summary { font-size: 1.1rem; font-weight: 200; }
 h1, h2, h3, h4, h5, h6 { font-family: sans-serif; font-weight: normal; }
 h1 { font-size: 1.7rem; }
 h2 { font-size: 1.2rem; }
@@ -145,6 +144,9 @@ h5, h6 {
 	background-color: #eee;
 	color: #00f;
 }
+summary { font-size: 1.1rem; font-weight: 200; }
+.threads-output-element summary { font-size: 1.5rem; font-weight: 200; }
+.threads-query-element button { margin-bottom: 1rem; }
 
 .italic { font-style: italic; }
 .small { font-size: small; }

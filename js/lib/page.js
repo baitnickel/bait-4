@@ -3,9 +3,8 @@ import * as Fetch from './fetch.js';
 import { MarkupLine } from './markup.js';
 const REPOSITORY = 'bait-4';
 const USERNAME = 'baitnickel';
-const BACKEND = 'http://localhost:3000';
-/** @todo if cookie key 'server' is present, change BACKEND to 'http://192.168.' + server value (e.g., '1.70') */
-const LOCAL = (window.location.hostname == 'localhost' || window.location.hostname.startsWith('192.'));
+const BACKEND = 'http://192.168.1.70:3000'; //'http://localhost:3000';
+const LOCAL = (window.location.hostname == 'localhost' || window.location.hostname.startsWith('192.168'));
 let BACKEND_AVAILABLE = false;
 if (LOCAL)
     BACKEND_AVAILABLE = await Fetch.test(`${BACKEND}/`);

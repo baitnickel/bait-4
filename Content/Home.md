@@ -9,4 +9,4 @@ Sorry, there's nothing too entertaining or exciting on this site yet. Probably s
 
 I'm writing text content in the Obsidian app and coding in TypeScript (which generates JavaScript), using the VSCode editor.
 
-Anyway, you might find a few of the demo pages interesting. I'm quite proud of the code underneath *Songs* and *I Ching*. The display of the song sheets, in particular, is quite clever, if I do say so myself, supporting key transposition and chord diagrams rendered dynamically from strings such as `C x32010` using Scalable Vector Graphics.
+Anyway, you might find a few of the demo pages interesting. I'm quite proud of the code underneath *Songs* and *I Ching*. The display of the song sheets, in particular, is quite clever, if I do say so myself, supporting key transposition and chord diagrams rendered dynamically from simple notations such as: `C x32010`.

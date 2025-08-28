@@ -73,6 +73,7 @@ export function render() {
 		TestOutput.style['margin'] = '1em';
 
 		const testers: Tester[] = [];
+		testers.push( {name: 'IP', function: testIP } );
 		testers.push( {name: 'Dialog', function: testDialog } );
 		testers.push( {name: 'Grid', function: gridTest } );
 		testers.push( {name: 'Spinner', function: testSpinner } );
@@ -105,6 +106,13 @@ export function render() {
 	}
 }
 
+function testIP() {
+	const IPList: string[] = [];
+	IPList.push(`Host: ${PAGE.site}`);
+	IPList.push(`Backend: ${PAGE.backend}`);
+	PAGE.appendParagraph(TestOutput, IPList);
+}
+
 function testDialog() {
 	const dialog = new W.Dialog('Big Test');
 	const box1 = dialog.addCheckbox('This Works:', false);
@@ -123,7 +131,7 @@ function testDialog() {
 		PAGE.appendParagraph(TestOutput, 'Cancelled');
 	});
 	dialog.confirmButton.addEventListener('click', () => {
-		PAGE.appendParagraph( TestOutput, [ 'Confirmed', `box1 checked? ${box1.checked}`, `random text: ${text1.value}`, `selection: |${select1.value}|`, `range: ${range.value}`]
+		PAGE.appendParagraph(TestOutput, [ 'Confirmed', `box1 checked? ${box1.checked}`, `random text: ${text1.value}`, `selection: |${select1.value}|`, `range: ${range.value}`]
 		);
 	});
 }

@@ -60,6 +60,7 @@ export function render() {
         PAGE.content.append(TestOutput);
         TestOutput.style['margin'] = '1em';
         const testers = [];
+        testers.push({ name: 'IP', function: testIP });
         testers.push({ name: 'Dialog', function: testDialog });
         testers.push({ name: 'Grid', function: gridTest });
         testers.push({ name: 'Spinner', function: testSpinner });
@@ -89,6 +90,12 @@ export function render() {
         recycle.addEventListener('click', () => { TestOutput.innerHTML = ''; });
         TestButtons.append(recycle);
     }
+}
+function testIP() {
+    const IPList = [];
+    IPList.push(`Host: ${PAGE.site}`);
+    IPList.push(`Backend: ${PAGE.backend}`);
+    PAGE.appendParagraph(TestOutput, IPList);
 }
 function testDialog() {
     const dialog = new W.Dialog('Big Test');

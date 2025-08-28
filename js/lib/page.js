@@ -3,7 +3,7 @@ import * as Fetch from './fetch.js';
 import { MarkupLine } from './markup.js';
 const REPOSITORY = 'bait-4';
 const USERNAME = 'baitnickel';
-const BACKEND = 'http://192.168.1.70:3000'; //'http://localhost:3000';
+const BACKEND = 'http://localhost:3000'; //'http://192.168.1.70:3000';
 const LOCAL = (window.location.hostname == 'localhost' || window.location.hostname.startsWith('192.168'));
 let BACKEND_AVAILABLE = false;
 if (LOCAL)
@@ -83,7 +83,7 @@ export class Page {
             MenuItems.push({ module: 'articles', parameters: ['path=Content/drafts'], text: 'Drafts', icon: '' });
             MenuItems.push({ module: 'threads', parameters: [], text: 'Threads', icon: '' });
             MenuItems.push({ module: 'carousel', parameters: [], text: 'Carousel', icon: '' });
-            MenuItems.push({ module: 'carousel', parameters: ['album=test'], text: 'Carousel Test', icon: '' });
+            MenuItems.push({ module: 'timeline', parameters: [], text: 'Timeline', icon: '' });
             // MenuItems.push({module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: ''});
             // MenuItems.push({module: 'test-cookies', parameters: [], text: 'Cookies', icon: ''});
             // MenuItems.push({module: 'test-lyrics', parameters: [], text: 'Lyrics', icon: ''});

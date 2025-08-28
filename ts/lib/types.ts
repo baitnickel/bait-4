@@ -474,6 +474,16 @@ export type Annotation = {
 	note: string;
 }
 
+/** for `timeline` API */
+export type TimedEvent = {
+	dateValue: number; /** number of milliseconds */
+	precision: number; /** segment count (1:Y, 2:YM, 3:YMD) */
+	approximate: boolean;
+	personal: boolean;
+	description: string; /** markdown */
+	note: string; /** markdown */
+}
+
 /** for `media/images` API */
 export type MediaImageData = {
 	album: string;

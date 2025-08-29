@@ -525,6 +525,36 @@ dialog.carousel-dialog > fieldset > ul > li > button {
 	/* vertical-align: middle; */
 }
 
+.timeline-query-element button { margin-bottom: 1rem; }
+.timeline-container {
+	display: grid;
+	grid-template-columns: 2fr 8fr 1fr;
+	/* background-color: dodgerblue; */
+	font-family: sans-serif;
+	/* padding: 3px; */
+}
+.timeline-date {
+	background-color: lightgray;
+	border: 1px solid gray;;
+	padding: .25rem;
+	font-size: .75rem;
+	text-align: right;
+}
+.timeline-description {
+	background-color: #f1f1f1;
+	border: 1px solid lightgray;
+	padding: .25rem .5rem;
+	font-size: .75rem;
+	text-align: left;
+}
+.timeline-age {
+	background-color: lightgray;
+	border: 1px solid gray;
+	padding: .25rem;
+	font-size: .75rem;
+	text-align: left;
+}
+
 /*
 font-family: 'Cormorant', serif;
 font-family: 'Inter', sans-serif;

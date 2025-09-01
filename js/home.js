@@ -4,6 +4,7 @@ import * as Datasets from './lib/datasets.js';
 import * as MD from './lib/md.js';
 import { Markup } from './lib/markup.js';
 import * as W from './lib/widgets.js';
+import { Moment } from './lib/moments.js';
 const PAGE = new Page();
 const IndicesPath = `${PAGE.site}/Indices`;
 const Articles = await Fetch.map(`${IndicesPath}/articles.json`);
@@ -60,6 +61,7 @@ export function render() {
         PAGE.content.append(TestOutput);
         TestOutput.style['margin'] = '1em';
         const testers = [];
+        testers.push({ name: 'Moments', function: testMoments });
         testers.push({ name: 'IP', function: testIP });
         testers.push({ name: 'Dialog', function: testDialog });
         testers.push({ name: 'Grid', function: gridTest });
@@ -73,6 +75,12 @@ export function render() {
         if (PAGE.backendAvailable) {
             testers.push({ name: 'Fetch.api', function: testFetchAPI });
         }
+        const recycle = document.createElement('button');
+        recycle.innerHTML = '↻';
+        recycle.style['backgroundColor'] = '#0000';
+        recycle.style['border'] = '0';
+        recycle.addEventListener('click', () => { TestOutput.innerHTML = ''; });
+        TestButtons.append(recycle);
         for (const tester of testers) {
             const button = document.createElement('button');
             button.innerText = tester.name;
@@ -83,13 +91,17 @@ export function render() {
             });
             TestButtons.append(button);
         }
-        const recycle = document.createElement('button');
-        recycle.innerHTML = '♻️';
-        recycle.style['backgroundColor'] = '#0000';
-        recycle.style['border'] = '0';
-        recycle.addEventListener('click', () => { TestOutput.innerHTML = ''; });
-        TestButtons.append(recycle);
     }
+}
+function testMoments() {
+    const tests = ['1960', '1961.1.1', '1962/2/29', '3-1963', '21.6.1964', '1965/07/35', '1966/08/0', '1967/0', '000'];
+    const output = [];
+    for (const test of tests) {
+        const moment = new Moment(test);
+        if (moment !== null)
+            output.push(`(${moment.precision}) ${test}: ${moment.date.toString()}`);
+    }
+    PAGE.appendParagraph(TestOutput, output);
 }
 function testIP() {
     const IPList = [];

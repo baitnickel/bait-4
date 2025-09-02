@@ -110,11 +110,13 @@ export function render() {
 }
 
 function testMoments() {
-	const tests = ['1960', '1961.1.1', '1962/2/29', '3-1963', '21.6.1964', '1965/07/35', '1966/08/0', '1967/0', '000'];
+	const tests = ['1960', '1961.1.1', '1962/2/29', '3-1963', '21.6.1964', '1965/07/35', '1966/08/0', '1967/0', '1968:11:8', '149'];
 	const output: string[] = [];
+	const moment = new Moment(new Date());
+	output.push(`(${moment.precision}) Now: ${moment.formatted()}`);
 	for (const test of tests) {
 		const moment = new Moment(test);
-		if (moment !== null) output.push(`(${moment.precision}) ${test}: ${moment.date!.toString()}`);
+		if (moment !== null) output.push(`(${moment.precision}) ${test}: ${moment.formatted()}`);
 	}
 	PAGE.appendParagraph(TestOutput, output);
 }

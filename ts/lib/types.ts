@@ -82,6 +82,7 @@ export function IsYamlFile(pathName: string) {
  * - 9: Thu Feb 1, 2024
  * - 10: Feb 2024
  * - 11: 2024
+ * - 12: Thu Feb 1, 2024 2:35:51pm
  */
 export function DateString(date: Date, format = 0) {
 	if (format == 0) return date.toISOString();
@@ -113,6 +114,7 @@ export function DateString(date: Date, format = 0) {
 	if (format == 9) return `${weekday.slice(0, 3)} ${mon.slice(0, 3)} ${d}, ${year}`;
 	if (format == 10) return `${mon.slice(0, 3)} ${year}`;
 	if (format == 11) return `${year}`;
+	if (format == 12) return `${weekday.slice(0, 3)} ${mon.slice(0, 3)} ${d}, ${year} ${h}:${minute}:${second}${amPm}`;
 	return date.toISOString(); // default
 }
 

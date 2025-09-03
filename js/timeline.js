@@ -2,6 +2,8 @@ import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
+import { Moment } from './lib/moments.js';
+import { MarkupLine } from './lib/markup.js';
 const PAGE = new Page(true);
 if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
@@ -11,8 +13,8 @@ const TimedEvents = await Fetch.api(`${PAGE.backend}/timeline`);
 const Options = {
     sortAscending: true,
     fromYear: '',
-    thruYear: '',
-    birthdate: '1952/06/21',
+    untilYear: '',
+    birthdate: '6/21/1952',
     keywords: '',
 };
 const QueryElement = document.createElement('div');
@@ -49,7 +51,8 @@ function processTimedEvents(options) {
                 result = (options.sortAscending) ? a.precision - b.precision : b.precision - a.precision;
             return result;
         });
-        displayGrid(TimelineElement, timedEvents);
+        const birthdate = new Moment(options.birthdate);
+        displayGrid(TimelineElement, timedEvents, birthdate.date);
     }
 }
 function filterEvents(timedEvents, options) {
@@ -57,14 +60,14 @@ function filterEvents(timedEvents, options) {
         const fromDate = new Date(Number(options.fromYear), 0, 1);
         timedEvents = timedEvents.filter((e) => e.dateValue >= fromDate.valueOf());
     }
-    if (options.thruYear) {
-        const thruDate = new Date(Number(options.thruYear), 0, 1);
+    if (options.untilYear) {
+        const thruDate = new Date(Number(options.untilYear), 0, 1);
         timedEvents = timedEvents.filter((e) => e.dateValue < thruDate.valueOf());
     }
     if (options.keywords) {
         const keywords = options.keywords.trim().split(/\s+/);
         timedEvents = timedEvents.filter((e) => {
-            let eWords = e.description.trim().split(/\s+/);
+            let eWords = e.description.trim().split(/[\s\W]+/);
             eWords = eWords.map(element => element.toLowerCase());
             let found = false;
             for (const keyword of keywords) {
@@ -78,15 +81,19 @@ function filterEvents(timedEvents, options) {
     }
     return timedEvents;
 }
-function displayGrid(container, timedEvents, birthday = new Date(1952, 5, 21)) {
+function displayGrid(container, timedEvents, birthday) {
     container.innerHTML = '';
     for (const timedEvent of timedEvents) {
         const date = new Date(timedEvent.dateValue);
         const dateString = getDateString(date, timedEvent.precision);
-        const age = getAge(birthday, date);
-        const grade = getGrade(birthday, date);
-        const ageGrade = (grade) ? `${age} (${grade})` : `${age}`;
-        const fields = [dateString, timedEvent.description, ageGrade];
+        const description = MarkupLine(timedEvent.description, 'met');
+        let ageGrade = '';
+        if (birthday !== null) {
+            const age = getAge(birthday, date);
+            const grade = getGrade(birthday, date);
+            ageGrade = (grade) ? `${age} (${grade})` : `${age}`;
+        }
+        const fields = [dateString, description, ageGrade];
         for (let i = 0; i < fields.length; i += 1) {
             const item = document.createElement('div');
             if (i == 0)
@@ -180,14 +187,14 @@ function getGrade(birthDate, targetDate) {
 function createModalDialog(options) {
     const dialog = new W.Dialog('Timeline Options');
     const fromYear = dialog.addText('From Year:', options.fromYear);
-    const thruYear = dialog.addText('Thru Year:', options.thruYear);
+    const untilYear = dialog.addText('Until Year:', options.untilYear);
     const keywords = dialog.addText('Search Keywords:', options.keywords);
     const birthdate = dialog.addText('Birthdate:', options.birthdate);
     const sortAscending = dialog.addCheckbox('Sort Ascending:', options.sortAscending);
     dialog.confirmButton.addEventListener('click', () => {
         options.sortAscending = sortAscending.checked;
         options.fromYear = fromYear.value;
-        options.thruYear = thruYear.value;
+        options.untilYear = untilYear.value;
         options.birthdate = birthdate.value;
         options.keywords = keywords.value;
         processTimedEvents(options);

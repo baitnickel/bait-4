@@ -9,7 +9,7 @@ const Separator = new RegExp(S);
  * The Moment class is essentially an extension of the Date class. A Moment
  * object may be created from either a Date object or a string. If it's a
  * string, the date elements must follow one of the following Y(ear), M(onth),
- * D(ay) patterns: Y, YM, YMD, MY, or DMY. The value of the Y element must be
+ * D(ay) patterns: Y, YM, YMD, MY, or MDY. The value of the Y element must be
  * greater than 99, and the M and D elements must be one or two digits. Elements
  * must be separated, using any combination of: forward slash, hyphen, period,
  * and colon.
@@ -47,8 +47,11 @@ export class Moment {
 		const components = dateString.split(Separator);
 		const lastComponent = components[components.length - 1];
 		if (components.length == 1) segments.push(Number(components[0])); /** year */ 
-		else { /** 2 or 3 components: YM, YMD, MY, or DMY */
-			if (lastComponent.length > 2) components.reverse(); /** Y is last, reverse array to force YM or YMD */
+		else { /** 2 or 3 components: YM, YMD, MY, or MDY */
+			if (lastComponent.length > 2) { /** Y is last, rearrange array to force YM or YMD */
+				const year = components.pop()!;
+				components.unshift(year);
+			}
 			segments.push(Number(components[0])); /** year */
 			segments.push(Number(components[1]) - 1); /** monthOffset */
 			if (segments[1] < 0 || segments[1] >= 12) segments.pop(); /** remove invalid monthOffset */

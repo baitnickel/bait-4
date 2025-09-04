@@ -13,11 +13,12 @@ import { MarkupLine } from './lib/markup.js';
  * - file upload (personal events to be merged--file name in cookie?)
  */
 type TimelineOptions = {
-	sortAscending: boolean;
 	fromYear: string;
 	untilYear: string;
-	birthdate: string;
 	keywords: string;
+	eventTypes: string
+	birthdate: string;
+	sortAscending: boolean;
 }
 
 const PAGE = new Page(true);
@@ -27,12 +28,14 @@ if (!PAGE.backendAvailable) {
 }
 
 const TimedEvents = await Fetch.api<T.TimedEvent[]>(`${PAGE.backend}/timeline`);
+const EventTypes = ['All', 'Historical', 'Personal'];
 const Options: TimelineOptions = {
-	sortAscending: true,
 	fromYear: '',
 	untilYear: '',
-	birthdate: '6/21/1952',
 	keywords: '',
+	eventTypes: EventTypes[0],
+	birthdate: '6/21/1952',
+	sortAscending: true,
 }
 const QueryElement = document.createElement('div');
 QueryElement.className = 'timeline-query-element';
@@ -96,6 +99,10 @@ function filterEvents(timedEvents: T.TimedEvent[], options: TimelineOptions) {
 			}
 			return found;
 		});
+	}
+	if (options.eventTypes != EventTypes[0]) {
+		if (options.eventTypes == EventTypes[1]) timedEvents = timedEvents.filter((e) => !e.personal);
+		else timedEvents = timedEvents.filter((e) => e.personal);
 	}
 	return timedEvents;
 }
@@ -203,15 +210,17 @@ function createModalDialog(options: TimelineOptions) {
 	const fromYear = dialog.addText('From Year:', options.fromYear);
 	const untilYear = dialog.addText('Until Year:', options.untilYear);
 	const keywords = dialog.addText('Search Keywords:', options.keywords);
+	const eventTypes = dialog.addSelect('Event Types:', EventTypes);
 	const birthdate = dialog.addText('Birthdate:', options.birthdate);
 	const sortAscending = dialog.addCheckbox('Sort Ascending:', options.sortAscending);
 
 	dialog.confirmButton.addEventListener('click', () => {
-		options.sortAscending = sortAscending.checked;
 		options.fromYear = fromYear.value;
 		options.untilYear = untilYear.value;
-		options.birthdate = birthdate.value;
 		options.keywords = keywords.value;
+		options.eventTypes = eventTypes.value;
+		options.birthdate = birthdate.value;
+		options.sortAscending = sortAscending.checked;
 		processTimedEvents(options)
 	});
 

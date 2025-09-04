@@ -83,6 +83,42 @@ export class Moment {
         return validity;
     }
     /**
+     * Given a `baseDate` and a `targetDate` (such as a birthday and the current
+     * date), return a string representing the number of years between them
+     * (targetDate - baseDate). Return a string--an integer if the base month
+     * and day is the same as the target month and day, otherwise a number with
+     * a single, unrounded decimal place (.0 to .9). When `baseDate` is a
+     * person's birth date, the returned value represents the age of the person
+     * as of the `targetDate`.
+     */
+    static yearsDifferent(baseDate, targetDate) {
+        let difference = '';
+        const targetMonth = targetDate.getMonth();
+        const targetDay = targetDate.getDate();
+        const targetYear = targetDate.getFullYear();
+        const baseMonth = baseDate.getMonth();
+        const baseDay = baseDate.getDate();
+        const baseYear = baseDate.getFullYear();
+        const yearsDifference = targetYear - baseYear;
+        /** calculate days into year for both dates, pretending they are in the same leap year */
+        const dailyMilliseconds = 24 * 60 * 60 * 1000;
+        const startOfYear = Date.UTC(2000, 0, 0);
+        const targetDayNumber = (Date.UTC(2000, targetMonth, targetDay) - startOfYear) / dailyMilliseconds;
+        const baseDayNumber = (Date.UTC(2000, baseMonth, baseDay) - startOfYear) / dailyMilliseconds;
+        const daysDifferent = targetDayNumber - baseDayNumber;
+        if (daysDifferent == 0)
+            difference = `${yearsDifference}`; /** target day and base day are the same */
+        else if (daysDifferent < 0) { /** target is earlier than base */
+            const fraction = ((366 - Math.abs(daysDifferent)) / 366).toString().substring(1, 3);
+            difference = `${yearsDifference - 1}${fraction}`;
+        }
+        else { /** target is later than base */
+            const fraction = (daysDifferent / 366).toString().substring(1, 3);
+            difference = `${yearsDifference}${fraction}`;
+        }
+        return difference;
+    }
+    /**
      * Given a Date (which may be null) and the desired precision (Y, YM, YMD,
      * YMDhhmmss), return a formatted string representing the date.
      */

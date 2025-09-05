@@ -402,7 +402,7 @@ export class Page {
 	 * Given a Quote object, format and append the quote to Page.content. Return
 	 * the container element.
 	 */
-	appendQuote(targetElement: HTMLElement, quote: T.Quote) {
+	appendQuote(targetElement: HTMLDivElement, quote: T.Quote) {
 		// const container = document.createElement('div');
 		// container.className = 'quote';
 		// targetElement.append(container);

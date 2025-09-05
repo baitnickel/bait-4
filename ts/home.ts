@@ -25,19 +25,35 @@ export function render() {
 	PAGE.setTitle('Home');
 
 	PAGE.content.append(ExternalSection);
-	const Quote = PAGE.appendContent('#Quote', ExternalSection);
+	ExternalSection.id = 'external-section'; // debugging
+
 	const keys = Array.from(Quotes.keys());
 	const randomKey = keys[Math.floor(Math.random() * keys.length)];
 	const randomQuote = Quotes.get(randomKey)!;
-	PAGE.appendQuote(Quote, randomQuote);
 
-	Quote.addEventListener('click', () => {
+	// const Quote = PAGE.appendContent('#Quote', ExternalSection);
+	const quoteElement = document.createElement('div');
+	quoteElement.className = 'quote';
+	const textParagraph = document.createElement('p');
+	textParagraph.className = 'text';
+	textParagraph.innerHTML = MarkupLine(`"${randomQuote.text}"`, 'etm');
+	const attributionNote = (randomQuote.note) ? `${randomQuote.attribution} (${randomQuote.note})` : randomQuote.attribution;
+	const attributionParagraph = document.createElement('p');
+	attributionParagraph.className = 'attribution';
+	attributionParagraph.innerHTML = '~ ' + MarkupLine(attributionNote, 'etm');
+	quoteElement.append(textParagraph);
+	quoteElement.append(attributionParagraph);
+	
+	quoteElement.addEventListener('click', (e) => {
+		console.log('clicked in Quote element');
 		if (window.confirm('Copy quote to clipboard?')) {
 			let quote = `"${randomQuote.text}" ~ ${randomQuote.attribution}`;
 			if (randomQuote.note) quote += ` (${randomQuote.note})`;
 			navigator.clipboard.writeText(quote);
 		}
-	});
+	} /* , { capture: true } */ );
+	
+	ExternalSection.append(quoteElement);
 	
 	const ArticleText = PAGE.appendContent('#Article', ExternalSection);
 	const markdown = new MD.Markdown(HomeText);

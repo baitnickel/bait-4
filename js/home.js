@@ -13,19 +13,18 @@ const HomeTextFile = 'Content/Home.md';
 const HomeTextPath = `${PAGE.site}/${HomeTextFile}`;
 const Quotes = await Fetch.map(QuotesPath);
 const HomeText = await Fetch.text(HomeTextPath);
-const ExternalSection = document.createElement('div');
-const TestButtons = document.createElement('div');
-const TestOutput = document.createElement('div');
 export function render() {
     PAGE.setTitle('Home');
-    PAGE.content.append(ExternalSection);
-    ExternalSection.id = 'external-section'; // debugging
+    const publicOutput = document.createElement('div');
+    PAGE.content.append(publicOutput);
+    publicOutput.id = 'external-section'; // debugging
     const keys = Array.from(Quotes.keys());
     const randomKey = keys[Math.floor(Math.random() * keys.length)];
     const randomQuote = Quotes.get(randomKey);
-    // const Quote = PAGE.appendContent('#Quote', ExternalSection);
+    // const quoteElement = PAGE.appendContent('.quote', publicOutput);
     const quoteElement = document.createElement('div');
     quoteElement.className = 'quote';
+    quoteElement.addEventListener('click', () => { console.log('quote clicked'); });
     const textParagraph = document.createElement('p');
     textParagraph.className = 'text';
     textParagraph.innerHTML = MarkupLine(`"${randomQuote.text}"`, 'etm');
@@ -35,17 +34,19 @@ export function render() {
     attributionParagraph.innerHTML = '~ ' + MarkupLine(attributionNote, 'etm');
     quoteElement.append(textParagraph);
     quoteElement.append(attributionParagraph);
-    quoteElement.addEventListener('click', (e) => {
-        console.log('clicked in Quote element');
-        if (window.confirm('Copy quote to clipboard?')) {
-            let quote = `"${randomQuote.text}" ~ ${randomQuote.attribution}`;
-            if (randomQuote.note)
-                quote += ` (${randomQuote.note})`;
-            navigator.clipboard.writeText(quote);
-        }
-    } /* , { capture: true } */);
-    ExternalSection.append(quoteElement);
-    const ArticleText = PAGE.appendContent('#Article', ExternalSection);
+    const quoteTarget = (false) ? PAGE.content : publicOutput;
+    quoteTarget.append(quoteElement);
+    // publicOutput.append(quoteElement);
+    // publicOutput.addEventListener('click', () => { console.log('external DIV clicked'); });
+    // quoteElement.addEventListener('click', () => {
+    // 	console.log('clicked in Quote element');
+    // 	if (window.confirm('Copy quote to clipboard?')) {
+    // 		let quote = `"${randomQuote.text}" ~ ${randomQuote.attribution}`;
+    // 		if (randomQuote.note) quote += ` (${randomQuote.note})`;
+    // 		navigator.clipboard.writeText(quote);
+    // 	}
+    // });
+    const ArticleText = PAGE.appendContent('#Article', publicOutput);
     const markdown = new MD.Markdown(HomeText);
     PAGE.articleID = (markdown.metadata && 'id' in markdown.metadata) ? markdown.metadata['id'] : null;
     /** adding heading above text, below quote */
@@ -59,20 +60,18 @@ export function render() {
     // PAGE.appendParagraph(ArticleText, window.location.hostname); /* display hostname/IP */
     PAGE.displayFooter(revision);
     /**
-     * Test functions
-     *
-     * Tester functions must have no parameters must return void, and they
-     * should typically initialize the test output before writing new output,
-     * e.g.:
-     *
-     * - TestOutput.innerHTML = '';
+     * Test functions are enabled when running locally. Tester functions must
+     * have one parameter, an HTMLDivElement (as defined in type `TestFunction`)
+     * and must return void.
      */
     if (PAGE.local) {
-        ExternalSection.innerHTML += '<hr>';
-        PAGE.content.append(TestButtons);
-        TestButtons.className = 'grid-buttons';
-        PAGE.content.append(TestOutput);
-        TestOutput.style['margin'] = '1em';
+        publicOutput.innerHTML += '<hr>';
+        const testButtons = document.createElement('div');
+        PAGE.content.append(testButtons);
+        testButtons.className = 'grid-buttons';
+        const testOutput = document.createElement('div');
+        PAGE.content.append(testOutput);
+        testOutput.style['margin'] = '1em';
         const testers = [];
         testers.push({ name: 'Moments', function: testMoments });
         testers.push({ name: 'IP', function: testIP });
@@ -92,21 +91,21 @@ export function render() {
         recycle.innerHTML = '↻';
         recycle.style['backgroundColor'] = '#0000';
         recycle.style['border'] = '0';
-        recycle.addEventListener('click', () => { TestOutput.innerHTML = ''; });
-        TestButtons.append(recycle);
+        recycle.addEventListener('click', () => { testOutput.innerHTML = ''; });
+        testButtons.append(recycle);
         for (const tester of testers) {
             const button = document.createElement('button');
             button.innerText = tester.name;
             button.addEventListener('click', () => {
-                ExternalSection.hidden = true;
-                TestOutput.innerHTML = '';
-                tester.function();
+                publicOutput.hidden = true;
+                testOutput.innerHTML = '';
+                tester.function(testOutput);
             });
-            TestButtons.append(button);
+            testButtons.append(button);
         }
     }
 }
-function testMoments() {
+function testMoments(testOutput) {
     const tests = ['1960', '1961.1.1', '1962/2/29', '3-1963', '21.6.1964', '1965/07/35', '1966/08/0', '1967/0', '1968:11:8', '149'];
     const output = [];
     const moment = new Moment(new Date());
@@ -116,15 +115,15 @@ function testMoments() {
         if (moment !== null)
             output.push(`(${moment.precision}) ${test}: ${moment.formatted()}`);
     }
-    PAGE.appendParagraph(TestOutput, output);
+    PAGE.appendParagraph(testOutput, output);
 }
-function testIP() {
+function testIP(testOutput) {
     const IPList = [];
     IPList.push(`Host: ${PAGE.site}`);
     IPList.push(`Backend: ${PAGE.backend}`);
-    PAGE.appendParagraph(TestOutput, IPList);
+    PAGE.appendParagraph(testOutput, IPList);
 }
-function testDialog() {
+function testDialog(testOutput) {
     const dialog = new W.Dialog('Big Test');
     const box1 = dialog.addCheckbox('This Works:', false);
     const box2 = dialog.addCheckbox('This Does Not Work:', true);
@@ -136,18 +135,18 @@ function testDialog() {
     document.body.append(dialog.element);
     dialog.element.showModal();
     dialog.cancelButton.addEventListener('click', () => {
-        PAGE.appendParagraph(TestOutput, 'Cancelled');
+        PAGE.appendParagraph(testOutput, 'Cancelled');
     });
     dialog.confirmButton.addEventListener('click', () => {
-        PAGE.appendParagraph(TestOutput, ['Confirmed', `box1 checked? ${box1.checked}`, `random text: ${text1.value}`, `selection: |${select1.value}|`, `range: ${range.value}`]);
+        PAGE.appendParagraph(testOutput, ['Confirmed', `box1 checked? ${box1.checked}`, `random text: ${text1.value}`, `selection: |${select1.value}|`, `range: ${range.value}`]);
     });
 }
-function testImages() {
-    PAGE.appendPhoto(TestOutput, 'i-SDpf2qV', 'S');
-    PAGE.appendParagraph(TestOutput, '');
-    PAGE.appendVideo(TestOutput, 'INlBnm_1-sg?si=nJRxtTyUgduZWElR', 400, 220);
+function testImages(testOutput) {
+    PAGE.appendPhoto(testOutput, 'i-SDpf2qV', 'S');
+    PAGE.appendParagraph(testOutput, '');
+    PAGE.appendVideo(testOutput, 'INlBnm_1-sg?si=nJRxtTyUgduZWElR', 400, 220);
 }
-function testSpinner() {
+function testSpinner(testOutput) {
     /** all done in CSS ... ultimately turn off and on in JavaScript */
     const TestSpinner = PAGE.appendContent('.spinner'); // .spinner--full-height');
     console.log('Spinning...');
@@ -156,10 +155,10 @@ function testSpinner() {
     stop.style['backgroundColor'] = '#0000';
     stop.style['border'] = '0';
     stop.addEventListener('click', () => { TestSpinner.remove(); });
-    TestOutput.append(stop);
+    testOutput.append(stop);
 }
-function testMap() {
-    const TestMap = PAGE.appendContent('#TestMap', TestOutput);
+function testMap(testOutput) {
+    const TestMap = PAGE.appendContent('#TestMap', testOutput);
     const songsIndexFile = `${PAGE.site}/Indices/fakesheets.json`;
     Fetch.map(songsIndexFile).then((songsMap) => {
         const dataLines = [];
@@ -173,8 +172,8 @@ function testMap() {
         PAGE.appendParagraph(TestMap, dataLines);
     });
 }
-function testMarkdown() {
-    const TestMarkdown = PAGE.appendContent('#TestMarkdown', TestOutput);
+function testMarkdown(testOutput) {
+    const TestMarkdown = PAGE.appendContent('#TestMarkdown', testOutput);
     const testMarkdownFile = 'data/test-markdown.md';
     const testMarkdownPath = `${PAGE.site}/${testMarkdownFile}`;
     Fetch.text(testMarkdownPath).then((fileContent) => {
@@ -193,8 +192,8 @@ function testMarkdown() {
         }
     });
 }
-function testYaml() {
-    const TestYaml = PAGE.appendContent('#TestYaml', TestOutput);
+function testYaml(testOutput) {
+    const TestYaml = PAGE.appendContent('#TestYaml', testOutput);
     const ReservationsPath = `${PAGE.site}/data/camp/reservations.yaml`;
     Fetch.map(ReservationsPath).then((reservations) => {
         const dataLines = [];
@@ -211,8 +210,8 @@ function testYaml() {
         PAGE.appendParagraph(TestYaml, dataLines);
     });
 }
-function testEmail() {
-    const division = PAGE.appendContent('', TestOutput);
+function testEmail(testOutput) {
+    const division = PAGE.appendContent('', testOutput);
     const emailButton = document.createElement('button');
     emailButton.innerText = 'Send Feedback';
     division.append(emailButton);
@@ -223,15 +222,15 @@ function testEmail() {
             window.location.href = `mailto:${PAGE.feedback}?subject=${PAGE.url}`;
     });
 }
-function testCookies() {
-    const TestCookies = PAGE.appendContent('#TestCookies', TestOutput);
+function testCookies(testOutput) {
+    const TestCookies = PAGE.appendContent('#TestCookies', testOutput);
     const output = [];
     output.push('Cookies:');
     for (const cookie of getCookies())
         output.push(cookie);
     PAGE.appendParagraph(TestCookies, output);
 }
-async function testFetchAPI() {
+async function testFetchAPI(testOutput) {
     const rootPath = 'Content/chapters';
     const outputLines = [];
     Fetch.api(`${PAGE.backend}/markdown`, { root: rootPath }).then((markdownFiles) => {
@@ -244,10 +243,10 @@ async function testFetchAPI() {
         }
         if (!outputLines.length)
             outputLines.push(`no files found in ${rootPath}`);
-        PAGE.appendParagraph(TestOutput, outputLines);
+        PAGE.appendParagraph(testOutput, outputLines);
     });
 }
-function gridTest() {
+function gridTest(testOutput) {
     const container = document.createElement('div');
     container.className = 'grid-container';
     for (let i = 1; i <= 8; i += 1) {
@@ -259,7 +258,7 @@ function gridTest() {
         item.innerHTML = value;
         container.append(item);
     }
-    TestOutput.append(container);
+    testOutput.append(container);
 }
 // /* Form POST */
 // const formDivision = PAGE.appendContent();

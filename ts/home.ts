@@ -22,18 +22,20 @@ const HomeText = await Fetch.text(HomeTextPath);
 export function render() {
 	PAGE.setTitle('Home');
 	
-	const publicOutput = document.createElement('div');
-	PAGE.content.append(publicOutput);
-	publicOutput.id = 'external-section'; // debugging
+	// const publicOutput = document.createElement('div');
+	// PAGE.content.append(publicOutput);
+	// publicOutput.id = 'public-section'; // debugging
+	const quoteElement = document.createElement('div');
+	quoteElement.className = 'quote';
 
 	const keys = Array.from(Quotes.keys());
 	const randomKey = keys[Math.floor(Math.random() * keys.length)];
 	const randomQuote = Quotes.get(randomKey)!;
 
 	// const quoteElement = PAGE.appendContent('.quote', publicOutput);
-	const quoteElement = document.createElement('div');
-	quoteElement.className = 'quote';
-	quoteElement.addEventListener('click', () => { console.log('quote clicked'); });
+	// const quoteElement = document.createElement('div');
+	// quoteElement.className = 'quote';
+	// quoteElement.addEventListener('click', () => { console.log('quote clicked'); });
 	const textParagraph = document.createElement('p');
 	textParagraph.className = 'text';
 	textParagraph.innerHTML = MarkupLine(`"${randomQuote.text}"`, 'etm');
@@ -43,22 +45,26 @@ export function render() {
 	attributionParagraph.innerHTML = '~ ' + MarkupLine(attributionNote, 'etm');
 	quoteElement.append(textParagraph);
 	quoteElement.append(attributionParagraph);
-	const quoteTarget = ( false ) ? PAGE.content : publicOutput;
-	quoteTarget.append(quoteElement);
-	// publicOutput.append(quoteElement);
-	// publicOutput.addEventListener('click', () => { console.log('external DIV clicked'); });
+	// quoteElement.addEventListener('click', () => { console.log('quoteElement clicked'); });
+	quoteElement.addEventListener('click', () => {
+		console.log('quoteElement clicked');
+		if (window.confirm('Copy quote to clipboard?')) {
+			let quote = `"${randomQuote.text}" ~ ${randomQuote.attribution}`;
+			if (randomQuote.note) quote += ` (${randomQuote.note})`;
+			navigator.clipboard.writeText(quote);
+		}
+	});
 
+	// PAGE.content.append(quoteElement); // click event is raised
+	// publicOutput.append(quoteElement); // click event is NOT raised!
+	PAGE.content.append(quoteElement);
+
+
+	// this always works
+	// publicOutput.addEventListener('click', () => { console.log('publicOutput clicked'); });
 	
-	// quoteElement.addEventListener('click', () => {
-	// 	console.log('clicked in Quote element');
-	// 	if (window.confirm('Copy quote to clipboard?')) {
-	// 		let quote = `"${randomQuote.text}" ~ ${randomQuote.attribution}`;
-	// 		if (randomQuote.note) quote += ` (${randomQuote.note})`;
-	// 		navigator.clipboard.writeText(quote);
-	// 	}
-	// });
-	
-	const ArticleText = PAGE.appendContent('#Article', publicOutput);
+	// const ArticleText = PAGE.appendContent('#Article', publicOutput);
+	const ArticleText = PAGE.appendContent('#Article');
 	const markdown = new MD.Markdown(HomeText);
 	PAGE.articleID = (markdown.metadata && 'id' in markdown.metadata) ? markdown.metadata['id'] : null;
 
@@ -82,13 +88,14 @@ export function render() {
 	 * and must return void.
 	 */
 	if (PAGE.local) {
-		publicOutput.innerHTML += '<hr>';
+		// publicOutput.innerHTML += '<hr>';
+		// PAGE.content.innerHTML += '<hr>';
 		const testButtons = document.createElement('div');
-		PAGE.content.append(testButtons);
+		PAGE.testContent.append(testButtons);
 		testButtons.className = 'grid-buttons';
 		const testOutput = document.createElement('div');
-		PAGE.content.append(testOutput);
-		testOutput.style['margin'] = '1em';
+		PAGE.testContent.append(testOutput);
+		// PAGE.testContent.style['margin'] = '1em';
 
 		const testers: Tester[] = [];
 		testers.push( { name: 'Moments', function: testMoments } );
@@ -111,14 +118,17 @@ export function render() {
 		recycle.style['backgroundColor'] = '#0000';
 		recycle.style['border'] = '0';
 		recycle.addEventListener('click', () => { testOutput.innerHTML = ''; })
+		// recycle.addEventListener('click', () => { PAGE.testContent.innerHTML = ''; })
 		testButtons.append(recycle);
 		
 		for (const tester of testers) {
 			const button = document.createElement('button');
 			button.innerText = tester.name;
 			button.addEventListener('click', () => {
-				publicOutput.hidden = true;
+				// publicOutput.hidden = true;
+				PAGE.content.remove(); // PAGE.content.hidden = true;
 				testOutput.innerHTML = '';
+				// PAGE.testContent.innerHTML = '';
 				tester.function(testOutput);
 			});
 			testButtons.append(button);

@@ -57,7 +57,7 @@ body {
 
 /* #content contains all the normal page content */
 
-#content {
+#content, #test-content {
 	display: block;
 	padding: 1em;
 	border: var(--diagnositic-border);

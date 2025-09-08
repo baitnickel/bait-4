@@ -74,13 +74,10 @@ export class Page {
         this.header.id = 'header';
         this.content = document.createElement('div');
         this.content.id = 'content';
-        this.testContent = document.createElement('div');
-        this.testContent.id = 'test-content';
         this.footer = document.createElement('div');
         this.footer.id = 'footer';
         document.body.append(this.header);
         document.body.append(this.content);
-        document.body.append(this.testContent);
         document.body.append(this.footer);
         if (this.local) { /** Add test pages */
             MenuItems.push({ module: 'articles', parameters: ['path=Content/drafts'], text: 'Drafts', icon: '' });

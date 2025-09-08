@@ -71,7 +71,6 @@ export class Page {
 	site: string;                   /** root URL for content fetch operations */
 	header: HTMLDivElement;         /** division at the top of the display, containing menu, etc. */
 	content: HTMLDivElement;        /** division containing main page content */
-	testContent: HTMLDivElement;    /** division containing optional test content */
 	footer: HTMLDivElement;         /** division at the bottom of the display, containing modification date, ©, etc. */
 	feedback: string;               /** text entered into the menu input field */
 
@@ -110,13 +109,10 @@ export class Page {
 		this.header.id = 'header';
 		this.content = document.createElement('div');
 		this.content.id = 'content';
-		this.testContent = document.createElement('div');
-		this.testContent.id = 'test-content';
 		this.footer = document.createElement('div');
 		this.footer.id = 'footer';
 		document.body.append(this.header);
 		document.body.append(this.content);
-		document.body.append(this.testContent);
 		document.body.append(this.footer);
 
 		if (this.local) { /** Add test pages */

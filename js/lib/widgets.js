@@ -71,6 +71,17 @@ export class Select extends Widget {
         addOptions(this.element, options);
     }
 }
+export class RadioInput extends Widget {
+    constructor(labelHTML, groupName, checked, appendElement = true) {
+        const element = document.createElement('input');
+        super(element, labelHTML, appendElement);
+        this.element = element;
+        this.element.type = 'radio';
+        this.element.name = groupName;
+        this.element.checked = checked;
+        this.element.value = labelHTML;
+    }
+}
 /**
  * Currently used only for the `Range` Widget--could be moved into the `Range`
  * subclass as a method if we don't find some general usage for it here.
@@ -133,6 +144,29 @@ function addOptions(element, options) {
     console.log(element);
 }
 /**
+ * Create a group of radio buttons.
+ */
+export class RadioGroup {
+    // group: string;
+    // radioInputs: HTMLInputElement[];
+    constructor(legendText, labels) {
+        this.fieldset = document.createElement('fieldset');
+        this.legend = document.createElement('legend');
+        const controls = document.createElement('div');
+        this.legend.innerHTML = legendText;
+        this.fieldset.append(this.legend);
+        this.fieldset.append(controls);
+        const group = Widget.nextID();
+        let first = true;
+        for (const label of labels) {
+            const checked = first; /** select first radioInput by default */
+            first = false;
+            const radioInput = new RadioInput(label, group, checked);
+            controls.append(radioInput.element, radioInput.label);
+        }
+    }
+}
+/**
  * Create a Dialog element, including a FieldSet with assorted controls (Text,
  * Checkbox, Range, Select) and standardized Cancel and Confirm buttons. The
  * following classNames are applied by default:
@@ -186,6 +220,10 @@ export class Dialog {
         const widget = new Select(labelHTML, options, false);
         this.controls.append(widget.label, widget.element);
         return widget.element;
+    }
+    addRadioGroup(legendText, labels) {
+        const radioGroup = new RadioGroup(legendText, labels);
+        this.controls.append(radioGroup.fieldset);
     }
 }
 Dialog.odometer = 0;

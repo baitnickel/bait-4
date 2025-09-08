@@ -142,6 +142,7 @@ function testDialog(testOutput: HTMLDivElement) {
 	const select1 = dialog.addSelect('Pick One:', ['First','Second','Third','Fourth']);
 	const outputTexts = ['Manually', 'Every Second', 'Every %% Seconds'];
 	const range = dialog.addRange('Change Slides:', 0, 0,60,1, outputTexts);
+	const radio = dialog.addRadioGroup('Radio Buttons', ['One','Two','Three']);
 	
 	document.body.append(dialog.element);
 

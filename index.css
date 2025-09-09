@@ -501,6 +501,73 @@ dialog.carousel-dialog > fieldset > ul > li > button {
 	margin: 1rem .5rem 0 .5rem;
 } */
 
+/* Widgets ====================================================================== */
+
+/* https://stackoverflow.com/questions/23530064/how-to-make-label-and-input-appear-on-the-same-line-on-an-html-form */
+/*
+	<label><input type="radio" value="Tale" name="xx">A Tale</label>
+
+	as opposed to:
+
+	<input id="x" type="radio" value="Tale" name="xx" class=".w-radio-group">
+	<label for="x" class=".w-radio-group">A Tale</label>
+
+	or:
+
+	<label for="x" class=".w-radio-group">A Tale<input id="x" type="radio" value="Tale" name="xx" class=".w-radio-group">
+*/
+
+.widget-radio-group label, input {
+	display: list-item;
+	list-style-type: none;
+	/* align-items: center; */
+}
+
+.w-radio-group div {
+	display: inline-table;
+	padding-right: 14px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+.w-radio-group label, .w-radio-group input {
+	display: table-cell;
+	/* float: none; */
+	/* display: inline-block; */
+	/* vertical-align: middle; */
+}
+/* .w-radio-group label { */
+	/* display: flex; */
+	/* flex-direction: row; */
+	/* justify-content: center; */
+	/* align-items: center" */
+	/* display: run-in; */
+	/* align-items: center; */
+	/* gap: .5rem; */
+/* } */
+/* .w-radio-group span { */
+	/* display: table-row; */
+	/* grid-template-columns: 1fr 10fr; */
+	/* grid-template-columns: repeat(auto-fit); */
+	/* gap: .5rem; */
+
+	/* display: flex; */
+	/* flex-direction: column; */
+	/* grid-template-columns: repeat(auto-fit, 75px); */
+	/* justify-content: center; */
+	/* gap: 2rem; */
+	/* padding: 1rem; */
+/* } */
+
+/* .widget-radio-group label {
+	display: list-item;
+	font-size: smaller;
+	color: blue;
+} */
+
+/* .widget-radio-group div {
+	display: block;
+} */
+
 /* Tests, etc. =================================================================== */
 
 .grid-buttons {

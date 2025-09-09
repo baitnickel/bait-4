@@ -170,13 +170,14 @@ function addOptions(element: HTMLSelectElement, options: string[]) {
 export class RadioGroup {
 	fieldset: HTMLFieldSetElement;
 	legend: HTMLLegendElement;
-	// group: string;
-	// radioInputs: HTMLInputElement[];
+	className: string;
 
-	constructor(legendText: string, labels: string[]) {
+	constructor(legendText: string, labels: string[], className: string) {
 		this.fieldset = document.createElement('fieldset');
 		this.legend = document.createElement('legend');
+		this.className = className;
 		const controls = document.createElement('div');
+		controls.className = className;
 		this.legend.innerHTML = legendText;
 		this.fieldset.append(this.legend);
 		this.fieldset.append(controls);
@@ -187,7 +188,19 @@ export class RadioGroup {
 			const checked = first; /** select first radioInput by default */
 			first = false;
 			const radioInput = new RadioInput(label, group, checked);
-			controls.append(radioInput.element, radioInput.label);
+			radioInput.label.className = className;
+			radioInput.element.className = className;
+
+			radioInput.label.append(radioInput.element);
+			controls.append(radioInput.label);
+
+			// controls.append(radioInput.element, radioInput.label);
+
+			// controls.append(radioInput.label);
+			// const span = document.createElement('span');
+			// span.className = className;
+			// span.append(radioInput.element, radioInput.label);
+			// controls.append(span);
 		}
 	}
 }
@@ -264,7 +277,7 @@ export class Dialog {
 	}
 
 	addRadioGroup(legendText: string, labels: string[]) {
-		const radioGroup = new RadioGroup(legendText, labels);
+		const radioGroup = new RadioGroup(legendText, labels, 'widget-radio-group');
 		this.controls.append(radioGroup.fieldset);
 	}
 }

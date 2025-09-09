@@ -147,12 +147,12 @@ function addOptions(element, options) {
  * Create a group of radio buttons.
  */
 export class RadioGroup {
-    // group: string;
-    // radioInputs: HTMLInputElement[];
-    constructor(legendText, labels) {
+    constructor(legendText, labels, className) {
         this.fieldset = document.createElement('fieldset');
         this.legend = document.createElement('legend');
+        this.className = className;
         const controls = document.createElement('div');
+        controls.className = className;
         this.legend.innerHTML = legendText;
         this.fieldset.append(this.legend);
         this.fieldset.append(controls);
@@ -162,7 +162,16 @@ export class RadioGroup {
             const checked = first; /** select first radioInput by default */
             first = false;
             const radioInput = new RadioInput(label, group, checked);
-            controls.append(radioInput.element, radioInput.label);
+            radioInput.label.className = className;
+            radioInput.element.className = className;
+            radioInput.label.append(radioInput.element);
+            controls.append(radioInput.label);
+            // controls.append(radioInput.element, radioInput.label);
+            // controls.append(radioInput.label);
+            // const span = document.createElement('span');
+            // span.className = className;
+            // span.append(radioInput.element, radioInput.label);
+            // controls.append(span);
         }
     }
 }
@@ -222,7 +231,7 @@ export class Dialog {
         return widget.element;
     }
     addRadioGroup(legendText, labels) {
-        const radioGroup = new RadioGroup(legendText, labels);
+        const radioGroup = new RadioGroup(legendText, labels, 'widget-radio-group');
         this.controls.append(radioGroup.fieldset);
     }
 }

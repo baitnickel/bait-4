@@ -82,6 +82,7 @@ export function render() {
 		testers.push( { name: 'Moments', function: testMoments } );
 		testers.push( { name: 'IP', function: testIP } );
 		testers.push( { name: 'Dialog', function: testDialog } );
+		testers.push( { name: 'Radio', function: testRadio } );
 		testers.push( { name: 'Grid', function: gridTest } );
 		testers.push( { name: 'Spinner', function: testSpinner } );
 		testers.push( { name: 'Images', function: testImages } );
@@ -142,7 +143,7 @@ function testDialog(testOutput: HTMLDivElement) {
 	const select1 = dialog.addSelect('Pick One:', ['First','Second','Third','Fourth']);
 	const outputTexts = ['Manually', 'Every Second', 'Every %% Seconds'];
 	const range = dialog.addRange('Change Slides:', 0, 0,60,1, outputTexts);
-	const radio = dialog.addRadioGroup('Radio Buttons', ['One','Two','Three']);
+	const radio = dialog.addRadioGroup('Radio Buttons', ['A Tale of Two Cities','To Kill a Mockingbird','Much Ado About Nothing']);
 	
 	document.body.append(dialog.element);
 
@@ -155,6 +156,11 @@ function testDialog(testOutput: HTMLDivElement) {
 		PAGE.appendParagraph(testOutput, [ 'Confirmed', `box1 checked? ${box1.checked}`, `random text: ${text1.value}`, `selection: |${select1.value}|`, `range: ${range.value}`]
 		);
 	});
+}
+
+function testRadio(testOutput: HTMLDivElement) {
+	const radioGroup = new W.RadioGroup('Radio Group', ['A Tale of Two Cities','To Kill a Mockingbird','Much Ado About Nothing'], 'w-radio-group');
+	testOutput.append(radioGroup.fieldset);
 }
 
 function testImages(testOutput: HTMLDivElement) {

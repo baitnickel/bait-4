@@ -72,7 +72,7 @@ export class Select extends Widget {
     }
 }
 export class RadioInput extends Widget {
-    constructor(labelHTML, groupName, checked, appendElement = true) {
+    constructor(labelHTML, groupName, checked, appendElement = false) {
         const element = document.createElement('input');
         super(element, labelHTML, appendElement);
         this.element = element;
@@ -162,16 +162,7 @@ export class RadioGroup {
             const checked = first; /** select first radioInput by default */
             first = false;
             const radioInput = new RadioInput(label, group, checked);
-            radioInput.label.className = className;
-            radioInput.element.className = className;
-            radioInput.label.append(radioInput.element);
-            controls.append(radioInput.label);
-            // controls.append(radioInput.element, radioInput.label);
-            // controls.append(radioInput.label);
-            // const span = document.createElement('span');
-            // span.className = className;
-            // span.append(radioInput.element, radioInput.label);
-            // controls.append(span);
+            controls.append(radioInput.element, radioInput.label);
         }
     }
 }
@@ -232,7 +223,9 @@ export class Dialog {
     }
     addRadioGroup(legendText, labels) {
         const radioGroup = new RadioGroup(legendText, labels, 'widget-radio-group');
-        this.controls.append(radioGroup.fieldset);
+        const fillerLabel = document.createElement('label'); /** empty element to fill Dialog's right column */
+        this.controls.append(radioGroup.fieldset, fillerLabel);
+        // return radioGroup.element as HTMLInputElement;
     }
 }
 Dialog.odometer = 0;

@@ -517,24 +517,34 @@ dialog.carousel-dialog > fieldset > ul > li > button {
 	<label for="x" class=".w-radio-group">A Tale<input id="x" type="radio" value="Tale" name="xx" class=".w-radio-group">
 */
 
-.widget-radio-group label, input {
-	display: list-item;
-	list-style-type: none;
-	/* align-items: center; */
+.widget-radio-group {
+	display: grid;
+	grid-template-columns: max-content max-content;
+	gap: .25rem;
 }
 
-.w-radio-group div {
-	display: inline-table;
-	padding-right: 14px;
-	margin-top: 5px;
-	margin-bottom: 5px;
+.w-radio-group {
+	display: grid;
+	grid-template-columns: max-content max-content;
+	gap: .25rem;
+
+	/* display: inline-table; */
+	/* padding-right: 14px; */
+	/* margin-top: 5px; */
+	/* margin-bottom: 5px; */
 }
-.w-radio-group label, .w-radio-group input {
-	display: table-cell;
-	/* float: none; */
+/* .w-radio-group input { */
+	/* display: table-cell; */
+	/* float: left; */
 	/* display: inline-block; */
 	/* vertical-align: middle; */
-}
+/* } */
+/* .w-radio-group label { */
+	/* display: table-cell; */
+	/* float: right; */
+	/* display: inline-block; */
+	/* vertical-align: middle; */
+/* } */
 /* .w-radio-group label { */
 	/* display: flex; */
 	/* flex-direction: row; */

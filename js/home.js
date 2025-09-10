@@ -124,10 +124,10 @@ function testDialog(testOutput) {
     const box2 = dialog.addCheckbox('This Does Not Work:', true);
     const box3 = dialog.addCheckbox('This Might Work:', false);
     const text1 = dialog.addText('Add some random text:', '');
+    const radio = dialog.addRadioGroup('Radio Buttons', ['A Tale of Two Cities', 'To Kill a Mockingbird', 'Much Ado About Nothing']);
     const select1 = dialog.addSelect('Pick One:', ['First', 'Second', 'Third', 'Fourth']);
     const outputTexts = ['Manually', 'Every Second', 'Every %% Seconds'];
     const range = dialog.addRange('Change Slides:', 0, 0, 60, 1, outputTexts);
-    const radio = dialog.addRadioGroup('Radio Buttons', ['A Tale of Two Cities', 'To Kill a Mockingbird', 'Much Ado About Nothing']);
     document.body.append(dialog.element);
     dialog.element.showModal();
     dialog.cancelButton.addEventListener('click', () => {

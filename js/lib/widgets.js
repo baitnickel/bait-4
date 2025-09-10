@@ -1,3 +1,4 @@
+const RadioGroupEvent = 'bait:radio-group';
 /**
  * The Widget superclass manages element.id assignments automatically, using its
  * static `odometer`. We are assuming that the ID is usually needed only for
@@ -80,6 +81,11 @@ export class RadioInput extends Widget {
         this.element.name = groupName;
         this.element.checked = checked;
         this.element.value = labelHTML;
+        this.element.addEventListener('click', () => {
+            const event = new CustomEvent(`${RadioGroupEvent}-${groupName}`, { detail: { element: this.element } });
+            document.dispatchEvent(event);
+            console.log(`dispatching event for: ${this.element.value}`);
+        });
     }
 }
 /**
@@ -136,12 +142,10 @@ function addOptions(element, options) {
             optionElement = new Option(option);
         optionElements.push(optionElement);
     }
-    console.log(element);
     if (activeOption != defaultOption)
         element.value = activeOption;
     for (const optionElement of optionElements)
         element.add(optionElement);
-    console.log(element);
 }
 /**
  * Create a group of radio buttons.
@@ -150,6 +154,8 @@ export class RadioGroup {
     constructor(legendText, labels, className) {
         this.fieldset = document.createElement('fieldset');
         this.legend = document.createElement('legend');
+        this.element = document.createElement('input'); /** initial "empty" input element */
+        this.element.value = 'None';
         this.className = className;
         const controls = document.createElement('div');
         controls.className = className;
@@ -157,6 +163,7 @@ export class RadioGroup {
         this.fieldset.append(this.legend);
         this.fieldset.append(controls);
         const group = Widget.nextID();
+        // const event = new Event(`${RadioGroupEvent}-${group}`);
         let first = true;
         for (const label of labels) {
             const checked = first; /** select first radioInput by default */
@@ -164,6 +171,11 @@ export class RadioGroup {
             const radioInput = new RadioInput(label, group, checked);
             controls.append(radioInput.element, radioInput.label);
         }
+        // document.addEventListener(`${RadioGroupEvent}-${group}`, (e) => {
+        document.addEventListener(`${RadioGroupEvent}-${group}`, function (e) {
+            console.log('received event:');
+            // console.log(e.element.value);
+        });
     }
 }
 /**
@@ -225,7 +237,7 @@ export class Dialog {
         const radioGroup = new RadioGroup(legendText, labels, 'widget-radio-group');
         const fillerLabel = document.createElement('label'); /** empty element to fill Dialog's right column */
         this.controls.append(radioGroup.fieldset, fillerLabel);
-        // return radioGroup.element as HTMLInputElement;
+        return radioGroup.element;
     }
 }
 Dialog.odometer = 0;

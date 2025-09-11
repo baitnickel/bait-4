@@ -82,7 +82,7 @@ export class RadioInput extends Widget {
         this.element.checked = checked;
         this.element.value = labelHTML;
         this.element.addEventListener('click', () => {
-            const event = new CustomEvent(`${RadioGroupEvent}-${groupName}`, { detail: { element: this.element } });
+            const event = new Event(`${RadioGroupEvent}-${groupName}`);
             document.dispatchEvent(event);
             console.log(`dispatching event for: ${this.element.value}`);
         });
@@ -154,6 +154,7 @@ export class RadioGroup {
     constructor(legendText, labels, className) {
         this.fieldset = document.createElement('fieldset');
         this.legend = document.createElement('legend');
+        this.elements = [];
         this.element = document.createElement('input'); /** initial "empty" input element */
         this.element.value = 'None';
         this.className = className;
@@ -163,18 +164,26 @@ export class RadioGroup {
         this.fieldset.append(this.legend);
         this.fieldset.append(controls);
         const group = Widget.nextID();
-        // const event = new Event(`${RadioGroupEvent}-${group}`);
         let first = true;
         for (const label of labels) {
-            const checked = first; /** select first radioInput by default */
-            first = false;
+            const checked = first; /** check the first radioInput */
             const radioInput = new RadioInput(label, group, checked);
+            if (first) {
+                this.element = radioInput.element;
+                first = false;
+            }
+            this.elements.push(radioInput.element);
             controls.append(radioInput.element, radioInput.label);
         }
-        // document.addEventListener(`${RadioGroupEvent}-${group}`, (e) => {
-        document.addEventListener(`${RadioGroupEvent}-${group}`, function (e) {
-            console.log('received event:');
-            // console.log(e.element.value);
+        console.log(`initial value: ${this.element.value}`);
+        document.addEventListener(`${RadioGroupEvent}-${group}`, (e) => {
+            for (const element of this.elements) {
+                if (element.checked) {
+                    this.element = element;
+                    break;
+                }
+            }
+            console.log(`updated value: ${this.element.value}`);
         });
     }
 }

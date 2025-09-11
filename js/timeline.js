@@ -197,14 +197,14 @@ function createModalDialog(options) {
     const fromYear = dialog.addText('From Year:', options.fromYear);
     const untilYear = dialog.addText('Until Year:', options.untilYear);
     const keywords = dialog.addText('Search Keywords:', options.keywords);
-    // const eventTypes = dialog.addRadioGroup('Event Types', EventTypes);
+    const eventTypes = dialog.addRadioGroup('Event Types', EventTypes);
     const birthdate = dialog.addText('Birthdate:', options.birthdate);
     const sortAscending = dialog.addCheckbox('Sort Ascending:', options.sortAscending);
     dialog.confirmButton.addEventListener('click', () => {
         options.fromYear = fromYear.value;
         options.untilYear = untilYear.value;
         options.keywords = keywords.value;
-        // options.eventTypes = eventTypes.value;
+        options.eventTypes = eventTypes.value();
         options.birthdate = birthdate.value;
         options.sortAscending = sortAscending.checked;
         processTimedEvents(options);

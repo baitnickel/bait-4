@@ -1,4 +1,3 @@
-const RadioGroupEvent = 'bait:radio-group';
 /**
  * The Widget superclass manages element.id assignments automatically, using its
  * static `odometer`. We are assuming that the ID is usually needed only for
@@ -81,11 +80,6 @@ export class RadioInput extends Widget {
         this.element.name = groupName;
         this.element.checked = checked;
         this.element.value = labelHTML;
-        this.element.addEventListener('click', () => {
-            const event = new Event(`${RadioGroupEvent}-${groupName}`);
-            document.dispatchEvent(event);
-            console.log(`dispatching event for: ${this.element.value}`);
-        });
     }
 }
 /**
@@ -148,43 +142,41 @@ function addOptions(element, options) {
         element.add(optionElement);
 }
 /**
- * Create a group of radio buttons.
+ * Create a group of radio buttons. Unlike many of the other widgets, the value
+ * of the RadioGroup (i.e., the RadioInput object that has been checked) is not
+ * returned via an `element.value` property, but via this widget's `value`
+ * method.
  */
 export class RadioGroup {
     constructor(legendText, labels, className) {
         this.fieldset = document.createElement('fieldset');
         this.legend = document.createElement('legend');
-        this.elements = [];
-        this.element = document.createElement('input'); /** initial "empty" input element */
-        this.element.value = 'None';
-        this.className = className;
         const controls = document.createElement('div');
         controls.className = className;
+        this.className = className;
         this.legend.innerHTML = legendText;
         this.fieldset.append(this.legend);
         this.fieldset.append(controls);
+        this.inputElements = [];
         const group = Widget.nextID();
         let first = true;
         for (const label of labels) {
             const checked = first; /** check the first radioInput */
             const radioInput = new RadioInput(label, group, checked);
-            if (first) {
-                this.element = radioInput.element;
-                first = false;
-            }
-            this.elements.push(radioInput.element);
+            first = false;
+            this.inputElements.push(radioInput.element);
             controls.append(radioInput.element, radioInput.label);
         }
-        console.log(`initial value: ${this.element.value}`);
-        document.addEventListener(`${RadioGroupEvent}-${group}`, (e) => {
-            for (const element of this.elements) {
-                if (element.checked) {
-                    this.element = element;
-                    break;
-                }
+    }
+    value() {
+        let value = '';
+        for (const inputElement of this.inputElements) {
+            if (inputElement.checked) {
+                value = inputElement.value;
+                break;
             }
-            console.log(`updated value: ${this.element.value}`);
-        });
+        }
+        return value;
     }
 }
 /**
@@ -243,10 +235,10 @@ export class Dialog {
         return widget.element;
     }
     addRadioGroup(legendText, labels) {
-        const radioGroup = new RadioGroup(legendText, labels, 'widget-radio-group');
+        const widget = new RadioGroup(legendText, labels, 'widget-radio-group');
         const fillerLabel = document.createElement('label'); /** empty element to fill Dialog's right column */
-        this.controls.append(radioGroup.fieldset, fillerLabel);
-        return radioGroup.element;
+        this.controls.append(widget.fieldset, fillerLabel);
+        return widget;
     }
 }
 Dialog.odometer = 0;

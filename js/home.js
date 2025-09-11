@@ -134,7 +134,14 @@ function testDialog(testOutput) {
         PAGE.appendParagraph(testOutput, 'Cancelled');
     });
     dialog.confirmButton.addEventListener('click', () => {
-        PAGE.appendParagraph(testOutput, ['Confirmed', `box1 checked? ${box1.checked}`, `random text: ${text1.value}`, `radio: ${radio.value}`, `selection: |${select1.value}|`, `range: ${range.value}`]);
+        PAGE.appendParagraph(testOutput, [
+            'Confirmed',
+            `box1 checked? ${box1.checked}`,
+            `random text: |${text1.value}|`,
+            `radio: |${radio.value()}|`,
+            `selection: |${select1.value}|`,
+            `range: ${range.value}`
+        ]);
     });
 }
 function testRadio(testOutput) {

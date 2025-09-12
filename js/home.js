@@ -137,16 +137,29 @@ function testDialog(testOutput) {
         PAGE.appendParagraph(testOutput, [
             'Confirmed',
             `box1 checked? ${box1.checked}`,
-            `random text: |${text1.value}|`,
-            `radio: |${radio.value}|`,
-            `selection: |${select1.value}|`,
+            `random text: "${text1.value}"`,
+            `radio: "${radio.value}"`,
+            `selection: "${select1.value}"`,
             `range: ${range.value}`
         ]);
     });
 }
 function testRadio(testOutput) {
-    const radioGroup = new W.RadioGroup('Radio Group', ['A Tale of Two Cities', 'To Kill a Mockingbird', 'Much Ado About Nothing'], 'w-radio-group');
-    testOutput.append(radioGroup.fieldset);
+    const paragraph = document.createElement('p');
+    const radioGroup = new W.RadioGroup('Radio Group', ['A Tale of Two Cities', 'To Kill a Mockingbird', 'Much Ado About Nothing'], 'widget-radio-group');
+    radioGroup.fieldset.className = 'widget-radio-fieldset';
+    paragraph.append(radioGroup.fieldset);
+    testOutput.append(paragraph);
+    const selection = document.createElement('p');
+    const value = radioGroup.value;
+    selection.innerText = `Selected: ${value}`;
+    testOutput.append(selection);
+    for (const inputElement of radioGroup.inputElements) {
+        inputElement.addEventListener('click', () => {
+            const value = radioGroup.value;
+            selection.innerText = `Selected: ${value}`;
+        });
+    }
 }
 function testImages(testOutput) {
     PAGE.appendPhoto(testOutput, 'i-SDpf2qV', 'S');

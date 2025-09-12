@@ -365,20 +365,22 @@ function processAmountsOwed(year, sharedExpenses, groups, participatingGroups, p
             /* last from/to */
             const fromAccount = groups.get(current.from);
             const toAccount = groups.get(current.to);
-            let includesNormalPurpose = false;
-            const NormalPurposeIndex = notes.indexOf(NormalPurpose);
-            if (NormalPurposeIndex >= 0) {
-                includesNormalPurpose = true;
-                notes.splice(NormalPurposeIndex, 1); /* remove normal purpose */
+            if (fromAccount && toAccount) { //### why is this necessary? bad assumption somewhere above
+                let includesNormalPurpose = false;
+                const NormalPurposeIndex = notes.indexOf(NormalPurpose);
+                if (NormalPurposeIndex >= 0) {
+                    includesNormalPurpose = true;
+                    notes.splice(NormalPurposeIndex, 1); /* remove normal purpose */
+                }
+                let purposes = '';
+                if (notes.length) {
+                    purposes = notes.join(', ');
+                    if (includesNormalPurpose)
+                        purposes = 'includes ' + purposes;
+                    purposes = ` (${purposes})`;
+                }
+                reportLines.push(`  ${fromAccount.name} owes ${toAccount.name} ${dollars(sum)}${purposes}\n`);
             }
-            let purposes = '';
-            if (notes.length) {
-                purposes = notes.join(', ');
-                if (includesNormalPurpose)
-                    purposes = 'includes ' + purposes;
-                purposes = ` (${purposes})`;
-            }
-            reportLines.push(`  ${fromAccount.name} owes ${toAccount.name} ${dollars(sum)}${purposes}\n`);
         }
     }
 }

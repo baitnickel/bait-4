@@ -138,7 +138,7 @@ function testDialog(testOutput) {
             'Confirmed',
             `box1 checked? ${box1.checked}`,
             `random text: |${text1.value}|`,
-            `radio: |${radio.value()}|`,
+            `radio: |${radio.value}|`,
             `selection: |${select1.value}|`,
             `range: ${range.value}`
         ]);

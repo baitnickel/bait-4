@@ -196,7 +196,7 @@ export class RadioGroup {
 		}
 	}
 
-	value() {
+	get value() {
 		let value = '';
 		for (const inputElement of this.inputElements) {
 			if (inputElement.checked) {

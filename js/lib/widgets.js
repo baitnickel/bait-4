@@ -168,7 +168,7 @@ export class RadioGroup {
             controls.append(radioInput.element, radioInput.label);
         }
     }
-    value() {
+    get value() {
         let value = '';
         for (const inputElement of this.inputElements) {
             if (inputElement.checked) {

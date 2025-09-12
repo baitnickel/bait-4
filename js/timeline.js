@@ -204,7 +204,7 @@ function createModalDialog(options) {
         options.fromYear = fromYear.value;
         options.untilYear = untilYear.value;
         options.keywords = keywords.value;
-        options.eventTypes = eventTypes.value();
+        options.eventTypes = eventTypes.value;
         options.birthdate = birthdate.value;
         options.sortAscending = sortAscending.checked;
         processTimedEvents(options);

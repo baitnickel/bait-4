@@ -432,7 +432,7 @@ export type Reservation = {
 	purchaser: string; /* key for Account record, optionally followed by "/<alias>" */
 	occupants: string; /* "<account-key>/<occupant-names>" or "?", "none", "main site", etc. */
 }
-export type ParkReservations = { /* keyed by Park name */
+export type ParkReservations = { /* keyed by Park name */ //### unused
 	reservations: Reservation[];
 }
 export type Campsite = { /* array structure under Campground.sites */

@@ -199,8 +199,22 @@ function sortAdjustedReservations(adjustedReservations: AdjustedReservations) {
 
 type Transaction = {from: string, to: string, amount: number; purpose: string };
 
+type AccountingData = {
+	year: number, /** constant */
+	reservations: T.Reservation[], /** constant; sorted; also used in displayReservationTable */
+	adjustments: T.CampAdjustment[], /** constant */
+	directPayments: Transaction[], /** set in processReservations, createAdjustmentPayments, createUnderpayerPayments */
+	cost: T.CampCosts, /** set in currentCosts */
+	groups: Map<string, T.CampGroup>, /** constant; also used in displayReservationTable */
+	groupKeys: string[], /** constant; derived from groups in accounting */
+	participatingGroups: string[], /** set in addParticipant via processReservations, processExpenseAdjustments */
+	payments: Map<string, number>, /** set in accumulate via processReservations, processExpenseAdjustments */
+	sharedExpenses: number, /** set in processReservations, processExpenseAdjustments */
+	reportLines: string[], /** set in accounting, processReservations, processExpenseAdjustments, processReceiptAdjustments, processAmountsPaid, processAmountsOwed */
+}
+
 /**
- * Given the 4-digit `year`, an array of `reservations` for that year, an
+ * Given the 4-digit `year`, an array of `reservations` for that year, a
  * `groups` map, and a `costs` map, return an array of plain text lines
  * representing an accounting report.
  */

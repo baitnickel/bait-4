@@ -171,7 +171,7 @@ function sortAdjustedReservations(adjustedReservations) {
     return siteKeys;
 }
 /**
- * Given the 4-digit `year`, an array of `reservations` for that year, an
+ * Given the 4-digit `year`, an array of `reservations` for that year, a
  * `groups` map, and a `costs` map, return an array of plain text lines
  * representing an accounting report.
  */

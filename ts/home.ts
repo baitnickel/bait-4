@@ -6,6 +6,7 @@ import * as MD from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 import * as W from './lib/widgets.js';
 import { Moment } from './lib/moments.js';
+import { Bookings, Configuration } from './lib/bookings.js';
 
 type TestFunction = (output: HTMLDivElement) => void;
 type Tester = { name: string; function: TestFunction };
@@ -79,6 +80,7 @@ export function render() {
 		testContent.append(testOutput);
 
 		const testers: Tester[] = [];
+		testers.push( { name: 'Camp', function: testCamp } );
 		testers.push( { name: 'Moments', function: testMoments } );
 		testers.push( { name: 'IP', function: testIP } );
 		testers.push( { name: 'Dialog', function: testDialog } );
@@ -113,6 +115,32 @@ export function render() {
 			testButtons.append(button);
 		}
 	}
+}
+
+function testCamp(testOutput: HTMLDivElement) {
+	const output: string[] = [];
+	output.push('Testing bookings module ...');
+
+	const configuration: Configuration = {
+		campgrounds: `${PAGE.site}/data/camp/campgrounds.yaml`,
+		reservations: `${PAGE.site}/data/camp/reservations.yaml`,
+		adjustments: `${PAGE.site}/data/camp/adjustments.yaml`,
+		costs: `${PAGE.site}/data/camp/costs.yaml`,
+		hosts: `${PAGE.site}/data/camp/groups.yaml`,
+		finalized: `${PAGE.site}/data/camp/finalized.yaml`,
+	}
+	Bookings.LoadConfiguration(configuration);
+	// const my = Bookings.Hosts.get('D');
+	// if (my) output.push(`${my.name} ${my.color}`);
+	// else output.push('?');
+	const bookings = new Bookings('smitty', 2024)
+	output.push(`Site Cost: ${bookings.costs.site}`);
+	const myHost = bookings.hosts.get('J');
+	if (myHost) output.push(`Host "J": ${myHost.name} ${myHost.color}`);
+	output.push(`Is finalized? ${bookings.finalized}`);
+
+
+	PAGE.appendParagraph(testOutput, output);
 }
 
 function testMoments(testOutput: HTMLDivElement) {

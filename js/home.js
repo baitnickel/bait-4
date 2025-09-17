@@ -5,6 +5,7 @@ import * as MD from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 import * as W from './lib/widgets.js';
 import { Moment } from './lib/moments.js';
+import { Bookings } from './lib/bookings.js';
 const PAGE = new Page();
 const IndicesPath = `${PAGE.site}/Indices`;
 const Articles = await Fetch.map(`${IndicesPath}/articles.json`);
@@ -67,6 +68,7 @@ export function render() {
         const testOutput = document.createElement('div');
         testContent.append(testOutput);
         const testers = [];
+        testers.push({ name: 'Camp', function: testCamp });
         testers.push({ name: 'Moments', function: testMoments });
         testers.push({ name: 'IP', function: testIP });
         testers.push({ name: 'Dialog', function: testDialog });
@@ -99,6 +101,29 @@ export function render() {
             testButtons.append(button);
         }
     }
+}
+function testCamp(testOutput) {
+    const output = [];
+    output.push('Testing bookings module ...');
+    const configuration = {
+        campgrounds: `${PAGE.site}/data/camp/campgrounds.yaml`,
+        reservations: `${PAGE.site}/data/camp/reservations.yaml`,
+        adjustments: `${PAGE.site}/data/camp/adjustments.yaml`,
+        costs: `${PAGE.site}/data/camp/costs.yaml`,
+        hosts: `${PAGE.site}/data/camp/groups.yaml`,
+        finalized: `${PAGE.site}/data/camp/finalized.yaml`,
+    };
+    Bookings.LoadConfiguration(configuration);
+    // const my = Bookings.Hosts.get('D');
+    // if (my) output.push(`${my.name} ${my.color}`);
+    // else output.push('?');
+    const bookings = new Bookings('smitty', 2024);
+    output.push(`Site Cost: ${bookings.costs.site}`);
+    const myHost = bookings.hosts.get('J');
+    if (myHost)
+        output.push(`Host "J": ${myHost.name} ${myHost.color}`);
+    output.push(`Is finalized? ${bookings.finalized}`);
+    PAGE.appendParagraph(testOutput, output);
 }
 function testMoments(testOutput) {
     const tests = ['1960', '1961.1.1', '1962/2/29', '3-1963', '21.6.1964', '1965/07/35', '1966/08/0', '1967/0', '1968:11:8', '149'];

@@ -105,7 +105,8 @@ export function render() {
 function testCamp(testOutput) {
     const output = [];
     output.push('Testing bookings module ...');
-    const configuration = {
+    const campData = {
+        park: 'smitty',
         campgrounds: `${PAGE.site}/data/camp/campgrounds.yaml`,
         reservations: `${PAGE.site}/data/camp/reservations.yaml`,
         adjustments: `${PAGE.site}/data/camp/adjustments.yaml`,
@@ -113,16 +114,19 @@ function testCamp(testOutput) {
         hosts: `${PAGE.site}/data/camp/groups.yaml`,
         finalized: `${PAGE.site}/data/camp/finalized.yaml`,
     };
-    Bookings.LoadConfiguration(configuration);
-    // const my = Bookings.Hosts.get('D');
-    // if (my) output.push(`${my.name} ${my.color}`);
-    // else output.push('?');
-    const bookings = new Bookings('smitty', 2024);
-    output.push(`Site Cost: ${bookings.costs.site}`);
-    const myHost = bookings.hosts.get('J');
-    if (myHost)
-        output.push(`Host "J": ${myHost.name} ${myHost.color}`);
-    output.push(`Is finalized? ${bookings.finalized}`);
+    // Bookings.LoadData(campData);
+    // // const my = Bookings.Hosts.get('D');
+    // // if (my) output.push(`${my.name} ${my.color}`);
+    // // else output.push('?');
+    const bookings = new Bookings(campData);
+    const reservations = bookings.reservations(2025);
+    for (const reservation of reservations) {
+        output.push(`${reservation.site} ${reservation.arrival} ${reservation.purchaser} ${reservation.occupantNames}`);
+    }
+    // output.push(`Site Cost: ${bookings.costs.site}`);
+    // const myHost = bookings.hosts.get('J');
+    // if (myHost) output.push(`Host "J": ${myHost.name} ${myHost.color}`);
+    // output.push(`Is finalized? ${bookings.finalized}`);
     PAGE.appendParagraph(testOutput, output);
 }
 function testMoments(testOutput) {

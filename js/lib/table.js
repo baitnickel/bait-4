@@ -1,18 +1,13 @@
 /**
- * RowData is a map containing fieldName:fieldValue, representing field names and
- * field values for a single table row. The 'createTable' function expects an
- * array of RowData maps, typically read from JSON or YAML. In the YAML example below,
- * 'pets' is of type: RowData[].
+ * Given `rows` (an array of maps, where the map key is a string field name and
+ * the map value is a string, number, boolean, or null field value), `columns`
+ * (a list of field names to be included as table columns), and optional
+ * `options` (which can affect styling), build an HTML table and return an
+ * HTMLTableElement.
  *
-   pets:
-     -
-       type: dog
-       name: Tracy
-       born: 1966
-     -
-       type: cat
-       name: Figaro
-       born: 1990
+ * This function was designed for converting JSON or YAML file structures into
+ * HTML Tables. As such, it is a bit rigid in terms of things like column
+ * headings (which must be valid YAML keys, for instance).
  */
 export function createTable(rows, columns, options = null) {
     let tableElement = document.createElement('table');
@@ -43,11 +38,11 @@ export function createTable(rows, columns, options = null) {
     }
     return tableElement;
 }
+/**
+ * Split heading into multiple words on hyphens or underscores, and
+ * capitalize each word.
+ */
 function prettyHeading(heading) {
-    /**
-     * Split heading into multiple words on hyphens or underscores, and
-     * capitalize each word.
-     */
     let prettyWords = [];
     let words = heading.split(/[-_]+/g);
     for (let word of words) {

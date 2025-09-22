@@ -287,6 +287,48 @@ export class Dialog {
 	}
 }
 
+/**
+ * Create an HTMLTableElement from a collection of row and cell data.
+ * 
+ * - A cell is a table cell (data cell or header cell). A cell contains
+ *   innertext, and optional properties such as data/header, styling, colSpan,
+ *   etc.
+ * - A row is an array of cells. A row may contain properties to be applied to
+ *   the entire row.
+ * 
+ * What are the constructor parameters? A array of Rows, each containing an
+ * array of Cells? I'm hoping to avoid complex structures, but maybe that's not
+ * possible. We might avoid some issues by setting option properties in the
+ * Table object after instantiation--things like number of header rows (or
+ * simply array of header row values), number of header fields at the start of
+ * each row, etc.
+ * 
+ * How about a static method we can use to create cells? This might keep HTML
+ * Element details out of the high-level modules (such as parks.ts). Or, might
+ * need a TableCell class.
+ */
+export class Table {
+	headingValues: string[];
+	rowHeadings: number; /** number of cells at beginning of rows to be row headings */
+	rows: HTMLTableCellElement[];
+
+	constructor (headingValues: string[], rowHeadings = 1) {
+		this.headingValues = headingValues;
+		this.rowHeadings = rowHeadings;
+		this.rows = [];
+	}
+
+	addRow(cells: HTMLTableCellElement[]) {
+		for (const cell of cells) this.rows.push(cell);
+	}
+
+	createTable() {
+		const table = document.createElement('table');
+		// add heading, add rows ...
+		return table;
+	}
+}
+
 /********* pre-Widget code *********************************************************/
 
 /**

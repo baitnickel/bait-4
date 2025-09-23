@@ -23,84 +23,80 @@ const AdjustmentsFile = `${Site}/data/camp/adjustments.yaml`;
 const CostsFile = `${Site}/data/camp/costs.yaml`;
 const HostsFile = `${Site}/data/camp/groups.yaml`;
 const FinalizedFile = `${Site}/data/camp/finalized.yaml`;
-const CampgroundData = await Fetch.map(CampgroundFile);
-const ReservationsData = await Fetch.map(ReservationsFile);
-const AdjustmentsData = await Fetch.map(AdjustmentsFile);
-const CostsData = await Fetch.map(CostsFile);
-const HostsData = await Fetch.map(HostsFile);
-const FinalizedData = await Fetch.map(FinalizedFile);
+const CampgroundDBData = await Fetch.map(CampgroundFile);
+const ReservationsDBData = await Fetch.map(ReservationsFile);
+const AdjustmentsDBData = await Fetch.map(AdjustmentsFile);
+const CostsDBData = await Fetch.map(CostsFile);
+const HostsDBData = await Fetch.map(HostsFile);
+const FinalizedDBData = await Fetch.map(FinalizedFile);
 export class Park {
     constructor(parkName) {
         this.name = parkName;
-        this.hosts = new Map();
-        this.yearlyReservations = [];
-        this.yearlyAdjustments = [];
-        this.yearlyCosts = [];
-        this.finalizedYears = [];
-        if (ReservationsData.has(parkName))
-            this.yearlyReservations = ReservationsData.get(parkName);
-        if (AdjustmentsData.has(parkName))
-            this.yearlyAdjustments = AdjustmentsData.get(parkName);
-        if (CostsData.has(parkName)) {
-            this.yearlyCosts = CostsData.get(parkName);
-            this.yearlyCosts.sort((a, b) => { return b.year - a.year; });
-        }
-        for (const key of Array.from(HostsData.keys())) {
-            const host = HostsData.get(key);
-            if (host)
-                this.hosts.set(key.toUpperCase(), { name: host.name, color: host.color, payments: [], debts: [] });
-        }
-        if (FinalizedData.has(parkName))
-            this.finalizedYears = FinalizedData.get(parkName);
+        this.hosts = this.loadHosts(HostsDBData);
+        this.parkReservations = this.loadParkReservations(ReservationsDBData);
+        this.parkAdjustments = this.loadParkAdjustments(AdjustmentsDBData);
+        this.parkCosts = this.loadParkCosts(CostsDBData);
+        this.parkFinalizedYears = this.loadParkFinalizedYears(FinalizedDBData);
+        // if (ReservationsDBData.has(parkName)) this.yearlyReservations = ReservationsDBData.get(parkName)!
+        // if (AdjustmentsDBData.has(parkName)) this.yearlyAdjustments = AdjustmentsDBData.get(parkName)!
+        // if (CostsDBData.has(parkName)) {
+        // 	this.parkCosts = CostsDBData.get(parkName)!
+        // 	this.parkCosts.sort((a, b) => { return b.year - a.year });
+        // }
+        // for (const key of Array.from(HostsDBData.keys())) {
+        // 	const host = HostsDBData.get(key);
+        // 	if (host) this.hosts.set(key.toUpperCase(), { name: host.name, color: host.color, payments: [], debts: [] })
+        // }
+        // if (FinalizedDBData.has(parkName)) this.finalizedYears = FinalizedDBData.get(parkName)!
     }
     campground() {
-        return CampgroundData.get(this.name);
+        return CampgroundDBData.get(this.name);
     }
     reservations(year) {
-        const reservations = [];
-        const yearPrefix = `${year}-`;
-        for (const yearlyReservation of this.yearlyReservations) {
-            if (yearlyReservation.arrival.startsWith(yearPrefix)) {
-                const [purchaser, purchaserAccount] = this.slashedValues(yearlyReservation.purchaser);
-                const [occupant, occupantNames] = this.slashedValues(yearlyReservation.occupants, false);
-                reservations.push({
-                    site: yearlyReservation.site,
-                    arrival: yearlyReservation.arrival,
-                    reserved: yearlyReservation.reserved,
-                    cancelled: yearlyReservation.cancelled,
-                    modified: yearlyReservation.modified,
-                    purchaser: purchaser,
-                    occupant: occupant,
-                    purchaserAccount: purchaserAccount,
-                    occupantNames: occupantNames,
-                });
-            }
-        }
-        return reservations;
+        // let reservations: Reservation[] = [];
+        // reservations = this.parkReservations.filter((r) => r.year == year);
+        // for (const parkReservation of this.parkReservations) {
+        // 	if (parkReservation.year = year) {
+        // 		reservations.push({
+        // 			site: parkReservation.site,
+        // 			arrival: parkReservation.arrival,
+        // 			reserved: parkReservation.reserved,
+        // 			cancelled: parkReservation.cancelled,
+        // 			modified: parkReservation.modified,
+        // 			purchaser: purchaser,
+        // 			occupant: occupant,
+        // 			purchaserAccount: purchaserAccount,
+        // 			occupantNames: occupantNames,
+        // 		});
+        // 	}
+        // }
+        return this.parkReservations.filter((r) => r.year == year);
     }
     adjustments(year) {
-        const adjustments = [];
-        for (const yearlyAdjustment of this.yearlyAdjustments) {
-            if (yearlyAdjustment.year == year) {
-                adjustments.push({
-                    host: yearlyAdjustment.group,
-                    amount: yearlyAdjustment.amount,
-                    description: yearlyAdjustment.for,
-                });
-            }
-        }
-        return adjustments;
+        // let adjustments: Adjustment[] = [];
+        // for (const yearlyAdjustment of this.yearlyAdjustments) {
+        // 	if (yearlyAdjustment.year == year) {
+        // 		adjustments.push({
+        // 			host: yearlyAdjustment.group,
+        // 			amount: yearlyAdjustment.amount,
+        // 			description: yearlyAdjustment.for,
+        // 		});
+        // 	}
+        // }
+        // return adjustments;
+        return this.parkAdjustments.filter((a) => a.year == year);
     }
     /**
      * Return the current `costs` object, "current" being the object having the
      * most recent year not greater than the given `year`.
      */
     costs(year) {
-        let costs = { site: 0, cabin: 0, reservation: 0, cancellation: 0, modification: 0 };
-        /** yearlyCosts have previously been sorted by years descending */
-        for (const yearlyCosts of this.yearlyCosts) {
-            if (yearlyCosts.year <= year) {
-                costs = yearlyCosts;
+        let costs = { year: 0, site: 0, cabin: 0, reservation: 0, cancellation: 0, modification: 0 };
+        /** sort by years descending to get the most recent qualifying year */
+        this.parkCosts.sort((a, b) => b.year - a.year);
+        for (const parkCosts of this.parkCosts) {
+            if (parkCosts.year <= year) {
+                costs = parkCosts;
                 break;
             }
         }
@@ -111,17 +107,15 @@ export class Park {
      */
     isFinalized(year) {
         let finalized = false;
-        if (this.finalizedYears.includes(year))
+        if (this.parkFinalizedYears.includes(year))
             finalized = true;
         return finalized;
     }
     reservationYears(sort) {
-        const years = [];
-        for (const yearlyReservation of this.yearlyReservations) {
-            const year = Number(yearlyReservation.arrival.slice(0, 4));
-            if (!years.includes(year))
-                years.push(year);
-        }
+        const setOfYears = new Set();
+        for (const parkReservation of this.parkReservations)
+            setOfYears.add(parkReservation.year);
+        const years = Array.from(setOfYears);
         if (sort == 'ascending')
             years.sort((a, b) => a - b);
         else
@@ -129,26 +123,27 @@ export class Park {
         return years;
     }
     /**
-     * In the Reservation Purchaser and Occupants fields, the strings are typically
-     * two values separated by a slash. In both cases, the first value is a Host
-     * key. For Purchaser, the second value is a Reservation Account managed by the Host. (one
-     * person may have multiple reservation groups). For Occupants, the second
-     * value is a free-form list of occupant names. (Storing two different values in
-     * a single field is very bad coding practice! It's being done here merely to
-     * simplify the YAML data entry, and might be abandoned once we provide a
-     * suitable data entry UI--a rather difficult challenge in static website.)
+     * In the Reservation Purchaser and Occupants fields, the strings are
+     * typically two values separated by a slash. In both cases, the first value
+     * is a Host key. For Purchaser, the second value is a Reservation Account
+     * managed by the Host (one person may use multiple reservation accounts).
+     * For Occupants, the second value is a free-form list of occupant names.
+     * (Storing two different values in a single field is very bad coding
+     * practice! It's being done here merely to simplify the YAML data entry,
+     * and might be abandoned once we provide a suitable data entry UI--a rather
+     * difficult challenge in static website.)
      *
      * When a Purchaser field has only one value (no slash), it is taken as a
-     * Group key. When an Occupants field has only one value (no slash), it is
+     * Host key. When an Occupants field has only one value (no slash), it is
      * taken as a free-form list of occupant names (or "Main Site", etc.).
      *
-     * Given a Purchaser or Occupants string, return a two-element array. Element 0
-     * contains a Group key or an empty string, trimmed and converted to uppercase.
-     * For a Purchaser field, Element 1 will contain a trimmed reservation alias or
-     * an empty string. For an Occupants field, Element 1 will contain a trimmed
-     * free-form string or an empty string. By default, we assume the string is a
-     * Purchaser; set the optional `purchaser` parameter to false when processing
-     * Occupants.
+     * Given a Purchaser or Occupants string, return a two-element array.
+     * Element 0 contains a Host key or an empty string, trimmed and converted
+     * to uppercase. For a Purchaser field, Element 1 will contain a trimmed
+     * reservation alias or an empty string. For an Occupants field, Element 1
+     * will contain a trimmed free-form string or an empty string. By default,
+     * we assume the string is a Purchaser; set the optional `purchaser`
+     * parameter to false when processing Occupants.
      */
     slashedValues(value, purchaser = true) {
         const values = [];
@@ -182,7 +177,95 @@ export class Park {
             siteNumber = site;
         return siteNumber;
     }
+    loadHosts(hostsDBData) {
+        const hosts = new Map();
+        for (const key of Array.from(hostsDBData.keys())) {
+            const host = HostsDBData.get(key);
+            if (host)
+                hosts.set(key.toUpperCase(), { name: host.name, color: host.color, payments: [], debts: [] });
+        }
+        return hosts;
+    }
+    loadParkReservations(reservationsDBData) {
+        const parkReservations = [];
+        if (reservationsDBData.has(this.name)) {
+            const parkReservationsDBData = reservationsDBData.get(this.name);
+            for (const parkReservationDBData of parkReservationsDBData) {
+                const arrival = new Date(parkReservationDBData.arrival + 'T' + CheckInTime);
+                const [purchaser, purchaserAccount] = this.slashedValues(parkReservationDBData.purchaser);
+                const [occupant, occupantNames] = this.slashedValues(parkReservationDBData.occupants, false);
+                parkReservations.push({
+                    site: parkReservationDBData.site,
+                    year: arrival.getFullYear(),
+                    arrival: arrival,
+                    reserved: parkReservationDBData.reserved,
+                    cancelled: parkReservationDBData.cancelled,
+                    modified: parkReservationDBData.modified,
+                    purchaser: purchaser,
+                    occupant: occupant,
+                    purchaserAccount: purchaserAccount,
+                    occupantNames: occupantNames,
+                });
+            }
+        }
+        return parkReservations;
+    }
+    loadParkAdjustments(adjustmentsDBData) {
+        const parkAdjustments = [];
+        if (adjustmentsDBData.has(this.name)) {
+            const parkAdjustmentsDBData = adjustmentsDBData.get(this.name);
+            for (const parkAdjustmentDBData of parkAdjustmentsDBData) {
+                parkAdjustments.push({
+                    year: parkAdjustmentDBData.year,
+                    host: parkAdjustmentDBData.group,
+                    amount: parkAdjustmentDBData.amount,
+                    description: parkAdjustmentDBData.for,
+                });
+            }
+        }
+        return parkAdjustments;
+    }
+    loadParkCosts(costsDBData) {
+        let parkCosts = [];
+        if (costsDBData.has(this.name)) {
+            const parkCosts = costsDBData.get(this.name);
+        }
+        return parkCosts;
+    }
+    loadParkFinalizedYears(finalizedDBData) {
+        let parkFinalizedYears = [];
+        if (finalizedDBData.has(this.name)) {
+            parkFinalizedYears = finalizedDBData.get(this.name);
+        }
+        return parkFinalizedYears;
+    }
 }
+//### should this be working with output from method `reservations(year)`?
+// function sortReservations(reservations: ReservationsDB[]){
+// 	/** sort by arrival date, nightsReserved */
+// 	reservations.sort((a, b) => {
+// 		if (a.arrival < b.arrival) return -1;
+// 		else if (a.arrival > b.arrival) return 1;
+// 		else if ((a.reserved - a.cancelled) < (b.reserved - b.cancelled)) return -1;
+// 		else if ((a.reserved - a.cancelled) > (b.reserved - b.cancelled)) return 1;
+// 		return 0;
+// 	});
+// }
+//### No! Should be working with a Map
+// function sortAdjustedReservations(adjustedReservations: AdjustedReservations) {
+// 	/** sort by arrival date, nightsReserved, site number */
+// 	let siteKeys = Object.keys(adjustedReservations);
+// 	siteKeys.sort((a, b) => {
+// 		if (adjustedReservations[a][0].arrivalDate < adjustedReservations[b][0].arrivalDate) return -1;
+// 		else if (adjustedReservations[a][0].arrivalDate > adjustedReservations[b][0].arrivalDate) return 1;
+// 		else if (adjustedReservations[a][0].nightsReserved < adjustedReservations[b][0].nightsReserved) return -1;
+// 		else if (adjustedReservations[a][0].nightsReserved > adjustedReservations[b][0].nightsReserved) return 1;
+// 		else if (adjustedReservations[a][0].site < adjustedReservations[b][0].site) return -1;
+// 		else if (adjustedReservations[a][0].site > adjustedReservations[b][0].site) return 1;
+// 		return 0;
+// 	});
+// 	return siteKeys;
+// }
 /*
     participatingGroups: hosts present as either purchasers or occupants
     adjustments: host, amount, purpose (constant(s) from YAML, e.g. Storage Unit)

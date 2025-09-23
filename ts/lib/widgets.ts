@@ -290,22 +290,19 @@ export class Dialog {
 /**
  * Create an HTMLTableElement from a collection of row and cell data.
  * 
- * - A cell is a table cell (data cell or header cell). A cell contains
- *   innertext, and optional properties such as data/header, styling, colSpan,
- *   etc.
- * - A row is an array of cells. A row may contain properties to be applied to
- *   the entire row.
+ * Instantiate the Table object (with an array of heading values and the number
+ * of columns in each data row to be created as a row header, if any). Then call
+ * `addCell` for each cell of the first data row, and call `addRow` to complete
+ * the row. Repeat for each row. When finished, call `createTable`, which
+ * returns the HTMLTableElement.
  * 
- * What are the constructor parameters? A array of Rows, each containing an
- * array of Cells? I'm hoping to avoid complex structures, but maybe that's not
- * possible. We might avoid some issues by setting option properties in the
- * Table object after instantiation--things like number of header rows (or
- * simply array of header row values), number of header fields at the start of
- * each row, etc.
+ * `addCell` and `addRow` return the HTMLTableCellElement and
+ * HTMLTableRowElement, respectively, and these can be updated after creation,
+ * e.g.:
  * 
- * How about a static method we can use to create cells? This might keep HTML
- * Element details out of the high-level modules (such as parks.ts). Or, might
- * need a TableCell class.
+ * - const cell = table.addCell('value', '');
+ * - cell.style.color = 'blue';
+ * - cell.colSpan = 2;
  */
 export class Table {
 	headingValues: string[]; /** values comprising the header row */
@@ -313,7 +310,7 @@ export class Table {
 	rows: HTMLTableRowElement[];
 	private cells: HTMLTableCellElement[];
 
-	constructor (headingValues: string[], rowHeadings = 1) {
+	constructor (headingValues: string[], rowHeadings = 0) {
 		this.headingValues = headingValues;
 		this.rowHeadings = rowHeadings;
 		this.rows = [];
@@ -332,6 +329,7 @@ export class Table {
 	addCell(text: string, className: string) {
 		const cellType = (this.cells.length < this.rowHeadings) ? 'th' : 'td';
 		const cell = document.createElement(cellType);
+		cell.innerText = text;
 		if (className) cell.classList.add(className);
 		this.cells.push(cell);
 		return cell;
@@ -343,6 +341,7 @@ export class Table {
 		const row = document.createElement('tr');
 		for (const headingValue of this.headingValues) {
 			const cell = document.createElement('th');
+			cell.innerText = headingValue;
 			row.append(cell);
 		}
 		table.append(row);

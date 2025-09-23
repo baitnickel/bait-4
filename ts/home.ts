@@ -80,6 +80,7 @@ export function render() {
 		testContent.append(testOutput);
 
 		const testers: Tester[] = [];
+		testers.push( { name: 'Table', function: testTable } );
 		testers.push( { name: 'Camp', function: testCamp } );
 		testers.push( { name: 'Moments', function: testMoments } );
 		testers.push( { name: 'IP', function: testIP } );
@@ -115,6 +116,31 @@ export function render() {
 			testButtons.append(button);
 		}
 	}
+}
+
+function testTable(testOutput: HTMLDivElement) {
+	const table = new W.Table(['Col 1', 'Col 2', 'Col 3', 'Col 4'], 0);
+
+	table.addCell('first', '');
+	table.addCell('second', '');
+	table.addCell('third', 'alert');
+	table.addCell('fourth', '');
+	table.addRow('');
+
+	table.addCell('one', '');
+	const cell = table.addCell('two', '');
+	cell.style.color = 'blue';
+ 	cell.colSpan = 2;
+	table.addCell('three', '');
+	table.addRow('campsite-good');
+
+	table.addCell('uno', '');
+	table.addCell('dos', '');
+	table.addCell('tres', '');
+	table.addCell('quatro', '');
+	table.addRow('');
+	
+	testOutput.append(table.createTable(''));
 }
 
 function testCamp(testOutput: HTMLDivElement) {

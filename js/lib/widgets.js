@@ -267,14 +267,38 @@ export class Table {
         this.headingValues = headingValues;
         this.rowHeadings = rowHeadings;
         this.rows = [];
+        this.cells = [];
     }
-    addRow(cells) {
-        for (const cell of cells)
-            this.rows.push(cell);
+    addRow(className) {
+        const row = document.createElement('tr');
+        if (className)
+            row.classList.add(className);
+        for (const cell of this.cells)
+            row.append(cell);
+        this.rows.push(row);
+        this.cells = []; /** clear the cells array to make ready for the next row */
+        return row;
     }
-    createTable() {
+    addCell(text, className) {
+        const cellType = (this.cells.length < this.rowHeadings) ? 'th' : 'td';
+        const cell = document.createElement(cellType);
+        if (className)
+            cell.classList.add(className);
+        this.cells.push(cell);
+        return cell;
+    }
+    createTable(className) {
         const table = document.createElement('table');
-        // add heading, add rows ...
+        if (className)
+            table.classList.add(className);
+        const row = document.createElement('tr');
+        for (const headingValue of this.headingValues) {
+            const cell = document.createElement('th');
+            row.append(cell);
+        }
+        table.append(row);
+        for (const row of this.rows)
+            table.append(row);
         return table;
     }
 }

@@ -3,15 +3,15 @@ import * as Fetch from './fetch.js';
 /**
  * Constants used in old functions:
  */
-/** used in displayReservationTable */
+/** Constant(s) used in displayReservationTable */
 const CheckInTime = '14:00:00.000-07:00'; /** 2:00pm PDT */
-/** used in writeTableRows */
+/** Constant(s) used in writeTableRows */
 const ModificationSymbols = ['†', '‡']; /* symbols indicating reservation modifications--must be as many as ModificationLimit */
 const UnknownGroupColor = 'lightgray'; /* default color when group is unknown */
-/** used in processReservations */
+/** Constant(s) used in processReservations */
 const CabinSitePattern = new RegExp(/^J/, 'i'); /* campsite IDs starting with "J" or "j" are cabins */
 const ModificationLimit = 2; /* maximum allowed reservation modifications (per reservation) */
-/** used in processAmountsOwed and createUnderpayerPayments */
+/** Constant(s) used in processAmountsOwed and createUnderpayerPayments */
 const NormalPurpose = '';
 /**
  * Load the raw data stored in the data files.
@@ -37,53 +37,16 @@ export class Park {
         this.parkAdjustments = this.loadParkAdjustments(AdjustmentsDBData);
         this.parkCosts = this.loadParkCosts(CostsDBData);
         this.parkFinalizedYears = this.loadParkFinalizedYears(FinalizedDBData);
-        // if (ReservationsDBData.has(parkName)) this.yearlyReservations = ReservationsDBData.get(parkName)!
-        // if (AdjustmentsDBData.has(parkName)) this.yearlyAdjustments = AdjustmentsDBData.get(parkName)!
-        // if (CostsDBData.has(parkName)) {
-        // 	this.parkCosts = CostsDBData.get(parkName)!
-        // 	this.parkCosts.sort((a, b) => { return b.year - a.year });
-        // }
-        // for (const key of Array.from(HostsDBData.keys())) {
-        // 	const host = HostsDBData.get(key);
-        // 	if (host) this.hosts.set(key.toUpperCase(), { name: host.name, color: host.color, payments: [], debts: [] })
-        // }
-        // if (FinalizedDBData.has(parkName)) this.finalizedYears = FinalizedDBData.get(parkName)!
     }
-    campground() {
+    get campground() {
         return CampgroundDBData.get(this.name);
     }
+    /** Given a year, return the year's campsite reservations */
     reservations(year) {
-        // let reservations: Reservation[] = [];
-        // reservations = this.parkReservations.filter((r) => r.year == year);
-        // for (const parkReservation of this.parkReservations) {
-        // 	if (parkReservation.year = year) {
-        // 		reservations.push({
-        // 			site: parkReservation.site,
-        // 			arrival: parkReservation.arrival,
-        // 			reserved: parkReservation.reserved,
-        // 			cancelled: parkReservation.cancelled,
-        // 			modified: parkReservation.modified,
-        // 			purchaser: purchaser,
-        // 			occupant: occupant,
-        // 			purchaserAccount: purchaserAccount,
-        // 			occupantNames: occupantNames,
-        // 		});
-        // 	}
-        // }
         return this.parkReservations.filter((r) => r.year == year);
     }
+    /** Given a year, return the year's adjustments (shared expenses other than campsites) */
     adjustments(year) {
-        // let adjustments: Adjustment[] = [];
-        // for (const yearlyAdjustment of this.yearlyAdjustments) {
-        // 	if (yearlyAdjustment.year == year) {
-        // 		adjustments.push({
-        // 			host: yearlyAdjustment.group,
-        // 			amount: yearlyAdjustment.amount,
-        // 			description: yearlyAdjustment.for,
-        // 		});
-        // 	}
-        // }
-        // return adjustments;
         return this.parkAdjustments.filter((a) => a.year == year);
     }
     /**
@@ -102,15 +65,14 @@ export class Park {
         }
         return costs;
     }
-    /**
-     * Has the given year's data been marked "finalized"?
-     */
+    /** Has the given year's data been marked "finalized"? */
     isFinalized(year) {
         let finalized = false;
         if (this.parkFinalizedYears.includes(year))
             finalized = true;
         return finalized;
     }
+    /** Return an array of years having campsite reservations (ascending or descending) */
     reservationYears(sort) {
         const setOfYears = new Set();
         for (const parkReservation of this.parkReservations)
@@ -165,8 +127,8 @@ export class Park {
         values.push(freeForm.trim());
         return values;
     }
+    /** Convert site ID from string to number (e.g., 'J26' => 26), removing non-digit characters */
     numericSite(site) {
-        /** convert site from string to number (e.g., 'J26' => 26), removing non-digit characters */
         let siteNumber = 0;
         if (typeof site == 'string') {
             site = site.replace(/\D/g, '');
@@ -177,6 +139,7 @@ export class Park {
             siteNumber = site;
         return siteNumber;
     }
+    /** Load the `hosts` Map from the raw data */
     loadHosts(hostsDBData) {
         const hosts = new Map();
         for (const key of Array.from(hostsDBData.keys())) {
@@ -186,6 +149,7 @@ export class Park {
         }
         return hosts;
     }
+    /** Load the reservations array from the raw data */
     loadParkReservations(reservationsDBData) {
         const parkReservations = [];
         if (reservationsDBData.has(this.name)) {
@@ -210,6 +174,7 @@ export class Park {
         }
         return parkReservations;
     }
+    /** Load the adjustments array from the raw data */
     loadParkAdjustments(adjustmentsDBData) {
         const parkAdjustments = [];
         if (adjustmentsDBData.has(this.name)) {
@@ -225,13 +190,15 @@ export class Park {
         }
         return parkAdjustments;
     }
+    /** Load the costs array from the raw data */
     loadParkCosts(costsDBData) {
         let parkCosts = [];
         if (costsDBData.has(this.name)) {
-            const parkCosts = costsDBData.get(this.name);
+            parkCosts = costsDBData.get(this.name);
         }
         return parkCosts;
     }
+    /** Load the finalized years array from the raw data */
     loadParkFinalizedYears(finalizedDBData) {
         let parkFinalizedYears = [];
         if (finalizedDBData.has(this.name)) {
@@ -240,43 +207,3 @@ export class Park {
         return parkFinalizedYears;
     }
 }
-//### should this be working with output from method `reservations(year)`?
-// function sortReservations(reservations: ReservationsDB[]){
-// 	/** sort by arrival date, nightsReserved */
-// 	reservations.sort((a, b) => {
-// 		if (a.arrival < b.arrival) return -1;
-// 		else if (a.arrival > b.arrival) return 1;
-// 		else if ((a.reserved - a.cancelled) < (b.reserved - b.cancelled)) return -1;
-// 		else if ((a.reserved - a.cancelled) > (b.reserved - b.cancelled)) return 1;
-// 		return 0;
-// 	});
-// }
-//### No! Should be working with a Map
-// function sortAdjustedReservations(adjustedReservations: AdjustedReservations) {
-// 	/** sort by arrival date, nightsReserved, site number */
-// 	let siteKeys = Object.keys(adjustedReservations);
-// 	siteKeys.sort((a, b) => {
-// 		if (adjustedReservations[a][0].arrivalDate < adjustedReservations[b][0].arrivalDate) return -1;
-// 		else if (adjustedReservations[a][0].arrivalDate > adjustedReservations[b][0].arrivalDate) return 1;
-// 		else if (adjustedReservations[a][0].nightsReserved < adjustedReservations[b][0].nightsReserved) return -1;
-// 		else if (adjustedReservations[a][0].nightsReserved > adjustedReservations[b][0].nightsReserved) return 1;
-// 		else if (adjustedReservations[a][0].site < adjustedReservations[b][0].site) return -1;
-// 		else if (adjustedReservations[a][0].site > adjustedReservations[b][0].site) return 1;
-// 		return 0;
-// 	});
-// 	return siteKeys;
-// }
-/*
-    participatingGroups: hosts present as either purchasers or occupants
-    adjustments: host, amount, purpose (constant(s) from YAML, e.g. Storage Unit)
-    directPayments (and Receipts): from cabin occupant to purchaser (Cabin Surcharge); Amount Owed or Amount Received
-    payments: reservation (* nights), cancellation, modification
-    sharedExpenses: number, set in processReservations, processExpenseAdjustments
-
-    hosts: every key found in YAML files (reservations and adjustments)
-    expenses: site * nights, storage, reserve fee, cancel fee, modify fee
-    receipts: contribution from non-host (to be divided among all hosts)
-    surcharge: cabin surcharge (occupant to purchaser) †
-
-    † when one host purchases a cabin, and a different host (family) occupies the cabin
-*/

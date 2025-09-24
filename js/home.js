@@ -1,11 +1,12 @@
 import { Page, getCookies } from './lib/page.js';
+import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as Datasets from './lib/datasets.js';
 import * as MD from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 import * as W from './lib/widgets.js';
 import { Moment } from './lib/moments.js';
-import { Bookings } from './lib/bookings.js';
+import { Park } from './lib/parks.js';
 const PAGE = new Page();
 const IndicesPath = `${PAGE.site}/Indices`;
 const Articles = await Fetch.map(`${IndicesPath}/articles.json`);
@@ -69,7 +70,7 @@ export function render() {
         testContent.append(testOutput);
         const testers = [];
         testers.push({ name: 'Table', function: testTable });
-        testers.push({ name: 'Camp', function: testCamp });
+        testers.push({ name: 'Park', function: testPark });
         testers.push({ name: 'Moments', function: testMoments });
         testers.push({ name: 'IP', function: testIP });
         testers.push({ name: 'Dialog', function: testDialog });
@@ -123,31 +124,35 @@ function testTable(testOutput) {
     table.addRow('');
     testOutput.append(table.createTable(''));
 }
-function testCamp(testOutput) {
+function testPark(testOutput) {
     const output = [];
-    output.push('Testing bookings module ...');
-    const campData = {
-        park: 'smitty',
-        campgrounds: `${PAGE.site}/data/camp/campgrounds.yaml`,
-        reservations: `${PAGE.site}/data/camp/reservations.yaml`,
-        adjustments: `${PAGE.site}/data/camp/adjustments.yaml`,
-        costs: `${PAGE.site}/data/camp/costs.yaml`,
-        hosts: `${PAGE.site}/data/camp/groups.yaml`,
-        finalized: `${PAGE.site}/data/camp/finalized.yaml`,
-    };
-    // Bookings.LoadData(campData);
-    // // const my = Bookings.Hosts.get('D');
-    // // if (my) output.push(`${my.name} ${my.color}`);
-    // // else output.push('?');
-    const bookings = new Bookings(campData);
-    const reservations = bookings.reservations(2025);
-    for (const reservation of reservations) {
-        output.push(`${reservation.site} ${reservation.arrival} ${reservation.purchaser} ${reservation.occupantNames}`);
+    const park = new Park('smitty');
+    const years = park.reservationYears('ascending');
+    for (const year of years) {
+        const finalized = park.isFinalized(year);
+        output.push(`${year} is finalized? ${finalized}`);
+        const costs = park.costs(year);
+        output.push(`year: ${costs.year} site: ${costs.site} cabin: ${costs.cabin} reservation: ${costs.reservation} cancellation: ${costs.cancellation} modification: ${costs.modification}`);
+        output.push('Adjustments:');
+        const adjustments = park.adjustments(year);
+        for (const adjustment of adjustments) {
+            output.push(`year: ${adjustment.year} host: ${adjustment.host} amount: ${adjustment.amount} description: ${adjustment.description}`);
+        }
+        output.push('Reservations:');
+        const reservations = park.reservations(year);
+        for (const reservation of reservations) {
+            const arrivalDay = T.DateString(reservation.arrival, 9);
+            output.push(`${reservation.year} ${reservation.site} ${arrivalDay} ${reservation.reserved} ${reservation.cancelled} ${reservation.modified} purchaser: ${reservation.purchaser} ${reservation.purchaserAccount} occupant: ${reservation.occupant} ${reservation.occupantNames}`);
+        }
+        output.push(`___`);
     }
-    // output.push(`Site Cost: ${bookings.costs.site}`);
-    // const myHost = bookings.hosts.get('J');
-    // if (myHost) output.push(`Host "J": ${myHost.name} ${myHost.color}`);
-    // output.push(`Is finalized? ${bookings.finalized}`);
+    output.push('Hosts:');
+    const hosts = park.hosts;
+    const hostKeys = Array.from(hosts.keys());
+    for (const hostKey of hostKeys) {
+        const host = hosts.get(hostKey);
+        output.push(`key: ${hostKey} name: ${host.name} color: ${host.color} payments: ${host.payments} debts: ${host.debts} `);
+    }
     PAGE.appendParagraph(testOutput, output);
 }
 function testMoments(testOutput) {

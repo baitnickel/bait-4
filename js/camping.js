@@ -22,7 +22,7 @@ export function render() {
      */
     const park = new Park(ParkName);
     if (park !== undefined) {
-        const campground = park.campground();
+        const campground = park.campground;
         if (campground !== undefined) {
             /* display the map */
             const map = campground.map;
@@ -85,10 +85,10 @@ export function render() {
         buttonsElement.append(yearSelection);
         yearSelection.addEventListener('change', () => { document.dispatchEvent(newReservationsView); });
         /* radio buttons to switch between Purchasers and Occupants view */
-        radioButtons.addButton('Purchasers');
-        radioButtons.addButton('Occupants');
-        for (let button of radioButtons.buttons)
-            buttonsElement.append(button);
+        // radioButtons.addButton('Purchasers');
+        // radioButtons.addButton('Occupants');
+        // for (let button of radioButtons.buttons) buttonsElement.append(button);
+        const radioGroup = new W.RadioGroup('Legend', ['Purchasers', 'Occupants'], '');
         /* add accounting checkbox option (hidden until event listener verifies finalized year) */
         accountingWidget.label.hidden = true;
         buttonsElement.append(accountingWidget.label);

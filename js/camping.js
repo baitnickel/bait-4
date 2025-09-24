@@ -85,10 +85,12 @@ export function render() {
         buttonsElement.append(yearSelection);
         yearSelection.addEventListener('change', () => { document.dispatchEvent(newReservationsView); });
         /* radio buttons to switch between Purchasers and Occupants view */
-        // radioButtons.addButton('Purchasers');
-        // radioButtons.addButton('Occupants');
-        // for (let button of radioButtons.buttons) buttonsElement.append(button);
-        const radioGroup = new W.RadioGroup('Legend', ['Purchasers', 'Occupants'], '');
+        radioButtons.addButton('Purchasers');
+        radioButtons.addButton('Occupants');
+        for (let button of radioButtons.buttons)
+            buttonsElement.append(button);
+        // const radioGroup = new W.RadioGroup('View', ['Purchasers', 'Occupants'], 'widget-radio-inline');
+        // buttonsElement.append(radioGroup.fieldset);
         /* add accounting checkbox option (hidden until event listener verifies finalized year) */
         accountingWidget.label.hidden = true;
         buttonsElement.append(accountingWidget.label);
@@ -98,34 +100,35 @@ export function render() {
         reservationsDiv.append(reservationParagraph);
         accountingDiv.append(reportParagraph);
         detailsElement.append(accountingDiv);
-        // 	/* listen for reservation view changes and (re)display campsite reservations on change */
-        // 	document.addEventListener(NewReservationsViewEvent, () => {
-        // 		reservationsTableElement.innerHTML = '';
-        // 		reportParagraph.innerText = '';
-        // 		const year = Number(yearSelection.value);
-        // 		/* Generate campsite reservation table */
-        // 		Reservations.displayReservationTable(
-        // 			reservationsTableElement,
-        // 			year,
-        // 			ParkReservations,
-        // 			Groups,
-        // 			radioButtons,
-        // 		);
-        // 		if (ParkFinalizedYears.includes(year) || testing) {
-        // 			accountingWidget.label.hidden = false;
-        // 			if (showAccounting) {
-        // 				/* Generate campsite accounting report */
-        // 				const reportLines = Reservations.accounting(year, Groups, ParkReservations, ParkAdjustments, ParkCosts);
-        // 				for (const reportLine of reportLines) reportParagraph.append(reportLine);
-        // 				accountingDiv.hidden = false;
-        // 			}
-        // 			else accountingDiv.hidden = true;
-        // 		}
-        // 		else {
-        // 			accountingDiv.hidden = true;
-        // 			accountingWidget.label.hidden = true;
-        // 		}
-        // 	});
+        /* listen for reservation view changes and (re)display campsite reservations on change */
+        document.addEventListener(NewReservationsViewEvent, () => {
+            // reservationsTableElement.innerHTML = '';
+            reportParagraph.innerText = '';
+            const year = Number(yearSelection.value);
+            // 		/* Generate campsite reservation table */
+            // 		Reservations.displayReservationTable(
+            // 			reservationsTableElement,
+            // 			year,
+            // 			ParkReservations,
+            // 			Groups,
+            // 			radioButtons,
+            // 		);
+            park.reservationsTable(reservationsTableElement, year);
+            // 		if (ParkFinalizedYears.includes(year) || testing) {
+            // 			accountingWidget.label.hidden = false;
+            // 			if (showAccounting) {
+            // 				/* Generate campsite accounting report */
+            // 				const reportLines = Reservations.accounting(year, Groups, ParkReservations, ParkAdjustments, ParkCosts);
+            // 				for (const reportLine of reportLines) reportParagraph.append(reportLine);
+            // 				accountingDiv.hidden = false;
+            // 			}
+            // 			else accountingDiv.hidden = true;
+            // 		}
+            // 		else {
+            // 			accountingDiv.hidden = true;
+            // 			accountingWidget.label.hidden = true;
+            // 		}
+        });
         // 	document.addEventListener(AccountingOptionEvent, () => {
         // 		showAccounting = accountingWidget.element.checked;
         // 		document.dispatchEvent(newReservationsView);

@@ -1,4 +1,5 @@
 import * as Settings from './settings.js';
+import * as T from './types.js';
 import * as Fetch from './fetch.js';
 /**
  * Constants used in old functions:
@@ -85,6 +86,53 @@ export class Park {
         return years;
     }
     /**
+     * Return a two-element array of start date and end date, representing the
+     * first reservation date and the last reservation date for the given year.
+     */
+    reservationsRange(year) {
+        let startDate = null;
+        let endDate = null;
+        const reservations = this.reservations(year).filter((r) => r.reserved > r.cancelled);
+        for (const reservation of reservations) {
+            let lastDay = new Date(reservation.arrival);
+            lastDay.setDate(lastDay.getDate() + (reservation.reserved - reservation.cancelled - 1));
+            if (startDate === null || startDate > reservation.arrival)
+                startDate = new Date(reservation.arrival.getTime());
+            if (endDate === null || endDate < lastDay)
+                endDate = new Date(lastDay.getTime());
+        }
+        return [startDate, endDate];
+    }
+    reservationsTable(table, year) {
+        const reservations = this.reservations(year).filter((r) => r.reserved > r.cancelled);
+        const [startDate, endDate] = this.reservationsRange(year);
+        if (startDate && endDate) {
+            /** create headings */
+            const headings = ['Site'];
+            let headingDate = startDate;
+            while (headingDate <= endDate) {
+                headings.push(T.DateString(headingDate, 13));
+                headingDate.setDate(headingDate.getDate() + 1);
+            }
+            /** create Map of site reservations */
+            /**
+             * Hmm ... As we loop over reservations, we need to build a
+             * structure like {siteNumber, offsetCell, reservation}. Sorting
+             * these, we should be able to construct rows--knowing where we need
+             * to insert empty colSpans.
+             *
+             * - SiteNumber Offset(arrival-startDate) colSpan(reserved-cancelled) Reservation
+             *
+             */
+            // const siteMap = new Map<number, Reservation[]>();
+            // reservations.sort((a,b) => a.siteNumber - b.siteNumber);
+            // let priorSiteNumber = 0;
+            // for (const reservation of reservations) {
+            // 	if (!siteMap.has(reservation.siteNumber)) siteMap.set(reservation.siteNumber, []);
+            // }
+        }
+    }
+    /**
      * In the Reservation Purchaser and Occupants fields, the strings are
      * typically two values separated by a slash. In both cases, the first value
      * is a Host key. For Purchaser, the second value is a Reservation Account
@@ -160,6 +208,7 @@ export class Park {
                 const [occupant, occupantNames] = this.slashedValues(parkReservationDBData.occupants, false);
                 parkReservations.push({
                     site: parkReservationDBData.site,
+                    siteNumber: this.numericSite(parkReservationDBData.site),
                     year: arrival.getFullYear(),
                     arrival: arrival,
                     reserved: parkReservationDBData.reserved,

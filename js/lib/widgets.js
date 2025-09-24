@@ -300,6 +300,18 @@ export class Table {
             table.append(row);
         return table;
     }
+    fillTable(table) {
+        table.innerHTML = '';
+        const row = document.createElement('tr');
+        for (const headingValue of this.headingValues) {
+            const cell = document.createElement('th');
+            cell.innerText = headingValue;
+            row.append(cell);
+        }
+        table.append(row);
+        for (const row of this.rows)
+            table.append(row);
+    }
 }
 /********* pre-Widget code *********************************************************/
 /**

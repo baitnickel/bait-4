@@ -83,6 +83,7 @@ export function IsYamlFile(pathName: string) {
  * - 10: Feb 2024
  * - 11: 2024
  * - 12: Thu Feb 1, 2024 2:35:51pm
+ * - 13: Thu 2/1
  */
 export function DateString(date: Date, format = 0) {
 	if (format == 0) return date.toISOString();
@@ -90,7 +91,9 @@ export function DateString(date: Date, format = 0) {
 	const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 	const weekdays = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 	const mon = months[date.getMonth()];
+	const mo = mon.slice(0, 3); 
 	const weekday = weekdays[date.getDay()];
+	const wd = weekday.slice(0, 3);
 	const year = date.getFullYear().toString().padStart(2, '0');
 	const m = (date.getMonth() + 1).toString();
 	const month = m.padStart(2, '0');
@@ -108,13 +111,14 @@ export function DateString(date: Date, format = 0) {
 	else if (h == 0) h = 12;
 	if (format == 4) return `${weekday}, ${mon} ${d}, ${year} ${h}:${minute}${amPm}`;
 	if (format == 5) return `${mon} ${d}, ${year} ${h}:${minute}${amPm}`;
-	if (format == 6) return `${weekday.slice(0, 3)} ${mon.slice(0, 3)} ${d}, ${year} ${h}:${minute}${amPm}`;
-	if (format == 7) return `${mon.slice(0, 3)} ${d}, ${year} ${h}:${minute}${amPm}`;
-	if (format == 8) return `${mon.slice(0, 3)} ${d}, ${year}`;
-	if (format == 9) return `${weekday.slice(0, 3)} ${mon.slice(0, 3)} ${d}, ${year}`;
-	if (format == 10) return `${mon.slice(0, 3)} ${year}`;
+	if (format == 6) return `${wd} ${mo} ${d}, ${year} ${h}:${minute}${amPm}`;
+	if (format == 7) return `${mo} ${d}, ${year} ${h}:${minute}${amPm}`;
+	if (format == 8) return `${mo} ${d}, ${year}`;
+	if (format == 9) return `${wd} ${mo} ${d}, ${year}`;
+	if (format == 10) return `${mo} ${year}`;
 	if (format == 11) return `${year}`;
-	if (format == 12) return `${weekday.slice(0, 3)} ${mon.slice(0, 3)} ${d}, ${year} ${h}:${minute}:${second}${amPm}`;
+	if (format == 12) return `${wd} ${mo} ${d}, ${year} ${h}:${minute}:${second}${amPm}`;
+	if (format == 13) return `${wd} ${m}/${d}`;
 	return date.toISOString(); // default
 }
 

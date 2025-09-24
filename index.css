@@ -498,6 +498,11 @@ dialog.threads-dialog button {
 	width: fit-content;
 }
 
+.widget-radio-inline {
+	/* width: fit-content; */
+	gap: .25rem;
+}
+
 /* Tests, etc. =================================================================== */
 
 .grid-buttons {

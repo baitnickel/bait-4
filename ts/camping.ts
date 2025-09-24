@@ -98,10 +98,11 @@ export function render() {
 		yearSelection.addEventListener('change', () => { document.dispatchEvent(newReservationsView); });
 
 		/* radio buttons to switch between Purchasers and Occupants view */
-		// radioButtons.addButton('Purchasers');
-		// radioButtons.addButton('Occupants');
-		// for (let button of radioButtons.buttons) buttonsElement.append(button);
-		const radioGroup = new W.RadioGroup('Legend', ['Purchasers', 'Occupants'], '');
+		radioButtons.addButton('Purchasers');
+		radioButtons.addButton('Occupants');
+		for (let button of radioButtons.buttons) buttonsElement.append(button);
+		// const radioGroup = new W.RadioGroup('View', ['Purchasers', 'Occupants'], 'widget-radio-inline');
+		// buttonsElement.append(radioGroup.fieldset);
 
 		/* add accounting checkbox option (hidden until event listener verifies finalized year) */
 		accountingWidget.label.hidden = true;
@@ -115,11 +116,13 @@ export function render() {
 		accountingDiv.append(reportParagraph);
 		detailsElement.append(accountingDiv);
 		
-	// 	/* listen for reservation view changes and (re)display campsite reservations on change */
-	// 	document.addEventListener(NewReservationsViewEvent, () => {
-	// 		reservationsTableElement.innerHTML = '';
-	// 		reportParagraph.innerText = '';
-	// 		const year = Number(yearSelection.value);
+		/* listen for reservation view changes and (re)display campsite reservations on change */
+
+		document.addEventListener(NewReservationsViewEvent, () => {
+			// reservationsTableElement.innerHTML = '';
+			reportParagraph.innerText = '';
+			const year = Number(yearSelection.value);
+
 	// 		/* Generate campsite reservation table */
 	// 		Reservations.displayReservationTable(
 	// 			reservationsTableElement,
@@ -128,6 +131,9 @@ export function render() {
 	// 			Groups,
 	// 			radioButtons,
 	// 		);
+			park.reservationsTable(reservationsTableElement, year);
+
+			
 	// 		if (ParkFinalizedYears.includes(year) || testing) {
 	// 			accountingWidget.label.hidden = false;
 	// 			if (showAccounting) {
@@ -142,7 +148,7 @@ export function render() {
 	// 			accountingDiv.hidden = true;
 	// 			accountingWidget.label.hidden = true;
 	// 		}
-	// 	});
+		});
 
 	// 	document.addEventListener(AccountingOptionEvent, () => {
 	// 		showAccounting = accountingWidget.element.checked;

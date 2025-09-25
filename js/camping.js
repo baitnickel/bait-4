@@ -113,7 +113,8 @@ export function render() {
             // 			Groups,
             // 			radioButtons,
             // 		);
-            park.reservationsTable(reservationsTableElement, year);
+            const view = (radioButtons.activeButton == 'Purchasers');
+            park.reservationsTable(reservationsTableElement, year, view);
             // 		if (ParkFinalizedYears.includes(year) || testing) {
             // 			accountingWidget.label.hidden = false;
             // 			if (showAccounting) {
@@ -133,8 +134,8 @@ export function render() {
         // 		showAccounting = accountingWidget.element.checked;
         // 		document.dispatchEvent(newReservationsView);
         // 	});
-        // 	/* on initial rendering, trigger display of campsite reservation info */
-        // 	document.dispatchEvent(newReservationsView);
+        /* on initial rendering, trigger display of campsite reservation info */
+        document.dispatchEvent(newReservationsView);
     }
 }
 function createParagraphs(lines) {

@@ -144,7 +144,7 @@ function testPark(testOutput) {
             const arrivalDay = T.DateString(reservation.arrival, 9);
             output.push(`${reservation.year} ${reservation.site} ${arrivalDay} ${reservation.reserved} ${reservation.cancelled} ${reservation.modified} purchaser: ${reservation.purchaser} ${reservation.purchaserAccount} occupant: ${reservation.occupant} ${reservation.occupantNames}`);
         }
-        const [startDate, endDate] = park.reservationsRange(year);
+        const [startDate, endDate] = park.reservationsRange(reservations);
         if (startDate && endDate)
             output.push(`Start Date: ${T.DateString(startDate, 13)} End Date: ${T.DateString(endDate, 13)}`);
         output.push(`___`);

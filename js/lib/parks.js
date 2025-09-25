@@ -1,6 +1,7 @@
 import * as Settings from './settings.js';
 import * as T from './types.js';
 import * as Fetch from './fetch.js';
+import * as W from './widgets.js';
 /**
  * Constants used in old functions:
  */
@@ -85,14 +86,89 @@ export class Park {
             years.sort((a, b) => b - a);
         return years;
     }
+    reservationsTable(tableElement, year, purchaserView = true) {
+        tableElement.innerHTML = '';
+        const reservations = this.reservations(year).filter((r) => r.reserved > r.cancelled);
+        const [startDate, endDate] = this.reservationsRange(reservations);
+        if (startDate && endDate) {
+            /** create headings */
+            const headings = ['Site'];
+            let headingDate = new Date(startDate.getTime()); /** clone startDate object */
+            while (headingDate <= endDate) {
+                headings.push(T.DateString(headingDate, 13));
+                headingDate.setDate(headingDate.getDate() + 1);
+            }
+            /** create reservation cell details */
+            const cells = this.createReservationCells(reservations, startDate);
+            /** fill the table element */
+            const table = new W.Table(headings, 1);
+            let nextColumn = 0;
+            let priorSiteNumber = 0;
+            for (const cell of cells) {
+                if (cell.siteNumber != priorSiteNumber) {
+                    if (priorSiteNumber)
+                        table.addRow(''); /** complete prior row */
+                    /** start of new table row */
+                    table.addCell(`${cell.site}`, '');
+                    nextColumn = 0;
+                    priorSiteNumber = cell.siteNumber;
+                }
+                if (cell.offset > nextColumn) {
+                    /** insert an empty cell to cover unreserved days */
+                    let unreservedDays = cell.offset - nextColumn;
+                    const tableCell = table.addCell('', '');
+                    if (unreservedDays > 1)
+                        tableCell.colSpan = unreservedDays;
+                    nextColumn += unreservedDays;
+                }
+                let camperName = (purchaserView) ? cell.purchaserAccount : cell.occupantNames;
+                if (cell.modified >= ModificationSymbols.length)
+                    camperName += ` ${ModificationSymbols[ModificationSymbols.length - 1]}`;
+                else if (cell.modified > 0)
+                    camperName += ` ${ModificationSymbols[cell.modified - 1]}`;
+                const tableCell = table.addCell(camperName, '');
+                if (cell.reserved > 1)
+                    tableCell.colSpan = cell.reserved;
+                tableCell.style.textAlign = 'center';
+                tableCell.style.backgroundColor = this.hostColor(cell.purchaser);
+                nextColumn += cell.reserved;
+            }
+            table.addRow(''); /** complete last row */
+            table.fillTable(tableElement);
+        }
+    }
+    /** create reservation cell details */
+    createReservationCells(reservations, startDate) {
+        const cells = [];
+        const milliseconds = 1000 * 60 * 60 * 24; /** milliseconds per day */
+        for (const reservation of reservations) {
+            cells.push({
+                offset: Math.round((reservation.arrival.getTime() - startDate.getTime()) / milliseconds),
+                site: reservation.site,
+                siteNumber: reservation.siteNumber,
+                reserved: reservation.reserved - reservation.cancelled,
+                modified: reservation.modified,
+                purchaser: reservation.purchaser,
+                purchaserAccount: (reservation.purchaserAccount) ? reservation.purchaserAccount : this.hostName(reservation.purchaser),
+                occupantNames: reservation.occupantNames,
+            });
+        }
+        /**### should be sorting by arrival, reserved, site; requires preprocessing by site (Map) */
+        cells.sort((a, b) => {
+            if (a.siteNumber != b.siteNumber)
+                return a.siteNumber - b.siteNumber;
+            else
+                return a.offset - b.offset;
+        });
+        return cells;
+    }
     /**
      * Return a two-element array of start date and end date, representing the
      * first reservation date and the last reservation date for the given year.
      */
-    reservationsRange(year) {
+    reservationsRange(reservations) {
         let startDate = null;
         let endDate = null;
-        const reservations = this.reservations(year).filter((r) => r.reserved > r.cancelled);
         for (const reservation of reservations) {
             let lastDay = new Date(reservation.arrival);
             lastDay.setDate(lastDay.getDate() + (reservation.reserved - reservation.cancelled - 1));
@@ -103,34 +179,19 @@ export class Park {
         }
         return [startDate, endDate];
     }
-    reservationsTable(table, year) {
-        const reservations = this.reservations(year).filter((r) => r.reserved > r.cancelled);
-        const [startDate, endDate] = this.reservationsRange(year);
-        if (startDate && endDate) {
-            /** create headings */
-            const headings = ['Site'];
-            let headingDate = startDate;
-            while (headingDate <= endDate) {
-                headings.push(T.DateString(headingDate, 13));
-                headingDate.setDate(headingDate.getDate() + 1);
-            }
-            /** create Map of site reservations */
-            /**
-             * Hmm ... As we loop over reservations, we need to build a
-             * structure like {siteNumber, offsetCell, reservation}. Sorting
-             * these, we should be able to construct rows--knowing where we need
-             * to insert empty colSpans.
-             *
-             * - SiteNumber Offset(arrival-startDate) colSpan(reserved-cancelled) Reservation
-             *
-             */
-            // const siteMap = new Map<number, Reservation[]>();
-            // reservations.sort((a,b) => a.siteNumber - b.siteNumber);
-            // let priorSiteNumber = 0;
-            // for (const reservation of reservations) {
-            // 	if (!siteMap.has(reservation.siteNumber)) siteMap.set(reservation.siteNumber, []);
-            // }
-        }
+    hostName(hostKey) {
+        let hostName = `${hostKey}?`;
+        const host = this.hosts.get(hostKey);
+        if (host)
+            hostName = host.name;
+        return hostName;
+    }
+    hostColor(hostKey) {
+        let hostColor = UnknownGroupColor;
+        const host = this.hosts.get(hostKey);
+        if (host)
+            hostColor = host.color;
+        return hostColor;
     }
     /**
      * In the Reservation Purchaser and Occupants fields, the strings are
@@ -148,8 +209,8 @@ export class Park {
      * taken as a free-form list of occupant names (or "Main Site", etc.).
      *
      * Given a Purchaser or Occupants string, return a two-element array.
-     * Element 0 contains a Host key or an empty string, trimmed and converted
-     * to uppercase. For a Purchaser field, Element 1 will contain a trimmed
+     * Element 0 contains a Host key, trimmed and converted to uppercase, or an
+     * empty string. For a Purchaser field, Element 1 will contain a trimmed
      * reservation alias or an empty string. For an Occupants field, Element 1
      * will contain a trimmed free-form string or an empty string. By default,
      * we assume the string is a Purchaser; set the optional `purchaser`

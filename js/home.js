@@ -105,24 +105,23 @@ export function render() {
     }
 }
 function testTable(testOutput) {
-    const table = new W.Table(['Col 1', 'Col 2', 'Col 3', 'Col 4'], 0);
-    table.addCell('first', '');
-    table.addCell('second', '');
-    table.addCell('third', 'alert');
-    table.addCell('fourth', '');
-    table.addRow('');
-    table.addCell('one', '');
-    const cell = table.addCell('two', '');
-    cell.style.color = 'blue';
-    cell.colSpan = 2;
-    table.addCell('three', '');
-    table.addRow('campsite-good');
-    table.addCell('uno', '');
-    table.addCell('dos', '');
-    table.addCell('tres', '');
-    table.addCell('quatro', '');
-    table.addRow('');
-    testOutput.append(table.createTable(''));
+    const table = new W.Table(['Col 1', 'Col 2', 'Col 3', 'Col 4'], 1);
+    table.addRow();
+    table.addCell('first');
+    table.addCell('second');
+    table.addCell('third', 'class: alert');
+    table.addCell('fourth');
+    table.addRow('class:campsite-good');
+    table.addCell('one');
+    table.addCell('two', ['color: white', 'colSpan: 2']);
+    table.addCell('three');
+    table.addRow();
+    table.addCell('uno');
+    table.addCell('dos');
+    table.addCell('tres');
+    table.addCell('quatro');
+    table.fillTable(table.element);
+    testOutput.append(table.element);
 }
 function testPark(testOutput) {
     const output = [];

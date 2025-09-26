@@ -10,7 +10,7 @@ import * as W from './widgets.js';
 /** Constant(s) used in displayReservationTable */
 const CheckInTime = '14:00:00.000-07:00'; /** 2:00pm PDT */
 /** Constant(s) used in writeTableRows */
-const ModificationSymbols = ['†', '‡']; /* symbols indicating reservation modifications--must be as many as ModificationLimit */
+const ModifiedSymbols = ['†', '‡']; /* symbols indicating reservation modifications--must be as many as ModificationLimit */
 const UnknownGroupColor = 'lightgray'; /* default color when group is unknown */
 
 /** Constant(s) used in processReservations */
@@ -97,7 +97,7 @@ type Host = {
 	debts: Debt[]; /** dollars owed by one host to another host */
 }
 type Reservation = {
-	site: string|number;
+	site: string;
 	siteNumber: number;
 	year: number;
 	arrival: Date;
@@ -138,7 +138,7 @@ type Debt = {
 /** Table cell data for presentation of Reservations */
 type ReservationCell = {
 	offset: number; /** days offset from earliest reservation date */
-	site: string|number;
+	site: string;
 	siteNumber: number;
 	reserved: number; /** number of nights reserved */
 	modified: number;
@@ -211,11 +211,29 @@ export class Park {
 		return years;
 	}
 
+	/**
+	 * Fill the given `tableElement` with rows and columns, data selected from
+	 * Reservations in the given `year` (and having a valid reservation--not
+	 * completely cancelled). The data will be tailored to the `purchaserView`
+	 * by default, showing the reservation account names associated with the
+	 * reservations; setting this option to "false" tailors the data to the
+	 * (expected/proposed) occupants view.
+	 */
 	reservationsTable(tableElement: HTMLTableElement, year: number, purchaserView = true) {
 		tableElement.innerHTML = '';
 		const reservations = this.reservations(year).filter((r) => r.reserved > r.cancelled);
 		const [startDate, endDate] = this.reservationsRange(reservations);
 		if (startDate && endDate) {
+
+			/** sort reservations by arrival Date, then number of reserved nights */
+			reservations.sort((a,b) => {
+				const aTime = a.arrival.getTime();
+				const bTime = b.arrival.getTime();
+				if (aTime != bTime) return aTime - bTime;
+				const aReserved = a.reserved - a.cancelled;
+				const bReserved = b.reserved - b.cancelled;
+				return aReserved - bReserved;
+			});
 
 			/** create headings */
 			const headings = ['Site'];
@@ -228,35 +246,50 @@ export class Park {
 			/** create reservation cell details */
 			const cells = this.createReservationCells(reservations, startDate);
 
-			/** fill the table element */
-			const table = new W.Table(headings, 1);
-			let nextColumn = 0;
-			let priorSiteNumber = 0;
+			/** create site-keyed map of cells */
+			const siteMap = new Map<number, ReservationCell[]>();
 			for (const cell of cells) {
-				if (cell.siteNumber != priorSiteNumber) {
-					if (priorSiteNumber) table.addRow(''); /** complete prior row */
-					/** start of new table row */
-					table.addCell(`${cell.site}`, '')
-					nextColumn = 0;
-					priorSiteNumber = cell.siteNumber;
+				if (siteMap.has(cell.siteNumber)) {
+					const siteCells = siteMap.get(cell.siteNumber)!;
+					siteCells.push(cell);
+					siteMap.set(cell.siteNumber, siteCells);
 				}
-				if (cell.offset > nextColumn) {
-					/** insert an empty cell to cover unreserved days */
-					let unreservedDays = cell.offset - nextColumn;
-					const tableCell = table.addCell('', '')
-					if (unreservedDays > 1) tableCell.colSpan = unreservedDays;
-					nextColumn += unreservedDays;
-				}
-				let camperName = (purchaserView) ? cell.purchaserAccount : cell.occupantNames;
-				if (cell.modified >= ModificationSymbols.length) camperName += ` ${ModificationSymbols[ModificationSymbols.length - 1]}`;
-				else if (cell.modified > 0) camperName += ` ${ModificationSymbols[cell.modified - 1]}`;
-				const tableCell = table.addCell(camperName, '');
-				if (cell.reserved > 1) tableCell.colSpan = cell.reserved;
-				tableCell.style.textAlign = 'center';
-				tableCell.style.backgroundColor = this.hostColor(cell.purchaser);
-				nextColumn += cell.reserved;
+				else siteMap.set(cell.siteNumber, [cell]);
 			}
-			table.addRow(''); /** complete last row */
+			/**
+			 * Create an array of siteMap keys--the sorted reservation data is
+			 * preserved. Using the Map merely folds multiple reservations for
+			 * the same site into the first occurrence of the site.
+			 */
+			const siteNumbers = Array.from(siteMap.keys());
+
+			/** fill the table element */
+			const table = new W.Table(headings, 1);	
+			for (const siteNumber of siteNumbers) {
+				/** start of new table row */
+				const siteCells = siteMap.get(siteNumber)!;
+				table.addRow();
+				table.addCell(siteCells[0].site);
+				let nextColumn = 0;
+				for (const cell of siteCells) {
+					if (cell.offset > nextColumn) {
+						/** insert an empty cell to represent unreserved days */
+						let unreservedDays = cell.offset - nextColumn;
+						let attribute = ''
+						if (unreservedDays > 1) attribute = `colSpan: ${unreservedDays}`;
+						table.addCell('', attribute);
+						nextColumn += unreservedDays;
+					}
+					let camperName = (purchaserView) ? cell.purchaserAccount : cell.occupantNames;
+					if (cell.modified >= ModifiedSymbols.length) camperName += ` ${ModifiedSymbols[ModifiedSymbols.length - 1]}`;
+					else if (cell.modified > 0) camperName += ` ${ModifiedSymbols[cell.modified - 1]}`;
+					const attributes: string[] = [];
+					if (cell.reserved > 1) attributes.push(`colSpan: ${cell.reserved}`);
+					attributes.push(`textAlign: center`, `backgroundColor: ${this.hostColor(cell.purchaser)}`);
+					table.addCell(camperName, attributes);
+					nextColumn += cell.reserved;
+				}
+			}
 			table.fillTable(tableElement);
 		}
 	}
@@ -277,11 +310,6 @@ export class Park {
 				occupantNames: reservation.occupantNames,
 			});
 		}
-		/**### should be sorting by arrival, reserved, site; requires preprocessing by site (Map) */
-		cells.sort((a,b) => {
-			if (a.siteNumber != b.siteNumber) return a.siteNumber - b.siteNumber;
-			else return a.offset - b.offset;
-		});
 		return cells;
 	}
 
@@ -357,14 +385,11 @@ export class Park {
 		return values;
 	}
 	
-	/** Convert site ID from string to number (e.g., 'J26' => 26), removing non-digit characters */
-	numericSite(site: string|number) {
+	/** Convert site from string to number (e.g., 'J26' => 26), removing non-digit characters */
+	numericSite(site: string) {
 		let siteNumber = 0;
-		if (typeof site == 'string') {
-			site = site.replace(/\D/g, '');
-			if (site) siteNumber = Number(site);
-		}
-		else siteNumber = site;
+		site = site.replace(/\D/g, '');
+		if (!isNaN(Number(site))) siteNumber = Number(site);
 		return siteNumber;
 	}
 
@@ -387,9 +412,11 @@ export class Park {
 				const arrival = new Date(parkReservationDBData.arrival + 'T' + CheckInTime);
 				const [purchaser, purchaserAccount] = this.slashedValues(parkReservationDBData.purchaser);
 				const [occupant, occupantNames] = this.slashedValues(parkReservationDBData.occupants, false);
+				const site = parkReservationDBData.site.toString();
+				const siteNumber = this.numericSite(site);
 				parkReservations.push({
-					site: parkReservationDBData.site,
-					siteNumber: this.numericSite(parkReservationDBData.site),
+					site: site,
+					siteNumber: siteNumber,
 					year: arrival.getFullYear(),
 					arrival: arrival,
 					reserved: parkReservationDBData.reserved,

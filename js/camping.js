@@ -102,17 +102,8 @@ export function render() {
         detailsElement.append(accountingDiv);
         /* listen for reservation view changes and (re)display campsite reservations on change */
         document.addEventListener(NewReservationsViewEvent, () => {
-            // reservationsTableElement.innerHTML = '';
             reportParagraph.innerText = '';
             const year = Number(yearSelection.value);
-            // 		/* Generate campsite reservation table */
-            // 		Reservations.displayReservationTable(
-            // 			reservationsTableElement,
-            // 			year,
-            // 			ParkReservations,
-            // 			Groups,
-            // 			radioButtons,
-            // 		);
             const view = (radioButtons.activeButton == 'Purchasers');
             park.reservationsTable(reservationsTableElement, year, view);
             // 		if (ParkFinalizedYears.includes(year) || testing) {

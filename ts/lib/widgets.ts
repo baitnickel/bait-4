@@ -292,64 +292,67 @@ export class Dialog {
  * 
  * Instantiate the Table object (with an array of heading values and the number
  * of columns in each data row to be created as a row header, if any). Then call
- * `addCell` for each cell of the first data row, and call `addRow` to complete
- * the row. Repeat for each row. When finished, call `createTable`, which
- * returns the HTMLTableElement.
+ * `addRow` to start a new row, followed by `addCell` for each cell to be added
+ * to the current row. Repeat for each row. When finished, call `fillTable` to
+ * build the HTMLTableElement; the caller may pass in their own Table element,
+ * or may use the property Table.element.
  * 
- * `addCell` and `addRow` return the HTMLTableCellElement and
- * HTMLTableRowElement, respectively, and these can be updated after creation,
- * e.g.:
- * 
- * - const cell = table.addCell('value', '');
- * - cell.style.color = 'blue';
- * - cell.colSpan = 2;
+ * @todo: The constructor should take a Matrix object, containing Rows of Cells
+ * or Columns of Cells. The Matrix, Row, Column, Cell objects should be agnostic
+ * (non-semantic), as if created by a caller who does not necessarily intend for
+ * them to be used in an HTML application. It is the Table object that converts
+ * the Matrix into HTML.
  */
 export class Table {
+	element: HTMLTableElement;
 	headingValues: string[]; /** values comprising the header row */
 	rowHeadings: number; /** number of cells at beginning of rows to be row headings */
-	rows: HTMLTableRowElement[];
-	private cells: HTMLTableCellElement[];
+	row: HTMLTableRowElement|null; /** current row element (set after addRow) */
+	private rows: HTMLTableRowElement[];
 
 	constructor (headingValues: string[], rowHeadings = 0) {
+		this.element = document.createElement('table');
 		this.headingValues = headingValues;
 		this.rowHeadings = rowHeadings;
+		this.row = null;
 		this.rows = [];
-		this.cells = [];
 	}
 
-	addRow(className: string) {
+	/**
+	 * Add a new row to the Table, becoming the current row (this.row). Optional
+	 * attributes may be supplied in key:value strings (a single string or an
+	 * array of strings).
+	 */
+	addRow(attributes: string|string[] = []) {
 		const row = document.createElement('tr');
-		if (className) row.classList.add(className);
-		for (const cell of this.cells) row.append(cell);
+		if (typeof attributes == 'string') attributes = [attributes];
+		this.applyAttributes(row, attributes);
 		this.rows.push(row);
-		this.cells = []; /** clear the cells array to make ready for the next row */
-		return row;
+		this.row = row;
 	}
 
-	addCell(text: string, className: string) {
-		const cellType = (this.cells.length < this.rowHeadings) ? 'th' : 'td';
+	/**
+	 * Add a new cell to the current row (this.row). Optional attributes may be
+	 * supplied in key:value strings (a single string or an array of strings).
+	 */
+	addCell(text: string, attributes: string|string[] = []) {
+		const cellType = (this.row && this.row.cells.length < this.rowHeadings) ? 'th' : 'td';
 		const cell = document.createElement(cellType);
 		cell.innerText = text;
-		if (className) cell.classList.add(className);
-		this.cells.push(cell);
+		if (typeof attributes == 'string') attributes = [attributes];
+		this.applyAttributes(cell, attributes);
+		if (this.row) this.row.append(cell);
 		return cell;
 	}
 
-	createTable(className: string) {
-		const table = document.createElement('table');
-		if (className) table.classList.add(className);
-		const row = document.createElement('tr');
-		for (const headingValue of this.headingValues) {
-			const cell = document.createElement('th');
-			cell.innerText = headingValue;
-			row.append(cell);
-		}
-		table.append(row);
-		for (const row of this.rows) table.append(row);
-		return table;
-	}
-
-	fillTable(table: HTMLTableElement) {
+	/**
+	 * Given a `table` element, set the table's column and row data from the
+	 * rows and cells previously added to the object. The `table` parameter is
+	 * optional, and if it is not provided, a new table will be created and may
+	 * be references in the object's `element` property.
+	 */
+	fillTable(table: HTMLTableElement|null = null) {
+		if (table === null) table = this.element;
 		table.innerHTML = '';
 		const row = document.createElement('tr');
 		for (const headingValue of this.headingValues) {
@@ -360,6 +363,59 @@ export class Table {
 		table.append(row);
 		for (const row of this.rows) table.append(row);
 	}
+
+	/**
+	 * Parse and apply attributes to row and cell elements.
+	 */
+	private applyAttributes(element: HTMLTableRowElement|HTMLTableCellElement, attributes: string[]) {
+		for (const attribute of attributes) {
+			const keyValue = attribute.split(':');
+			if (keyValue.length == 2) {
+				let [key, value] = keyValue.map((x) => x.toLowerCase().trim());
+				if (key == 'class') element.classList.add(value);
+				else if (key == 'color') element.style.color = value;
+				else if (key == 'backgroundcolor') element.style.backgroundColor = value;
+				else if (key == 'textalign') element.style.textAlign = value;
+				else if (key == 'colspan') this.applyCellAttribute(element as HTMLTableCellElement, key, value);
+			}
+		}
+	}
+
+	/**
+	 * Parse and apply attributes to cell elements.
+	 */
+	private applyCellAttribute(element: HTMLTableCellElement, key: string, value: string) {
+		if (key == 'colspan') element.colSpan = Number(value);
+	}
+}
+
+/**
+ * Many properties in all these objects must be agnostic and self-defining. The
+ * caller may define properties dynamically. A good approach here is to have a
+ * property/method defined in each class that defines an array of `Properties`
+ * (key:values). Property keys can be defined as Widget constants, so there is
+ * clarity for both caller and class. For example:
+ * 
+ * - class
+ * - colSpan
+ * - color
+ * 
+ * A free-form key might be allowed, but there is no guantee that a particular
+ * Widget will properly interpret it.
+ */
+export class Matrix { /** @todo */
+	tuples: Cell[][];
+
+	constructor(cells: Cell[][]) {
+		this.tuples = cells; // need to clone?
+	}
+
+}
+export class Tuple { /** @todo */
+
+}
+export class Cell { /** @todo */
+
 }
 
 /********* pre-Widget code *********************************************************/

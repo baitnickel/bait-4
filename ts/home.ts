@@ -119,28 +119,27 @@ export function render() {
 }
 
 function testTable(testOutput: HTMLDivElement) {
-	const table = new W.Table(['Col 1', 'Col 2', 'Col 3', 'Col 4'], 0);
+	const table = new W.Table(['Col 1', 'Col 2', 'Col 3', 'Col 4'], 1);
 
-	table.addCell('first', '');
-	table.addCell('second', '');
-	table.addCell('third', 'alert');
-	table.addCell('fourth', '');
-	table.addRow('');
+	table.addRow();
+	table.addCell('first');
+	table.addCell('second');
+	table.addCell('third', 'class: alert');
+	table.addCell('fourth');
 
-	table.addCell('one', '');
-	const cell = table.addCell('two', '');
-	cell.style.color = 'blue';
- 	cell.colSpan = 2;
-	table.addCell('three', '');
-	table.addRow('campsite-good');
+	table.addRow('class:campsite-good');
+	table.addCell('one');
+	table.addCell('two', ['color: white', 'colSpan: 2']);
+	table.addCell('three');
 
-	table.addCell('uno', '');
-	table.addCell('dos', '');
-	table.addCell('tres', '');
-	table.addCell('quatro', '');
-	table.addRow('');
+	table.addRow();
+	table.addCell('uno');
+	table.addCell('dos');
+	table.addCell('tres');
+	table.addCell('quatro');
 	
-	testOutput.append(table.createTable(''));
+	table.fillTable(table.element)
+	testOutput.append(table.element);
 }
 
 function testPark(testOutput: HTMLDivElement) {

@@ -87,6 +87,29 @@ export class Park {
         return years;
     }
     /**
+     * Create and return the campsites HTML table from the `campground.sites`
+     * data.
+     */
+    campsitesTable() {
+        const headings = ['Site', 'Type', 'Size', 'Tents', 'Table', 'Comment'];
+        const table = new W.Table(headings, 1);
+        if (this.campground) {
+            for (const campsite of this.campground.sites) {
+                const className = (campsite.category) ? `campsite-${campsite.category}` : '';
+                table.addRow(`class: ${className}`);
+                table.addCell(`${campsite.site}`);
+                table.addCell(campsite.type);
+                table.addCell(campsite.size);
+                const tents = (campsite.tents) ? `${campsite.tents}` : '';
+                table.addCell(tents);
+                table.addCell(campsite.table);
+                table.addCell(campsite.comment);
+            }
+        }
+        table.fillTable();
+        return table.element;
+    }
+    /**
      * Fill the given `tableElement` with rows and columns, data selected from
      * Reservations in the given `year` (and having a valid reservation--not
      * completely cancelled). The data will be tailored to the `purchaserView`

@@ -51,3 +51,18 @@ function prettyHeading(heading) {
     }
     return prettyWords.join(' ');
 }
+/** old example of usage: */
+/*
+    const tableRows: Table.RowData[] = [];
+    for (const site of sites) {
+        const map: Table.RowData = new Map(Object.entries(site));
+        tableRows.push(map);
+    }
+    const tableElements = ['site', 'type', 'size', 'tents', 'table', 'comment'];
+    const tableOptions: Table.Options = {
+        headingColumns: ['site'],
+        classPrefix: 'campsite-',
+        classElement: 'category',
+    };
+    sitesDiv.append(Table.createTable(tableRows, tableElements, tableOptions));
+*/ 

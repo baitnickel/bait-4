@@ -29,31 +29,16 @@ export function render() {
 	if (park !== undefined) {
 		const campground = park.campground;
 		if (campground !== undefined) {
-
 			/* display the map */
 			const map = campground.map;
-			const comments = campground.comments;
-			const sites = campground.sites;
 			const mapElement = document.createElement('img');
 			mapElement.setAttribute('src', `images/camp/${map}`);
 			mapElement.width=666;
 			mapDiv.append(mapElement);
-
-			/* display the sites table */
-			const tableRows: Table.RowData[] = [];
-			for (const site of sites) {
-				const map: Table.RowData = new Map(Object.entries(site));
-				tableRows.push(map);
-			}
-			const tableElements = ['site', 'type', 'size', 'tents', 'table', 'comment'];
-			const tableOptions: Table.Options = {
-				headingColumns: ['site'],
-				classPrefix: 'campsite-',
-				classElement: 'category',
-			};
-			sitesDiv.append(Table.createTable(tableRows, tableElements, tableOptions));
-
+			/* display the campsites information table */
+			sitesDiv.append(park.campsitesTable());
 			/* display the campground comments */
+			const comments = campground.comments;
 			commentsDiv.append(createParagraphs(comments));
 		}
 	}

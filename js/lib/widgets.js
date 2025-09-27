@@ -322,16 +322,18 @@ export class Table {
             const keyValue = attribute.split(':');
             if (keyValue.length == 2) {
                 let [key, value] = keyValue.map((x) => x.toLowerCase().trim());
-                if (key == 'class')
-                    element.classList.add(value);
-                else if (key == 'color')
-                    element.style.color = value;
-                else if (key == 'backgroundcolor')
-                    element.style.backgroundColor = value;
-                else if (key == 'textalign')
-                    element.style.textAlign = value;
-                else if (key == 'colspan')
-                    this.applyCellAttribute(element, key, value);
+                if (value) {
+                    if (key == 'class')
+                        element.classList.add(value);
+                    else if (key == 'color')
+                        element.style.color = value;
+                    else if (key == 'backgroundcolor')
+                        element.style.backgroundColor = value;
+                    else if (key == 'textalign')
+                        element.style.textAlign = value;
+                    else if (key == 'colspan')
+                        this.applyCellAttribute(element, key, value);
+                }
             }
         }
     }

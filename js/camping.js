@@ -1,5 +1,4 @@
 import { Page } from './lib/page.js';
-import * as Table from './lib/table.js';
 import * as W from './lib/widgets.js';
 import { Park } from './lib/parks.js';
 const PAGE = new Page();
@@ -26,26 +25,14 @@ export function render() {
         if (campground !== undefined) {
             /* display the map */
             const map = campground.map;
-            const comments = campground.comments;
-            const sites = campground.sites;
             const mapElement = document.createElement('img');
             mapElement.setAttribute('src', `images/camp/${map}`);
             mapElement.width = 666;
             mapDiv.append(mapElement);
-            /* display the sites table */
-            const tableRows = [];
-            for (const site of sites) {
-                const map = new Map(Object.entries(site));
-                tableRows.push(map);
-            }
-            const tableElements = ['site', 'type', 'size', 'tents', 'table', 'comment'];
-            const tableOptions = {
-                headingColumns: ['site'],
-                classPrefix: 'campsite-',
-                classElement: 'category',
-            };
-            sitesDiv.append(Table.createTable(tableRows, tableElements, tableOptions));
+            /* display the campsites information table */
+            sitesDiv.append(park.campsitesTable());
             /* display the campground comments */
+            const comments = campground.comments;
             commentsDiv.append(createParagraphs(comments));
         }
     }

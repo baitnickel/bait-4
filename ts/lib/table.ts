@@ -1,8 +1,11 @@
 /**
- * RowData is a map containing fieldName:fieldValue, representing field names and
- * field values for a single table row. The 'createTable' function expects an
- * array of RowData maps, typically read from JSON or YAML. In the YAML example below,
- * 'pets' is of type: RowData[].
+ * Deprecated, replaced by the Table class in the widgets module. See old
+ * example of its use below.
+ * 
+ * RowData is a map containing fieldName:fieldValue, representing field names
+ * and field values for a single table row. The 'createTable' function expects
+ * an array of RowData maps, typically read from JSON or YAML. In the YAML
+ * example below, 'pets' is of type: RowData[].
  ```
    pets:
      -
@@ -94,3 +97,19 @@ function prettyHeading(heading: string) {
     }
     return prettyWords.join(' ');
 }
+
+/** old example of usage: */
+/*
+	const tableRows: Table.RowData[] = [];
+	for (const site of sites) {
+		const map: Table.RowData = new Map(Object.entries(site));
+		tableRows.push(map);
+	}
+	const tableElements = ['site', 'type', 'size', 'tents', 'table', 'comment'];
+	const tableOptions: Table.Options = {
+		headingColumns: ['site'],
+		classPrefix: 'campsite-',
+		classElement: 'category',
+	};
+	sitesDiv.append(Table.createTable(tableRows, tableElements, tableOptions));
+*/

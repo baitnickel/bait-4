@@ -10,14 +10,13 @@ import * as W from './widgets.js';
 /** Constant(s) used in displayReservationTable */
 const CheckInTime = '14:00:00.000-07:00'; /** 2:00pm PDT */
 /** Constant(s) used in writeTableRows */
-const ModifiedSymbols = ['†', '‡']; /* symbols indicating reservation modifications--must be as many as ModificationLimit */
+const ModifiedSymbols = ['†', '‡']; /* symbols indicating reservation modifications--length equals park's modification limit */
 const UnknownGroupColor = 'lightgray'; /* default color when group is unknown */
-
 /** Constant(s) used in processReservations */
 const CabinSitePattern = new RegExp(/^J/, 'i'); /* campsite IDs starting with "J" or "j" are cabins */
-const ModificationLimit = 2; /* maximum allowed reservation modifications (per reservation) */
+// const ModificationLimit = 2; /* maximum allowed reservation modifications (per reservation) */
 /** Constant(s) used in processAmountsOwed and createUnderpayerPayments */
-const NormalPurpose = '';
+// const NormalPurpose = '';
 
 /**
  * This group of Types describes the raw data objects stored in our
@@ -234,6 +233,7 @@ export class Park {
 		table.fillTable();
 		return table.element;
 	}
+	
 	/**
 	 * Fill the given `tableElement` with rows and columns, data selected from
 	 * Reservations in the given `year` (and having a valid reservation--not
@@ -350,6 +350,54 @@ export class Park {
 			if (endDate === null || endDate < lastDay) endDate = new Date(lastDay.getTime());
 		}
 		return [startDate, endDate];
+	}
+
+	/*
+		Shared Campsite Reservation Expenses:
+		Number of Sites Reserved: 16 (4 completely cancelled, 3 partially cancelled)
+		70 nights @ $35.00/night: $2,450.00
+		Total Reservation Fees: $127.84
+		Total Cancellation Fees: $55.93
+		Total Modification Fees: $0.00
+
+		Other Shared Expenses:
+		Pete paid $356.00 for Storage Unit
+
+		Total Shared Expenses: $2,989.77
+		1/3 share: $996.59
+
+		Amounts Paid:
+		Pete: $1,555.90 (overpaid: $559.31)
+		James: $1,011.96 (overpaid: $15.37)
+		Dan: $421.91 (underpaid: $574.68)
+
+		Amounts Owed:
+		Dan owes James $15.37
+		Dan owes Pete $559.31
+		James owes Pete $455.00 (Cabin Surcharge)
+
+		------------------------------------------------
+										host1 		host2 		host3 	...	 TOTAL
+		Nights Reserved @ $35.00/ea.	
+		Reservation Fees @ $8.99/ea.	(3) $24.89
+		Cancellation Fees @ $8.99/ea.
+		Modifications Fees @ $8.99/ea.
+		Storage Unit Fee @ $300.00
+		Received from XXX
+		TOTAL
+
+		1/3 share of Expenses: $411.33
+		host 1 overpaid: $123.00
+		host 2 underpaid: $100.00
+		host 3 underpaid: $25.99
+		
+		Amounts Owed:
+		Dan owes James $15.37
+		Dan owes Pete $559.31
+		James owes Pete $455.00 (Includes Cabin Surcharge)
+	*/
+	accounting(year: number) {
+
 	}
 
 	hostName(hostKey: string) {

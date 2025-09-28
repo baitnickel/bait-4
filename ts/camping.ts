@@ -1,5 +1,4 @@
 import { Page } from './lib/page.js';
-import * as Table from './lib/table.js';
 import * as W from './lib/widgets.js';
 import { Park } from './lib/parks.js';
 

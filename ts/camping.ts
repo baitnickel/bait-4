@@ -107,26 +107,28 @@ export function render() {
 			const view = (radioButtons.activeButton == 'Purchasers')
 			park.reservationsTable(reservationsTableElement, year, view);
 
-	// 		if (ParkFinalizedYears.includes(year) || testing) {
-	// 			accountingWidget.label.hidden = false;
-	// 			if (showAccounting) {
-	// 				/* Generate campsite accounting report */
-	// 				const reportLines = Reservations.accounting(year, Groups, ParkReservations, ParkAdjustments, ParkCosts);
-	// 				for (const reportLine of reportLines) reportParagraph.append(reportLine);
-	// 				accountingDiv.hidden = false;
-	// 			}
-	// 			else accountingDiv.hidden = true;
-	// 		}
-	// 		else {
-	// 			accountingDiv.hidden = true;
-	// 			accountingWidget.label.hidden = true;
-	// 		}
+			// if (ParkFinalizedYears.includes(year) || testing) {
+			if (park.isFinalized(year) || testing) {
+				accountingWidget.label.hidden = false;
+				if (showAccounting) {
+					/* Generate campsite accounting report */
+					// const reportLines = Reservations.accounting(year, Groups, ParkReservations, ParkAdjustments, ParkCosts);
+					const reportLines = park.accounting(year);
+					for (const reportLine of reportLines) reportParagraph.append(reportLine);
+					accountingDiv.hidden = false;
+				}
+				else accountingDiv.hidden = true;
+			}
+			else {
+				accountingDiv.hidden = true;
+				accountingWidget.label.hidden = true;
+			}
 		});
 
-	// 	document.addEventListener(AccountingOptionEvent, () => {
-	// 		showAccounting = accountingWidget.element.checked;
-	// 		document.dispatchEvent(newReservationsView);
-	// 	});
+		document.addEventListener(AccountingOptionEvent, () => {
+			showAccounting = accountingWidget.element.checked;
+			document.dispatchEvent(newReservationsView);
+		});
 
 		/* on initial rendering, trigger display of campsite reservation info */
 		document.dispatchEvent(newReservationsView);

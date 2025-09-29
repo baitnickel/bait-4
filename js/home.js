@@ -153,7 +153,7 @@ function testPark(testOutput) {
     const hostKeys = Array.from(hosts.keys());
     for (const hostKey of hostKeys) {
         const host = hosts.get(hostKey);
-        output.push(`key: ${hostKey} name: ${host.name} color: ${host.color} payments: ${host.payments} debts: ${host.debts} `);
+        output.push(`key: ${hostKey} name: ${host.name} color: ${host.color}`);
     }
     PAGE.appendParagraph(testOutput, output);
 }

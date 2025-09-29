@@ -4,19 +4,12 @@ import * as Fetch from './fetch.js';
 import * as W from './widgets.js';
 
 /**
- * Constants used in old functions:
+ * Constants
  */
-
-/** Constant(s) used in displayReservationTable */
-const CheckInTime = '14:00:00.000-07:00'; /** 2:00pm PDT */
-/** Constant(s) used in writeTableRows */
-const ModifiedSymbols = ['†', '‡']; /* symbols indicating reservation modifications--length equals park's modification limit */
-const UnknownGroupColor = 'lightgray'; /* default color when group is unknown */
-/** Constant(s) used in processReservations */
+const CheckInTime = '14:00:00.000-07:00'; /** 2:00pm PDT--used in loadParkReservations */
+const ModifiedSymbols = ['†', '‡']; /* symbols indicating number of reservation modifications */
+const UnknownGroupColor = 'lightgray'; /* default color when host is unknown */
 const CabinSitePattern = new RegExp(/^J/, 'i'); /* campsite IDs starting with "J" or "j" are cabins */
-// const ModificationLimit = 2; /* maximum allowed reservation modifications (per reservation) */
-/** Constant(s) used in processAmountsOwed and createUnderpayerPayments */
-// const NormalPurpose = '';
 
 /**
  * This group of Types describes the raw data objects stored in our
@@ -92,8 +85,6 @@ const FinalizedDBData = await Fetch.map<number[]>(FinalizedFile);
 type Host = {
 	name: string;
 	color: string; /** used in reservation display table */
-	payments: Payment[]; /** dollars paid for shared expenses */
-	debts: Debt[]; /** dollars owed by one host to another host */
 }
 type Reservation = {
 	site: string;
@@ -121,6 +112,20 @@ type Costs = { //### same as CostsDB
 	reservation: number; /* per-site reservation fee */
 	cancellation: number; /* per-site cancellation fee */
 	modification: number; /* per-site reservation modification fee */
+}
+
+// /** Host expenses and debts--map keyed by host */
+// type Accounting = {
+// 	payments: Payment[];
+// 	debts: Debt[];
+// }
+/** Host expenses and debts--map keyed by host */
+type Accounting = {
+	sitesReserved: number;
+	nightsReserved: number;
+	reservationFees: number;
+	cancellationFees: number;
+	modificationFees: number;
 }
 /** Shared expenses paid by a Host */
 type Payment = {
@@ -397,8 +402,64 @@ export class Park {
 		James owes Pete $455.00 (Includes Cabin Surcharge)
 	*/
 	accounting(year: number) {
+		const output: string[] = [];
+		const costs = this.costs(year);
+		let reservations = 0;
+		let nightsReserved = 0;
+		let cancellations = 0;
+		let modifications = 0;
+		let sharedExpenses = 0;
 
+		for (const reservation of this.reservations(year)) {
+			reservations += 1;
+			const nights = reservation.reserved - reservation.cancelled;
+			if (nights > 0) nightsReserved += nights;
+			else cancellations += 1;
+			modifications += reservation.modified;
+		}
+		output.push('Shared Campsite Reservation Expenses:\n');
+		output.push(`  Number of Sites Reserved: ${reservations} (${cancellations} cancelled, ${modifications} modifications)\n`);
+		output.push(`  ${nightsReserved} nights @ $${costs.site}/night: $${nightsReserved * costs.site}\n`);
+		output.push(`  Total Reservation Fees: $${reservations * costs.reservation}\n`);
+		output.push(`  Total Cancellation Fees: $${cancellations * costs.cancellation}\n`);
+		output.push(`  Total Modification Fees: $${modifications * costs.modification}\n`);
+		sharedExpenses += nightsReserved * costs.site;
+		sharedExpenses += reservations * costs.reservation;
+		sharedExpenses += cancellations * costs.cancellation;
+		sharedExpenses += modifications * costs.modification;
+		
+		output.push('\nOther Shared Expenses:\n');
+		let none = true;
+		for (const adjustment of this.adjustments(year)) {
+			none = false;
+			const hostName = this.hostName(adjustment.host);
+			output.push(`  ${hostName} paid $${adjustment.amount} for ${adjustment.description}\n`);
+			sharedExpenses += adjustment.amount;
+		}
+		if (none) output.push(`  (none)\n`);
+		
+		output.push(`\nTotal Shared Expenses: $${sharedExpenses}\n`);
+		output.push(`  1/3 share: $${sharedExpenses / 3}\n`);
+
+
+		return output;
 	}
+
+	// /**
+	//  * Given a `year`, return an array of host keys present in the reservations
+	//  * and adjustments data, as either purchasers or occupants, for the given
+	//  * year.
+	//  */
+	// hostKeys(year: number) {
+	// 	const keys = new Set<string>();
+	// 	for (const reservation of this.reservations(year)) {
+	// 		keys.add(reservation.purchaser);
+	// 		/** add occupants only for reservations that have not been wholly cancelled */
+	// 		if (reservation.reserved > reservation.cancelled) keys.add(reservation.occupant);
+	// 	}
+	// 	for (const adjustment of this.adjustments(year)) keys.add(adjustment.host);
+	// 	return Array.from(keys);
+	// }
 
 	hostName(hostKey: string) {
 		let hostName = `${hostKey}?`;
@@ -469,7 +530,7 @@ export class Park {
 		const hosts = new Map<string, Host>();
 		for (const key of Array.from(hostsDBData.keys())) {
 			const host = HostsDBData.get(key);
-			if (host) hosts.set(key.toUpperCase(), { name: host.name, color: host.color, payments: [], debts: [] });
+			if (host) hosts.set(key.toUpperCase(), { name: host.name, color: host.color });
 		}
 		return hosts;
 	}

@@ -268,6 +268,8 @@ export class Park {
     accounting(year) {
         const output = [];
         const costs = this.costs(year);
+        const debts = [];
+        const hostPayments = this.hostPayments(year);
         let reservations = 0;
         let nightsReserved = 0;
         let cancellations = 0;
@@ -281,13 +283,26 @@ export class Park {
             else
                 cancellations += 1;
             modifications += reservation.modified;
+            /** cabin surcharge */
+            if (nights && reservation.site.match(CabinSitePattern) && reservation.occupant && reservation.occupant != reservation.purchaser) {
+                const amount = (costs.cabin - costs.site) * nights;
+                debts.push({ from: reservation.occupant, to: reservation.purchaser, amount: amount, purpose: `${reservation.site} Cabin Surcharge` });
+            }
+            /** accumulate payments made by purchasing host */
+            let payments = hostPayments.get(reservation.purchaser);
+            if (payments !== undefined) {
+                payments += (nights) ? nights * costs.site : costs.cancellation;
+                payments += costs.reservation;
+                payments += reservation.modified * costs.modification;
+                hostPayments.set(reservation.purchaser, payments);
+            }
         }
         output.push('Shared Campsite Reservation Expenses:\n');
         output.push(`  Number of Sites Reserved: ${reservations} (${cancellations} cancelled, ${modifications} modifications)\n`);
-        output.push(`  ${nightsReserved} nights @ $${costs.site}/night: $${nightsReserved * costs.site}\n`);
-        output.push(`  Total Reservation Fees: $${reservations * costs.reservation}\n`);
-        output.push(`  Total Cancellation Fees: $${cancellations * costs.cancellation}\n`);
-        output.push(`  Total Modification Fees: $${modifications * costs.modification}\n`);
+        output.push(`  ${nightsReserved} nights @ ${T.Dollars(costs.site)}/night: ${T.Dollars(nightsReserved * costs.site)}\n`);
+        output.push(`  Total Reservation Fees: ${T.Dollars(reservations * costs.reservation)}\n`);
+        output.push(`  Total Cancellation Fees: ${T.Dollars(cancellations * costs.cancellation)}\n`);
+        output.push(`  Total Modification Fees: ${T.Dollars(modifications * costs.modification)}\n`);
         sharedExpenses += nightsReserved * costs.site;
         sharedExpenses += reservations * costs.reservation;
         sharedExpenses += cancellations * costs.cancellation;
@@ -295,32 +310,107 @@ export class Park {
         output.push('\nOther Shared Expenses:\n');
         let none = true;
         for (const adjustment of this.adjustments(year)) {
-            none = false;
-            const hostName = this.hostName(adjustment.host);
-            output.push(`  ${hostName} paid $${adjustment.amount} for ${adjustment.description}\n`);
-            sharedExpenses += adjustment.amount;
+            let payments = hostPayments.get(adjustment.host);
+            if (payments !== undefined) {
+                none = false;
+                const hostName = this.hostName(adjustment.host);
+                output.push(`  ${hostName} paid ${T.Dollars(adjustment.amount)} for ${adjustment.description}\n`);
+                sharedExpenses += adjustment.amount;
+                payments += adjustment.amount;
+                hostPayments.set(adjustment.host, payments);
+            }
         }
         if (none)
             output.push(`  (none)\n`);
-        output.push(`\nTotal Shared Expenses: $${sharedExpenses}\n`);
-        output.push(`  1/3 share: $${sharedExpenses / 3}\n`);
+        const purchasers = hostPayments.size;
+        const share = sharedExpenses / purchasers;
+        output.push(`\nTotal Shared Expenses: ${T.Dollars(sharedExpenses)}\n`);
+        output.push(`  1/${purchasers} share: ${T.Dollars(share)}\n`);
+        output.push('\nAmounts Paid:\n');
+        const hostKeys = Array.from(hostPayments.keys());
+        hostKeys.sort((a, b) => hostPayments.get(b) - hostPayments.get(a));
+        for (const hostKey of hostKeys) {
+            const paid = hostPayments.get(hostKey);
+            const difference = paid - share;
+            let overUnder = '';
+            if (difference > 0)
+                overUnder = `(overpaid: ${T.Dollars(difference)})`;
+            else if (difference < 0)
+                overUnder = `(underpaid: ${T.Dollars(Math.abs(difference))})`;
+            output.push(`  ${this.hostName(hostKey)}: ${T.Dollars(paid)} ${overUnder}\n`);
+        }
+        output.push('\nAmounts Owed:\n');
+        this.createUnderpayerPayments(sharedExpenses, hostKeys, hostPayments, debts);
+        debts.sort((a, b) => {
+            let result = (a.from + a.to).localeCompare(b.from + b.to);
+            if (!result)
+                result = a.purpose.localeCompare(b.purpose);
+            return result;
+        });
+        for (const debt of debts) {
+            const purpose = (!debt.purpose) ? '' : `(${debt.purpose})`;
+            output.push(`  ${this.hostName(debt.from)} owes ${this.hostName(debt.to)}: ${T.Dollars(debt.amount)} ${purpose}\n`);
+        }
         return output;
     }
-    // /**
-    //  * Given a `year`, return an array of host keys present in the reservations
-    //  * and adjustments data, as either purchasers or occupants, for the given
-    //  * year.
-    //  */
-    // hostKeys(year: number) {
-    // 	const keys = new Set<string>();
-    // 	for (const reservation of this.reservations(year)) {
-    // 		keys.add(reservation.purchaser);
-    // 		/** add occupants only for reservations that have not been wholly cancelled */
-    // 		if (reservation.reserved > reservation.cancelled) keys.add(reservation.occupant);
-    // 	}
-    // 	for (const adjustment of this.adjustments(year)) keys.add(adjustment.host);
-    // 	return Array.from(keys);
-    // }
+    /**
+     * Calculate each group's share of the expenses and create two arrays:
+     * - underpayers: Group Keys that owe money
+     * - overpayers: Group Keys the are owed money
+     *
+     * Create direct payments from underpayers to overpayers. We will "bubble-up"
+     * payments here. Each underpayer pays the next underpayer the accumulated
+     * amount of the underpayments. When the last underpayer is reached, he or she
+     * pays all of the overpayers what they are owed. This method ensures that only
+     * one underpayer needs to pay more than one person.
+     */
+    createUnderpayerPayments(sharedExpenses, participatingGroups, payments, directPayments) {
+        const perGroupShare = sharedExpenses / participatingGroups.length;
+        const underpayers = []; /* underpayer group keys */
+        const overpayers = []; /* overpayer group keys */
+        for (const [group, payment] of payments) {
+            if (payment - perGroupShare < 0)
+                underpayers.push(group);
+            else
+                overpayers.push(group);
+        }
+        let totalUnderpayments = 0;
+        for (let i = 0; i < underpayers.length; i += 1) {
+            totalUnderpayments += payments.get(underpayers[i]);
+            if ((i + 1) < underpayers.length) {
+                /* there are more underpayers; pass the totalPayments to the next one */
+                directPayments.push({ from: underpayers[i], to: underpayers[i + 1], amount: totalUnderpayments, purpose: '' });
+            }
+            else {
+                /* there are no more underpayers; pay all the overpayers everything they're owed */
+                for (const overpayer of overpayers) {
+                    const overpayment = payments.get(overpayer) - perGroupShare;
+                    directPayments.push({ from: underpayers[i], to: overpayer, amount: overpayment, purpose: '' });
+                }
+            }
+        }
+    }
+    /**
+     * Given a `year`, return a Map keyed by hosts present in the reservations
+     * and adjustments data, as either purchasers or occupants, for the given
+     * year. Initialize the Map value (payments made) to 0.
+     */
+    hostPayments(year) {
+        const hostKeys = new Set();
+        for (const reservation of this.reservations(year)) {
+            if (reservation.purchaser)
+                hostKeys.add(reservation.purchaser);
+            /** add occupants only for reservations that have not been wholly cancelled */
+            if (reservation.occupant && reservation.reserved > reservation.cancelled)
+                hostKeys.add(reservation.occupant);
+        }
+        for (const adjustment of this.adjustments(year))
+            hostKeys.add(adjustment.host);
+        const hostPayments = new Map();
+        for (const hostKey of Array.from(hostKeys))
+            hostPayments.set(hostKey, 0);
+        return hostPayments;
+    }
     hostName(hostKey) {
         let hostName = `${hostKey}?`;
         const host = this.hosts.get(hostKey);

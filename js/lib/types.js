@@ -171,3 +171,11 @@ export function Title(text, sortable = false) {
         title = title.toLowerCase();
     return title;
 }
+/**
+ * Alternative to `number.toFixed(2)`. Use the host default language with
+ * options for number formatting, e.g., to add thousands commas.
+ */
+export function Dollars(number) {
+    /* Might also use Unicode's small dollar sign ('\uFE69'), but this appears to force monospace fonts. */
+    return '$' + number.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}

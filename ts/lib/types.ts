@@ -156,6 +156,15 @@ export function Title(text: string, sortable = false) {
 	return title;
 }
 
+/**
+ * Alternative to `number.toFixed(2)`. Use the host default language with
+ * options for number formatting, e.g., to add thousands commas.
+ */
+export function Dollars(number: number) {
+	/* Might also use Unicode's small dollar sign ('\uFE69'), but this appears to force monospace fonts. */
+	return '$' + number.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
+}
+
 // export type Message = {
 // 	type: 'E' | 'W' | 'I';
 // 	text: string;

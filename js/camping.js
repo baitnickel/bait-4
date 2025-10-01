@@ -7,7 +7,7 @@ const AccountingOptionEvent = 'bait:update-accounting-option';
 const ParkName = 'smitty';
 export function render() {
     const testing = PAGE.parameters.has('test');
-    PAGE.setTitle('Campsites (New)', 1);
+    PAGE.setTitle('Campsites ', 1);
     const mapDiv = document.createElement('div');
     const reservationsDiv = document.createElement('div');
     const sitesDiv = document.createElement('div');
@@ -39,7 +39,6 @@ export function render() {
     /**
      * Display the current year's campsite reservation table.
      */
-    // if (ParkReservations !== undefined && ReservationYears[0]) {
     const years = park.reservationYears('descending');
     if (years.length) {
         let showAccounting = false; /* default: uncheck accounting option */
@@ -47,7 +46,7 @@ export function render() {
         const accountingOptionChanged = new Event(AccountingOptionEvent);
         const reservationParagraph = document.createElement('p');
         const detailsElement = document.createElement('details');
-        // detailsElement.open = true;
+        // detailsElement.open = true; /** open Summary/Details by default */
         const summaryElement = document.createElement('summary');
         const reservationsTableElement = document.createElement('table');
         const buttonsElement = document.createElement('div');
@@ -66,7 +65,6 @@ export function render() {
         summaryElement.innerText = 'Reservations';
         detailsElement.append(summaryElement);
         /* drop down selection for reservation year */
-        // for (const year of ReservationYears) yearSelection.add(new Option(`${year}`, `${year}`));
         for (const year of years)
             yearSelection.add(new Option(`${year}`, `${year}`));
         buttonsElement.append(yearSelection);
@@ -93,12 +91,10 @@ export function render() {
             const year = Number(yearSelection.value);
             const view = (radioButtons.activeButton == 'Purchasers');
             park.reservationsTable(reservationsTableElement, year, view);
-            // if (ParkFinalizedYears.includes(year) || testing) {
             if (park.isFinalized(year) || testing) {
                 accountingWidget.label.hidden = false;
                 if (showAccounting) {
                     /* Generate campsite accounting report */
-                    // const reportLines = Reservations.accounting(year, Groups, ParkReservations, ParkAdjustments, ParkCosts);
                     const reportLines = park.accounting(year);
                     for (const reportLine of reportLines)
                         reportParagraph.append(reportLine);

@@ -10,7 +10,7 @@ const ParkName = 'smitty';
 
 export function render() {
 	const testing = PAGE.parameters.has('test');
-	PAGE.setTitle('Campsites', 1);
+	PAGE.setTitle('Campsites ', 1);
 
 	const mapDiv = document.createElement('div');
 	const reservationsDiv = document.createElement('div');

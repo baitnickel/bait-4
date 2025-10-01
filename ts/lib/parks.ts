@@ -113,25 +113,6 @@ type Costs = { //### same as CostsDB
 	cancellation: number; /* per-site cancellation fee */
 	modification: number; /* per-site reservation modification fee */
 }
-
-// /** Host expenses and debts--map keyed by host */
-// type Accounting = {
-// 	payments: Payment[];
-// 	debts: Debt[];
-// }
-/** Host expenses and debts--map keyed by host */
-type Accounting = {
-	sitesReserved: number;
-	nightsReserved: number;
-	reservationFees: number;
-	cancellationFees: number;
-	modificationFees: number;
-}
-/** Shared expenses paid by a Host */
-type Payment = {
-	type: 'SITE'|'STORAGE'|'RESERVE_FEE'|'CANCEL_FEE'|'MODIFY_FEE';
-	amount: number;
-}
 /** Amounts owed by one Host to another (cabin surcharges, underpayments, etc.) */
 type Debt = {
 	from: string;
@@ -357,50 +338,10 @@ export class Park {
 		return [startDate, endDate];
 	}
 
-	/*
-		Shared Campsite Reservation Expenses:
-		Number of Sites Reserved: 16 (4 completely cancelled, 3 partially cancelled)
-		70 nights @ $35.00/night: $2,450.00
-		Total Reservation Fees: $127.84
-		Total Cancellation Fees: $55.93
-		Total Modification Fees: $0.00
-
-		Other Shared Expenses:
-		Pete paid $356.00 for Storage Unit
-
-		Total Shared Expenses: $2,989.77
-		1/3 share: $996.59
-
-		Amounts Paid:
-		Pete: $1,555.90 (overpaid: $559.31)
-		James: $1,011.96 (overpaid: $15.37)
-		Dan: $421.91 (underpaid: $574.68)
-
-		Amounts Owed:
-		Dan owes James $15.37
-		Dan owes Pete $559.31
-		James owes Pete $455.00 (Cabin Surcharge)
-
-		------------------------------------------------
-										host1 		host2 		host3 	...	 TOTAL
-		Nights Reserved @ $35.00/ea.	
-		Reservation Fees @ $8.99/ea.	(3) $24.89
-		Cancellation Fees @ $8.99/ea.
-		Modifications Fees @ $8.99/ea.
-		Storage Unit Fee @ $300.00
-		Received from XXX
-		TOTAL
-
-		1/3 share of Expenses: $411.33
-		host 1 overpaid: $123.00
-		host 2 underpaid: $100.00
-		host 3 underpaid: $25.99
-		
-		Amounts Owed:
-		Dan owes James $15.37
-		Dan owes Pete $559.31
-		James owes Pete $455.00 (Includes Cabin Surcharge)
-	*/
+	/**
+	 * Given a `year`, create the year's accounting report. Return an array of
+	 * strings representing the report.
+	 */
 	accounting(year: number) {
 		const output: string[] = [];
 		const costs = this.costs(year);

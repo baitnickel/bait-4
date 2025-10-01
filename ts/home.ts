@@ -302,10 +302,19 @@ function testMarkdown(testOutput: HTMLDivElement) {
 	});
 }
 
+type ReservationsDB = {  // from parks.ts
+	site: string|number;
+	arrival: string; /* pseudo Date: YYYY-MM-DD */
+	reserved: number; /* nights reserved */
+	cancelled: number; /* nights cancelled */
+	modified: number; /* number of times reservation has been modified */
+	purchaser: string; /* key for Account record, optionally followed by "/<alias>" */
+	occupants: string; /* "<account-key>/<occupant-names>" or "?", "none", "main site", etc. */
+}
 function testYaml(testOutput: HTMLDivElement) {
 	const TestYaml = PAGE.appendContent('#TestYaml', testOutput);
 	const ReservationsPath = `${PAGE.site}/data/camp/reservations.yaml`;
-	Fetch.map<T.Reservation[]>(ReservationsPath).then((reservations) => {
+	Fetch.map<ReservationsDB[]>(ReservationsPath).then((reservations) => {
 		const dataLines: string[] = [];
 		const reserved = reservations.get('smitty');
 		if (reserved !== undefined) {

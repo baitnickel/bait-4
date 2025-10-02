@@ -6,6 +6,7 @@ const PAGE = new Page();
 
 const NewReservationsViewEvent = 'bait:update-reservation-view';
 const AccountingOptionEvent = 'bait:update-accounting-option';
+const ReservationViews = ['Purchasers', 'Occupants'];
 const ParkName = 'smitty';
 
 export function render() {
@@ -47,6 +48,7 @@ export function render() {
 	 */
 	const years = park.reservationYears('descending');
 	if (years.length) {
+		let reservationView = ReservationViews[0];
 		let showAccounting = false /* default: uncheck accounting option */
 		const newReservationsView = new Event(NewReservationsViewEvent);
 		const accountingOptionChanged = new Event(AccountingOptionEvent);
@@ -57,10 +59,9 @@ export function render() {
 		const reservationsTableElement = document.createElement('table');
 		const buttonsElement = document.createElement('div');
 		const yearSelection = document.createElement('select');
-		const radioButtons = new W.RadioButtons('radio-button', 'active', newReservationsView);
 
 		const accountingWidget = new W.Checkbox('Show Accounting: ', showAccounting);
-		accountingWidget.label.className = 'camp-checkbox';
+		accountingWidget.label.className = 'camp-reservation-controls';
 		accountingWidget.element.addEventListener('change', () => {
 			document.dispatchEvent(accountingOptionChanged);
 		});
@@ -80,11 +81,10 @@ export function render() {
 		yearSelection.addEventListener('change', () => { document.dispatchEvent(newReservationsView); });
 
 		/* radio buttons to switch between Purchasers and Occupants view */
-		radioButtons.addButton('Purchasers');
-		radioButtons.addButton('Occupants');
-		for (let button of radioButtons.buttons) buttonsElement.append(button);
-		// const radioGroup = new W.RadioGroup('View', ['Purchasers', 'Occupants'], 'widget-radio-inline');
-		// buttonsElement.append(radioGroup.fieldset);
+		const radioButtons = new W.RadioGroup('', ReservationViews, 'widget-radio-inline');
+		const radioSpan = radioButtons.span;
+		radioSpan.classList.add('camp-reservation-controls');
+		buttonsElement.append(radioSpan);
 
 		/* add accounting checkbox option (hidden until event listener verifies finalized year) */
 		accountingWidget.label.hidden = true;
@@ -102,7 +102,8 @@ export function render() {
 		document.addEventListener(NewReservationsViewEvent, () => {
 			reportParagraph.innerText = '';
 			const year = Number(yearSelection.value);
-			const view = (radioButtons.activeButton == 'Purchasers')
+			// const view = (radioButtons.value == 'Purchasers')
+			const view = (reservationView == ReservationViews[0]);
 			park.reservationsTable(reservationsTableElement, year, view);
 
 			if (park.isFinalized(year) || testing) {
@@ -120,6 +121,13 @@ export function render() {
 				accountingWidget.label.hidden = true;
 			}
 		});
+
+		for (const inputElement of radioButtons.inputElements) {
+			inputElement.addEventListener('click', () => {
+				reservationView = radioButtons.value;
+				document.dispatchEvent(newReservationsView);
+			});
+		}
 
 		document.addEventListener(AccountingOptionEvent, () => {
 			showAccounting = accountingWidget.element.checked;

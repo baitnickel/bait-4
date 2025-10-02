@@ -228,22 +228,41 @@ function testDialog(testOutput: HTMLDivElement) {
 }
 
 function testRadio(testOutput: HTMLDivElement) {
-	const paragraph = document.createElement('p');
-	const radioGroup = new W.RadioGroup('Radio Group', ['A Tale of Two Cities','To Kill a Mockingbird','Much Ado About Nothing'], 'widget-radio-group');
-	radioGroup.fieldset.className = 'widget-radio-fieldset';
-	paragraph.append(radioGroup.fieldset);
-	testOutput.append(paragraph);
-	
-	const selection = document.createElement('p');
-	const value = radioGroup.value;
-	selection.innerText = `Selected: ${value}`;
-	testOutput.append(selection);
+	{
+		const paragraph = document.createElement('p');
+		const radioGroup = new W.RadioGroup('Books', ['A Tale of Two Cities','To Kill a Mockingbird','Much Ado About Nothing'], 'widget-radio-fieldset');
+		paragraph.append(radioGroup.fieldset);
+		testOutput.append(paragraph);
+		
+		const selection = document.createElement('p');
+		const value = radioGroup.value;
+		selection.innerText = `Selected: ${value}`;
+		testOutput.append(selection);
 
-	for (const inputElement of radioGroup.inputElements) {
-		inputElement.addEventListener('click', () => {
-			const value = radioGroup.value;
-			selection.innerText = `Selected: ${value}`;
-		});
+		for (const inputElement of radioGroup.inputElements) {
+			inputElement.addEventListener('click', () => {
+				const value = radioGroup.value;
+				selection.innerText = `Selected: ${value}`;
+			});
+		}
+	}
+	{
+		const paragraph = document.createElement('p');
+		const radioGroup = new W.RadioGroup('', ['Purchasers','Occupants'], 'widget-radio-inline');
+		paragraph.append(radioGroup.span);
+		testOutput.append(paragraph);
+		
+		const selection = document.createElement('p');
+		const value = radioGroup.value;
+		selection.innerText = `Selected: ${value}`;
+		testOutput.append(selection);
+
+		for (const inputElement of radioGroup.inputElements) {
+			inputElement.addEventListener('click', () => {
+				const value = radioGroup.value;
+				selection.innerText = `Selected: ${value}`;
+			});
+		}
 	}
 }
 

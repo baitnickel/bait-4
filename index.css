@@ -488,19 +488,20 @@ dialog.threads-dialog button {
 
 /* https://stackoverflow.com/questions/23530064/how-to-make-label-and-input-appear-on-the-same-line-on-an-html-form */
 
-.widget-radio-group {
+.widget-radio-fieldset {
+	width: fit-content;
+}
+.widget-radio-fieldset div {
 	display: grid;
 	grid-template-columns: max-content max-content;
 	gap: .25rem;
 }
 
-.widget-radio-fieldset {
-	width: fit-content;
-}
-
 .widget-radio-inline {
-	/* width: fit-content; */
-	gap: .25rem;
+	display: inline-block;
+}
+.widget-radio-inline label {
+	padding: 0 .4rem 0 .1rem;
 }
 
 /* Tests, etc. =================================================================== */

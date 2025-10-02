@@ -166,10 +166,21 @@ function addOptions(element: HTMLSelectElement, options: string[]) {
  * Create a group of radio buttons. Unlike many of the other widgets, the value
  * of the RadioGroup (i.e., the RadioInput object that has been checked) is not
  * returned via an `element.value` property, but via this widget's `value`
- * method.
+ * accessor (getter).
+ * 
+ * When `legendText` is provided, the buttons are inserted in a fieldset element
+ * with the legend text. This is suitable for inclusion in a Dialog element, and
+ * Dialog.addRadioGroup passes the class 'widget-radio-fieldset' to style the
+ * element accordingly. Add the radio group to your page as
+ * `RadioGroup.fieldset`.
+ * 
+ * When `legendText` is an empty string and the class is set to
+ * 'widget-radio-inline', the RadioGroup is styled in a span element as an
+ * inline block. Add the radio group to your page as `RadioGroup.span`.
  */
 export class RadioGroup {
 	fieldset: HTMLFieldSetElement;
+	span: HTMLSpanElement;
 	legend: HTMLLegendElement;
 	inputElements: HTMLInputElement[]; /** array of elements belonging to the group */
 	className: string;
@@ -178,11 +189,15 @@ export class RadioGroup {
 		this.fieldset = document.createElement('fieldset');
 		this.legend = document.createElement('legend');
 		const controls = document.createElement('div');
-		controls.className = className;
+		this.span = document.createElement('span');
 		this.className = className;
 		this.legend.innerHTML = legendText;
-		this.fieldset.append(this.legend);
-		this.fieldset.append(controls);
+		if (legendText) {
+			this.fieldset.classList.add(className);
+			this.fieldset.append(this.legend);
+			this.fieldset.append(controls);
+		}
+		else this.span.classList.add(className);
 		
 		this.inputElements = [];
 		const group = Widget.nextID();
@@ -192,7 +207,8 @@ export class RadioGroup {
 			const radioInput = new RadioInput(label, group, checked);
 			first = false;
 			this.inputElements.push(radioInput.element);
-			controls.append(radioInput.element, radioInput.label);
+			if (legendText) controls.append(radioInput.element, radioInput.label);
+			else this.span.append(radioInput.element, radioInput.label);
 		}
 	}
 
@@ -280,7 +296,7 @@ export class Dialog {
 	}
 
 	addRadioGroup(legendText: string, labels: string[]) {
-		const widget = new RadioGroup(legendText, labels, 'widget-radio-group');
+		const widget = new RadioGroup(legendText, labels, 'widget-radio-fieldset');
 		const fillerLabel = document.createElement('label'); /** empty element to fill Dialog's right column */
 		this.controls.append(widget.fieldset, fillerLabel);
 		return widget;
@@ -349,7 +365,7 @@ export class Table {
 	 * Given a `table` element, set the table's column and row data from the
 	 * rows and cells previously added to the object. The `table` parameter is
 	 * optional, and if it is not provided, a new table will be created and may
-	 * be references in the object's `element` property.
+	 * be referenced in the object's `element` property.
 	 */
 	fillTable(table: HTMLTableElement|null = null) {
 		if (table === null) table = this.element;

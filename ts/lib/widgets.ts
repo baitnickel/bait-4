@@ -251,17 +251,17 @@ export class Dialog {
 		this.fieldset.append(legend);
 
 		this.controls = document.createElement('div');
-		this.controls.className = 'dialog-grid';
+		this.controls.classList.add('dialog-grid');
 		this.fieldset.append(this.controls);
 
 		const buttonsDiv = document.createElement('div');
-		buttonsDiv.className = 'dialog-button-group';
+		buttonsDiv.classList.add('dialog-button-group');
 		this.cancelButton = document.createElement('button');
-		this.cancelButton.className = 'dialog-button';
+		this.cancelButton.classList.add('dialog-button');
 		this.cancelButton.innerText = 'Cancel';
 		this.cancelButton.addEventListener('click', () => { this.element.close() });
 		this.confirmButton = document.createElement('button');
-		this.confirmButton.className = 'dialog-button';
+		this.confirmButton.classList.add('dialog-button');
 		this.confirmButton.innerText = 'Confirm';
 		this.confirmButton.addEventListener('click', () => { this.element.close() });
 		buttonsDiv.append(this.cancelButton);
@@ -528,10 +528,10 @@ export class Navigator { // used in `articles`
 		target.append(this.nextButton);
 		target.append(this.lastButton);
 		if (className) {
-			this.firstButton.className = className;
-			this.previousButton.className = className;
-			this.nextButton.className = className;
-			this.lastButton.className = className;
+			this.firstButton.classList.add(className);
+			this.previousButton.classList.add(className);
+			this.nextButton.classList.add(className);
+			this.lastButton.classList.add(className);
 		}
 	}
 }

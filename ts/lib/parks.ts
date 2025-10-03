@@ -197,8 +197,8 @@ export class Park {
 	}
 
 	/**
-	 * Create and return the campsites HTML table from the `campground.sites`
-	 * data.
+	 * Create and return the campsites information HTML table from the
+	 * `campground.sites` data.
 	 */
 	campsitesTable() {
 		const headings = ['Site', 'Type', 'Size', 'Tents', 'Table', 'Comment'];
@@ -363,7 +363,7 @@ export class Park {
 			/** cabin surcharge */
 			if (nights && reservation.site.match(CabinSitePattern) && reservation.occupant && reservation.occupant != reservation.purchaser) {
 				const amount = (costs.cabin - costs.site) * nights;
-				debts.push({from: reservation.occupant, to: reservation.purchaser, amount: amount, purpose: `${reservation.site} Cabin Surcharge`})
+				debts.push({from: reservation.occupant, to: reservation.purchaser, amount: amount, purpose: `Cabin ${reservation.site} Surcharge`})
 			}
 
 			/** accumulate payments made by purchasing host */
@@ -419,7 +419,7 @@ export class Park {
 		}
 
 		output.push('\nAmounts Owed:\n');
-		this.createUnderpayerPayments(sharedExpenses, hostKeys, hostPayments, debts)
+		this.addDebts(share, hostPayments, debts);
 		debts.sort((a,b) => {
 			let result = (a.from + a.to).localeCompare(b.from + b.to);
 			if (!result) result = a.purpose.localeCompare(b.purpose);
@@ -434,42 +434,47 @@ export class Park {
 	}
 
 	/**
-	 * Calculate each group's share of the expenses and create two arrays:
-	 * - underpayers: Group Keys that owe money
-	 * - overpayers: Group Keys the are owed money
-	 * 
-	 * Create direct payments from underpayers to overpayers. We will "bubble-up"
-	 * payments here. Each underpayer pays the next underpayer the accumulated
-	 * amount of the underpayments. When the last underpayer is reached, he or she
-	 * pays all of the overpayers what they are owed. This method ensures that only
-	 * one underpayer needs to pay more than one person.
+	 * Given the `share` of shared expenses each host is responsible for, and
+	 * the amounts of shared `payments` each host has made, add debts as
+	 * necessary (updating the `debts` Map) to reconcile payments.
 	 */
-	createUnderpayerPayments(
-		sharedExpenses: number,
-		participatingGroups: string[],
-		payments: Map<string, number>,
-		directPayments: Debt[],
-	) {
-		const perGroupShare = sharedExpenses / participatingGroups.length;
-		const underpayers: string[] = [] /* underpayer group keys */
-		const overpayers: string[] = [] /* overpayer group keys */
-		for (const [group, payment] of payments) {
-			if (payment - perGroupShare < 0) underpayers.push(group);
-			else overpayers.push(group)
+	addDebts(share: number, payments: Map<string, number>, debts: Debt[]) {
+		const adjustments = new Map<string, number>();
+		const hostKeys = Array.from(payments.keys());
+		/** sort by largest contributor to smallest contributor */
+		hostKeys.sort((a,b) => payments.get(b)! - payments.get(a)!);
+		let receivers: string[] = []; /** hosts who have paid more than their share */
+		for (const hostKey of hostKeys) {
+			/** adjustment is in pennies, rounded to an integer, to avoid floating point oddities */
+			const adjustment = Math.round((payments.get(hostKey)! - share) * 100); /** pennies */
+			adjustments.set(hostKey, adjustment);
+			/** receivers are hosts that have overpaid */
+			if (adjustment > 0) receivers.push(hostKey);
 		}
-
-		let totalUnderpayments = 0;
-		for (let i = 0; i < underpayers.length; i += 1) {
-			totalUnderpayments += payments.get(underpayers[i])!;
-			if ((i + 1) < underpayers.length) {
-				/* there are more underpayers; pass the totalPayments to the next one */
-				directPayments.push({from: underpayers[i], to: underpayers[i + 1], amount: totalUnderpayments, purpose: ''});
-			}
-			else {
-				/* there are no more underpayers; pay all the overpayers everything they're owed */
-				for (const overpayer of overpayers) {
-					const overpayment = payments.get(overpayer)! - perGroupShare;
-					directPayments.push({from: underpayers[i], to: overpayer, amount: overpayment, purpose: ''});
+		while (receivers.length) {
+			for (const hostKey of hostKeys) {
+				/** process hosts that have underpaid */
+				if (adjustments.get(hostKey)! < 0) {
+					let underpaidAmount = Math.abs(adjustments.get(hostKey)!);
+					for (const receiver of receivers) {
+						const overpaidAmount = adjustments.get(receiver)!
+						if (underpaidAmount <= overpaidAmount) {
+							debts.push({from: hostKey, to: receiver, amount: underpaidAmount / 100, purpose: ''});
+							adjustments.set(hostKey, 0);
+							adjustments.set(receiver, overpaidAmount - underpaidAmount);
+							if (underpaidAmount == overpaidAmount) {
+								/** remove paid off receiver */
+								receivers = receivers.filter((host) => host != receiver);
+							}
+						}
+						else { /** underpaidAmount > overpaidAmount */
+							debts.push({from: hostKey, to: receiver, amount: overpaidAmount / 100, purpose: ''});
+							adjustments.set(hostKey, overpaidAmount - underpaidAmount);
+							adjustments.set(receiver, 0);
+							/** remove paid off receiver */
+							receivers = receivers.filter((host) => host != receiver);
+						} 
+					}
 				}
 			}
 		}

@@ -435,47 +435,49 @@ export class Park {
 
 	/**
 	 * Given the `share` of shared expenses each host is responsible for, and
-	 * the amounts of shared `payments` each host has made, add debts as
-	 * necessary (updating the `debts` Map) to reconcile payments.
+	 * the amounts of shared `payments` each host has made, add entries in the
+	 * `debts` map as needed to reconcile accounts.
 	 */
 	addDebts(share: number, payments: Map<string, number>, debts: Debt[]) {
-		const adjustments = new Map<string, number>();
 		const hostKeys = Array.from(payments.keys());
-		/** sort by largest contributor to smallest contributor */
+		const adjustments = new Map<string, number>(); /** key is host, value is payments in cents */
+		const creditors: string[] = []; /** hosts who have paid more than their share */
+		const debtors: string[] = []; /** hosts who have paid less than their share */
+
+		/**
+		 * Sort host keys by the largest to smallest contributors. For each
+		 * host, create a Map of `adjustments`. The adjustments are initially
+		 * host payments, but converted from floating point dollars to integer
+		 * cents to avoid floating point oddities. Adjustments will be modified
+		 * below as we perform reconcilliations. Also, create two arrays--one of
+		 * creditors (having a positive contribution) and one of debtors (having
+		 * a negative contribution).
+		 */
 		hostKeys.sort((a,b) => payments.get(b)! - payments.get(a)!);
-		let receivers: string[] = []; /** hosts who have paid more than their share */
 		for (const hostKey of hostKeys) {
-			/** adjustment is in pennies, rounded to an integer, to avoid floating point oddities */
-			const adjustment = Math.round((payments.get(hostKey)! - share) * 100); /** pennies */
+			const adjustment = Math.round((payments.get(hostKey)! - share) * 100); /** cents */
 			adjustments.set(hostKey, adjustment);
-			/** receivers are hosts that have overpaid */
-			if (adjustment > 0) receivers.push(hostKey);
+			if (adjustment > 0) creditors.push(hostKey);
+			else if (adjustment < 0) debtors.push(hostKey);
 		}
-		while (receivers.length) {
-			for (const hostKey of hostKeys) {
-				/** process hosts that have underpaid */
-				if (adjustments.get(hostKey)! < 0) {
-					let underpaidAmount = Math.abs(adjustments.get(hostKey)!);
-					for (const receiver of receivers) {
-						const overpaidAmount = adjustments.get(receiver)!
-						if (underpaidAmount <= overpaidAmount) {
-							debts.push({from: hostKey, to: receiver, amount: underpaidAmount / 100, purpose: ''});
-							adjustments.set(hostKey, 0);
-							adjustments.set(receiver, overpaidAmount - underpaidAmount);
-							if (underpaidAmount == overpaidAmount) {
-								/** remove paid off receiver */
-								receivers = receivers.filter((host) => host != receiver);
-							}
-						}
-						else { /** underpaidAmount > overpaidAmount */
-							debts.push({from: hostKey, to: receiver, amount: overpaidAmount / 100, purpose: ''});
-							adjustments.set(hostKey, overpaidAmount - underpaidAmount);
-							adjustments.set(receiver, 0);
-							/** remove paid off receiver */
-							receivers = receivers.filter((host) => host != receiver);
-						} 
-					}
-				}
+
+		/**
+		 * For each debtor, create one or more Debt records, indicating payments
+		 * needed to creditors.
+		 */
+		for (const debtor of debtors) {
+			const debt = Math.abs(adjustments.get(debtor)!);
+			for (const creditor of creditors) {
+				if (adjustments.get(creditor) == 0) continue; /** skip creditor who's been "paid off" */
+				const credit = adjustments.get(creditor)!;
+				/** determine the debt amount, converting back to dollars */
+				const amount = (debt <= credit) ? debt / 100 : credit / 100;
+				/** determine new adjustment amounts for both the debtor and the creditor */
+				const newDebt = (debt <= credit) ? 0 : credit - debt;
+				const newCredit = (debt <= credit) ? credit - debt : 0;
+				adjustments.set(debtor, newDebt);
+				adjustments.set(creditor, newCredit);
+				debts.push({from: debtor, to: creditor, amount: amount, purpose: ''});
 			}
 		}
 	}

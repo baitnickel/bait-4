@@ -468,8 +468,8 @@ export class Park {
 		for (const debtor of debtors) {
 			const debt = Math.abs(adjustments.get(debtor)!);
 			for (const creditor of creditors) {
-				if (adjustments.get(creditor) == 0) continue; /** skip creditor who's been "paid off" */
 				const credit = adjustments.get(creditor)!;
+				if (!credit) continue; /** skip creditor who's been "paid off" */
 				/** determine the debt amount, converting back to dollars */
 				const amount = (debt <= credit) ? debt / 100 : credit / 100;
 				/** determine new adjustment amounts for both the debtor and the creditor */

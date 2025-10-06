@@ -595,7 +595,7 @@ class Section {
  * directives, if any, are parsed to produce a list of one or more barred
  * frets.
  */
-class Notation {
+export class Notation {
     constructor(chordNotation, fretCount = 4, stringCount) {
         this.valid = true;
         this.notes = []; /* typescript multi-dimensional array initialization uses single [] */

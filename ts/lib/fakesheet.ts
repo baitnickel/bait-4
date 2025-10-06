@@ -32,7 +32,7 @@ import { MarkupLine } from './markup.js';
  * Fakesheet files may contain comments (inline or whole line);
  * they begin with FAKESHEET.commentPattern.
  * 
- * To-do:
+ * @todo
  * - Fix line spacing
  * - Do not display Tuning if it is not in metadata (equals default)
  * - Not only capo, but tuning and chords declarations should vanish on newKey
@@ -657,7 +657,7 @@ class Section {
  * directives, if any, are parsed to produce a list of one or more barred
  * frets.
  */
-class Notation {
+export class Notation {
 	valid: boolean;
 	notes: number [][]; /* for each of the instruments strings, a list of note(s) to be fretted */
 	barres: number[];   /* a list of barred frets */

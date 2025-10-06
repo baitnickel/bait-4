@@ -95,6 +95,7 @@ function sortPassages(passages) {
         return result;
     });
 }
+/** @todo support threads of untagged text, support modification date range */
 function createModalDialog(rootPath = '', tags = '', tagPrefix = '') {
     const dialog = new W.Dialog('Query Options');
     const rootValues = ['.', 'Content', 'Content/chapters', 'Content/drafts', 'Content/technical', 'Content/test-docs', 'notebook'];

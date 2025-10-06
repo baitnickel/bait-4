@@ -107,6 +107,10 @@ function runCarousel(selection: Selection, dialog: W.Dialog) {
 		}
 
 		/**
+		 * @todo Flag image API might update an index file. Indexed entries
+		 * could be excluded from a carousel, or singled out in a carousel, &c.
+		 * Should be a simple matter if treating the image list as a Set.
+		 * 
 		 * Flag the currently displayed image, i.e., call the API to add an
 		 * entry to server log, recording basic image info.
 		 */

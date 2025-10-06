@@ -23,6 +23,20 @@ const QueryElement = document.createElement('div');
 QueryElement.className = 'timeline-query-element';
 const TimelineElement = document.createElement('div');
 TimelineElement.className = 'timeline-container';
+/**
+ * @todo Scroll through an expand/collapse list of eras in the timeline,
+ * highlight entries that have article references (index file required) and
+ * display the article thread on click. Transitions might stay in a single page,
+ * toggling sections using their `hide` property. (Must support browser back and
+ * forth as well as in-page navigation). Save breadcrumbs in local storage as
+ * necessary to support user's Resume request, as well as navigation.
+ */
+/**
+ * @todo if a timeline entry contains a title at the beginning of its
+ * description (enclosed in parentheses or braces or quotes or something), we
+ * should create a note (e.g., in Content/chapters) using timestamp + title as
+ * its name (or maybe just title, with the timestamp in the "tags" metadata).
+ */
 export function render() {
     PAGE.content.append(QueryElement);
     PAGE.content.append(TimelineElement);

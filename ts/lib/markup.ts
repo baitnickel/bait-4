@@ -1,16 +1,17 @@
 import { Resource } from './resource.js';
 
-/*### to do:
+/**
  *
- * Recognize embedded tags (#todo, #todo2, #todo-3, &c.). Does not apply to tags
- * listed in Front Matter--these are treated separately. Replace tag with space,
- * and condense space around it, trim start and/or end if tag appears at start
- * or end? Does not apply within Code and Code Blocks.
+ * @todo Recognize embedded tags (#todo, #todo2, #todo-3, &c.). Does not apply
+ * to tags listed in Front Matter--these are treated separately. Replace tag
+ * with space, and condense space around it, trim start and/or end if tag
+ * appears at start or end? Does not apply within Code and Code Blocks.
  *
- * Support custom markdown enclosed in braces. Mostly this will be resource
- * references such as {photo: foo}, {photo/category: bar}, where the Front
- * Matter of the document resolves the reference. But braces may also be used as
- * a replacement for the current Span syntax: {{.foo #bar content text}}.
+ * @todo Support custom markdown enclosed in braces. Mostly this will be
+ * resource references such as {photo: foo}, {photo/category: bar}, where the
+ * Front Matter of the document resolves the reference. But braces may also be
+ * used as a replacement for the current Span syntax: {{.foo #bar content
+ * text}}.
  */
 
 /*

@@ -436,6 +436,13 @@ export class Cell { /** @todo */
 
 }
 
+/**
+ * @todo given a CSV file with or without a heading line, create a data
+ * structure that can be passed to the `table` function(s). A heading line might
+ * be written into row 0, with a boolean parameter to indicate that row 0 (or
+ * row X) is a heading labels row.
+ */
+
 /********* pre-Widget code *********************************************************/
 
 /**

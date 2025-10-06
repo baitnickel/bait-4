@@ -485,6 +485,9 @@ export class Page {
 
 
 /**
+ * @todo support user cookie maintenance, privileges are given to those who have
+ * defined certain cookies.
+ * 
  * Given a `cookieName`, return the cookie in the form "name=value". When called
  * without a `cookieName`, return and array of cookies.
  */
@@ -573,6 +576,11 @@ function articleIDs(lists: string[], listPattern: RegExp, splitPattern: RegExp) 
 	return articleIDs;
 }
 
+/**
+ * @todo expect section numbers to be added chronologically, so that a section
+ * number in a note never changes. Annotation must record file name and section
+ * number along with comment text.
+ */
 function postAnnotation(annotation: string, thisPage: Page) {
 	const route = 'annotations';
 	const data: T.Annotation = {

@@ -301,6 +301,12 @@ type Photo = {
 // }
 
 /**
+ * @todo we should define a `Media` type, and extend it with `Audio`, `Video`,
+ * `Image` types; similarly we should have a `Song` type, extended with `Audio`,
+ * `Sheet`, &c.
+ */
+
+/**
  * From the bait-3 JSON files
  */
 

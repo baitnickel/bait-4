@@ -7,6 +7,7 @@ import { Markup, MarkupLine } from './lib/markup.js';
 import * as W from './lib/widgets.js';
 import { Moment } from './lib/moments.js';
 import { Park } from './lib/parks.js';
+import { Instrument, Chord } from './lib/fakesheet.js';
 const PAGE = new Page();
 const IndicesPath = `${PAGE.site}/Indices`;
 const Articles = await Fetch.map(`${IndicesPath}/articles.json`);
@@ -70,20 +71,21 @@ export function render() {
         const testOutput = document.createElement('div');
         testContent.append(testOutput);
         const testers = [];
+        testers.push({ name: 'Chord', function: testChord });
         testers.push({ name: 'Table', function: testTable });
         testers.push({ name: 'Park', function: testPark });
         testers.push({ name: 'Moments', function: testMoments });
-        testers.push({ name: 'IP', function: testIP });
-        testers.push({ name: 'Dialog', function: testDialog });
-        testers.push({ name: 'Radio', function: testRadio });
-        testers.push({ name: 'Grid', function: gridTest });
-        testers.push({ name: 'Spinner', function: testSpinner });
-        testers.push({ name: 'Images', function: testImages });
-        testers.push({ name: 'Map', function: testMap });
-        testers.push({ name: 'Markdown', function: testMarkdown });
-        testers.push({ name: 'YAML', function: testYaml });
-        testers.push({ name: 'Email', function: testEmail });
-        testers.push({ name: 'Cookies', function: testCookies });
+        // testers.push( { name: 'IP', function: testIP } );
+        // testers.push( { name: 'Dialog', function: testDialog } );
+        // testers.push( { name: 'Radio', function: testRadio } );
+        // testers.push( { name: 'Grid', function: gridTest } );
+        // testers.push( { name: 'Spinner', function: testSpinner } );
+        // testers.push( { name: 'Images', function: testImages } );
+        // testers.push( { name: 'Map', function: testMap } );
+        // testers.push( { name: 'Markdown', function: testMarkdown } );
+        // testers.push( { name: 'YAML', function: testYaml } );
+        // testers.push( { name: 'Email', function: testEmail } );
+        // testers.push( { name: 'Cookies', function: testCookies } );
         if (PAGE.backendAvailable) {
             testers.push({ name: 'Fetch.api', function: testFetchAPI });
         }
@@ -104,6 +106,39 @@ export function render() {
             testButtons.append(button);
         }
     }
+}
+function testChord(testOutput) {
+    const examples = [];
+    examples.push('Examples:');
+    examples.push('');
+    examples.push('C    x32010                 "x": string not played, "0" (or "o"): open string');
+    examples.push('C(7) x32(0,3)10             alternate frettings comma-separated inside parentheses');
+    examples.push('G    355433|3               "|3": barre at 3 from 6th to 1st string');
+    examples.push('B7   7978(10)7|7            "(10)": put 2-digit fret numbers inside parentheses');
+    examples.push('Bm7  xx(4,2)232|2           barre at 2 from 4th to 1st string');
+    examples.push('F/C  88(10)(10)(10)8|8|(10) barre at 8 (6th-1st) and 10 (4th-2nd) with 2-digit fret numbers');
+    examples.push('');
+    examples.push('Separate the chord name and the notation with one or more spaces.');
+    const examplesParagraph = document.createElement('p');
+    examplesParagraph.className = 'small';
+    const textWidgetParagraph = document.createElement('p');
+    const svgParagraph = document.createElement('p');
+    testOutput.append(examplesParagraph);
+    testOutput.append(textWidgetParagraph);
+    testOutput.append(svgParagraph);
+    examplesParagraph.innerHTML = `<pre>${examples.join('<br>')}</pre>`;
+    const textEntry = new W.Text('Chord Name & Notation: ', '');
+    textEntry.label.className = 'sans-serif';
+    textWidgetParagraph.append(textEntry.label);
+    textWidgetParagraph.append(textEntry.element);
+    const instrument = new Instrument('guitar', 6, 22, ['E', 'A', 'D', 'G', 'B', 'E']);
+    textEntry.element.addEventListener('change', () => {
+        const entry = textEntry.element.value;
+        const [chordName, notation] = entry.trim().split(/\s+/);
+        const chord = new Chord(chordName, instrument, notation);
+        svgParagraph.append(chord.diagram());
+        textEntry.element.value = '';
+    });
 }
 function testTable(testOutput) {
     const table = new W.Table(['Col 1', 'Col 2', 'Col 3', 'Col 4'], 1);

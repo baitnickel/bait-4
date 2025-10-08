@@ -148,6 +148,7 @@ summary { font-size: 1.1rem; font-weight: 200; }
 .threads-output-element summary { font-size: 1.5rem; font-weight: 200; }
 .threads-query-element button { margin-bottom: 1rem; }
 
+.sans-serif { font-family: sans-serif; }
 .italic { font-style: italic; }
 .small { font-size: small; }
 .single-space { margin: 0; }

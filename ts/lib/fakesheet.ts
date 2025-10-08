@@ -80,7 +80,7 @@ export const FAKESHEET = {
 	// forceSectionBlankLine: true,
 }
 
-class Instrument {
+export class Instrument {
 	name: string;              /* instrument name */
 	strings: number;           /* guitar 6, ukulele 4, piano 88 */
 	frets: number;             /* guitar 22, piano 0 */
@@ -657,7 +657,7 @@ class Section {
  * directives, if any, are parsed to produce a list of one or more barred
  * frets.
  */
-export class Notation {
+class Notation {
 	valid: boolean;
 	notes: number [][]; /* for each of the instruments strings, a list of note(s) to be fretted */
 	barres: number[];   /* a list of barred frets */
@@ -799,7 +799,7 @@ type RichText = {
  *   E3:52, A3:57, D4:62, G4:67, B4:71, E5:76 (normal guitar tuning)
  *   E3:52 ... D7:98 (typical guitar range)
  */
-class Chord {
+export class Chord {
 	name: string;            /* chord name (in original key, e.g., 'Dbm7/Ab') */
 	stringCount: number;     /* number of strings (derived from 'instrument') */
 	notation: Notation|null; /* Notation object */

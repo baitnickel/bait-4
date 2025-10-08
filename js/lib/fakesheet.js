@@ -33,7 +33,7 @@ export const FAKESHEET = {
     // condenseBlankLines: true,
     // forceSectionBlankLine: true,
 };
-class Instrument {
+export class Instrument {
     constructor(name, strings, frets, standardTuning) {
         this.name = name;
         this.strings = strings;
@@ -595,7 +595,7 @@ class Section {
  * directives, if any, are parsed to produce a list of one or more barred
  * frets.
  */
-export class Notation {
+class Notation {
     constructor(chordNotation, fretCount = 4, stringCount) {
         this.valid = true;
         this.notes = []; /* typescript multi-dimensional array initialization uses single [] */
@@ -724,7 +724,7 @@ const W3NameSpace = 'http://www.w3.org/2000/svg';
  *   E3:52, A3:57, D4:62, G4:67, B4:71, E5:76 (normal guitar tuning)
  *   E3:52 ... D7:98 (typical guitar range)
  */
-class Chord {
+export class Chord {
     // midiNotes: number[];    /* ### MIDI note numbers representing chord */
     constructor(name, instrument = null, notation = '') {
         this.name = name;

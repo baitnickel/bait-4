@@ -25,16 +25,15 @@ export function render() {
         const campground = park.campground;
         if (campground !== undefined) {
             /* display the map */
-            const map = campground.map;
             const mapElement = document.createElement('img');
-            mapElement.setAttribute('src', `images/camp/${map}`);
+            mapElement.setAttribute('src', `images/camp/${campground.map}`);
             mapElement.width = 666;
             mapDiv.append(mapElement);
             /* display the campsites information table */
             sitesDiv.append(park.campsitesTable());
             /* display the campground comments */
-            const comments = campground.comments;
-            commentsDiv.append(createParagraphs(comments));
+            for (const comment of campground.comments)
+                commentsDiv.innerHTML += `<p>${comment}</p>`;
         }
     }
     /**
@@ -52,9 +51,9 @@ export function render() {
         const summaryElement = document.createElement('summary');
         const reservationsTableElement = document.createElement('table');
         const buttonsElement = document.createElement('div');
+        buttonsElement.className = 'camp-reservation-controls';
         const yearSelection = document.createElement('select');
         const accountingWidget = new W.Checkbox('Show Accounting: ', showAccounting);
-        accountingWidget.label.className = 'camp-reservation-controls';
         accountingWidget.element.addEventListener('change', () => {
             document.dispatchEvent(accountingOptionChanged);
         });
@@ -73,10 +72,11 @@ export function render() {
         /* radio buttons to switch between Purchasers and Occupants view */
         const radioButtons = new W.RadioGroup('', ReservationViews, 'widget-radio-inline');
         const radioSpan = radioButtons.span;
-        radioSpan.classList.add('camp-reservation-controls');
+        radioSpan.classList.add('camp-button-indent');
         buttonsElement.append(radioSpan);
         /* add accounting checkbox option (hidden until event listener verifies finalized year) */
         accountingWidget.label.hidden = true;
+        accountingWidget.label.classList.add('camp-button-indent');
         buttonsElement.append(accountingWidget.label);
         detailsElement.append(buttonsElement);
         detailsElement.append(reservationsTableElement);
@@ -121,15 +121,4 @@ export function render() {
         /* on initial rendering, trigger display of campsite reservation info */
         document.dispatchEvent(newReservationsView);
     }
-}
-function createParagraphs(lines) {
-    const divElement = document.createElement('div');
-    const paragraphElements = [];
-    for (const line of lines) {
-        const paragraph = document.createElement('p');
-        paragraph.innerText = (line) ? `${line}` : '';
-        paragraphElements.push(paragraph);
-        divElement.append(paragraphElements[paragraphElements.length - 1]);
-    }
-    return divElement;
 }

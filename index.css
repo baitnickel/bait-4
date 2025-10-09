@@ -144,8 +144,8 @@ h5, h6 {
 	background-color: #eee;
 	color: #00f;
 }
-summary { font-size: 1.1rem; font-weight: 200; }
-.threads-output-element summary { font-size: 1.5rem; font-weight: 200; }
+summary { font-family: sans-serif; font-size: 1.1rem; } /* font-weight: 200; } */
+/* .threads-output-element summary { font-size: 1.5rem; font-weight: 200; } */
 .threads-query-element button { margin-bottom: 1rem; }
 
 .sans-serif { font-family: sans-serif; }
@@ -298,9 +298,10 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 }
 .camp-reservation-controls {
 	font-family: sans-serif;
-	font-size: 9pt;
-	padding: 0 0 0 1rem;
+	font-size: small;
+	margin: .25rem;
 }
+.camp-button-indent {padding-left: 1rem;}
 
 /* iching page(s) */
 .iching-selection {

@@ -34,11 +34,59 @@ export const FAKESHEET = {
     // forceSectionBlankLine: true,
 };
 export class Instrument {
-    constructor(name, strings, frets, standardTuning) {
+    constructor(name) {
         this.name = name;
-        this.strings = strings;
-        this.frets = frets;
-        this.standardTuning = standardTuning;
+        const properties = this.instrumentProperties(name);
+        this.strings = properties.strings;
+        this.frets = properties.frets;
+        this.standardTuning = this.notesToNames(properties.tuning);
+        this.openStringValues = properties.tuning;
+    }
+    /**
+     * Given an instrument name (case-insensitive), return its properties.
+     *
+     * (The only supported instrument at this time is "guitar"; different
+     * instruments should be defined in configuration data.)
+     */
+    instrumentProperties(name) {
+        const properties = { strings: 0, frets: 0, tuning: [], tuneDown: 0, tuneUp: 0 };
+        if (name.toLowerCase() == 'guitar') {
+            properties.strings = 6;
+            properties.frets = 22;
+            properties.tuning = [52, 57, 62, 67, 71, 76]; /** standard tuning (MIDI note numbers) */
+            properties.tuneDown = 6; /** maximum half-steps string can be tuned down */
+            properties.tuneUp = 5; /** maximum half-steps string can be tuned up */
+        }
+        return properties;
+    }
+    /**
+     * Given an array of MIDI `notes`, return an array note names. When `key` is
+     * provided, enharmonic note names are adjusted for the key's scale.
+     */
+    notesToNames(notes) {
+        const names = [];
+        for (const note of notes) {
+            const offset = ((note % 12) + 3) % 12;
+            const name = FAKESHEET.tonics[offset];
+            const [firstName, secondName] = name.split(FAKESHEET.tonicSeparator);
+            names.push(firstName);
+        }
+        return names;
+    }
+    /**
+     * @todo
+     * Given an array of note names (e.g., from Fakesheet.tuning), convert it to an
+     * array of MIDI notes, and assign it to this.openStringValues
+     */
+    updateOpenStringValues(names) {
+        const openStringValues = [];
+        for (const name of names) {
+            /**
+             * @todo determine MIDI value using tuning, tuneDown, tuneUp
+             * and push onto openStringValues
+             */
+        }
+        this.openStringValues = openStringValues;
     }
 }
 function prettyChord(chordName) {
@@ -80,8 +128,8 @@ export class FakeSheet {
         this.key = null;
         this.newKey = null; //(key) ? new Chord(key) : null;
         this.capo = 0;
-        this.instrument = new Instrument('guitar', 6, 22, ['E', 'A', 'D', 'G', 'B', 'E']);
-        this.tuning = []; /** when not set, we assume: this.instrument.standardTuning */
+        this.instrument = new Instrument('Guitar');
+        this.tuning = []; /** @todo when not set, we assume: this.instrument.standardTuning?? Just set it now! */
         this.tempo = 0;
         this.copyright = '';
         this.placeholder = FAKESHEET.chordPlaceholders[0];
@@ -253,8 +301,13 @@ export class FakeSheet {
                 errorMessage += `are provided: ${notes.join(' ')}`;
                 this.addError(errorMessage);
             }
-            else
+            else {
                 this.tuning = notes;
+                /**
+                 * @todo
+                 * this.instrument.updateOpenStringValues(notes);
+                 */
+            }
         }
     }
     setTempo(propertyName, values) {
@@ -561,161 +614,6 @@ class Section {
         return fakeLines;
     }
 }
-/**
- * 'chordNotation' is a character string, consisting of fret directives and
- * optional barre directives. The fret directives consist of a series of fret
- * numbers, generally one fret number per instrument string, but multiple fret
- * numbers can be entered for a single string (as a comma-separated list
- * surrounded by parentheses) to indicate a primary note and one or more
- * secondary notes. Barre directives (one or more) must follow the fret
- * directives; each barre directive consists of a single fret number preceded
- * by a pipe (|) character.
- *
- * Fret numbers are integers between 0 and the largest allowed fret on the
- * instrument. Multi-digit fret numbers (numbers greater than 9) must be
- * enclosed in parentheses (unless they are part of a comma-separated list).
- * There are, however, two special fret numbers: 'x' and 'o' (and their
- * uppercase equivalents). 'x' indicates no fret (string is not to be played),
- * and 'o' indicates that the string is to be played open. 'o' and 0 are
- * synonyms.
- *
- * Examples:
- * x32010                 C
- * x32(0,3)10             C(7)
- * 355433|3               G, barre at 3 from 6th to 1st string
- * xx(4,2)232|2           Bm7, barre at 2 from 4th to 1st string
- * 88(10)(10)(10)8|8|(10) F/C, barre at 8 (6th-1st) and 10 (4th-2nd)
- *
- * Parsing 'chordNotation' begins with a split on the pipe character. If the
- * split produces a single-element array, there are no barre directives,
- * otherwise the barre directives are in elements 1 thru the last element.
- *
- * Then the note directives are parsed, one directive per instrument string,
- * each directive consisting of one or more fret numbers. Likewise, the barre
- * directives, if any, are parsed to produce a list of one or more barred
- * frets.
- */
-class Notation {
-    constructor(chordNotation, fretCount = 4, stringCount) {
-        this.valid = true;
-        this.notes = []; /* typescript multi-dimensional array initialization uses single [] */
-        this.barres = [];
-        this.stringCount = stringCount;
-        this.fretCount = fretCount; /* determines grid size; instrument.frets is maxFret, if we choose to use it for validation */
-        this.firstFret = 1;
-        this.lowFret = 0;
-        this.highFret = 0;
-        const invalidNotationCharacters = /[^0-9xo,|\()]/gi;
-        var directives = [];
-        var noteDirectives = '';
-        var barreDirectives = [];
-        /* normalize chordNotation and ensure it contains only valid characters */
-        chordNotation = chordNotation.toLowerCase();
-        if (!chordNotation || chordNotation.match(invalidNotationCharacters) !== null)
-            this.valid = false;
-        if (this.valid) {
-            /* divide chordNotation into note directives and an optional list of barre directives */
-            directives = chordNotation.split('|');
-            noteDirectives = directives.shift(); /* ! asserts that shift value is not undefined */
-            if (!noteDirectives)
-                this.valid = false;
-            else
-                barreDirectives = directives;
-        }
-        if (this.valid) {
-            /** parse the note directives and assign note numbers
-             (an array of 1 or more frets per instrument string)
-             */
-            this.notes = this.noteFrets(noteDirectives);
-            if (this.notes.length != this.stringCount)
-                this.valid = false;
-        }
-        if (this.valid) {
-            /* parse the barre directives and assign barre numbers (a list of frets barred) */
-            this.barres = this.barreFrets(barreDirectives);
-        }
-        if (this.valid) {
-            /* calculate fret properties */
-            for (let string of this.notes) {
-                for (let fret of string) {
-                    if (fret > 0) {
-                        if (!this.lowFret || fret < this.lowFret)
-                            this.lowFret = fret;
-                        if (!this.highFret || fret > this.highFret)
-                            this.highFret = fret;
-                    }
-                }
-            }
-            if (this.lowFret || this.highFret) {
-                let fretCount = this.highFret - this.lowFret + 1;
-                if (this.fretCount < fretCount)
-                    this.fretCount = fretCount;
-                if (this.highFret > this.fretCount)
-                    this.firstFret = this.lowFret;
-            }
-        }
-    }
-    noteFrets(noteDirectives) {
-        /**
-         * 'noteDirectives' is a character string representing the frets to be played
-         * across each of an instrument's strings (for guitar, 6 strings), e.g.:
-         * 'x8(10)(10,8)(10)8'
-         * Return a list of fret numbers for each of the instrument's strings, e.g.:
-         * [ [ NaN ], [ 8 ], [ 10 ], [ 10, 8 ], [ 10 ], [ 8 ] ]
-         */
-        var frets = [];
-        const separateDirectives = /(\(.*?\)|[xo0-9])/;
-        const parentheticDirective = /\((.*)\)/;
-        let noteDirectivesList = noteDirectives.split(separateDirectives);
-        for (let noteDirective of noteDirectivesList) {
-            let fretStrs;
-            let fretNumbers = [];
-            if (noteDirective) {
-                fretStrs = [];
-                let matches = noteDirective.match(parentheticDirective);
-                if (matches === null)
-                    fretStrs.push(noteDirective); /* only one fret */
-                else
-                    fretStrs = matches[1].split(','); /* may be multiple frets, separated by commas */
-                for (let fretStr of fretStrs) {
-                    if (fretStr == 'o')
-                        fretStr = '0';
-                    let fret = Number(fretStr);
-                    if (fretStr != 'x' && isNaN(fret))
-                        this.valid = false;
-                    else
-                        fretNumbers.push(fret);
-                }
-                frets.push(fretNumbers);
-            }
-        }
-        return frets;
-    }
-    barreFrets(barreDirectives) {
-        /**
-         * 'barreDirectives' is a list of fret numbers as character strings,
-         * any of which may be enclosed in parentheses, e.g.:
-         * ['8', '(10)']
-         * Return a list of fret numbers, e.g.:
-         * [8, 10]
-         */
-        var frets = [];
-        const parentheticDirective = /\((.*)\)/;
-        for (let barreDirective of barreDirectives) {
-            let fret = NaN;
-            let matches = barreDirective.match(parentheticDirective);
-            if (matches === null)
-                fret = Number(barreDirective); /* directive without parentheses */
-            else
-                fret = Number(matches[1]);
-            if (!isNaN(fret))
-                frets.push(fret);
-            else
-                this.valid = false;
-        }
-        return frets;
-    }
-}
 const W3NameSpace = 'http://www.w3.org/2000/svg';
 /**
  * MIDI note numbers:
@@ -725,11 +623,12 @@ const W3NameSpace = 'http://www.w3.org/2000/svg';
  *   E3:52 ... D7:98 (typical guitar range)
  */
 export class Chord {
-    // midiNotes: number[];    /* ### MIDI note numbers representing chord */
+    // midiNotes: number[];    /* ### MIDI note numbers representing chord  ... see: this.intervals */
     constructor(name, instrument = null, notation = '') {
         this.name = name;
+        this.instrument = instrument;
         this.stringCount = (instrument) ? instrument.strings : 0;
-        this.notation = (notation) ? new Notation(notation, 5, this.stringCount) : null; /* consumers must check Notation.valid */
+        this.notation = (notation) ? new Notation(notation, this.stringCount) : null; /* consumers must check Notation.valid */
         /**
          * A chord name is split into a list of elements,
          * where elements are alternating modifiers and notes, e.g.:
@@ -776,14 +675,14 @@ export class Chord {
             }
         }
     }
+    /**
+     * Return the twelve notes representing the scale of this Chord
+     * (typically, the song's key). Resolve enharmonic notes by rule,
+     * according to key signatures. The rule for C/Am is somewhat arbitrary,
+     * based on my personal preferences: using sharps except for Bb and Eb).
+    */
     scale() {
         let notes = [];
-        /**
-         * Return the twelve notes representing the scale of this Chord
-         * (typically, the song's key). Resolve enharmonic notes by rule,
-         * according to key signatures. The rule for C/Am is somewhat arbitrary,
-         * based on my personal preferences: using sharps except for Bb and Eb).
-         */
         for (let tonicSet of FAKESHEET.tonics) {
             let tonics = tonicSet.split(FAKESHEET.tonicSeparator);
             if (tonics.length < 2)
@@ -803,11 +702,11 @@ export class Chord {
         }
         return notes;
     }
+    /**
+     * Given "from key" and "to key" Chord objects, transpose this Chord to
+     * the new key.
+    */
     transpose(fromKey, toKey) {
-        /**
-         * Given "from key" and "to key" Chord objects, transpose this Chord to
-         * the new key.
-         */
         let scale = toKey.scale();
         let interval = toKey.noteNumbers[0] - fromKey.noteNumbers[0];
         let noteNumber;
@@ -836,12 +735,12 @@ export class Chord {
         }
         return new Chord(newChordName);
     }
+    /**
+     * Given a capo position, return a new Chord object representing the
+     * effective key. E.g., if this.base is 'Am' and the capo is 2, we would
+     * return a 'Bm' Chord.
+    */
     effectiveKey(capo) {
-        /**
-         * Given a capo position, return a new Chord object representing the
-         * effective key. E.g., if this.base is 'Am' and the capo is 2, we would
-         * return a 'Bm' Chord.
-         */
         let noteNumber = this.noteNumbers[0] + capo;
         if (noteNumber >= FAKESHEET.tonics.length)
             noteNumber -= FAKESHEET.tonics.length;
@@ -851,18 +750,41 @@ export class Chord {
             key += 'm';
         return new Chord(key);
     }
+    /**
+     * Given a key and capo as selected in the fakesheet, return the capo
+     * position required to play the song in the original effective key,
+     * using the key represented by this Chord.
+    */
     suggestedCapo(key, capo) {
-        /**
-         * Given a key and capo as selected in the fakesheet, return the capo
-         * position required to play the song in the original effective key,
-         * using the key represented by this Chord.
-         */
         let suggestedCapo = 0;
         let effectiveKey = key.effectiveKey(capo);
         suggestedCapo = effectiveKey.noteNumbers[0] - this.noteNumbers[0];
         if (suggestedCapo < 0)
             suggestedCapo += FAKESHEET.tonics.length;
         return suggestedCapo;
+    }
+    /**
+     * Return an array of interval numbers corresponding to the notes of the
+     * Chord. Where there are multiple notes on a string, we will consider only
+     * the first. The Chord.root note is assigned interval 1 and the other notes
+     * are offsets from the root.
+     *
+     * MIDI note numbers range from 0 (C-1) to 127 (G9). Note 12 is C0, note 23
+     * is B0, note 24 is C1, and so on. Observe that when MIDI-note modulo 12
+     * equals 0, the note is C The 88 piano keys range from 21 (A0) to 108 (C8).
+     * Middle C is 60 (C4).
+     *
+     * Assuming that guitar strings can reasonably be tuned up or down no more
+     * than an octave (5 half-steps up and 6 half-steps down), then the six
+     * strings when played open will have ranges as follows:
+     * - 46 - 57 (6th: E3 is 52)
+     * - 51 - 62 (5th: A3 is 57)
+     * - 56 - 67 (4th: D4 is 62)
+     * - 61 - 72 (3rd: G4 is 67)
+     * - 65 - 76 (2nd: B4 is 71)
+     * - 70 - 81 (1st: E5 is 76)
+     */
+    intervals() {
     }
     diagram(fontFamily = 'sans-serif', svgScaling = 0.85, stringSpacing = 16) {
         /**
@@ -1156,5 +1078,160 @@ export class Chord {
             i += 1;
         }
         return svg;
+    }
+}
+/**
+ * 'chordNotation' is a character string, consisting of fret directives and
+ * optional barre directives. The fret directives consist of a series of fret
+ * numbers, generally one fret number per instrument string, but multiple fret
+ * numbers can be entered for a single string (as a comma-separated list
+ * surrounded by parentheses) to indicate a primary note and one or more
+ * secondary notes. Barre directives (one or more) must follow the fret
+ * directives; each barre directive consists of a single fret number preceded
+ * by a pipe (|) character.
+ *
+ * Fret numbers are integers between 0 and the largest allowed fret on the
+ * instrument. Multi-digit fret numbers (numbers greater than 9) must be
+ * enclosed in parentheses (unless they are part of a comma-separated list).
+ * There are, however, two special fret numbers: 'x' and 'o' (and their
+ * uppercase equivalents). 'x' indicates no fret (string is not to be played),
+ * and 'o' indicates that the string is to be played open. 'o' and 0 are
+ * synonyms.
+ *
+ * Examples:
+ * x32010                 C
+ * x32(0,3)10             C(7)
+ * 355433|3               G, barre at 3 from 6th to 1st string
+ * xx(4,2)232|2           Bm7, barre at 2 from 4th to 1st string
+ * 88(10)(10)(10)8|8|(10) F/C, barre at 8 (6th-1st) and 10 (4th-2nd)
+ *
+ * Parsing 'chordNotation' begins with a split on the pipe character. If the
+ * split produces a single-element array, there are no barre directives,
+ * otherwise the barre directives are in elements 1 thru the last element.
+ *
+ * Then the note directives are parsed, one directive per instrument string,
+ * each directive consisting of one or more fret numbers. Likewise, the barre
+ * directives, if any, are parsed to produce a list of one or more barred
+ * frets.
+ */
+class Notation {
+    constructor(chordNotation, stringCount, fretCount = 5) {
+        this.valid = true;
+        this.notes = []; /* typescript multi-dimensional array initialization uses single [] */
+        this.barres = [];
+        this.stringCount = stringCount;
+        this.fretCount = fretCount; /* determines grid size; instrument.frets is maxFret, if we choose to use it for validation */
+        this.firstFret = 1;
+        this.lowFret = 0;
+        this.highFret = 0;
+        const invalidNotationCharacters = /[^0-9xo,|\()]/gi;
+        var directives = [];
+        var noteDirectives = '';
+        var barreDirectives = [];
+        /* normalize chordNotation and ensure it contains only valid characters */
+        chordNotation = chordNotation.toLowerCase();
+        if (!chordNotation || chordNotation.match(invalidNotationCharacters) !== null)
+            this.valid = false;
+        if (this.valid) {
+            /* divide chordNotation into note directives and an optional list of barre directives */
+            directives = chordNotation.split('|');
+            noteDirectives = directives.shift(); /* ! asserts that shift value is not undefined */
+            if (!noteDirectives)
+                this.valid = false;
+            else
+                barreDirectives = directives;
+        }
+        if (this.valid) {
+            /** parse the note directives and assign note numbers
+             (an array of 1 or more frets per instrument string)
+             */
+            this.notes = this.noteFrets(noteDirectives);
+            if (this.notes.length != this.stringCount)
+                this.valid = false;
+        }
+        if (this.valid) {
+            /* parse the barre directives and assign barre numbers (a list of frets barred) */
+            this.barres = this.barreFrets(barreDirectives);
+        }
+        if (this.valid) {
+            /* calculate fret properties */
+            for (let string of this.notes) {
+                for (let fret of string) {
+                    if (fret > 0) {
+                        if (!this.lowFret || fret < this.lowFret)
+                            this.lowFret = fret;
+                        if (!this.highFret || fret > this.highFret)
+                            this.highFret = fret;
+                    }
+                }
+            }
+            if (this.lowFret || this.highFret) {
+                let fretCount = this.highFret - this.lowFret + 1;
+                if (this.fretCount < fretCount)
+                    this.fretCount = fretCount;
+                if (this.highFret > this.fretCount)
+                    this.firstFret = this.lowFret;
+            }
+        }
+    }
+    noteFrets(noteDirectives) {
+        /**
+         * 'noteDirectives' is a character string representing the frets to be played
+         * across each of an instrument's strings (for guitar, 6 strings), e.g.:
+         * 'x8(10)(10,8)(10)8'
+         * Return a list of fret numbers for each of the instrument's strings, e.g.:
+         * [ [ NaN ], [ 8 ], [ 10 ], [ 10, 8 ], [ 10 ], [ 8 ] ]
+         */
+        var frets = [];
+        const separateDirectives = /(\(.*?\)|[xo0-9])/;
+        const parentheticDirective = /\((.*)\)/;
+        let noteDirectivesList = noteDirectives.split(separateDirectives);
+        for (let noteDirective of noteDirectivesList) {
+            let fretStrs;
+            let fretNumbers = [];
+            if (noteDirective) {
+                fretStrs = [];
+                let matches = noteDirective.match(parentheticDirective);
+                if (matches === null)
+                    fretStrs.push(noteDirective); /* only one fret */
+                else
+                    fretStrs = matches[1].split(','); /* may be multiple frets, separated by commas */
+                for (let fretStr of fretStrs) {
+                    if (fretStr == 'o')
+                        fretStr = '0';
+                    let fret = Number(fretStr);
+                    if (fretStr != 'x' && isNaN(fret))
+                        this.valid = false;
+                    else
+                        fretNumbers.push(fret);
+                }
+                frets.push(fretNumbers);
+            }
+        }
+        return frets;
+    }
+    barreFrets(barreDirectives) {
+        /**
+         * 'barreDirectives' is a list of fret numbers as character strings,
+         * any of which may be enclosed in parentheses, e.g.:
+         * ['8', '(10)']
+         * Return a list of fret numbers, e.g.:
+         * [8, 10]
+         */
+        var frets = [];
+        const parentheticDirective = /\((.*)\)/;
+        for (let barreDirective of barreDirectives) {
+            let fret = NaN;
+            let matches = barreDirective.match(parentheticDirective);
+            if (matches === null)
+                fret = Number(barreDirective); /* directive without parentheses */
+            else
+                fret = Number(matches[1]);
+            if (!isNaN(fret))
+                frets.push(fret);
+            else
+                this.valid = false;
+        }
+        return frets;
     }
 }

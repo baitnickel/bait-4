@@ -122,20 +122,23 @@ function testChord(testOutput) {
     const examplesParagraph = document.createElement('p');
     examplesParagraph.className = 'small';
     const textWidgetParagraph = document.createElement('p');
+    const intervalsParagraph = document.createElement('p');
     const svgParagraph = document.createElement('p');
     testOutput.append(examplesParagraph);
     testOutput.append(textWidgetParagraph);
+    testOutput.append(intervalsParagraph);
     testOutput.append(svgParagraph);
     examplesParagraph.innerHTML = `<pre>${examples.join('<br>')}</pre>`;
     const textEntry = new W.Text('Chord Name & Notation: ', '');
     textEntry.label.className = 'sans-serif';
     textWidgetParagraph.append(textEntry.label);
     textWidgetParagraph.append(textEntry.element);
-    const instrument = new Instrument('guitar', 6, 22, ['E', 'A', 'D', 'G', 'B', 'E']);
+    const instrument = new Instrument('guitar');
     textEntry.element.addEventListener('change', () => {
         const entry = textEntry.element.value;
         const [chordName, notation] = entry.trim().split(/\s+/);
         const chord = new Chord(chordName, instrument, notation);
+        intervalsParagraph.innerText = chord.noteNumbers.join(',');
         svgParagraph.append(chord.diagram());
         textEntry.element.value = '';
     });

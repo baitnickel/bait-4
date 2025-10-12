@@ -7,7 +7,7 @@ import { Markup, MarkupLine } from './lib/markup.js';
 import * as W from './lib/widgets.js';
 import { Moment } from './lib/moments.js';
 import { Park } from './lib/parks.js';
-import { Instrument, Chord } from './lib/fakesheet.js';
+import { Instrument, Chord, PitchToNote } from './lib/fakesheet.js';
 const PAGE = new Page();
 const IndicesPath = `${PAGE.site}/Indices`;
 const Articles = await Fetch.map(`${IndicesPath}/articles.json`);
@@ -72,6 +72,7 @@ export function render() {
         testContent.append(testOutput);
         const testers = [];
         testers.push({ name: 'Chord', function: testChord });
+        testers.push({ name: 'MIDI Notes', function: testMidiNotes });
         testers.push({ name: 'Table', function: testTable });
         testers.push({ name: 'Park', function: testPark });
         testers.push({ name: 'Moments', function: testMoments });
@@ -138,10 +139,20 @@ function testChord(testOutput) {
         const entry = textEntry.element.value;
         const [chordName, notation] = entry.trim().split(/\s+/);
         const chord = new Chord(chordName, instrument, notation);
-        intervalsParagraph.innerText = chord.noteNumbers.join(',');
+        // intervalsParagraph.innerText = chord.noteNumbers.join(',');
         svgParagraph.append(chord.diagram());
         textEntry.element.value = '';
     });
+}
+function testMidiNotes(testOutput) {
+    const paragraph = document.createElement('p');
+    const output = [];
+    for (let i = 0; i < 128; i += 1) {
+        const note = PitchToNote(i);
+        output.push(`${i}: ${note}`);
+    }
+    paragraph.innerHTML = output.join('<br>');
+    testOutput.append(paragraph);
 }
 function testTable(testOutput) {
     const table = new W.Table(['Col 1', 'Col 2', 'Col 3', 'Col 4'], 1);

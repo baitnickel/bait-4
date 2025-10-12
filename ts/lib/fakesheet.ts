@@ -131,6 +131,31 @@ export class Instrument {
 		this.pitches = instrument.tunings.slice();
 	}
 
+	/**
+	 * @todo - update this description!
+	 * Given an array of note names (e.g., from Fakesheet.tuning), convert it to an
+	 * array of MIDI notes, and assign it to this.pitches
+	 */
+	updatePitches(notes: string[]) {
+		console.log(`Was: ${this.pitches}`);
+		for (let i = 0; i < this.pitches.length && i < notes.length; i += 1) {
+			let pitchIndex = this.pitches[i] % Notes.length; /** get 0 ... 11 for pitch */
+			let newIndex = Notes.findIndex((element) => {
+				const elements = element.split(NoteDivider);
+				return elements.includes(notes[i]);
+			});
+			let steps = 0;
+			if (newIndex >= 0) {
+				const half = Notes.length / 2;
+				steps = newIndex - pitchIndex;
+				if (steps >= half) steps -= Notes.length;
+				else if (steps < -half) steps += Notes.length;
+			}
+			this.pitches[i] += steps;
+		}
+		console.log(` Is: ${this.pitches}`);
+	}
+
 	// /**
 	//  * Given an instrument name (case-insensitive), return its properties.
 	//  * 
@@ -162,22 +187,6 @@ export class Instrument {
 	// 		names.push(firstName);
 	// 	}
 	// 	return names;
-	// }
-
-	// /**
-	//  * @todo
-	//  * Given an array of note names (e.g., from Fakesheet.tuning), convert it to an
-	//  * array of MIDI notes, and assign it to this.openStringValues
-	//  */
-	// updateOpenStringValues(names: string[]) {
-	// 	const openStringValues: number[] = [];
-	// 	for (const name of names) {
-	// 		/** 
-	// 		 * @todo determine MIDI value using tuning, tuneDown, tuneUp
-	// 		 * and push onto openStringValues
-	// 		 */
-	// 	}
-	// 	this.openStringValues = openStringValues;
 	// }
 }
 
@@ -232,10 +241,10 @@ export class FakeSheet {
 		this.artist = '';
 		this.composers = '';
 		this.key = null;
-		this.newKey = null //(key) ? new Chord(key) : null;
+		this.newKey = null;
 		this.capo = 0;
 		this.instrument = new Instrument('Guitar');
-		this.tuning = []; /** @todo when not set, we assume: this.instrument.standardTuning?? Just set it now! */
+		this.tuning = []; /** when not set, defaults to the Instrument's standard tuning */
 		this.tempo = 0;
 		this.copyright = '';
 		this.placeholder = FAKESHEET.chordPlaceholders[0];
@@ -404,10 +413,7 @@ export class FakeSheet {
 				this.addError(errorMessage);
 			} else {
 				this.tuning = notes;
-				/**
-				 * @todo
-				 * this.instrument.updateOpenStringValues(notes);
-				 */
+				this.instrument.updatePitches(notes);
 			}
 		}
 	}

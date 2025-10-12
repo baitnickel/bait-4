@@ -135,6 +135,7 @@ function testChord(testOutput) {
     textWidgetParagraph.append(textEntry.label);
     textWidgetParagraph.append(textEntry.element);
     const instrument = new Instrument('guitar');
+    instrument.updatePitches(['D', 'Bb', 'D', 'G', 'B', 'E']);
     textEntry.element.addEventListener('change', () => {
         const entry = textEntry.element.value;
         const [chordName, notation] = entry.trim().split(/\s+/);

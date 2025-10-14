@@ -40,24 +40,77 @@ const Notes = ['C', 'C#|Db', 'D', 'D#|Eb', 'E', 'F', 'F#|Gb', 'G', 'G#|Ab', 'A',
 const NoteDivider = '|'; /** character dividing Note's enharmonic notes above */
 const ValidNote = /(Ab|A#|Bb|C#|Db|D#|Eb|F#|Gb|G#|A|B|C|D|E|F|G)/; /** for Regexp.test and String.split; 2-character notes must be first */
 /**
- * Given a `pitch` number (0...127), return its Scientific Pitch Notation, a
- * note name (with accidental if needed) and a number identifying the pitch's
- * octave. Can be used in a loop to produce a list of pitches and notes.
+ * Given a note name, return its `Notes` index (0...11) or -1 if the note
+ * name is invalid.
  */
-export function PitchToNote(pitch) {
+function NoteIndex(noteName) {
+    const noteIndex = Notes.findIndex((element) => {
+        const elements = element.split(NoteDivider);
+        return elements.includes(noteName);
+    });
+    return noteIndex;
+}
+/**
+ * Given a pitch number or an array of `pitches`, and an optional `key`
+ * name, return the pitches' note names. Enharmonic note names are resolved by
+ * rule, according to key signatures. The rule for C/Am is somewhat arbitrary,
+ * using sharps except for Bb and Eb. When either a pitch or the key is
+ * invalid, return an empty string array.
+ */
+function PitchNames(pitches, key = 'C') {
+    let noteNames = [];
+    if (typeof pitches == 'number')
+        pitches = [pitches];
+    for (const pitch of pitches)
+        if (pitch < 0 || pitch > 127)
+            return noteNames;
+    const validationKey = (key.endsWith('m')) ? key.slice(0, -1) : key;
+    if (!ValidNote.test(validationKey))
+        return noteNames;
+    const flatKey = (key.includes('b') || ['F', 'Cm', 'Dm', 'Fm', 'Gm'].includes(key));
+    const sharpKey = (key.includes('#') || ['A', 'B', 'D', 'E', 'G', 'Bm', 'Em'].includes(key));
+    for (let pitch of pitches) {
+        pitch = pitch % Notes.length;
+        const note = Notes[pitch];
+        if (!note.includes(NoteDivider))
+            noteNames.push(note);
+        else {
+            const notes = note.split(NoteDivider);
+            const flatNote = (notes[0].endsWith('b')) ? notes[0] : notes[1];
+            const sharpNote = (notes[0].endsWith('b')) ? notes[1] : notes[0];
+            if (flatKey)
+                noteNames.push(flatNote);
+            else if (sharpKey)
+                noteNames.push(sharpNote);
+            else if (['Bb', 'Eb'].includes(flatNote))
+                noteNames.push(flatNote);
+            else
+                noteNames.push(sharpNote);
+        }
+    }
+    return noteNames;
+}
+/**
+ * Given a `pitch` number (0...127), return its Scientific Pitch Notation (SPN),
+ * a note name, showing both sharp and flat versions of enharmonic notes
+ * (separated by `divider`), and a number identifying the pitch's octave. Can be
+ * used in a loop to produce a list of pitches and note names.
+ */
+export function SPN(pitch, divider = '/') {
     if (pitch < 0 || pitch > 127)
         return '';
-    const note = Notes[pitch % Notes.length];
+    let note = Notes[pitch % Notes.length];
+    note = note.replace(NoteDivider, divider);
     const octave = Math.floor(pitch / Notes.length) - 1;
     return `${note}${octave}`;
 }
-function prettyChord(chordName) {
+function PrettyChord(chordName) {
     chordName = chordName.replace(/b/g, '♭');
     chordName = chordName.replace(/#/g, '♯');
     return chordName;
 }
 export const FAKESHEET = {
-    version: '2023.07.11',
+    version: '2025.10.14',
     commentPattern: /(^\/{2}|\s\/{2}).*/, /* comments follow double-slash at line start or after whitespace */
     tokenCharacter: '.',
     inlinePrefix: '.',
@@ -91,7 +144,7 @@ Instruments.set('mandolin', { frets: 20, tunings: [55, 62, 69, 76] });
 Instruments.set('ukulele-baritone', { frets: 20, tunings: [50, 55, 59, 64] });
 Instruments.set('ukulele-soprano', { frets: 20, tunings: [67, 60, 64, 69] });
 export class Instrument {
-    constructor(name, alternateTuning = []) {
+    constructor(name, alternateTunings = []) {
         const defaultInstrument = Instruments.keys().next().value;
         console.log(`defaultInstrument: ${defaultInstrument}`);
         this.name = name.toLowerCase();
@@ -99,32 +152,32 @@ export class Instrument {
         this.strings = instrument.tunings.length;
         this.frets = instrument.frets;
         this.pitches = instrument.tunings.slice();
+        if (alternateTunings.length)
+            this.updatePitches(alternateTunings);
     }
     /**
-     * @todo - update this description!
-     * Given an array of note names (e.g., from Fakesheet.tuning), convert it to an
-     * array of MIDI notes, and assign it to this.pitches
+     * Given an array of note names (e.g., from `alternateTuning` or
+     * `Fakesheet.tuning`), update each pitch in `this.pitches` by determining
+     * the offset between the original pitch and the new pitch.
      */
     updatePitches(notes) {
-        console.log(`Was: ${this.pitches}`);
+        // console.log(`Was: ${this.pitches}`);
         for (let i = 0; i < this.pitches.length && i < notes.length; i += 1) {
+            let offset = 0;
             let pitchIndex = this.pitches[i] % Notes.length; /** get 0 ... 11 for pitch */
-            let newIndex = Notes.findIndex((element) => {
-                const elements = element.split(NoteDivider);
-                return elements.includes(notes[i]);
-            });
-            let steps = 0;
+            const newIndex = NoteIndex(notes[i]);
             if (newIndex >= 0) {
                 const half = Notes.length / 2;
-                steps = newIndex - pitchIndex;
-                if (steps >= half)
-                    steps -= Notes.length;
-                else if (steps < -half)
-                    steps += Notes.length;
+                offset = newIndex - pitchIndex;
+                if (offset >= half)
+                    offset -= Notes.length;
+                else if (offset < -half)
+                    offset += Notes.length;
             }
-            this.pitches[i] += steps;
+            this.pitches[i] += offset;
         }
-        console.log(` Is: ${this.pitches}`);
+        // console.log(` Is: ${this.pitches}`);
+        // console.log(` Notes: ${notes}`);
     }
 }
 export class FakeSheet {
@@ -143,7 +196,7 @@ export class FakeSheet {
      * selected.
 
      * Chord names are modified to use unicode: '♭' and '♯' as a final rendering
-     * step . See 'function prettyChord'.
+     * step . See 'function PrettyChord'.
      */
     /**###
      * all optional parameters might be passed in an Options object (even key
@@ -512,7 +565,7 @@ export class FakeSheet {
             let tonics = tonicSet.split(NoteDivider);
             for (let tonic of tonics) {
                 if (unicode)
-                    tonic = prettyChord(tonic);
+                    tonic = PrettyChord(tonic);
                 adjustedTonics.push(tonic);
             }
         }
@@ -583,7 +636,7 @@ class Section {
                             chord = chord.transpose(key, newKey);
                             chordName = chord.name;
                         }
-                        chordName = prettyChord(chordName);
+                        chordName = PrettyChord(chordName);
                         line = line.replace(this.placeholder, chordName);
                         currentChord = (currentChord + 1) % this.chords.length;
                     }
@@ -625,7 +678,7 @@ class Section {
                                 /* update chord and lyric lines */
                                 if (chordName)
                                     chordName += FAKESHEET.space.repeat(FAKESHEET.chordSpacing);
-                                chordName = prettyChord(chordName);
+                                chordName = PrettyChord(chordName);
                                 chordsLine += chordName;
                                 lyricsLine += character;
                             }
@@ -664,79 +717,90 @@ export class Chord {
         this.instrument = instrument;
         this.stringCount = (instrument) ? instrument.strings : 0;
         this.notation = (notation) ? new Notation(notation, this.stringCount) : null; /* consumers must check Notation.valid */
-        /**
-         * A chord name is split into a list of segments,
-         * where segments are alternating modifiers and notes, e.g.:
-         * 'Dbm7/Ab' has segments '', 'Db', 'm7/', 'Ab', ''.
-         * The first and last segments are always modifiers (often '').
-         * The modifiers will always be even-numbered segments (0, 2, ...),
-         * while the notes will always be odd-numbered segments (1, 3, ...).
-         * We store these segments in two separate lists:
-         * a list of modifiers and a list of note numbers,
-         * where note numbers are indexes of the note name in
-         * the Notes constant.
-         * So, the example above would become:
-         * modifiers: ['','m7/',''] and note numbers: [4,11].
-         * Transposition is done by offsetting the note numbers.
-         */
         this.root = '';
         this.base = '';
         this.minor = false;
         this.noteIndices = [];
         this.modifiers = [];
-        let segments = this.name.split(ValidNote);
-        if (segments.length >= 3) { /* valid chord names always have at least three segments */
-            let expectingModifier = true;
-            for (let segment of segments) {
-                if (expectingModifier)
-                    this.modifiers.push(segment);
-                else { /* expecting note */
-                    let noteNumber = 0;
-                    for (let tonicSet of Notes) {
-                        let tonics = tonicSet.split(NoteDivider);
-                        if (tonics.includes(segment)) {
-                            this.noteIndices.push(noteNumber);
-                            break;
-                        }
-                        noteNumber += 1;
-                    }
-                }
-                expectingModifier = !expectingModifier;
-            }
-            this.root = this.base = segments[1];
-            if (segments[2].startsWith('m') && !segments[2].startsWith('maj')) {
-                this.base += 'm';
-                this.minor = true;
-            }
-        }
+        this.parseChordName();
     }
     /**
-     * Return the twelve notes representing the scale of this Chord
-     * (typically, the song's key). Resolve enharmonic notes by rule,
+     * A chord name is split into a list of segments, where segments are
+     * alternating modifiers and notes, e.g.: 'Dbm7/Ab' has segments '', 'Db',
+     * 'm7/', 'Ab', ''. The first and last segments are always modifiers (often
+     * ''). The modifiers will always be even-numbered segments (0, 2, ...),
+     * while the notes will always be odd-numbered segments (1, 3, ...). We
+     * store these segments in two separate lists: a list of modifiers and a
+     * list of note numbers, where note numbers are indexes of the note name in
+     * the Notes constant. So, the example above would become: modifiers:
+     * ['','m7/',''] and note numbers: [4,11]. Transposition is done by
+     * offsetting the note numbers.
+     */
+    parseChordName() {
+        const segments = this.name.split(ValidNote); /** @todo Can we avoid `ValidNote`, a single-purpose constant? */
+        this.modifiers = segments.filter((segment, i) => i % 2 == 0);
+        const notes = segments.filter((segment, i) => i % 2 != 0);
+        for (const note of notes)
+            this.noteIndices.push(NoteIndex(note));
+        this.root = this.base = notes[0];
+        if (this.modifiers[1].startsWith('m') && !this.modifiers[1].startsWith('maj')) {
+            this.base += 'm';
+            this.minor = true;
+        }
+    }
+    // parseChordName1() {
+    // 	let segments = this.name.split(ValidNote);
+    // 	if (segments.length >= 3) { /* valid chord names always have at least three segments */
+    // 		let expectingModifier = true;
+    // 		for (let segment of segments) {
+    // 			if (expectingModifier) this.modifiers.push(segment);
+    // 			else { /* expecting note */
+    // 				let noteNumber = 0;
+    // 				for (let tonicSet of Notes) {
+    // 					let tonics = tonicSet.split(NoteDivider);
+    // 					if (tonics.includes(segment)) {
+    // 						this.noteIndices.push(noteNumber);
+    // 						break;
+    // 					}
+    // 					noteNumber += 1;
+    // 				}
+    // 			}
+    // 			expectingModifier = !expectingModifier;
+    // 		}
+    // 		this.root = this.base = segments[1];
+    // 		if (segments[2].startsWith('m') && !segments[2].startsWith('maj')) {
+    // 			this.base += 'm';
+    // 			this.minor = true;
+    // 		}
+    // 	}
+    // }
+    /**
+     * Return the twelve note names representing the 12-tone scale of this Chord
+     * (typically based on the song's key). Resolve enharmonic notes by rule,
      * according to key signatures. The rule for C/Am is somewhat arbitrary,
      * based on my personal preferences: using sharps except for Bb and Eb).
     */
     scale() {
-        let notes = [];
-        for (let tonicSet of Notes) {
-            let tonics = tonicSet.split(NoteDivider);
-            if (tonics.length < 2)
-                notes.push(tonics[0]); /* no enharmonic equivalent note */
-            else {
-                let sharpNote = (tonics[0].endsWith('#')) ? tonics[0] : tonics[1];
-                let flatNote = (tonics[0].endsWith('#')) ? tonics[1] : tonics[0];
-                if (/b/.test(this.base) || ['F', 'Cm', 'Dm', 'Fm', 'Gm'].includes(this.base))
-                    notes.push(flatNote);
-                else {
-                    if (['C', 'Am'].includes(this.base) && ['Bb', 'Eb'].includes(flatNote))
-                        notes.push(flatNote);
-                    else
-                        notes.push(sharpNote);
-                }
-            }
-        }
+        const notes = PitchNames([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], this.base);
         return notes;
     }
+    // scale1() {
+    // 	let notes: string[] = []
+    // 	for (let tonicSet of Notes) {
+    // 		let tonics = tonicSet.split(NoteDivider);
+    // 		if (tonics.length < 2) notes.push(tonics[0]) /* no enharmonic equivalent note */
+    // 		else {
+    // 			let sharpNote = (tonics[0].endsWith('#')) ? tonics[0] : tonics[1];
+    // 			let flatNote = (tonics[0].endsWith('#')) ? tonics[1] : tonics[0];
+    // 			if (/b/.test(this.base) || ['F','Cm','Dm','Fm','Gm'].includes(this.base)) notes.push(flatNote);
+    // 			else {
+    // 				if (['C','Am'].includes(this.base) && ['Bb','Eb'].includes(flatNote)) notes.push(flatNote);
+    // 				else notes.push(sharpNote);
+    // 			}
+    // 		}
+    // 	}
+    // 	return notes;
+    // }
     /**
      * Given "from key" and "to key" Chord objects, transpose this Chord to
      * the new key.
@@ -919,7 +983,7 @@ export class Chord {
         svgText.setAttribute('text-anchor', 'middle');
         svgText.setAttribute('font-family', text.fontFamily);
         svgText.setAttribute('font-size', text.fontSize.toString());
-        svgText.innerHTML = prettyChord(text.value);
+        svgText.innerHTML = PrettyChord(text.value);
         svg.appendChild(svgText);
         return svg;
     }

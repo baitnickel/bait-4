@@ -7,7 +7,7 @@ import { Markup, MarkupLine } from './lib/markup.js';
 import * as W from './lib/widgets.js';
 import { Moment } from './lib/moments.js';
 import { Park } from './lib/parks.js';
-import { Instrument, Chord, PitchToNote } from './lib/fakesheet.js';
+import { Instrument, Chord, SPN } from './lib/fakesheet.js';
 
 type TestFunction = (output: HTMLDivElement) => void;
 type Tester = { name: string; function: TestFunction };
@@ -156,7 +156,7 @@ function testChord(testOutput: HTMLDivElement) {
 		const entry = textEntry.element.value;
 		const [chordName, notation] = entry.trim().split(/\s+/);
 		const chord = new Chord(chordName, instrument, notation);
-		// intervalsParagraph.innerText = chord.noteNumbers.join(',');
+		intervalsParagraph.innerHTML = `${chord.base} scale: ${chord.scale().join(', ')}`;
 		svgParagraph.append(chord.diagram());
 		textEntry.element.value = '';
 	});
@@ -166,7 +166,7 @@ function testMidiNotes(testOutput: HTMLDivElement) {
 	const paragraph = document.createElement('p');
 	const output: string[] = [];
 	for (let i = 0; i < 128; i += 1) {
-		const note = PitchToNote(i);
+		const note = SPN(i);
 		output.push(`${i}: ${note}`);
 	}
 	paragraph.innerHTML = output.join('<br>');

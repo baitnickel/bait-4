@@ -31,6 +31,24 @@ const MenuItems = [
     // {module: 'articles', parameters: ['path=README.md'], text: '\u24d8', icon: ''},
 ];
 export class Page {
+    origin; /** The URL's scheme, domain, and port (e.g., 'http://www.example.com:80' */
+    url; /** URL origin + pathname (full URL without '?query') */
+    parameters; /** URL query parameters */
+    name; /** name of requested page (via query 'page=<name>') */
+    ids; /** Article ID numbers--entered as query (id=1,2,3 or simply 1,2,3) */
+    articleID; /** ID of currently rendered article, if any */
+    options; /** Map of options */
+    local; /** is the page being served from 'localhost'? */
+    backend; /** backend URL */
+    backendAvailable; /** is the backend available? */
+    access; /** access number (permission/authorization) */
+    built; /** document's last modification date (milliseconds since 1/1/1970 UTC) */
+    revision; /** revision date (milliseconds since 1/1/1970 UTC) */
+    site; /** root URL for content fetch operations */
+    header; /** division at the top of the display, containing menu, etc. */
+    content; /** division containing main page content */
+    footer; /** division at the bottom of the display, containing modification date, ©, etc. */
+    feedback; /** text entered into the menu input field */
     constructor(header = true, footer = true) {
         this.origin = window.location.origin;
         this.site = SITE;

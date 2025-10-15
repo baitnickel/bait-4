@@ -134,6 +134,10 @@ export function MarkupLine(line, options) {
  * `Resources` referenced in the text.
  */
 class MarkdownText {
+    lines;
+    index;
+    resources;
+    detailsObject; /* Details object pending closure (if any) */
     constructor() {
         this.lines = [];
         this.index = 0;
@@ -281,6 +285,15 @@ let MARKDOWN;
  * marked up?
  */
 class MarkdownElement {
+    prefix;
+    suffix;
+    endOfLine;
+    typesetting;
+    markingUp;
+    content;
+    addTerminalLine;
+    terminal; /* for multi-line block elements, the terminal string (e.g., '~~~') */
+    resources;
     constructor(tags, typesetting, markingUp) {
         this.prefix = '';
         this.suffix = '';
@@ -436,6 +449,8 @@ class Quotation extends MarkdownElement {
  * item line(s).
  */
 class TableBlock extends MarkdownElement {
+    columns;
+    headingDivider;
     constructor() {
         super([TABLE_TAG], true, true);
         this.columns = 0;
@@ -565,6 +580,10 @@ class ListBlock extends MarkdownElement {
     }
 }
 class ListItem {
+    level; /* number of indentation tabs */
+    itemType; /* Ordered or Unordered */
+    value;
+    block;
     constructor(level, itemType, value) {
         this.level = level;
         this.itemType = itemType;
@@ -573,6 +592,10 @@ class ListItem {
     }
 }
 class ListSubBlock {
+    listType; /* Ordered or Unordered */
+    items;
+    prefix;
+    suffix;
     constructor(listType, prefix, suffix) {
         this.listType = listType;
         this.items = [];

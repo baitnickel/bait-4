@@ -36,16 +36,26 @@ import { MarkupLine } from './markup.js';
  * - Not only capo, but tuning and chords declarations should vanish on newKey
  * - Support a library of chord diagrams, particularly for newKeys
  */
-const Notes = ['C', 'C#|Db', 'D', 'D#|Eb', 'E', 'F', 'F#|Gb', 'G', 'G#|Ab', 'A', 'A#|Bb', 'B']; /** start with C for Scientific Pitch Notation mapping */
-const NoteDivider = '|'; /** character dividing Note's enharmonic notes above */
-const ValidNote = /(Ab|A#|Bb|C#|Db|D#|Eb|F#|Gb|G#|A|B|C|D|E|F|G)/; /** for Regexp.test and String.split; 2-character notes must be first */
+/**
+ * The 'Notes' array contains 12 elements, representing the 12-note scale.
+ * Enharmonic notes are entered in sub-array elements. Notes are ordered from C
+ * to B, corresponding to Scientific Pitch Notation (aka "MIDI Note")
+ * sequencing.
+ *
+ * The `ValidNote` regular expression contains a flattened copy of `Notes`, with
+ * the 2-character notes (sharps and flats) sorted to the top. This sorting
+ * supports the proper splitting of `Chord` strings into segments, while also
+ * supporting the validation of note names.
+ */
+const Notes = ['C', ['C#', 'Db'], 'D', ['D#', 'Eb'], 'E', 'F', ['F#', 'Gb'], 'G', ['G#', 'Ab'], 'A', ['A#', 'Bb'], 'B'];
+const ValidNote = new RegExp(`(${Notes.flat().sort((a, b) => b.length - a.length).join('|')})`);
 /**
  * Given a note name, return its `Notes` index (0...11) or -1 if the note
  * name is invalid.
  */
 function NoteIndex(noteName) {
     const noteIndex = Notes.findIndex((element) => {
-        const elements = element.split(NoteDivider);
+        const elements = (typeof element == 'string') ? [element] : element;
         return elements.includes(noteName);
     });
     return noteIndex;
@@ -72,12 +82,11 @@ function PitchNames(pitches, key = 'C') {
     for (let pitch of pitches) {
         pitch = pitch % Notes.length;
         const note = Notes[pitch];
-        if (!note.includes(NoteDivider))
+        if (typeof note == 'string')
             noteNames.push(note);
         else {
-            const notes = note.split(NoteDivider);
-            const flatNote = (notes[0].endsWith('b')) ? notes[0] : notes[1];
-            const sharpNote = (notes[0].endsWith('b')) ? notes[1] : notes[0];
+            const flatNote = (note[0].endsWith('b')) ? note[0] : note[1];
+            const sharpNote = (note[0].endsWith('b')) ? note[1] : note[0];
             if (flatKey)
                 noteNames.push(flatNote);
             else if (sharpKey)
@@ -99,8 +108,10 @@ function PitchNames(pitches, key = 'C') {
 export function SPN(pitch, divider = '/') {
     if (pitch < 0 || pitch > 127)
         return '';
-    let note = Notes[pitch % Notes.length];
-    note = note.replace(NoteDivider, divider);
+    let notes = Notes[pitch % Notes.length];
+    if (typeof notes == 'string')
+        notes = [notes];
+    const note = notes.join(divider);
     const octave = Math.floor(pitch / Notes.length) - 1;
     return `${note}${octave}`;
 }
@@ -110,7 +121,7 @@ function PrettyChord(chordName) {
     return chordName;
 }
 export const FAKESHEET = {
-    version: '2025.10.14',
+    version: '2025.10.15',
     commentPattern: /(^\/{2}|\s\/{2}).*/, /* comments follow double-slash at line start or after whitespace */
     tokenCharacter: '.',
     inlinePrefix: '.',
@@ -144,9 +155,12 @@ Instruments.set('mandolin', { frets: 20, tunings: [55, 62, 69, 76] });
 Instruments.set('ukulele-baritone', { frets: 20, tunings: [50, 55, 59, 64] });
 Instruments.set('ukulele-soprano', { frets: 20, tunings: [67, 60, 64, 69] });
 export class Instrument {
+    name; /* instrument name */
+    strings; /* guitar 6, ukulele 4, piano 88 */
+    frets; /* guitar 22, piano 0 */
+    pitches; /* pitch numbers of the instrument's open strings (0...127) */
     constructor(name, alternateTunings = []) {
         const defaultInstrument = Instruments.keys().next().value;
-        console.log(`defaultInstrument: ${defaultInstrument}`);
         this.name = name.toLowerCase();
         const instrument = (Instruments.has(this.name)) ? Instruments.get(this.name) : Instruments.get(defaultInstrument);
         this.strings = instrument.tunings.length;
@@ -161,7 +175,6 @@ export class Instrument {
      * the offset between the original pitch and the new pitch.
      */
     updatePitches(notes) {
-        // console.log(`Was: ${this.pitches}`);
         for (let i = 0; i < this.pitches.length && i < notes.length; i += 1) {
             let offset = 0;
             let pitchIndex = this.pitches[i] % Notes.length; /** get 0 ... 11 for pitch */
@@ -176,11 +189,26 @@ export class Instrument {
             }
             this.pitches[i] += offset;
         }
-        // console.log(` Is: ${this.pitches}`);
-        // console.log(` Notes: ${notes}`);
     }
 }
 export class FakeSheet {
+    title; /* song title */
+    artist; /* performing/composing artist name(s) */
+    composers; /* list of song composers */
+    key; /* song's (initial) key (e.g., FAKESHEET.chordLine, 'Bb', 'Am') */
+    newKey; /* new key for transposition */
+    capo; /* capo position (or 0 for none) */
+    instrument; /* musical instrument */
+    tuning; /* open string notes (e.g., ['E','A','D','G','B','E']) */
+    tempo; /* beats per minute */
+    copyright; /* copyright info, to be displayed following copyright symbol */
+    chords; /* Chord objects, used to display chord diagrams */
+    placeholder; /* chord placeholder */
+    metadata; /* metadata from source text */
+    lines; /* source text of fakesheet */
+    sections; /* Section objects */
+    chordsUsed; /* unique list of chord names used, ordered by appearance */
+    errors; /* error messages written into the fakesheet */
     /**
      * 'chords' is set of Chord objects defined in the 'chords' metadata in the
      * fakesheet source text. These are optional, required only if chord
@@ -554,20 +582,17 @@ export class FakeSheet {
             this.newKey = null;
     }
     /**
-     * Return an array of all valid notes in pitch order, including both
+     * Return an array of all valid tonic notes in pitch order, including both
      * enharmonic sharps and flats. When the `unicode` flag is set to true, the
      * "b" and "#" characters are replaced with the unicode "♭" and "♯"
      * characters, respectively.
      */
     tonics(unicode = false) {
         let adjustedTonics = [];
-        for (let tonicSet of Notes) {
-            let tonics = tonicSet.split(NoteDivider);
-            for (let tonic of tonics) {
-                if (unicode)
-                    tonic = PrettyChord(tonic);
-                adjustedTonics.push(tonic);
-            }
+        for (let tonic of Notes.flat()) {
+            if (unicode)
+                tonic = PrettyChord(tonic);
+            adjustedTonics.push(tonic);
         }
         return adjustedTonics;
     }
@@ -579,6 +604,11 @@ export class FakeSheet {
     }
 }
 class Section {
+    name; /* section name as provided in fakesheet source text (token) */
+    chords; /* a list of Chord objects */
+    lines; /* lyric/chord lines from fakesheet source text for this section */
+    inline; /* true if inline section (text and chords merged into single lines) */
+    placeholder; /* chord placeholder */
     constructor(name, chords, placeholder) {
         this.name = name;
         this.chords = chords;
@@ -712,6 +742,15 @@ const W3NameSpace = 'http://www.w3.org/2000/svg';
  *   E3:52 ... D7:98 (typical guitar range)
  */
 export class Chord {
+    name; /** chord name (in original key, e.g., 'Dbm7/Ab') */
+    instrument; /** Instrument object */
+    stringCount; /** number of strings (derived from 'instrument') */
+    notation; /** Notation object */
+    root; /** root note (e.g., 'Db') */
+    base; /** base chord/key (e.g., 'Dbm') */ /** @todo should be named `key` instead of `base`? */
+    minor; /** true if this.base ends with 'm' */
+    noteIndices; /** sequential list of Note indices (e.g., 'Dbm7/Ab' contains 2 indices: [1, 8] (for 'Db' and 'Ab') */
+    modifiers; /** sequential list of modifiers (e.g., 'Dbm7/Ab' contains three modifiers: ['', 'm7/', and ''] */
     constructor(name, instrument = null, notation = '') {
         this.name = name;
         this.instrument = instrument;
@@ -737,7 +776,7 @@ export class Chord {
      * offsetting the note numbers.
      */
     parseChordName() {
-        const segments = this.name.split(ValidNote); /** @todo Can we avoid `ValidNote`, a single-purpose constant? */
+        const segments = this.name.split(ValidNote);
         this.modifiers = segments.filter((segment, i) => i % 2 == 0);
         const notes = segments.filter((segment, i) => i % 2 != 0);
         for (const note of notes)
@@ -748,32 +787,6 @@ export class Chord {
             this.minor = true;
         }
     }
-    // parseChordName1() {
-    // 	let segments = this.name.split(ValidNote);
-    // 	if (segments.length >= 3) { /* valid chord names always have at least three segments */
-    // 		let expectingModifier = true;
-    // 		for (let segment of segments) {
-    // 			if (expectingModifier) this.modifiers.push(segment);
-    // 			else { /* expecting note */
-    // 				let noteNumber = 0;
-    // 				for (let tonicSet of Notes) {
-    // 					let tonics = tonicSet.split(NoteDivider);
-    // 					if (tonics.includes(segment)) {
-    // 						this.noteIndices.push(noteNumber);
-    // 						break;
-    // 					}
-    // 					noteNumber += 1;
-    // 				}
-    // 			}
-    // 			expectingModifier = !expectingModifier;
-    // 		}
-    // 		this.root = this.base = segments[1];
-    // 		if (segments[2].startsWith('m') && !segments[2].startsWith('maj')) {
-    // 			this.base += 'm';
-    // 			this.minor = true;
-    // 		}
-    // 	}
-    // }
     /**
      * Return the twelve note names representing the 12-tone scale of this Chord
      * (typically based on the song's key). Resolve enharmonic notes by rule,
@@ -781,26 +794,10 @@ export class Chord {
      * based on my personal preferences: using sharps except for Bb and Eb).
     */
     scale() {
-        const notes = PitchNames([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], this.base);
+        const pitchIndices = Array.from(Array(Notes.length).keys());
+        const notes = PitchNames(pitchIndices, this.base);
         return notes;
     }
-    // scale1() {
-    // 	let notes: string[] = []
-    // 	for (let tonicSet of Notes) {
-    // 		let tonics = tonicSet.split(NoteDivider);
-    // 		if (tonics.length < 2) notes.push(tonics[0]) /* no enharmonic equivalent note */
-    // 		else {
-    // 			let sharpNote = (tonics[0].endsWith('#')) ? tonics[0] : tonics[1];
-    // 			let flatNote = (tonics[0].endsWith('#')) ? tonics[1] : tonics[0];
-    // 			if (/b/.test(this.base) || ['F','Cm','Dm','Fm','Gm'].includes(this.base)) notes.push(flatNote);
-    // 			else {
-    // 				if (['C','Am'].includes(this.base) && ['Bb','Eb'].includes(flatNote)) notes.push(flatNote);
-    // 				else notes.push(sharpNote);
-    // 			}
-    // 		}
-    // 	}
-    // 	return notes;
-    // }
     /**
      * Given "from key" and "to key" Chord objects, transpose this Chord to
      * the new key.
@@ -1214,6 +1211,14 @@ export class Chord {
  * frets.
  */
 class Notation {
+    valid;
+    notes; /* for each of the instruments strings, a list of note(s) to be fretted */
+    barres; /* a list of barred frets */
+    stringCount; /* number of strings on the instrument */
+    fretCount; /*misnamed? this is the default number of frets to be shown in the Chord diagram */
+    firstFret; /* first fret displayed in Chord diagram */
+    lowFret; /* lowest fret played */
+    highFret; /* highest fret played */
     constructor(chordNotation, stringCount, fretCount = 5) {
         this.valid = true;
         this.notes = []; /* typescript multi-dimensional array initialization uses single [] */

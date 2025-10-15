@@ -33,6 +33,9 @@ const ERRORS = {
  * - Sequence (array) flow expressions are enclosed in brackets
  */
 export class YAML {
+    lines;
+    nodes;
+    exceptions;
     get errors() { return (this.exceptions.length) ? true : false; }
     ;
     constructor(text) {

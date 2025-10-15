@@ -13,6 +13,8 @@ const Separator = new RegExp(S);
  * and colon.
  */
 export class Moment {
+    date;
+    precision; /** for string date, the number of YMD elements provided; else 6 */
     constructor(date) {
         this.precision = 6; /** YMDhms */
         if (typeof date == 'object')

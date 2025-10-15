@@ -26,6 +26,7 @@
  * exactly needs to be done? Generic types??
  */
 export class Pane {
+    element;
     set id(x) { this.element.id = x; }
     set className(x) { this.element.className = x; }
     constructor(elementType) {

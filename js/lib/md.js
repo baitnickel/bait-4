@@ -25,6 +25,12 @@ import * as YAML from './yaml.js';
  * messages.
  */
 export class Markdown {
+    metadata;
+    text;
+    textOffset;
+    metadataText;
+    errors;
+    metadataErrors;
     constructor(markdown, yamlOnly = false, convertStrings = false) {
         this.metadata = null;
         this.text = '';

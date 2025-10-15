@@ -53,6 +53,10 @@ Image Resources might have properties such as 'caption' (string), 'frame' (boole
 
 */
 export class Resource {
+    url; /** location */
+    id; /** corresponds to CSS/HTML ID */
+    classes; /** corresponds to CSS/HTML class(es) */
+    options; /** associative array of options */
     constructor(specifications) {
         this.url = '';
         this.id = '';

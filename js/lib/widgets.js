@@ -7,6 +7,8 @@
  * widgets in a grid.
  */
 export class Widget {
+    static odometer = 0;
+    label;
     constructor(element, labelHTML = '', appendElement = true) {
         element.id = Widget.nextID();
         this.label = document.createElement('label');
@@ -22,12 +24,12 @@ export class Widget {
         return `${base}-${suffix}`;
     }
 }
-Widget.odometer = 0;
 /**
  * Each of the Widget subclasses must maintain its own `element` property so
  * that the correct HTML Element type is associated with the subclass.
  */
 export class Checkbox extends Widget {
+    element;
     constructor(labelHTML, checked, appendElement = true) {
         const element = document.createElement('input');
         super(element, labelHTML, appendElement);
@@ -37,6 +39,7 @@ export class Checkbox extends Widget {
     }
 }
 export class Text extends Widget {
+    element;
     constructor(labelHTML, value, appendElement = true) {
         const element = document.createElement('input');
         super(element, labelHTML, appendElement);
@@ -45,6 +48,7 @@ export class Text extends Widget {
     }
 }
 export class Range extends Widget {
+    element;
     constructor(labelHTML, value, minimum, maximum, step, outputTexts, appendElement = true) {
         const element = document.createElement('input');
         super(element, labelHTML, appendElement);
@@ -63,6 +67,7 @@ export class Range extends Widget {
     }
 }
 export class Select extends Widget {
+    element;
     constructor(labelHTML, options, appendElement = true) {
         const element = document.createElement('select');
         super(element, labelHTML, appendElement);
@@ -72,6 +77,7 @@ export class Select extends Widget {
     }
 }
 export class RadioInput extends Widget {
+    element;
     constructor(labelHTML, groupName, checked, appendElement = false) {
         const element = document.createElement('input');
         super(element, labelHTML, appendElement);
@@ -158,6 +164,11 @@ function addOptions(element, options) {
  * inline block. Add the radio group to your page as `RadioGroup.span`.
  */
 export class RadioGroup {
+    fieldset;
+    span;
+    legend;
+    inputElements; /** array of elements belonging to the group */
+    className;
     constructor(legendText, labels, className) {
         this.fieldset = document.createElement('fieldset');
         this.legend = document.createElement('legend');
@@ -207,6 +218,12 @@ export class RadioGroup {
  * - dialog-button (styling for each of the Cancel and Confirm buttons)
  */
 export class Dialog {
+    static odometer = 0;
+    element;
+    fieldset;
+    controls;
+    cancelButton;
+    confirmButton;
     constructor(legendText, target = document.body) {
         this.element = document.createElement('dialog');
         target.append(this.element);
@@ -259,7 +276,6 @@ export class Dialog {
         return widget;
     }
 }
-Dialog.odometer = 0;
 /**
  * Create an HTMLTableElement from a collection of row and cell data.
  *
@@ -277,6 +293,11 @@ Dialog.odometer = 0;
  * the Matrix into HTML.
  */
 export class Table {
+    element;
+    headingValues; /** values comprising the header row */
+    rowHeadings; /** number of cells at beginning of rows to be row headings */
+    row; /** current row element (set after addRow) */
+    rows;
     constructor(headingValues, rowHeadings = 0) {
         this.element = document.createElement('table');
         this.headingValues = headingValues;
@@ -378,6 +399,7 @@ export class Table {
  * Widget will properly interpret it.
  */
 export class Matrix {
+    tuples;
     constructor(cells) {
         this.tuples = cells; // need to clone?
     }
@@ -398,6 +420,13 @@ export class Cell {
  * for navigating through a set of documents (an array of file path names).
  */
 export class Navigator {
+    index;
+    documents;
+    firstButton;
+    previousButton;
+    nextButton;
+    lastButton;
+    event;
     constructor(documents, event) {
         this.index = 0;
         this.documents = documents;
@@ -487,6 +516,11 @@ export class Navigator {
  */
 // export type RadioSelection = (activeButton: string) => void;
 export class RadioButtons {
+    buttons;
+    classNames;
+    activeClass;
+    activeButton;
+    event;
     constructor(classNames, activeClass, event) {
         this.buttons = [];
         if (Array.isArray(classNames))

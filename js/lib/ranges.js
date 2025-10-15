@@ -20,7 +20,13 @@
  * - 1 (yang, solid line)
  */
 export class Range {
+    items; /** number of items, e.g., 3 dice, 6 coins, etc. */
+    faces; /** number of faces on each item, e.g., 6 die faces, 2 coin faces */
+    limit; /** high and low boundaries of result */
+    start;
+    step;
     get size() { return (this.limit - this.start); }
+    valueOffset;
     constructor(items = 1, faces = 2, limit = 2, start = 0, step = 1) {
         this.items = items; /* how many items (coins, dice, etc) will be tossed? */
         this.faces = faces; /* how many different faces does each item have? 2? 6? */

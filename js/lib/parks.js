@@ -26,6 +26,12 @@ const CostsDBData = await Fetch.map(CostsFile);
 const HostsDBData = await Fetch.map(HostsFile);
 const FinalizedDBData = await Fetch.map(FinalizedFile);
 export class Park {
+    name;
+    hosts;
+    parkReservations;
+    parkAdjustments;
+    parkCosts;
+    parkFinalizedYears;
     constructor(parkName) {
         this.name = parkName;
         this.hosts = this.loadHosts(HostsDBData);

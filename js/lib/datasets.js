@@ -4,6 +4,9 @@
  * which represents the data record in the Collection entries.
  */
 export class Collection {
+    map;
+    originalKeys;
+    index;
     get keys() { return Array.from(this.map.keys()); }
     get size() { return this.map.size; }
     get preceding() { return this.index !== null && this.index > 0; }
@@ -177,6 +180,10 @@ export class Collection {
  * numeric and unquoted.
  */
 export class Query {
+    fieldValue;
+    operator;
+    testValue;
+    numericTest;
     constructor(expression) {
         const matchResults = /\s*(\S+)\s+(\S+)\s+(.*)/.exec(expression.trim());
         this.numericTest = true;

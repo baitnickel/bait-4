@@ -143,6 +143,9 @@ function addButton(parent, innerHTML, className) {
     return button;
 }
 class ImageSet {
+    images;
+    index;
+    shuffling;
     constructor(images, shuffle = false) {
         this.images = [...images];
         this.index = 0;

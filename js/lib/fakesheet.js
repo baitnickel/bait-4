@@ -869,18 +869,27 @@ export class Chord {
      * is B0, note 24 is C1, and so on. Observe that when MIDI-note modulo 12
      * equals 0, the note is C The 88 piano keys range from 21 (A0) to 108 (C8).
      * Middle C is 60 (C4).
-     *
-     * Assuming that guitar strings can reasonably be tuned up or down no more
-     * than an octave (5 half-steps up and 6 half-steps down), then the six
-     * strings when played open will have ranges as follows:
-     * - 46 - 57 (6th: E3 is 52)
-     * - 51 - 62 (5th: A3 is 57)
-     * - 56 - 67 (4th: D4 is 62)
-     * - 61 - 72 (3rd: G4 is 67)
-     * - 65 - 76 (2nd: B4 is 71)
-     * - 70 - 81 (1st: E5 is 76)
      */
     intervals() {
+        const output = [];
+        if (this.instrument === null)
+            output.push('no instrument');
+        else if (this.notation === null)
+            output.push('no notation');
+        else {
+            output.push(`Open strings: ${this.instrument.pitches}`);
+            const notes = this.notation.notes;
+            for (let i = 0; i < notes.length; i += 1) {
+                const stringNumber = notes.length - i;
+                if (!isNaN(notes[i][0])) {
+                    let pitch = this.instrument.pitches[i];
+                    pitch += notes[i][0];
+                    const spn = SPN(pitch);
+                    output.push(`String ${stringNumber}: ${spn}`);
+                }
+            }
+        }
+        return output;
     }
     diagram(fontFamily = 'sans-serif', svgScaling = 0.85, stringSpacing = 16) {
         /**

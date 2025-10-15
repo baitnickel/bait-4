@@ -135,12 +135,20 @@ function testChord(testOutput) {
     textWidgetParagraph.append(textEntry.label);
     textWidgetParagraph.append(textEntry.element);
     const instrument = new Instrument('guitar');
-    instrument.updatePitches(['D', 'Bb', 'D', 'G', 'B', 'E']);
+    // instrument.updatePitches(['D','Bb','D','G','B','E']);
     textEntry.element.addEventListener('change', () => {
         const entry = textEntry.element.value;
         const [chordName, notation] = entry.trim().split(/\s+/);
         const chord = new Chord(chordName, instrument, notation);
-        intervalsParagraph.innerHTML = `${chord.base} scale: ${chord.scale().join(', ')}`;
+        intervalsParagraph.innerHTML = `${chord.base} scale: ${chord.scale().join(', ')}<br>`;
+        const intervals = chord.intervals();
+        for (const interval of intervals)
+            intervalsParagraph.innerHTML += `${interval}<br>`;
+        // if (chord.notation) {
+        // 	for (let i = 0; i < chord.notation.notes.length; i += 1) {
+        // 		intervalsParagraph.innerHTML += `${chord.notation.notes.length - i}: ${chord.notation.notes[i]}<br>`;
+        // 	}
+        // }
         svgParagraph.append(chord.diagram());
         textEntry.element.value = '';
     });

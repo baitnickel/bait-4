@@ -40,7 +40,7 @@ import { MarkupLine } from './markup.js';
  */
 
 /**
- * The 'Notes' array contains 12 elements, representing the 12-note scale.
+ * The 'Notes' array contains 12 elements, representing the chromatic scale.
  * Enharmonic notes are entered in sub-array elements. Notes are ordered from C
  * to B, corresponding to Scientific Pitch Notation (aka "MIDI Note")
  * sequencing.
@@ -127,7 +127,7 @@ export type FakeLine = {
 };
 
 export const FAKESHEET = {
-	version: '2025.10.15',
+	version: '2025.10.16',
 	commentPattern: /(^\/{2}|\s\/{2}).*/, /* comments follow double-slash at line start or after whitespace */
 	tokenCharacter: '.',
 	inlinePrefix: '.',
@@ -795,7 +795,7 @@ export class Chord {
 	 * store these segments in two separate lists: a list of modifiers and a
 	 * list of note numbers, where note numbers are indexes of the note name in
 	 * the Notes constant. So, the example above would become: modifiers:
-	 * ['','m7/',''] and note numbers: [4,11]. Transposition is done by
+	 * ['','m7/',''] and note numbers: [1,8]. Transposition is done by
 	 * offsetting the note numbers.
 	 */
 	parseChordName() {
@@ -890,12 +890,20 @@ export class Chord {
 	 * is B0, note 24 is C1, and so on. Observe that when MIDI-note modulo 12
 	 * equals 0, the note is C The 88 piano keys range from 21 (A0) to 108 (C8).
 	 * Middle C is 60 (C4).
+	 * 
+	 *   1.               2.               3.         4.                5.                 6                         7
+	 * ['C', ['C#','Db'],'D',['D#','Eb'], 'E',       'F', ['F#','Gb'], 'G', ['G#','Ab'],  'A',        ['A#','Bb'],  'B']
+	 * ['A', ['A#','Bb'],'B', 'C',       ['C#','Db'],'D', ['D#','Eb'], 'E',  'F',        ['F#','Gb'],  'G',        ['G#','Ab']]
+	 * 
+	 * intervals: 1, b2/b9, 2/9, b3/#9, 3/10, 4/11, b5/#11, 5, b13/#5, 6/13, b7, 7
 	 */
 	intervals() {
 		const output: string[] = [];
 		if (this.instrument === null) output.push('no instrument');
 		else if (this.notation === null) output.push('no notation');
 		else {
+			const intervals = ['1st', '♭2nd/♭9th', 'sus2/9th', '♭3rd/♯9th', '3rd/10th', 'sus4/11th', '♭5th/♯11th', '5th', '♭13th/♯5th', '6th/13th', '(♭)7th', 'maj7th'];
+			const rootIndex = NoteIndex(this.root);
 			output.push(`Open strings: ${this.instrument.pitches}`)
 			const notes = this.notation.notes;
 			for (let i = 0; i < notes.length; i += 1) {
@@ -904,7 +912,9 @@ export class Chord {
 					let pitch = this.instrument.pitches[i];
 					pitch += notes[i][0];
 					const spn = SPN(pitch);
-					output.push(`String ${stringNumber}: ${spn}`);
+					const pitchIndex = pitch % 12
+					const intervalIndex = (rootIndex <= pitchIndex) ? pitchIndex - rootIndex : pitchIndex + 12 - rootIndex;
+					output.push(`String ${stringNumber}: ${spn} ${intervals[intervalIndex]}`);
 				}
 			}
 		} 

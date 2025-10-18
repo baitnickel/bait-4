@@ -870,56 +870,56 @@ export class Chord {
      *
      * intervals: 1, b2/b9, 2/9, b3/#9, 3/10, 4/11, b5/#11, 5, b13/#5, 6/13, b7, 7
      *
-     * The array of intervals should be precessed like a wheel. Keep a cursor to hold onto your next starting point in the wheel. The first time through, we select the value or first sub-array value, the second time through the value or next/last sub-array value. Every time you hit a root note, you increase the octave (a number representing the turns of the wheel), starting at octave 0 (be aware of bass notes preceding the first root--these are a special case, treated in the same way as they are in the first octave, maybe even ignored unless they are not repeated in the first octave. Perhaps we store all intervals prior to the first root in a separate array (e.g., bassIntervals). Then on encountering root, we initialize octave = 0 and loop and loop until the instrument strings are exhausted. When processing root notes, we might modify its value by adding a tick for each turn of the wheel.
+     * The array of intervals should be precessed like a wheel. Keep a cursor to
+     * hold onto your next starting point in the wheel. The first time through,
+     * we select the value or first sub-array value, the second time through the
+     * value or next/last sub-array value. Every time you hit a root note, you
+     * increase the octave (a number representing the turns of the wheel),
+     * starting at octave 0 (be aware of bass notes preceding the first
+     * root--these are a special case, treated in the same way as they are in
+     * the first octave, maybe even ignored unless they are not repeated in the
+     * first octave. Perhaps we store all intervals prior to the first root in a
+     * separate array (e.g., bassIntervals). Then on encountering root, we
+     * initialize octave = 0 and loop and loop until the instrument strings are
+     * exhausted. When processing root notes, we might modify its value by
+     * adding a tick for each turn of the wheel.
      *
      * "octave": iteration through the `intervals` array
      *
      * option: PrettyChord it?
+     *
+     * we will always choose the primary note when there is more than one on a string
      */
     intervals(noteNames = false) {
         const intervals = [];
         const names = [];
         const rootIndex = NoteIndex(this.root);
-        if (this.instrument === null)
-            intervals.push('no instrument');
-        else if (this.notation === null)
-            intervals.push('no notation');
-        else if (rootIndex < 0)
-            intervals.push(`invalid root note: ${this.root}`);
-        else {
+        if (this.instrument !== null && this.notation !== null && rootIndex >= 0) {
             const steps = [['1'], ['b2', 'b9'], ['2', '9'], ['b3', '#9'], ['3'], ['4', '11'], ['b5', '#11'], ['5'], ['#5', 'b13'], ['6', '13'], ['b7'], ['7']];
+            let firstRoot = 0;
             const notes = this.notation.notes;
-            const primaryPitch = 0; /** we will always choose the primary note when there is more than one on a string */
-            let nextStep = 0;
-            let octave = -1; /** -1 and 0 will both be treated as `steps` variation (sub-array) 0 */
+            const primaryPitch = 0;
             for (let instrumentString = 0; instrumentString < this.instrument.strings; instrumentString += 1) {
-                if (!isNaN(notes[instrumentString][0])) { /** ignore "x" strings */
-                    /** processing a new instrumentString... */
-                    const openStringPitch = this.instrument.pitches[instrumentString]; /** straight from the Instrument constant */
-                    const frettedPitch = openStringPitch + notes[instrumentString][primaryPitch]; /** 6th string is typically a number between 40 and 52 */
-                    const spn = SPN(frettedPitch); /** spn will be something like "F2#/G2b" */
-                    const pitchName = PitchName(frettedPitch, this.base); /** pitchName will be something like "F#" or "Gb" (depending on this.base) */
-                    names.push(`${spn} ${pitchName}`);
-                    let interval = ''; /** initialize the interval value for this instrumentString */
-                    while (!interval) {
-                        const notesIndex = frettedPitch % 12; /** index (0...11) into Notes array ("C"..."B") */
-                        const stepIndex = (rootIndex <= notesIndex) ? notesIndex - rootIndex : notesIndex + 12 - rootIndex; /** offset into `steps` */
-                        const stepVariations = steps[stepIndex]; /** how many variations does this step have? */
-                        let variation = 0; /** first assume that we will use the first `steps` sub-array value */
-                        const octaveVariation = (octave < 1) ? 0 : octave; /** treat both octave -1 and octave 0 as 0 for variations purposes */
-                        variation = (stepVariations.length > octave) ? octaveVariation : stepVariations.length - 1;
-                        interval = steps[stepIndex][variation];
-                        if (stepIndex == 0) {
-                            /** this note is this.base, start of a new octave */
-                            octave += 1;
-                            /** @todo number of ticks should be actual distance between octaves */
-                            if (octave > 0)
-                                interval += `'`.repeat(octave);
-                        }
-                        nextStep = (nextStep + 1) % 12;
-                    }
-                    intervals.push(interval);
+                if (isNaN(notes[instrumentString][0]))
+                    continue; /** ignore "x" strings */
+                /** determine the pitch of the fretted string and the SPN note name */
+                const openStringPitch = this.instrument.pitches[instrumentString];
+                const frettedPitch = openStringPitch + notes[instrumentString][primaryPitch];
+                const octave = (!firstRoot) ? 0 : Math.floor((frettedPitch - firstRoot) / Notes.length);
+                /** determine the interval with octave variations */
+                const notesIndex = frettedPitch % Notes.length;
+                const stepsIndex = (rootIndex <= notesIndex) ? notesIndex - rootIndex : notesIndex + Notes.length - rootIndex;
+                const stepVariations = steps[stepsIndex].length; /** number of sub-array elements */
+                const stepVariation = (stepVariations > octave) ? octave : stepVariations - 1;
+                let interval = steps[stepsIndex][stepVariation];
+                if (stepsIndex == 0) {
+                    if (!firstRoot)
+                        firstRoot = frettedPitch;
+                    if (octave > 0)
+                        interval += `'`.repeat(octave); /** number of ticks is distance between octaves */
                 }
+                names.push(SPN(frettedPitch));
+                intervals.push(interval);
             }
         }
         return (noteNames) ? names : intervals;

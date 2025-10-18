@@ -142,8 +142,12 @@ function testChord(testOutput) {
         const chord = new Chord(chordName, instrument, notation);
         intervalsParagraph.innerHTML = `${chord.base} scale: ${chord.scale().join(', ')}<br>`;
         const intervals = chord.intervals();
-        for (const interval of intervals)
-            intervalsParagraph.innerHTML += `${interval}<br>`;
+        const notes = chord.intervals(true);
+        // for (const interval of intervals) {
+        for (let i = 0; i < intervals.length; i += 1) {
+            const intervalsAndNotes = `${intervals[i]} ${notes[i]}`;
+            intervalsParagraph.innerHTML += `${intervalsAndNotes}<br>`;
+        }
         // if (chord.notation) {
         // 	for (let i = 0; i < chord.notation.notes.length; i += 1) {
         // 		intervalsParagraph.innerHTML += `${chord.notation.notes.length - i}: ${chord.notation.notes[i]}<br>`;

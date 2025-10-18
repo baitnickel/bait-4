@@ -66,37 +66,30 @@ function NoteIndex(noteName: string) {
 }
 
 /**
- * Given a pitch number or an array of `pitches`, and an optional `key`
- * name, return the pitches' note names. Enharmonic note names are resolved by
- * rule, according to key signatures. The rule for C/Am is somewhat arbitrary,
- * using sharps except for Bb and Eb. When either a pitch or the key is
- * invalid, return an empty string array.
+ * Given a `pitch` and an optional `key` name, return the pitch's note name.
+ * Enharmonic note names are resolved by rule, according to key signatures. The
+ * rule for C/Am is somewhat arbitrary, using sharps except for Bb and Eb. When
+ * either the pitch or the key is invalid, return an empty string. 
  */
-function PitchNames(pitches: number|number[], key = 'C') {
-	let noteNames: string[] = [];
-
-	if (typeof pitches == 'number') pitches = [pitches];
-	for (const pitch of pitches) if (pitch < 0 || pitch > 127) return noteNames;
-
+function PitchName(pitch: number, key = 'C') {
+	let noteName = '';
 	const validationKey = (key.endsWith('m')) ? key.slice(0, -1) : key;
-	if (!ValidNote.test(validationKey)) return noteNames;
-
-	const flatKey = (key.includes('b') || ['F','Cm','Dm','Fm','Gm'].includes(key));
-	const sharpKey = (key.includes('#') || ['A','B','D','E','G','Bm','Em'].includes(key));
-	for (let pitch of pitches) {
+	if (ValidNote.test(validationKey) && pitch >= 0 && pitch < 128) {
+		const flatKey = (key.includes('b') || ['F','Cm','Dm','Fm','Gm'].includes(key));
+		const sharpKey = (key.includes('#') || ['A','B','D','E','G','Bm','Em'].includes(key));
 		pitch = pitch % Notes.length;
 		const note = Notes[pitch];
-		if (typeof note == 'string') noteNames.push(note);
+		if (typeof note == 'string') noteName = note;
 		else {
 			const flatNote = (note[0].endsWith('b')) ? note[0] : note[1];
 			const sharpNote = (note[0].endsWith('b')) ? note[1] : note[0];
-			if (flatKey) noteNames.push(flatNote);
-			else if (sharpKey) noteNames.push(sharpNote);
-			else if (['Bb','Eb'].includes(flatNote)) noteNames.push(flatNote);
-			else noteNames.push(sharpNote);
+			if (flatKey) noteName = flatNote;
+			else if (sharpKey) noteName = sharpNote;
+			else if (['Bb','Eb'].includes(flatNote)) noteName = flatNote;
+			else noteName = sharpNote;
 		}
 	}
-	return noteNames;
+	return noteName;
 }
 
 /**
@@ -817,8 +810,10 @@ export class Chord {
 	 * based on my personal preferences: using sharps except for Bb and Eb).
 	*/
 	scale() {
-		const pitchIndices = Array.from(Array(Notes.length).keys());
-		const notes = PitchNames(pitchIndices, this.base);
+		const notes: string[] = []
+		for (let i = 0; i < Notes.length; i += 1) {
+			notes.push(PitchName(i, this.base));
+		}
 		return notes;
 	}
 
@@ -896,29 +891,60 @@ export class Chord {
 	 * ['A', ['A#','Bb'],'B', 'C',       ['C#','Db'],'D', ['D#','Eb'], 'E',  'F',        ['F#','Gb'],  'G',        ['G#','Ab']]
 	 * 
 	 * intervals: 1, b2/b9, 2/9, b3/#9, 3/10, 4/11, b5/#11, 5, b13/#5, 6/13, b7, 7
+	 * 
+	 * The array of intervals should be precessed like a wheel. Keep a cursor to hold onto your next starting point in the wheel. The first time through, we select the value or first sub-array value, the second time through the value or next/last sub-array value. Every time you hit a root note, you increase the octave (a number representing the turns of the wheel), starting at octave 0 (be aware of bass notes preceding the first root--these are a special case, treated in the same way as they are in the first octave, maybe even ignored unless they are not repeated in the first octave. Perhaps we store all intervals prior to the first root in a separate array (e.g., bassIntervals). Then on encountering root, we initialize octave = 0 and loop and loop until the instrument strings are exhausted. When processing root notes, we might modify its value by adding a tick for each turn of the wheel.
+	 * 
+	 * "octave": iteration through the `intervals` array
+	 * 
+	 * option: PrettyChord it?
 	 */
-	intervals() {
-		const output: string[] = [];
-		if (this.instrument === null) output.push('no instrument');
-		else if (this.notation === null) output.push('no notation');
+	intervals(noteNames = false) {
+		const intervals: string[] = [];
+		const names: string[] = [];
+		const rootIndex = NoteIndex(this.root);
+		if (this.instrument === null) intervals.push('no instrument');
+		else if (this.notation === null) intervals.push('no notation');
+		else if (rootIndex < 0) intervals.push(`invalid root note: ${this.root}`);
 		else {
-			const intervals = ['1st', '♭2nd/♭9th', 'sus2/9th', '♭3rd/♯9th', '3rd/10th', 'sus4/11th', '♭5th/♯11th', '5th', '♭13th/♯5th', '6th/13th', '(♭)7th', 'maj7th'];
-			const rootIndex = NoteIndex(this.root);
-			output.push(`Open strings: ${this.instrument.pitches}`)
+			const steps = [['1'], ['b2','b9'], ['2','9'], ['b3','#9'], ['3'], ['4','11'], ['b5','#11'], ['5'], ['#5','b13'], ['6','13'], ['b7'], ['7']];
 			const notes = this.notation.notes;
-			for (let i = 0; i < notes.length; i += 1) {
-				const stringNumber = notes.length - i;
-				if (!isNaN(notes[i][0])) {
-					let pitch = this.instrument.pitches[i];
-					pitch += notes[i][0];
-					const spn = SPN(pitch);
-					const pitchIndex = pitch % 12
-					const intervalIndex = (rootIndex <= pitchIndex) ? pitchIndex - rootIndex : pitchIndex + 12 - rootIndex;
-					output.push(`String ${stringNumber}: ${spn} ${intervals[intervalIndex]}`);
+			const primaryPitch = 0; /** we will always choose the primary note when there is more than one on a string */
+			let nextStep = 0;
+			let octave = -1; /** -1 and 0 will both be treated as `steps` variation (sub-array) 0 */
+			for (let instrumentString = 0; instrumentString < this.instrument.strings; instrumentString += 1) {
+				if (!isNaN(notes[instrumentString][0])) { /** ignore "x" strings */
+
+					/** processing a new instrumentString... */
+					const openStringPitch = this.instrument.pitches[instrumentString]; /** straight from the Instrument constant */
+					const frettedPitch = openStringPitch + notes[instrumentString][primaryPitch]; /** 6th string is typically a number between 40 and 52 */
+					const spn = SPN(frettedPitch); /** spn will be something like "F2#/G2b" */
+					const pitchName = PitchName(frettedPitch, this.base); /** pitchName will be something like "F#" or "Gb" (depending on this.base) */
+					names.push(`${spn} ${pitchName}`);
+					
+					let interval = ''; /** initialize the interval value for this instrumentString */
+					while (!interval) {
+						const notesIndex = frettedPitch % 12; /** index (0...11) into Notes array ("C"..."B") */
+						const stepIndex = (rootIndex <= notesIndex) ? notesIndex - rootIndex : notesIndex + 12 - rootIndex; /** offset into `steps` */
+						const stepVariations = steps[stepIndex]; /** how many variations does this step have? */
+
+						let variation = 0; /** first assume that we will use the first `steps` sub-array value */
+						const octaveVariation = (octave < 1) ? 0 : octave; /** treat both octave -1 and octave 0 as 0 for variations purposes */
+						variation = (stepVariations.length > octave) ? octaveVariation : stepVariations.length - 1;
+						interval = steps[stepIndex][variation];
+
+						if (stepIndex == 0) {
+							/** this note is this.base, start of a new octave */
+							octave += 1;
+							/** @todo number of ticks should be actual distance between octaves */
+							if (octave > 0) interval += `'`.repeat(octave);
+						}
+						nextStep = (nextStep + 1) % 12;
+					}
+					intervals.push(interval);
 				}
 			}
-		} 
-		return output;
+		}
+		return (noteNames) ? names : intervals;
 	}
 
 	diagram(fontFamily = 'sans-serif', svgScaling = 0.85, stringSpacing = 16) {
@@ -1273,13 +1299,13 @@ export class Chord {
  */
 class Notation {
 	valid: boolean;
-	notes: number [][]; /* for each of the instruments strings, a list of note(s) to be fretted */
-	barres: number[];   /* a list of barred frets */
-	stringCount: number; /* number of strings on the instrument */
-	fretCount: number; /*misnamed? this is the default number of frets to be shown in the Chord diagram */
-	firstFret:number; /* first fret displayed in Chord diagram */
-	lowFret: number;  /* lowest fret played */
-	highFret: number; /* highest fret played */
+	notes: number [][];  /** for each of the instrument's strings, a list of note(s) to be fretted */
+	barres: number[];    /** a list of barred frets */
+	stringCount: number; /** number of strings on the instrument */
+	fretCount: number;   /** misnamed? this is the default number of frets to be shown in the Chord diagram */
+	firstFret:number;    /** first fret displayed in Chord diagram */
+	lowFret: number;     /** lowest fret played */
+	highFret: number;    /** highest fret played */
 
 	constructor(chordNotation: string, stringCount: number, fretCount: number = 5) {
 		this.valid = true;

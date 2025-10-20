@@ -5,7 +5,12 @@ title: Mitchell
 artist: The Baitnickels
 composers: [Dan]
 key: Em
-chords: C7 x32303
+chords:
+  - Em 022000
+  - B7 x21202
+  - G 320003
+  - D/F# 200232
+  - C7 x32303
 ---
 .v Em B7 Em B7   Em G D/F# Em B7   C7 B7 Em
 

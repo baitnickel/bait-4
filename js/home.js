@@ -153,7 +153,7 @@ function testChord(testOutput) {
         // 		intervalsParagraph.innerHTML += `${chord.notation.notes.length - i}: ${chord.notation.notes[i]}<br>`;
         // 	}
         // }
-        svgParagraph.append(chord.diagram());
+        svgParagraph.append(chord.diagram()); // 'sans-serif', 0.5
         textEntry.element.value = '';
     });
 }

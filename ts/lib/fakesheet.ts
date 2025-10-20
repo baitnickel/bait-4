@@ -876,41 +876,17 @@ export class Chord {
 	}
 
 	/**
-	 * Return an array of interval numbers corresponding to the notes of the
-	 * Chord. Where there are multiple notes on a string, we will consider only
-	 * the first. The Chord.root note is assigned interval 1 and the other notes
-	 * are offsets from the root.
+	 * Return an array of interval numbers (or note names, when the `noteNames`
+	 * option is true) corresponding to the notes of the Chord. Where there are
+	 * multiple notes on a string, we will consider only the primary (first)
+	 * one. The Chord.root note is assigned interval 1 and the other notes are
+	 * offsets from the root.
 	 * 
-	 * MIDI note numbers range from 0 (C-1) to 127 (G9). Note 12 is C0, note 23
-	 * is B0, note 24 is C1, and so on. Observe that when MIDI-note modulo 12
-	 * equals 0, the note is C The 88 piano keys range from 21 (A0) to 108 (C8).
-	 * Middle C is 60 (C4).
+	 * intervals: 1, b2/b9, 2/9, b3/#9, 3, 4/11, b5/#11, 5, #5/b13, 6/13, b7, 7
+	 * @todo change 'b3/#9' to just 'b3' (minor)?
 	 * 
-	 *   1.               2.               3.         4.                5.                 6                         7
-	 * ['C', ['C#','Db'],'D',['D#','Eb'], 'E',       'F', ['F#','Gb'], 'G', ['G#','Ab'],  'A',        ['A#','Bb'],  'B']
-	 * ['A', ['A#','Bb'],'B', 'C',       ['C#','Db'],'D', ['D#','Eb'], 'E',  'F',        ['F#','Gb'],  'G',        ['G#','Ab']]
-	 * 
-	 * intervals: 1, b2/b9, 2/9, b3/#9, 3/10, 4/11, b5/#11, 5, b13/#5, 6/13, b7, 7
-	 * 
-	 * The array of intervals should be precessed like a wheel. Keep a cursor to
-	 * hold onto your next starting point in the wheel. The first time through,
-	 * we select the value or first sub-array value, the second time through the
-	 * value or next/last sub-array value. Every time you hit a root note, you
-	 * increase the octave (a number representing the turns of the wheel),
-	 * starting at octave 0 (be aware of bass notes preceding the first
-	 * root--these are a special case, treated in the same way as they are in
-	 * the first octave, maybe even ignored unless they are not repeated in the
-	 * first octave. Perhaps we store all intervals prior to the first root in a
-	 * separate array (e.g., bassIntervals). Then on encountering root, we
-	 * initialize octave = 0 and loop and loop until the instrument strings are
-	 * exhausted. When processing root notes, we might modify its value by
-	 * adding a tick for each turn of the wheel.
-	 * 
-	 * "octave": iteration through the `intervals` array
-	 * 
-	 * option: PrettyChord it?
-	 * 
-	 * we will always choose the primary note when there is more than one on a string
+	 * Secondary interval values are used once the notes have entered the second
+	 * (or later) octave of the chord's notes.
 	 */
 	intervals(noteNames = false) {
 		const intervals: string[] = [];

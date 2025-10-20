@@ -172,7 +172,7 @@ function testChord(testOutput: HTMLDivElement) {
 		// 	}
 		// }
 		
-		svgParagraph.append(chord.diagram());
+		svgParagraph.append(chord.diagram()); // 'sans-serif', 0.5
 		textEntry.element.value = '';
 	});
 }

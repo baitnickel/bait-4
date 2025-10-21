@@ -36,6 +36,7 @@ const MenuItems: MenuItem[] = [
 	{module: 'home', parameters: [], text: 'Home', icon: ''},
 	// {module: 'articles', parameters: ['path=Content/drafts'], text: 'Writing', icon: ''},
 	{module: 'songbook', parameters: [], text: 'Songs', icon: ''},
+	{module: 'chords', parameters: [], text: 'Chords', icon: ''},
 	{module: 'iching', parameters: [], text: 'I Ching', icon: ''},
 	{module: 'camping', parameters: [], text: 'Camping', icon: 'camp.svg'},
 	{module: 'articles', parameters: ['path=README.md'], text: 'About', icon: ''},
@@ -110,7 +111,7 @@ export class Page {
 
 		if (this.local) { /** Add test pages */
 			MenuItems.push({module: 'articles', parameters: ['path=Content/drafts'], text: 'Drafts', icon: ''});
-			MenuItems.push({module: 'chords', parameters: [], text: 'Chords', icon: ''});
+			// MenuItems.push({module: 'chords', parameters: [], text: 'Chords', icon: ''});
 			MenuItems.push({module: 'threads', parameters: [], text: 'Threads', icon: ''});
 			MenuItems.push({module: 'timeline', parameters: [], text: 'Timeline', icon: ''});
 			MenuItems.push({module: 'carousel', parameters: [], text: 'Carousel', icon: ''});

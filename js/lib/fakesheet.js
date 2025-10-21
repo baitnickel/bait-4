@@ -871,7 +871,7 @@ export class Chord {
         const names = [];
         const rootIndex = NoteIndex(this.root);
         if (this.instrument !== null && this.notation !== null && rootIndex >= 0) {
-            const steps = [['1'], ['b2', 'b9'], ['2', '9'], ['b3', '#9'], ['3'], ['4', '11'], ['b5', '#11'], ['5'], ['#5', 'b13'], ['6', '13'], ['b7'], ['7']];
+            const steps = [['1'], ['b2', 'b9'], ['2', '9'], ['b3' /*,'#9'*/], ['3'], ['4', '11'], ['b5', '#11'], ['5'], ['#5', 'b13'], ['6', '13'], ['b7'], ['7']];
             let firstRoot = 0;
             const notes = this.notation.notes;
             const primaryPitch = 0;

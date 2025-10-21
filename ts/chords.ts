@@ -6,6 +6,7 @@ import { Instrument, Chord } from './lib/fakesheet.js';
 import * as W from './lib/widgets.js';
 
 import { Markup } from './lib/markup.js';
+// const W3NameSpace = 'http://www.w3.org/2000/svg';
 
 /**
  * Display a table of guitar chords, showing name, notation, intervals, notes
@@ -40,9 +41,9 @@ export function render() {
 	for (const chord of Chords) {
 		table.addRow();
 		table.addCell(chord.name);
-		// const diagram = (chord.diagram) ? chord.diagram.innerHTML : '';
-		const diagram = '';
-		table.addCell(diagram);
+		const diagram = (chord.diagram === null) ? '' : chord.diagram; 
+		const diagramCell = table.addCell('');
+		diagramCell.append(diagram);
 		table.addCell(chord.notation);
 		table.addCell(chord.intervals.join(' '));
 		table.addCell(chord.notes.join(' '));
@@ -58,7 +59,7 @@ function getChordData(chordStructures: ChordStructure[]) {
 		const chordObject = new Chord(chordStructure.name, instrument, chordStructure.notation);
 		chordStructure.intervals = chordObject.intervals();
 		chordStructure.notes = chordObject.intervals(true);
-		chordStructure.diagram = chordObject.diagram('sans-serif', 0.5);
+		chordStructure.diagram = chordObject.diagram('sans-serif', 1);
 	}
 }
 

@@ -22,9 +22,9 @@ export function render() {
     for (const chord of Chords) {
         table.addRow();
         table.addCell(chord.name);
-        // const diagram = (chord.diagram) ? chord.diagram.innerHTML : '';
-        const diagram = '';
-        table.addCell(diagram);
+        const diagram = (chord.diagram === null) ? '' : chord.diagram;
+        const diagramCell = table.addCell('');
+        diagramCell.append(diagram);
         table.addCell(chord.notation);
         table.addCell(chord.intervals.join(' '));
         table.addCell(chord.notes.join(' '));
@@ -39,7 +39,7 @@ function getChordData(chordStructures) {
         const chordObject = new Chord(chordStructure.name, instrument, chordStructure.notation);
         chordStructure.intervals = chordObject.intervals();
         chordStructure.notes = chordObject.intervals(true);
-        chordStructure.diagram = chordObject.diagram('sans-serif', 0.5);
+        chordStructure.diagram = chordObject.diagram('sans-serif', 1);
     }
 }
 async function getChords(fakesheets) {

@@ -37,7 +37,7 @@ export function render() {
 	// PAGE.content.append(listSection);
 
 	getChordData(Chords);
-	const table = new W.Table(['Name', 'Diagram', 'Notation', 'Intervals', 'Notes'], 1);
+	const table = new W.Table(['Name', 'Diagram', 'Notation', 'Pattern', 'Intervals', 'Notes'], 1);
 	for (const chord of Chords) {
 		table.addRow();
 		table.addCell(chord.name);
@@ -45,6 +45,9 @@ export function render() {
 		const diagramCell = table.addCell('');
 		diagramCell.append(diagram);
 		table.addCell(chord.notation);
+		const uniques = uniqueIntervals(chord.intervals);
+		uniques.push(patternName(uniques));
+		table.addCell(uniques.join(' '));
 		table.addCell(chord.intervals.join(' '));
 		table.addCell(chord.notes.join(' '));
 	}
@@ -61,6 +64,40 @@ function getChordData(chordStructures: ChordStructure[]) {
 		chordStructure.notes = chordObject.intervals(true);
 		chordStructure.diagram = chordObject.diagram('sans-serif', 1);
 	}
+}
+
+/**
+ * Given the `intervals` in a chord, return an array of unique interval sorted
+ * by relative position.
+ */
+function uniqueIntervals(intervals: string[]) {
+	const intervalSet = new Set<string>();
+	const rankedIntervals: string[] = [];
+	for (let i = 0; i < 2; i += 1) {	
+		for (const intervals of Chord.Intervals) {
+			if (intervals.length == i + 1) {
+				rankedIntervals.push(intervals[i]);
+			} 
+		}
+	}
+	/** ignore interval 1 w/ ticks: 1', 1'', etc. by ensuring that interval is included in rankedIntervals */
+	for (const interval of intervals) if (rankedIntervals.includes(interval)) intervalSet.add(interval);
+	const uniqueIntervals = Array.from(intervalSet.values());
+	return uniqueIntervals.sort((a,b) => rankedIntervals.indexOf(a) - rankedIntervals.indexOf(b));
+}
+
+function patternName(uniqueIntervals: string[]) {
+	let patternName = '?';
+	const pattern = uniqueIntervals.join(' ');
+	if (pattern == '1 3 5') patternName = 'major';
+	else if (pattern == '1 3 5 b7') patternName = '7';
+	else if (pattern == '1 3 5 b7 9') patternName = '9';
+	else if (pattern == '1 3 5 7') patternName = 'maj7';
+	else if (pattern == '1 b3 5') patternName = 'minor';
+	else if (pattern == '1 b3 5 b7') patternName = 'm7';
+	else if (pattern == '1 b3 5 b7') patternName = 'm7';
+	else if (pattern == '1 5 9') patternName = 'sus2';
+	return `(${patternName})`;
 }
 
 async function getChords(fakesheets: Map<string, T.FileStats>) {

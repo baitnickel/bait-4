@@ -718,23 +718,30 @@ class Section {
     }
 }
 const W3NameSpace = 'http://www.w3.org/2000/svg';
-/**
- * MIDI note numbers:
- *   C4:60 (middle C)
- * A0:21 ... C8:108 (88 piano keys)
- *   E3:52, A3:57, D4:62, G4:67, B4:71, E5:76 (normal guitar tuning)
- *   E3:52 ... D7:98 (typical guitar range)
- */
 export class Chord {
     name; /** chord name (in original key, e.g., 'Dbm7/Ab') */
     instrument; /** Instrument object */
     stringCount; /** number of strings (derived from 'instrument') */
     notation; /** Notation object */
     root; /** root note (e.g., 'Db') */
-    base; /** base chord/key (e.g., 'Dbm') */ /** @todo should be named `key` instead of `base`? */
+    base; /** base of chord (or key) (e.g., 'Dbm') */
     minor; /** true if this.base ends with 'm' */
     noteIndices; /** sequential list of Note indices (e.g., 'Dbm7/Ab' contains 2 indices: [1, 8] (for 'Db' and 'Ab') */
     modifiers; /** sequential list of modifiers (e.g., 'Dbm7/Ab' contains three modifiers: ['', 'm7/', and ''] */
+    static Intervals = [
+        ['1'],
+        ['b2', 'b9'],
+        ['2', '9'],
+        ['b3' /*,'#9'*/],
+        ['3'],
+        ['4', '11'],
+        ['b5', '#11'],
+        ['5'],
+        ['#5', 'b13'],
+        ['6', '13'],
+        ['b7'],
+        ['7']
+    ];
     constructor(name, instrument = null, notation = '') {
         this.name = name;
         this.instrument = instrument;
@@ -862,7 +869,6 @@ export class Chord {
         const names = [];
         const rootIndex = NoteIndex(this.root);
         if (this.instrument !== null && this.notation !== null && rootIndex >= 0) {
-            const steps = [['1'], ['b2', 'b9'], ['2', '9'], ['b3' /*,'#9'*/], ['3'], ['4', '11'], ['b5', '#11'], ['5'], ['#5', 'b13'], ['6', '13'], ['b7'], ['7']];
             let firstRoot = 0;
             const notes = this.notation.notes;
             const primaryPitch = 0;
@@ -875,17 +881,17 @@ export class Chord {
                 const octave = (!firstRoot) ? 0 : Math.floor((frettedPitch - firstRoot) / Notes.length);
                 /** determine the interval with octave variations */
                 const notesIndex = frettedPitch % Notes.length;
-                const stepsIndex = (rootIndex <= notesIndex) ? notesIndex - rootIndex : notesIndex + Notes.length - rootIndex;
-                const stepVariations = steps[stepsIndex].length; /** number of sub-array elements */
-                const stepVariation = (stepVariations > octave) ? octave : stepVariations - 1;
-                let interval = steps[stepsIndex][stepVariation];
-                if (stepsIndex == 0) {
+                const intervalsIndex = (rootIndex <= notesIndex) ? notesIndex - rootIndex : notesIndex + Notes.length - rootIndex;
+                const intervalVariations = Chord.Intervals[intervalsIndex].length; /** number of sub-array elements */
+                const intervalVariation = (intervalVariations > octave) ? octave : intervalVariations - 1;
+                let interval = Chord.Intervals[intervalsIndex][intervalVariation];
+                if (intervalsIndex == 0) {
                     if (!firstRoot)
                         firstRoot = frettedPitch;
                     if (octave > 0)
                         interval += `'`.repeat(octave); /** number of ticks is distance between octaves */
                 }
-                names.push(SPN(frettedPitch));
+                names.push(SPN(frettedPitch, this.base));
                 intervals.push(interval);
             }
         }

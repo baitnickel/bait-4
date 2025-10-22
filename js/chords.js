@@ -10,12 +10,11 @@ const FakesheetsPath = `${PAGE.site}/Content/fakesheets`;
 const Fakesheets = await Fetch.map(FakesheetIndices);
 const Chords = await getChords(Fakesheets);
 export function render() {
-    const listSection = document.createElement('div');
-    const flattenedChords = [];
-    for (const chord of Chords)
-        flattenedChords.push(`${chord.name} ${chord.notation}`);
-    listSection.innerHTML = flattenedChords.join('<br>');
-    listSection.innerHTML += `<p>${Chords.length} distinct chords</p>`;
+    // const listSection = document.createElement('div');
+    // const flattenedChords: string[] = [];
+    // for (const chord of Chords) flattenedChords.push(`${chord.name} ${chord.notation}`);
+    // listSection.innerHTML = flattenedChords.join('<br>');
+    // listSection.innerHTML += `<p>${Chords.length} distinct chords</p>`;
     // PAGE.content.append(listSection);
     getChordData(Chords);
     const table = new W.Table(['Name', 'Diagram', 'Notation', 'Intervals', 'Notes'], 1);

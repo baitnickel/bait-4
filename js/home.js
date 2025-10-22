@@ -112,12 +112,12 @@ function testChord(testOutput) {
     const examples = [];
     examples.push('Examples:');
     examples.push('');
-    examples.push('C    x32010                 "x": string not played, "0" (or "o"): open string');
+    examples.push('C x32010                    "x": string not played, "0" (or "o"): open string');
     examples.push('C(7) x32(0,3)10             alternate frettings comma-separated inside parentheses');
-    examples.push('G    355433|3               "|3": barre at 3 from 6th to 1st string');
-    examples.push('B7   7978(10)7|7            "(10)": put 2-digit fret numbers inside parentheses');
-    examples.push('Bm7  xx(4,2)232|2           barre at 2 from 4th to 1st string');
-    examples.push('F/C  88(10)(10)(10)8|8|(10) barre at 8 (6th-1st) and 10 (4th-2nd) with 2-digit fret numbers');
+    examples.push('G 355433|3                  "|3": barre at 3 from 6th to 1st string');
+    examples.push('B7 7978(10)7|7              "(10)": put 2-digit fret numbers inside parentheses');
+    examples.push('Bm7 xx(4,2)232|2            barre at 2 from 4th to 1st string');
+    examples.push('F/C 88(10)(10)(10)8|8|(10)  barre at 8 (6th-1st) and 10 (4th-2nd) with 2-digit fret numbers');
     examples.push('');
     examples.push('Separate the chord name and the notation with one or more spaces.');
     const examplesParagraph = document.createElement('p');

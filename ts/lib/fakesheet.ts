@@ -41,16 +41,17 @@ import { MarkupLine } from './markup.js';
 
 /**
  * The 'Notes' array contains 12 elements, representing the chromatic scale.
- * Enharmonic notes are entered in sub-array elements. Notes are ordered from C
- * to B, corresponding to Scientific Pitch Notation (aka "MIDI Note")
- * sequencing.
+ * Each element is, itself, an array--most notes are entered in single-element
+ * arrays, while enharmonic notes are entered in two-element arrays. Notes are
+ * ordered from C to B, corresponding to Scientific Pitch Notation (aka "MIDI
+ * Note") sequencing.
  * 
  * The `ValidNote` regular expression contains a flattened copy of `Notes`, with
  * the 2-character notes (sharps and flats) sorted to the top. This sorting
  * supports the proper splitting of `Chord` strings into segments, while also
  * supporting the validation of note names.
  */
-const Notes = ['C',['C#','Db'],'D',['D#','Eb'],'E','F',['F#','Gb'],'G',['G#','Ab'],'A',['A#','Bb'],'B']; 
+const Notes = [['C'],['C#','Db'],['D'],['D#','Eb'],['E'],['F'],['F#','Gb'],['G'],['G#','Ab'],['A'],['A#','Bb'],['B']]; 
 const ValidNote = new RegExp(`(${Notes.flat().sort((a,b)=>b.length-a.length).join('|')})`);
 
 /**
@@ -58,11 +59,7 @@ const ValidNote = new RegExp(`(${Notes.flat().sort((a,b)=>b.length-a.length).joi
  * name is invalid.
  */
 function NoteIndex(noteName: string) {
-	const noteIndex = Notes.findIndex((element) => {
-		const elements = (typeof element == 'string') ? [element] : element;
-		return elements.includes(noteName);
-	});
-	return noteIndex;
+	return Notes.findIndex((elements) => elements.includes(noteName));
 }
 
 /**
@@ -78,11 +75,11 @@ function PitchName(pitch: number, key = 'C') {
 		const flatKey = (key.includes('b') || ['F','Cm','Dm','Fm','Gm'].includes(key));
 		const sharpKey = (key.includes('#') || ['A','B','D','E','G','Bm','Em'].includes(key));
 		pitch = pitch % Notes.length;
-		const note = Notes[pitch];
-		if (typeof note == 'string') noteName = note;
+		const notes = Notes[pitch];
+		if (notes.length == 1) noteName = notes[0];
 		else {
-			const flatNote = (note[0].endsWith('b')) ? note[0] : note[1];
-			const sharpNote = (note[0].endsWith('b')) ? note[1] : note[0];
+			const flatNote = (notes[0].endsWith('b')) ? notes[0] : notes[1];
+			const sharpNote = (notes[0].endsWith('b')) ? notes[1] : notes[0];
 			if (flatKey) noteName = flatNote;
 			else if (sharpKey) noteName = sharpNote;
 			else if (['Bb','Eb'].includes(flatNote)) noteName = flatNote;
@@ -94,15 +91,12 @@ function PitchName(pitch: number, key = 'C') {
 
 /**
  * Given a `pitch` number (0...127), return its Scientific Pitch Notation (SPN),
- * a note name, showing both sharp and flat versions of enharmonic notes
- * (separated by `divider`), and a number identifying the pitch's octave. Can be
- * used in a loop to produce a list of pitches and note names.
+ * a note name, showing either the flat or sharp enharmonic note based on the
+ * given `key`, and a number identifying the pitch's octave. Can be used in a
+ * loop to produce a list of pitches and note names.
  */
-export function SPN(pitch: number, divider = '/') {
-	if (pitch < 0 || pitch > 127) return '';
-	let notes = Notes[pitch % Notes.length];
-	if (typeof notes == 'string') notes = [notes];
-	const note = notes.join(divider);
+export function SPN(pitch: number, key = 'C') {
+	const note = PitchName(pitch, key);
 	const octave = Math.floor(pitch / Notes.length) - 1;
 	return `${note}${octave}`;
 }
@@ -882,8 +876,7 @@ export class Chord {
 	 * one. The Chord.root note is assigned interval 1 and the other notes are
 	 * offsets from the root.
 	 * 
-	 * intervals: 1, b2/b9, 2/9, b3/#9, 3, 4/11, b5/#11, 5, #5/b13, 6/13, b7, 7
-	 * @todo change 'b3/#9' to just 'b3' (minor)?
+	 * intervals: 1, b2/b9, 2/9, b3, 3, 4/11, b5/#11, 5, #5/b13, 6/13, b7, 7
 	 * 
 	 * Secondary interval values are used once the notes have entered the second
 	 * (or later) octave of the chord's notes.

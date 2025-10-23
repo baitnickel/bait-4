@@ -897,6 +897,68 @@ export class Chord {
         }
         return (noteNames) ? names : intervals;
     }
+    /**
+     * Given the `intervals` in a chord, return an array of unique intervals sorted
+     * by position relative to the root note (1).
+     */
+    uniqueIntervals(intervals) {
+        const intervalSet = new Set();
+        const rankedIntervals = [];
+        for (let i = 0; i < 2; i += 1) {
+            for (const intervals of Chord.Intervals) {
+                if (i == 0 || intervals.length > 1)
+                    rankedIntervals.push(intervals[i]);
+            }
+        }
+        /** ignore interval 1 w/ ticks: 1', 1'', etc. by ensuring that interval is included in rankedIntervals */
+        for (const interval of intervals)
+            if (rankedIntervals.includes(interval))
+                intervalSet.add(interval);
+        const uniqueIntervals = Array.from(intervalSet.values());
+        return uniqueIntervals.sort((a, b) => rankedIntervals.indexOf(a) - rankedIntervals.indexOf(b));
+    }
+    /**
+     * Given the `intervals` in a chord, return the chord name qualifier (e.g.,
+     * '' for a major chord, 'm' for a minor chord, '7' for a seventh chord,
+     * etc.). Return '?' when the qualifier cannot be determined.
+     */
+    intervalPattern(intervals) {
+        let qualifier = '?';
+        const pattern = this.uniqueIntervals(intervals).join(' ');
+        if (pattern == '1 3 5')
+            qualifier = '';
+        else if (pattern == '1 3 5 b7')
+            qualifier = '7';
+        else if (pattern == '1 3 5 b7 9')
+            qualifier = '9';
+        else if (pattern == '1 3 b7 9')
+            qualifier = '9(no5)';
+        else if (pattern == '1 3 5 7')
+            qualifier = 'maj7';
+        else if (pattern == '1 3 5 11')
+            qualifier = 'sus4';
+        else if (pattern == '1 3 b7 11')
+            qualifier = '11(no5)';
+        else if (pattern == '1 3 5 b7 11')
+            qualifier = '11';
+        else if (pattern == '1 3 #5')
+            qualifier = 'aug';
+        else if (pattern == '1 b3 5')
+            qualifier = 'm';
+        else if (pattern == '1 b3 5 b7')
+            qualifier = 'm7';
+        else if (pattern == '1 b3 b5 6')
+            qualifier = 'dim';
+        else if (pattern == '1 4 5')
+            qualifier = 'sus4';
+        else if (pattern == '1 5 b7 11')
+            qualifier = '11';
+        else if (pattern == '1 5 9')
+            qualifier = 'sus2';
+        else if (pattern == '1 5 11')
+            qualifier = 'sus4';
+        return qualifier;
+    }
     diagram(fontFamily = 'sans-serif', svgScaling = 0.85, stringSpacing = 16) {
         /**
          * Return an SVG element representing the chord diagram. 'stringSpacing'

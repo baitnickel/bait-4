@@ -153,25 +153,22 @@ function testChord(testOutput: HTMLDivElement) {
 	const instrument = new Instrument('guitar');
 	// instrument.updatePitches(['D','Bb','D','G','B','E']);
 	textEntry.element.addEventListener('change', () => {
-		const entry = textEntry.element.value;
-		const [chordName, notation] = entry.trim().split(/\s+/);
+		let entry = textEntry.element.value.trim();
+		entry = entry[0].toUpperCase() + entry.slice(1); /** allow lowercase root here */
+		const [chordName, notation] = entry.split(/\s+/);
 		const chord = new Chord(chordName, instrument, notation);
 
-		intervalsParagraph.innerHTML = `${chord.base} scale: ${chord.scale().join(', ')}<br>`;
 		const intervals = chord.intervals();
+		const uniqueIntervals = chord.uniqueIntervals(intervals).join(' ');
+		const intervalPattern = chord.intervalPattern(intervals);
+		intervalsParagraph.innerHTML = `<p>Looks like ${chord.root}${intervalPattern} (${uniqueIntervals})</p>`;
 		const notes = chord.intervals(true);
-		// for (const interval of intervals) {
+		intervalsParagraph.innerHTML += '<p>';
 		for (let i = 0; i < intervals.length; i += 1) {
 			const intervalsAndNotes = `${intervals[i]} ${notes[i]}`;
 			intervalsParagraph.innerHTML += `${intervalsAndNotes}<br>`;
 		}
-			
-		// if (chord.notation) {
-		// 	for (let i = 0; i < chord.notation.notes.length; i += 1) {
-		// 		intervalsParagraph.innerHTML += `${chord.notation.notes.length - i}: ${chord.notation.notes[i]}<br>`;
-		// 	}
-		// }
-		
+		intervalsParagraph.innerHTML += '</p>';
 		svgParagraph.append(chord.diagram()); // 'sans-serif', 0.5
 		textEntry.element.value = '';
 	});

@@ -8,6 +8,22 @@ import * as W from './lib/widgets.js';
 import { Markup } from './lib/markup.js';
 // const W3NameSpace = 'http://www.w3.org/2000/svg';
 
+/** 
+ * @todo
+ * Draw a simple fretboard made up of toggle buttons in a grid, with toggle
+ * buttons for open vs muted strings, styled drop-down for starting fret number
+ * (usually 1). Also need refresh/clear/undo/redo. Text input should allow a
+ * chord name--on resolution create the notation and log it if so desired. The
+ * reverse operation is done when the user operates the fretboard, announcing
+ * notations and possible chord name(s) with every button press. Interpretation
+ * of the chord names will rely primarily upon 1) designation of the root and at
+ * least one other note, 2) looking up the interval pattern in an intervals/chord
+ * name library.
+ * 
+ * Lots of display-chord possibilities. In addition to displaying fretboard
+ * fingering, we can display piano fingering.
+ */
+
 /**
  * Display a table of guitar chords, showing name, notation, intervals, notes
  * (and diagram?). Chord data is taken from fakesheets' "chords" metadata,
@@ -28,6 +44,7 @@ const FakesheetIndices = `${PAGE.site}/Indices/fakesheets.json`;
 const FakesheetsPath = `${PAGE.site}/Content/fakesheets`;
 const Fakesheets = await Fetch.map<T.FileStats>(FakesheetIndices);
 const Chords = await getChords(Fakesheets);
+const ChordModifiers = await Fetch.map<string>(`${PAGE.site}/data/chords/intervals.yaml`);
 
 export function render() {
 	// const listSection = document.createElement('div');
@@ -60,10 +77,11 @@ function getChordData(chordStructures: ChordStructure[]) {
 	for (let chordStructure of chordStructures) {
 		const chordObject = new Chord(chordStructure.name, instrument, chordStructure.notation);
 		chordStructure.intervals = chordObject.intervals();
-		const uniqueIntervals = chordObject.uniqueIntervals(chordStructure.intervals);
-		let intervalPattern = chordObject.intervalPattern(chordStructure.intervals);
-		if (!intervalPattern) intervalPattern = 'major';
-		chordStructure.pattern = `${uniqueIntervals.join(' ')} (${intervalPattern})`;
+		const intervalPattern = chordObject.intervalPattern(chordStructure.intervals);
+		let chordModifier = ChordModifiers.get(intervalPattern);
+		if (chordModifier === undefined) chordModifier = '?';
+		else if (!chordModifier) chordModifier = 'major';
+		chordStructure.pattern = `${intervalPattern} (${chordModifier})`;
 		chordStructure.notes = chordObject.intervals(true);
 		chordStructure.diagram = chordObject.diagram('sans-serif', 1);
 	}

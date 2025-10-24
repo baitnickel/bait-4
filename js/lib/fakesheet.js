@@ -898,10 +898,16 @@ export class Chord {
         return (noteNames) ? names : intervals;
     }
     /**
-     * Given the `intervals` in a chord, return an array of unique intervals sorted
-     * by position relative to the root note (1).
+     * Given the `intervals` in a chord, return a string of unique intervals
+     * sorted by position relative to the root note (1), separated by
+     * hyphens--e.g., '1-3-5', '1-b3-5-b7'. This return value can be used as the
+     * key to a map created from a YAML file such as:
+     *
+     *   1-3-5-b7: 7
+     *   1-3-5:
+     *   1-b3-5-b7: m7
      */
-    uniqueIntervals(intervals) {
+    intervalPattern(intervals, addRoot = true) {
         const intervalSet = new Set();
         const rankedIntervals = [];
         for (let i = 0; i < 2; i += 1) {
@@ -915,49 +921,10 @@ export class Chord {
             if (rankedIntervals.includes(interval))
                 intervalSet.add(interval);
         const uniqueIntervals = Array.from(intervalSet.values());
-        return uniqueIntervals.sort((a, b) => rankedIntervals.indexOf(a) - rankedIntervals.indexOf(b));
-    }
-    /**
-     * Given the `intervals` in a chord, return the chord name qualifier (e.g.,
-     * '' for a major chord, 'm' for a minor chord, '7' for a seventh chord,
-     * etc.). Return '?' when the qualifier cannot be determined.
-     */
-    intervalPattern(intervals) {
-        let qualifier = '?';
-        const pattern = this.uniqueIntervals(intervals).join(' ');
-        if (pattern == '1 3 5')
-            qualifier = '';
-        else if (pattern == '1 3 5 b7')
-            qualifier = '7';
-        else if (pattern == '1 3 5 b7 9')
-            qualifier = '9';
-        else if (pattern == '1 3 b7 9')
-            qualifier = '9(no5)';
-        else if (pattern == '1 3 5 7')
-            qualifier = 'maj7';
-        else if (pattern == '1 3 5 11')
-            qualifier = 'sus4';
-        else if (pattern == '1 3 b7 11')
-            qualifier = '11(no5)';
-        else if (pattern == '1 3 5 b7 11')
-            qualifier = '11';
-        else if (pattern == '1 3 #5')
-            qualifier = 'aug';
-        else if (pattern == '1 b3 5')
-            qualifier = 'm';
-        else if (pattern == '1 b3 5 b7')
-            qualifier = 'm7';
-        else if (pattern == '1 b3 b5 6')
-            qualifier = 'dim';
-        else if (pattern == '1 4 5')
-            qualifier = 'sus4';
-        else if (pattern == '1 5 b7 11')
-            qualifier = '11';
-        else if (pattern == '1 5 9')
-            qualifier = 'sus2';
-        else if (pattern == '1 5 11')
-            qualifier = 'sus4';
-        return qualifier;
+        uniqueIntervals.sort((a, b) => rankedIntervals.indexOf(a) - rankedIntervals.indexOf(b));
+        if (uniqueIntervals[0] != '1' && addRoot)
+            uniqueIntervals.unshift('1'); /** the root is implied? */
+        return uniqueIntervals.join('-');
     }
     diagram(fontFamily = 'sans-serif', svgScaling = 0.85, stringSpacing = 16) {
         /**

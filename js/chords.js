@@ -9,6 +9,7 @@ const FakesheetIndices = `${PAGE.site}/Indices/fakesheets.json`;
 const FakesheetsPath = `${PAGE.site}/Content/fakesheets`;
 const Fakesheets = await Fetch.map(FakesheetIndices);
 const Chords = await getChords(Fakesheets);
+const ChordModifiers = await Fetch.map(`${PAGE.site}/data/chords/intervals.yaml`);
 export function render() {
     // const listSection = document.createElement('div');
     // const flattenedChords: string[] = [];
@@ -38,11 +39,13 @@ function getChordData(chordStructures) {
     for (let chordStructure of chordStructures) {
         const chordObject = new Chord(chordStructure.name, instrument, chordStructure.notation);
         chordStructure.intervals = chordObject.intervals();
-        const uniqueIntervals = chordObject.uniqueIntervals(chordStructure.intervals);
-        let intervalPattern = chordObject.intervalPattern(chordStructure.intervals);
-        if (!intervalPattern)
-            intervalPattern = 'major';
-        chordStructure.pattern = `${uniqueIntervals.join(' ')} (${intervalPattern})`;
+        const intervalPattern = chordObject.intervalPattern(chordStructure.intervals);
+        let chordModifier = ChordModifiers.get(intervalPattern);
+        if (chordModifier === undefined)
+            chordModifier = '?';
+        else if (!chordModifier)
+            chordModifier = 'major';
+        chordStructure.pattern = `${intervalPattern} (${chordModifier})`;
         chordStructure.notes = chordObject.intervals(true);
         chordStructure.diagram = chordObject.diagram('sans-serif', 1);
     }

@@ -16,8 +16,7 @@ chords:
   - G        320003
   - G7       320001
   - Am       002210
-  - Am7/G    3x2010
-  - Amaj7    003130
+  - C/G      3x2010
   - Dm       x00231
   - E        022100
   - Em       022000
@@ -34,7 +33,7 @@ chords:
 The ^bird in the cloud and the ^bird in the nest, ^wholly the changes ^come 
 ^Planet in night and day, ^shadow, sun, ^wholly the changes ^ come  ^
 
-.bridge F Dm Em Am G G7 C C7 E Am Am7/G D9 G
+.bridge F Dm Em Am G G7 C C7 E Am C/G D9 G
 A ^castaway ^world, we ^roll on the st^ars, ^never been ^here be^fore  ^
 The ^wake of our ship is ^streaming a^way and ^empties in never^more
 

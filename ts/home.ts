@@ -123,7 +123,8 @@ export function render() {
 	}
 }
 
-function testChord(testOutput: HTMLDivElement) {
+async function testChord(testOutput: HTMLDivElement) {
+	const chordModifiers = await Fetch.map<string>(`${PAGE.site}/data/chords/intervals.yaml`);
 	const examples: string[] = [];
 	examples.push('Examples:');
 	examples.push('');
@@ -159,9 +160,11 @@ function testChord(testOutput: HTMLDivElement) {
 		const chord = new Chord(chordName, instrument, notation);
 
 		const intervals = chord.intervals();
-		const uniqueIntervals = chord.uniqueIntervals(intervals).join(' ');
 		const intervalPattern = chord.intervalPattern(intervals);
-		intervalsParagraph.innerHTML = `<p>Looks like ${chord.root}${intervalPattern} (${uniqueIntervals})</p>`;
+		let chordModifier = chordModifiers.get(intervalPattern);
+		if (chordModifier === undefined) chordModifier = '?';
+		else if (!chordModifier) chordModifier = ' major';
+		intervalsParagraph.innerHTML = `<p>Looks like ${chord.root}${chordModifier} (${intervalPattern})</p>`;
 		const notes = chord.intervals(true);
 		intervalsParagraph.innerHTML += '<p>';
 		for (let i = 0; i < intervals.length; i += 1) {
@@ -174,12 +177,18 @@ function testChord(testOutput: HTMLDivElement) {
 	});
 }
 
+// async function testIntervals(testOutput: HTMLDivElement) {
+// 	const chordModifiers = await Fetch.map<string>(`${PAGE.site}/data/chords/intervals.yaml`);
+// 	const chordModifier = chordModifiers.get('1-3-5-b7-11');
+// 	console.log(chordModifier);
+// }
+
 function testMidiNotes(testOutput: HTMLDivElement) {
 	const paragraph = document.createElement('p');
 	const output: string[] = [];
-	for (let i = 0; i < 128; i += 1) {
-		const note = SPN(i);
-		output.push(`${i}: ${note}`);
+	for (let pitch = 0; pitch < 128; pitch += 1) {
+		const note = SPN(pitch);
+		output.push(`${pitch}: ${note}`);
 	}
 	paragraph.innerHTML = output.join('<br>');
 	testOutput.append(paragraph);

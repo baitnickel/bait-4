@@ -17,9 +17,9 @@ chords:
   - B7 x21202
   - Em 022000
   - A(7) x0222(5,3)
-  - D7! x54530
+  - D9(no5) x54530
   - G7 323001
-  - C9 x32333
+  - C9 x3233(0,3)
 ---
 
 ..intro Baug C C Am Am F G C G(7)
@@ -42,7 +42,7 @@ hel^lo, hel^lo ... (break - verse chords)
     ^ Always longed to ^say "I love you", ^ always lived too ^high above you
     ^ Now I'm not so ^far away, ^ now at last, ^I can ^say 
 
-.v2 C F C F C F C F G Am D9 F D7 C G(7) C A(7) D7! G(7) C
+.v2 C F C F C F C F G Am D9 F D7 C G(7) C A(7) D9(no5) G(7) C
 ^ Hello, hel^lo, ^ you got pretty ^hair 
 ^ Hello, hel^lo, ^ can't you tell I ^care?
 ^ Would you ^like some of ^my tange^rine? ^

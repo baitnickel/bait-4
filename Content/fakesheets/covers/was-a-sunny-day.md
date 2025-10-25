@@ -6,7 +6,7 @@ artist: Paul Simon
 key: G
 chords:
   - C9 xx5(5,7)5(6,5)|5
-  - Gadd9 xx5435
+  - Gadd2 xx5435
   - D9 xx7(7,9)7(8,7)|7
 ---
 ..intro C C G G D7 D7 G G
@@ -31,7 +31,7 @@ Her name was Lau^relei, ^ she was his o^nly ^girl
 She called him Spe^edo but his ^christian name was ^Mister Earl ^
 ^She called him Spe^edo but his ^christian name was ^Mister Earl ^
 
-.last_ch C9 Gadd9 D9 Em G C9 Gadd9 D9 Gadd9 C9 Gadd9 D9 G
+.last_ch C9 Gadd2 D9 Em G C9 Gadd2 D9 Gadd2 C9 Gadd2 D9 G
   Was a sunny ^day, not a cloud was ^in the sky
   Not a negative ^word was heard
   From the peoples pa^ssing by ^
@@ -42,7 +42,7 @@ She called him Spe^edo but his ^christian name was ^Mister Earl ^
   Not a negative ^word was heard
   From the peoples pa^ssing by
 
-..out C9 C9 Gadd9 Gadd9 D9 D9 Gadd9 Gadd9
+..out C9 C9 Gadd2 Gadd2 D9 D9 Gadd2 Gadd2
 |^|^|^|^|^|^|^|^|
 |^|^|^|^|^|^|^|^|
 |^|^|^|^|

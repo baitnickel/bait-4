@@ -15,7 +15,8 @@
 #		['7']
 #	];
 #
-# "sus" : no 3 or b3
+# "sus" : 2 or 4 instead of 3 or b3 (neither major nor minor)
+# "dim" & "aug" : move the 5 a half step down or up (respectively)
 
 1-#5-9-13: aug(sus2)
 1-#5-9: aug(sus2)

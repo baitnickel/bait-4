@@ -8,31 +8,72 @@ PAGE.setTitle('Chords', 1);
 const FakesheetIndices = `${PAGE.site}/Indices/fakesheets.json`;
 const FakesheetsPath = `${PAGE.site}/Content/fakesheets`;
 const Fakesheets = await Fetch.map(FakesheetIndices);
-const Chords = await getChords(Fakesheets);
+// const Chords = await getChords(Fakesheets);
 const ChordModifiers = await Fetch.map(`${PAGE.site}/data/chords/intervals.yaml`);
 export function render() {
+    /** Simply list Chords */
     // const listSection = document.createElement('div');
     // const flattenedChords: string[] = [];
     // for (const chord of Chords) flattenedChords.push(`${chord.name} ${chord.notation}`);
     // listSection.innerHTML = flattenedChords.join('<br>');
     // listSection.innerHTML += `<p>${Chords.length} distinct chords</p>`;
     // PAGE.content.append(listSection);
-    getChordData(Chords);
-    const table = new W.Table(['Name', 'Diagram', 'Notation', 'Pattern', 'Intervals', 'Notes'], 1);
-    for (const chord of Chords) {
-        table.addRow();
-        table.addCell(chord.name);
-        const diagram = (chord.diagram === null) ? '' : chord.diagram;
-        const diagramCell = table.addCell('');
-        diagramCell.append(diagram);
-        table.addCell(chord.notation);
-        table.addCell(chord.pattern);
-        table.addCell(chord.intervals.join(' '));
-        table.addCell(chord.notes.join(' '));
-    }
-    table.fillTable();
-    const tableSection = table.element;
-    PAGE.content.append(tableSection);
+    /** Display a Table of CHords data */
+    // getChordData(Chords);
+    // const table = new W.Table(['Name', 'Diagram', 'Notation', 'Pattern', 'Intervals', 'Notes'], 1);
+    // for (const chord of Chords) {
+    // 	table.addRow();
+    // 	table.addCell(chord.name);
+    // 	const diagram = (chord.diagram === null) ? '' : chord.diagram; 
+    // 	const diagramCell = table.addCell('');
+    // 	diagramCell.append(diagram);
+    // 	table.addCell(chord.notation);
+    // 	table.addCell(chord.pattern);
+    // 	table.addCell(chord.intervals.join(' '));
+    // 	table.addCell(chord.notes.join(' '));
+    // }
+    // table.fillTable()
+    // const tableSection = table.element;
+    // PAGE.content.append(tableSection);
+    /** Interactive chord/interval utilities */
+    const textWidgetParagraph = document.createElement('p');
+    const intervalsParagraph = document.createElement('p');
+    const svgParagraph = document.createElement('p');
+    PAGE.content.append(textWidgetParagraph);
+    PAGE.content.append(intervalsParagraph);
+    PAGE.content.append(svgParagraph);
+    const textEntry = new W.Text('Enter Root Note & Notation (separated by space): ', '');
+    // textEntry.label.className = 'sans-serif';
+    textWidgetParagraph.append(textEntry.label);
+    textWidgetParagraph.append(textEntry.element);
+    textWidgetParagraph.append('\u00A0\u00A0 e.g.: "A x02210"');
+    const instrument = new Instrument('guitar');
+    // instrument.updatePitches(['D','Bb','D','G','B','E']);
+    textEntry.element.addEventListener('change', () => {
+        let entry = textEntry.element.value.trim();
+        entry = entry[0].toUpperCase() + entry.slice(1); /** allow lowercase root here */
+        const [chordName, notation] = entry.split(/\s+/);
+        const chord = new Chord(chordName, instrument, notation);
+        const intervals = chord.intervals();
+        const intervalPattern = chord.intervalPattern(intervals);
+        let chordModifier = ChordModifiers.get(intervalPattern);
+        if (chordModifier === undefined)
+            chordModifier = '?';
+        else if (!chordModifier)
+            chordModifier = ' major';
+        intervalsParagraph.innerHTML = `Root: ${chordName}, Notation: ${notation}`; //<br>
+        intervalsParagraph.innerHTML += `<br>Looks like ${chord.root}${chordModifier} (${intervalPattern})`;
+        const notes = chord.intervals(true);
+        intervalsParagraph.innerHTML += '<p>';
+        const intervalsAndNotes = [];
+        for (let i = 0; i < intervals.length; i += 1) {
+            intervalsAndNotes.push(`${intervals[i]}:${notes[i]}`);
+        }
+        intervalsParagraph.innerHTML += `${intervalsAndNotes.join(`\u00A0\u00A0`)}`;
+        intervalsParagraph.innerHTML += '</p>';
+        svgParagraph.append(chord.diagram()); // 'sans-serif', 0.5
+        textEntry.element.value = '';
+    });
 }
 function getChordData(chordStructures) {
     const instrument = new Instrument('guitar');
@@ -50,6 +91,10 @@ function getChordData(chordStructures) {
         chordStructure.diagram = chordObject.diagram('sans-serif', 1);
     }
 }
+/**
+ * @todo
+ * Add the ability to select a single fakesheet
+ */
 async function getChords(fakesheets) {
     /** Extract and normalize chord notation strings (e.g., "C7 x32310") from fakesheets */
     let chordNotations = [];

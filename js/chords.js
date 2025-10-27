@@ -10,6 +10,7 @@ const FakesheetsPath = `${PAGE.site}/Content/fakesheets`;
 const Fakesheets = await Fetch.map(FakesheetIndices);
 // const Chords = await getChords(Fakesheets);
 const ChordModifiers = await Fetch.map(`${PAGE.site}/data/chords/intervals.yaml`);
+const Roots = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
 export function render() {
     /** Simply list Chords */
     // const listSection = document.createElement('div');
@@ -37,11 +38,11 @@ export function render() {
     // PAGE.content.append(tableSection);
     /** Interactive chord/interval utilities */
     const textWidgetParagraph = document.createElement('p');
-    const intervalsParagraph = document.createElement('p');
     const svgParagraph = document.createElement('p');
+    const intervalsDiv = document.createElement('div');
     PAGE.content.append(textWidgetParagraph);
-    PAGE.content.append(intervalsParagraph);
     PAGE.content.append(svgParagraph);
+    PAGE.content.append(intervalsDiv);
     const textEntry = new W.Text('Enter Root Note & Notation (separated by space): ', '');
     // textEntry.label.className = 'sans-serif';
     textWidgetParagraph.append(textEntry.label);
@@ -50,28 +51,56 @@ export function render() {
     const instrument = new Instrument('guitar');
     // instrument.updatePitches(['D','Bb','D','G','B','E']);
     textEntry.element.addEventListener('change', () => {
-        let entry = textEntry.element.value.trim();
-        entry = entry[0].toUpperCase() + entry.slice(1); /** allow lowercase root here */
-        const [chordName, notation] = entry.split(/\s+/);
-        const chord = new Chord(chordName, instrument, notation);
-        const intervals = chord.intervals();
-        const intervalPattern = chord.intervalPattern(intervals);
-        let chordModifier = ChordModifiers.get(intervalPattern);
-        if (chordModifier === undefined)
-            chordModifier = '?';
-        else if (!chordModifier)
-            chordModifier = ' major';
-        intervalsParagraph.innerHTML = `Root: ${chordName}, Notation: ${notation}`; //<br>
-        intervalsParagraph.innerHTML += `<br>Looks like ${chord.root}${chordModifier} (${intervalPattern})`;
-        const notes = chord.intervals(true);
-        intervalsParagraph.innerHTML += '<p>';
-        const intervalsAndNotes = [];
-        for (let i = 0; i < intervals.length; i += 1) {
-            intervalsAndNotes.push(`${intervals[i]}:${notes[i]}`);
+        const entry = textEntry.element.value.trim();
+        const entries = entry.split(/\s+/);
+        let chordName = '';
+        let notation = '';
+        if (entries.length == 1)
+            notation = entries[0];
+        else if (entries.length > 1) {
+            chordName = entries[0];
+            chordName = chordName[0].toUpperCase() + chordName.slice(1); /** allow lowercase root here */
+            notation = entries[1];
         }
-        intervalsParagraph.innerHTML += `${intervalsAndNotes.join(`\u00A0\u00A0`)}`;
-        intervalsParagraph.innerHTML += '</p>';
-        svgParagraph.append(chord.diagram()); // 'sans-serif', 0.5
+        const roots = [];
+        let diagramChordName = 'C';
+        if (chordName) {
+            roots.push(chordName);
+            diagramChordName = chordName;
+        }
+        else
+            roots.push(...Roots);
+        svgParagraph.innerHTML = '';
+        intervalsDiv.innerHTML = '';
+        const diagramChord = new Chord(diagramChordName, instrument, notation);
+        svgParagraph.append(diagramChord.diagram('sans-serif', 1)); // 'sans-serif', 0.5
+        svgParagraph.innerHTML += `<br>${notation}`;
+        const grid = document.createElement('div');
+        grid.className = 'grid-auto';
+        for (const root of roots) {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-cell small';
+            const chord = new Chord(root, instrument, notation);
+            const intervals = chord.intervals();
+            const intervalPattern = chord.intervalPattern(intervals, false);
+            let chordModifier = ChordModifiers.get(intervalPattern);
+            if (chordModifier === undefined)
+                chordModifier = '?';
+            else {
+                gridItem.classList.add('red');
+                if (!chordModifier)
+                    chordModifier = ' major';
+            }
+            gridItem.innerHTML += `${chord.root}${chordModifier} (${intervalPattern})`;
+            const notes = chord.intervals(true);
+            const intervalsAndNotes = [];
+            for (let i = 0; i < intervals.length; i += 1) {
+                intervalsAndNotes.push(`${intervals[i]}:${notes[i]}`);
+            }
+            gridItem.innerHTML += `<br>${intervalsAndNotes.join(`\u00A0\u00A0`)}`;
+            grid.append(gridItem);
+        }
+        intervalsDiv.append(grid);
         textEntry.element.value = '';
     });
 }

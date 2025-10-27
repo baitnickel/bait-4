@@ -529,6 +529,12 @@ dialog.threads-dialog button {
 	text-align: center;
 	/* vertical-align: middle; */
 }
+.grid-auto {
+	display: grid;
+	/* grid-template-columns: repeat(auto-fit, 80px); */
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: .5rem;
+}
 
 .timeline-query-element button { margin-bottom: 1rem; }
 .timeline-container {

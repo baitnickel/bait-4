@@ -2,14 +2,14 @@
 #
 # static Intervals = [
 #		['1'],
-#		['b2','b9'],
+#		['b2'],     /*'b9'*/
 #		['2','9'],
-#		['b3' /*,'#9'*/],
+#		['b3'],     /*'#9'*/
 #		['3'],
 #		['4','11'],
-#		['b5','#11'],
+#		['b5'],     /*'#11'*/
 #		['5'],
-#		['#5','b13'],
+#		['#5'],     /*'b13'*/
 #		['6','13'],
 #		['b7'],
 #		['7']
@@ -17,25 +17,64 @@
 #
 # "sus" : 2 or 4 instead of 3 or b3 (neither major nor minor)
 # "dim" & "aug" : move the 5 a half step down or up (respectively)
+#
+# 1-3-5     major ''
+# 1-b3-5    minor 'm'
+# 1-3-5-b7  dominant 7th '7'
+# 1-b3-5-b7 minor 7th 'm7'
+# 1-3-5-7   major 7th 'maj7'
+
+# 9th chords (the 5th may be omitted):
+# 1-3-5-b7-9 dominant 9th '9' (x32333)
+# 1-b3-5-b7-9 minor 9th 'm9' (x3133x)
+# 1-3-5-7-9   major 9th 'maj9' (x3243x)
+
+# Extended chords are extentions of the 7th (and 9th) chords
+
+# 11th chords (again the 5th may be omitted):
+# 1-3-5-b7-9-11 dominant 11th '11' (x3x331)
+# 1-b3-5-b7-9-11 minor 11th 'm11' (x3x341)
+# 1-3-5-7-9-11 major 11th 'maj11' (x3x431)
+#
+# Also, the 3rd is often omitted from the dominant 11th and major 11th
+# as it is dissonant with the 11 (4); technically, then, these 
+# chord names might be written as '9sus4' instead of '11', and
+# 'maj9sus4' instead of 'maj11'.
+
+# 13th chords (again, the 5th may be omitted, as well as the
+# 9th and 11th):
+# 1-3-5-b7-9-11-13 dominant 13th '13' (x32335)
+# 1-b3-5-b7-9-11-13 minor 13th 'm13' (x3x345)
+# 1-3-5-7-9-11-13 major 13th 'maj13' (x3x455)
+
+# 1-2-3-5-7: maj7(add2)
+# 1-2-3-5-b7: 7(add2)
+# 1-2-5-7: maj7(sus2)
+# 1-2-5-b7-13: 13sus2
+# 1-2-5-b7: 7sus2
+# 1-2-6: aug(sus2)
+# 1-3-#5-7-13: aug(maj7)
+# 1-3-#5-b7-13: aug7
+# 1-3-5-13: 6
+# 1-3-5-b7-7: 7(add7)
+# 1-3-b7-#9: 7(add#9)
+# 1-5-b7-11: 11
+# 1-5-b7-13: 13
+# 1-b3-3-b7: 7(add#9)
+# 1-b3-5-7: m(add7)
+# 1-b3-b5: dim
 
 1-#5-9-13: aug(sus2)
 1-#5-9: aug(sus2)
 1-2-#5-13: aug(sus2)
 1-2-#5: aug(sus2)
 1-2-13: aug(sus2)
-1-2-3-5-7: maj7(add2)
-1-2-3-5-b7: 7(add2)
 1-2-3: add2(no5)
-1-2-5-7: maj7(sus2)
-1-2-5-b7-13: 13sus2
-1-2-5-b7: 7sus2
 1-2-5: sus2
 1-3-#5-13: aug
-1-3-#5-7-13: aug(maj7)
 1-3-#5-7: aug(maj7)
 1-3-#5-9-13: aug(add9)
 1-3-#5-9: aug(add9)
-1-3-#5-b7-13: aug7
 1-3-#5-b7: aug7
 1-3-#5: aug
 1-3-13: aug
@@ -43,12 +82,10 @@
 1-3-4-5: add4
 1-3-4-9: add4+9
 1-3-5-11: add4
-1-3-5-13: 6
 1-3-5-6: 6
 1-3-5-7: maj7
 1-3-5-9: add2
 1-3-5-b7-11: 11
-1-3-5-b7-7: 7(add7)
 1-3-5-b7-9: 9
 1-3-5-b7: 7
 1-3-5: 
@@ -57,35 +94,25 @@
 1-3-b5-7-#11: 7(b5)
 1-3-b5-7: 7(b5)
 1-3-b5: (b5)
-1-3-b7-#9: 7(add#9)
-1-3-b7-11: 11(no5)
-1-3-b7-13: aug7
-1-3-b7-9: 9(no5)
-1-3-b7: 7(no5)
+1-3-b7-11: 11
+1-3-b7-13: 13
+1-3-b7-9: 9
+1-3-b7: 7
 1-3: (no5)
-1-4-5-b7-11: 7sus4
-1-4-5-b7-13: 13sus4
-1-4-5-b7-9-13: 13sus4
-1-4-5-b7-9: 9sus4
-1-4-5-b7: 7sus4
 1-4-5: sus4
-1-5-11: sus4
 1-5-6: 5(add6)
-1-5-7-9: maj7(sus2)
-1-5-9: sus2
+1-5-7-9: maj11
 1-5-b7-11: 11
-1-5-b7-13: 13sus2
-1-5-b7-9: 7sus2
+1-5-b7-13: 13
+1-5-b7-9-11-13: 13
+1-5-b7-9-11: 11
+1-5-b7-9: 9
 1-5: 5
-1-9-13: aug(sus2)
-1-b3-3-b7: 7(add#9)
 1-b3-4: m(add4)
-1-b3-4-5-b7: m7(add4)
-1-b3-5-11: m(add4)
-1-b3-5-7: m(add7)
+1-b3-5-11: m11
+1-b3-5-b7-11: m11
 1-b3-5-b7: m7
 1-b3-5: m
-1-b3-b5-#11: dim
 1-b3-b5-6-#11: dim
 1-b3-b5-6: dim
 1-b3-b5: dim

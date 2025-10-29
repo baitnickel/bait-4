@@ -73,8 +73,8 @@ export function render() {
         svgParagraph.innerHTML = '';
         intervalsDiv.innerHTML = '';
         const diagramChord = new Chord(diagramChordName, instrument, notation);
-        svgParagraph.append(diagramChord.diagram('sans-serif', 1)); // 'sans-serif', 0.5
-        svgParagraph.innerHTML += `<br>${notation}`;
+        svgParagraph.append(diagramChord.diagram('sans-serif', 1, 16, notation)); // 'sans-serif', 0.5
+        // svgParagraph.innerHTML += `${notation}`;
         const grid = document.createElement('div');
         grid.className = 'grid-auto';
         for (const root of roots) {
@@ -82,14 +82,17 @@ export function render() {
             gridItem.className = 'grid-cell small';
             const chord = new Chord(root, instrument, notation);
             const intervals = chord.intervals();
-            const intervalPattern = chord.intervalPattern(intervals, false);
+            const intervalPattern = chord.intervalPattern(intervals);
+            if (!intervalPattern.startsWith('1-'))
+                continue;
             let chordModifier = ChordModifiers.get(intervalPattern);
             if (chordModifier === undefined)
                 chordModifier = '?';
             else {
-                gridItem.classList.add('red');
                 if (!chordModifier)
                     chordModifier = ' major';
+                const highlight = (intervals[0] == '1') ? 'red' : 'blue';
+                gridItem.classList.add(highlight);
             }
             gridItem.innerHTML += `${chord.root}${chordModifier} (${intervalPattern})`;
             const notes = chord.intervals(true);

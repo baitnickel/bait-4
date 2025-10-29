@@ -755,14 +755,14 @@ export class Chord {
 
 	static Intervals = [
 		['1'],
-		['b2','b9'],
+		['b2'],     /*'b9'*/
 		['2','9'],
-		['b3' /*,'#9'*/],
+		['b3'],     /*'#9'*/
 		['3'],
 		['4','11'],
-		['b5','#11'],
+		['b5'],     /*'#11'*/
 		['5'],
-		['#5','b13'],
+		['#5'],     /*'b13'*/
 		['6','13'],
 		['b7'],
 		['7']
@@ -884,37 +884,43 @@ export class Chord {
 	 * one. The Chord.root note is assigned interval 1 and the other notes are
 	 * offsets from the root.
 	 * 
-	 * intervals: 1, b2/b9, 2/9, b3, 3, 4/11, b5/#11, 5, #5/b13, 6/13, b7, 7
+	 * intervals: 1, b2, 2/9, b3, 3, 4/11, b5, 5, #5, 6/13, b7, 7
 	 * 
 	 * Secondary interval values are used once the notes have entered the second
 	 * (or later) octave of the chord's notes.
 	 */
 	intervals(noteNames = false) {
 		const intervals: string[] = [];
+		const intervalPairs: string[][] = [];
 		const names: string[] = [];
 		const rootIndex = NoteIndex(this.root);
+		let seventh = false; /** does chord contain 'b7' or '7'? */
 		if (this.instrument !== null && this.notation !== null && rootIndex >= 0) {
 			let firstRoot = 0;
 			const notes = this.notation.notes;
 			const primaryPitch = 0;
 			for (let instrumentString = 0; instrumentString < this.instrument.strings; instrumentString += 1) {
-				if (isNaN(notes[instrumentString][0])) continue; /** ignore "x" strings */
-				/** determine the pitch of the fretted string and the SPN note name */
+				if (isNaN(notes[instrumentString][0])) continue; /** ignore "x" (unplayed) strings */
+				/** determine the pitch of the fretted string, the SPN note name, and the octave */
 				const openStringPitch = this.instrument.pitches[instrumentString];
 				const frettedPitch = openStringPitch + notes[instrumentString][primaryPitch];
 				const octave = (!firstRoot) ? 0 : Math.floor((frettedPitch - firstRoot) / Notes.length);
-				/** determine the interval with octave variations */
+				/** determine the interval pair (e.g., ['1'], ['2','9'] ...) */
 				const notesIndex = frettedPitch % Notes.length;
 				const intervalsIndex = (rootIndex <= notesIndex) ? notesIndex - rootIndex : notesIndex + Notes.length - rootIndex;
-				const intervalVariations = Chord.Intervals[intervalsIndex].length; /** number of sub-array elements */
-				const intervalVariation = (intervalVariations > octave) ? octave : intervalVariations - 1;
-				let interval = Chord.Intervals[intervalsIndex][intervalVariation];
+				let intervalPair = Chord.Intervals[intervalsIndex].slice(); /** create shallow copy */
+				if (intervalsIndex >= 10) seventh = true;
 				if (intervalsIndex == 0) {
 					if (!firstRoot) firstRoot = frettedPitch;
-					if (octave > 0) interval += `'`.repeat(octave); /** number of ticks is distance between octaves */
+					if (octave > 0) intervalPair[0] += `'`.repeat(octave); /** number of ticks is distance between octaves */
 				}
 				names.push(SPN(frettedPitch, this.base));
-				intervals.push(interval);
+				intervalPairs.push(intervalPair);
+			}
+			/** when the chord contains a seventh interval, use the secondary value (i.e., '9', '11', '13') */
+			for (const intervalPair of intervalPairs) {
+				if (!seventh || intervalPair.length == 1) intervals.push(intervalPair[0]);
+				else intervals.push(intervalPair[1]);
 			}
 		}
 		return (noteNames) ? names : intervals;
@@ -926,11 +932,11 @@ export class Chord {
 	 * hyphens--e.g., '1-3-5', '1-b3-5-b7'. This return value can be used as the
 	 * key to a map created from a YAML file such as:
 	 * 
-	 *   1-3-5-b7: 7
-	 *   1-3-5: 
-	 *   1-b3-5-b7: m7
+	 * -  1-3-5-b7: 7
+	 * -  1-3-5: 
+	 * -  1-b3-5-b7: m7
 	 */
-	intervalPattern(intervals: string[], addRoot = true) {
+	intervalPattern(intervals: string[], addRoot = false) {
 		const intervalSet = new Set<string>();
 		const rankedIntervals: string[] = [];
 		for (let i = 0; i < 2; i += 1) {	
@@ -946,7 +952,7 @@ export class Chord {
 		return uniqueIntervals.join('-');
 	}
 
-	diagram(fontFamily = 'sans-serif', svgScaling = 0.85, stringSpacing = 16) {
+	diagram(fontFamily = 'sans-serif', svgScaling = 0.85, stringSpacing = 16, diagramText = '') {
 		/**
 		 * Return an SVG element representing the chord diagram. 'stringSpacing'
 		 * is the horizontal distance between adjacent strings; this value
@@ -988,7 +994,7 @@ export class Chord {
 		let svgGroup = document.createElementNS(W3NameSpace, 'g');
 		svgGroup.setAttribute('transform', `scale(${svgScaling})`);		
 		
-		/** Add chord name to group container */
+		/** Add chord name (or notation) to group container */
 		coordinates = {
 			x: fretPositionWidth,
 			y: 0,
@@ -997,7 +1003,7 @@ export class Chord {
 			radius: 0
 		};
 		text = {
-			value: MarkupLine(this.name, 'E'),
+			value: (diagramText) ? MarkupLine(diagramText, 'E') : MarkupLine(this.name, 'E'),
 			fontSize: nameFontSize,
 			fontFamily: fontFamily
 		};

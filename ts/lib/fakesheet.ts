@@ -952,6 +952,71 @@ export class Chord {
 		return uniqueIntervals.join('-');
 	}
 
+	/**
+	 * @todo support adding slash-bass note 
+	 */
+	modifier(intervals: string[], addRoot = false) {
+		const intervalPattern = this.intervalPattern(intervals, addRoot);
+		const patternModifiers = [
+			'1-3-5     major',
+			'1-b3-5    m',
+			'1-3-5-b7  7',
+			'1-b3-5-b7 m7',
+			'1-3-5-7   maj7',
+			
+			'1-3-(5-)?b7-9   9',
+			'1-b3-(5-)?b7-9  m9',
+			'1-b3-5-7        m-maj7',
+			'1-3-(5-)?7-9    maj9',
+
+			'1-(3-)?(5-)?b7-(9-)?11  11',
+			'1-b3-5-b7-9-11          m11',
+			'1-(3-)?(5-)?7-(9-)?11   maj11',
+			
+			'1-3-(5-)?b7-(9-)?(11-)?13   13',
+			'1-b3-(5-)?b7-(9-)?(11-)?13  m13',
+			'1-3-(5-)?7-(9-)?(11-)?13    maj13',
+			
+			'1-3-#5         +',      // 'aug'
+			'1-3-#5-b7      +7',     // 'aug7'
+			'1-b3-b5        °',      // 'dim'
+			'1-b3-b5-6      °7',     // odd name, aka "double flat 7"
+			'1-b3-b5-b7     ø',      // half diminished (m7b5)
+			'1-b3-b5-b7-11  11b5',   // half diminished w/ 11
+			'1-b3-b7        m7(no5)',
+			
+			'1-2-5         sus2',
+			'1-4-5         sus4',
+			'1-4-5-6       6sus4',
+			'1-4-5-6-9     6sus4-add9',
+			'1-2-5-b7      7sus2',
+			'1-4-5-b7      7sus4',
+			'1-4-5-b7-9    9sus4',
+			'1-4-5-b7-b9   sus4b9',
+			'1-4-5-b7-13   13sus4',
+			'1-4-5-9       sus4-add9',
+			
+			'1-2-3-4-5  add2/4',  // e.g., D/G 554030
+			'1-2-3-4    add4(no5)',
+			'1-3-4-5    add4',
+			'1-3-5-6    6',
+			'1-b3-5-6   m6',
+			'1-3-5-9    add9',
+			'1-b3-5-9   m-add9',
+			'1-3-5-13   add13',
+		];
+		let chordModifier = '?';
+		for (const patternModifier of patternModifiers) {
+			const [pattern, modifier] = patternModifier.split(/\s+/);
+			const regExp = new RegExp(`^${pattern}$`);
+			if (regExp.test(intervalPattern)) {
+				chordModifier = modifier;
+				break;
+			}
+		}
+		return chordModifier;
+	}
+
 	diagram(fontFamily = 'sans-serif', svgScaling = 0.85, stringSpacing = 16, diagramText = '') {
 		/**
 		 * Return an SVG element representing the chord diagram. 'stringSpacing'

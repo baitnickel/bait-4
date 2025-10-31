@@ -37,13 +37,16 @@ export function render() {
     // const tableSection = table.element;
     // PAGE.content.append(tableSection);
     /** Interactive chord/interval utilities */
+    /**
+     * @todo sort red, then blue, then others
+     */
     const textWidgetParagraph = document.createElement('p');
     const svgParagraph = document.createElement('p');
     const intervalsDiv = document.createElement('div');
     PAGE.content.append(textWidgetParagraph);
     PAGE.content.append(svgParagraph);
     PAGE.content.append(intervalsDiv);
-    const textEntry = new W.Text('Enter Root Note & Notation (separated by space): ', '');
+    const textEntry = new W.Text('Enter (Root Note &) Notation (separated by space): ', '');
     // textEntry.label.className = 'sans-serif';
     textWidgetParagraph.append(textEntry.label);
     textWidgetParagraph.append(textEntry.element);
@@ -85,6 +88,7 @@ export function render() {
             const intervalPattern = chord.intervalPattern(intervals);
             if (!intervalPattern.startsWith('1-'))
                 continue;
+            let modifier = chord.modifier(intervals);
             let chordModifier = ChordModifiers.get(intervalPattern);
             if (chordModifier === undefined)
                 chordModifier = '?';
@@ -94,7 +98,7 @@ export function render() {
                 const highlight = (intervals[0] == '1') ? 'red' : 'blue';
                 gridItem.classList.add(highlight);
             }
-            gridItem.innerHTML += `${chord.root}${chordModifier} (${intervalPattern})`;
+            gridItem.innerHTML += `${chord.root}${chordModifier} (${intervalPattern})(${modifier})`;
             const notes = chord.intervals(true);
             const intervalsAndNotes = [];
             for (let i = 0; i < intervals.length; i += 1) {

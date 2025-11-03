@@ -980,7 +980,7 @@ export class Chord {
 			'1-3-#5         +',      // 'aug'
 			'1-3-#5-b7      +7',     // 'aug7'
 			'1-b3-b5        °',      // 'dim'
-			'1-b3-b5-6      °7',     // odd name, aka "double flat 7"
+			'1-b3-b5-6      °7',     // 6 is "double flat 7" (strange name)
 			'1-b3-b5-b7     ø',      // half diminished (m7b5)
 			'1-b3-b5-b7-11  11b5',   // half diminished w/ 11
 			'1-b3-b7        m7(no5)',

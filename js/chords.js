@@ -30,7 +30,7 @@ export function render() {
         for (const root of roots) {
             const chord = new Chord(root, instrument, notation);
             const intervals = chord.intervals();
-            const notes = chord.intervals(true);
+            const notes = chord.notes(true);
             const intervalPattern = chord.intervalPattern(intervals);
             if (intervalPattern.startsWith('1-')) {
                 let modifier = chord.modifier(intervals);
@@ -45,17 +45,24 @@ export function render() {
         }
         /** sort chord w/ root at first interval to the top, then sort by root */
         chordData.sort((a, b) => {
+            const aKnownModifier = (a.modifier != '?') ? 1 : 0;
+            const bKnownModifier = (b.modifier != '?') ? 1 : 0;
             const aPrimary = (a.intervals[0] == '1') ? 1 : 0;
             const bPrimary = (b.intervals[0] == '1') ? 1 : 0;
-            if (aPrimary == bPrimary)
-                return a.root.localeCompare(b.root);
-            return bPrimary - aPrimary;
+            let result = bKnownModifier - aKnownModifier;
+            if (!result)
+                result = bPrimary - aPrimary;
+            if (!result)
+                result = a.root.localeCompare(b.root);
+            return result;
         });
         for (const chordDatum of chordData) {
             const gridItem = document.createElement('div');
             gridItem.className = 'grid-cell small';
-            if (chordDatum.intervals[0] == '1')
-                gridItem.classList.add('red');
+            if (chordDatum.modifier != '?') {
+                const highlight = (chordDatum.intervals[0] == '1') ? 'red' : 'blue';
+                gridItem.classList.add(highlight);
+            }
             gridItem.innerHTML += `${chordDatum.root}${chordDatum.modifier} (${chordDatum.intervalPattern})`;
             const intervalsAndNotes = [];
             for (let i = 0; i < chordDatum.intervals.length; i += 1) {

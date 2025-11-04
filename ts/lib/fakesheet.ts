@@ -889,10 +889,9 @@ export class Chord {
 	 * Secondary interval values are used once the notes have entered the second
 	 * (or later) octave of the chord's notes.
 	 */
-	intervals(noteNames = false) {
+	intervals() {
 		const intervals: string[] = [];
 		const intervalPairs: string[][] = [];
-		const names: string[] = [];
 		const rootIndex = NoteIndex(this.root);
 		let seventh = false; /** does chord contain 'b7' or '7'? */
 		if (this.instrument !== null && this.notation !== null && rootIndex >= 0) {
@@ -901,7 +900,7 @@ export class Chord {
 			const primaryPitch = 0;
 			for (let instrumentString = 0; instrumentString < this.instrument.strings; instrumentString += 1) {
 				if (isNaN(notes[instrumentString][0])) continue; /** ignore "x" (unplayed) strings */
-				/** determine the pitch of the fretted string, the SPN note name, and the octave */
+				/** determine the pitch of the fretted string and the octave */
 				const openStringPitch = this.instrument.pitches[instrumentString];
 				const frettedPitch = openStringPitch + notes[instrumentString][primaryPitch];
 				const octave = (!firstRoot) ? 0 : Math.floor((frettedPitch - firstRoot) / Notes.length);
@@ -914,7 +913,6 @@ export class Chord {
 					if (!firstRoot) firstRoot = frettedPitch;
 					if (octave > 0) intervalPair[0] += `'`.repeat(octave); /** number of ticks is distance between octaves */
 				}
-				names.push(SPN(frettedPitch, this.base));
 				intervalPairs.push(intervalPair);
 			}
 			/** when the chord contains a seventh interval, use the secondary value (i.e., '9', '11', '13') */
@@ -923,7 +921,25 @@ export class Chord {
 				else intervals.push(intervalPair[1]);
 			}
 		}
-		return (noteNames) ? names : intervals;
+		return intervals;
+	}
+
+	notes(includeOctave = false) {
+		const noteNames: string[] = [];
+		const rootIndex = NoteIndex(this.root);
+		if (this.instrument !== null && this.notation !== null && rootIndex >= 0) {
+			const notes = this.notation.notes;
+			const primaryPitch = 0;
+			for (let instrumentString = 0; instrumentString < this.instrument.strings; instrumentString += 1) {
+				if (isNaN(notes[instrumentString][0])) continue; /** ignore "x" (unplayed) strings */
+				/** determine the pitch of the fretted string and get the note name */
+				const openStringPitch = this.instrument.pitches[instrumentString];
+				const frettedPitch = openStringPitch + notes[instrumentString][primaryPitch];
+				if (includeOctave) noteNames.push(SPN(frettedPitch, this.base));
+				else noteNames.push(PitchName(frettedPitch, this.base))
+			}
+		}
+		return noteNames;
 	}
 
 	/**
@@ -955,7 +971,7 @@ export class Chord {
 	/**
 	 * @todo support adding slash-bass note 
 	 */
-	modifier(intervals: string[], addRoot = false) {
+	modifier(intervals: string[], hideMajor = true, addRoot = false) {
 		const intervalPattern = this.intervalPattern(intervals, addRoot);
 		const patternModifiers = [
 			'1-3-5     major',
@@ -1010,7 +1026,9 @@ export class Chord {
 			const [pattern, modifier] = patternModifier.split(/\s+/);
 			const regExp = new RegExp(`^${pattern}$`);
 			if (regExp.test(intervalPattern)) {
-				chordModifier = modifier;
+				chordModifier = (hideMajor && modifier == 'major') ? '' : modifier;
+				const firstNote = this.notes()[0];
+				if (firstNote != this.root) chordModifier += `/${firstNote}`;
 				break;
 			}
 		}

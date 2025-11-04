@@ -165,7 +165,7 @@ async function testChord(testOutput: HTMLDivElement) {
 		if (chordModifier === undefined) chordModifier = '?';
 		else if (!chordModifier) chordModifier = ' major';
 		intervalsParagraph.innerHTML = `<p>Looks like ${chord.root}${chordModifier} (${intervalPattern})</p>`;
-		const notes = chord.intervals(true);
+		const notes = chord.notes(true);
 		intervalsParagraph.innerHTML += '<p>';
 		for (let i = 0; i < intervals.length; i += 1) {
 			const intervalsAndNotes = `${intervals[i]} ${notes[i]}`;

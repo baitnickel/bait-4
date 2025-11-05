@@ -755,14 +755,14 @@ export class Chord {
 
 	static Intervals = [
 		['1'],
-		['b2'],     /*'b9'*/
+		['b2','b9'],
 		['2','9'],
-		['b3'],     /*'#9'*/
+		['b3','#9'],
 		['3'],
 		['4','11'],
-		['b5'],     /*'#11'*/
+		['b5','#11'],
 		['5'],
-		['#5'],     /*'b13'*/
+		['#5','b13'],
 		['6','13'],
 		['b7'],
 		['7']
@@ -891,9 +891,9 @@ export class Chord {
 	 */
 	intervals() {
 		const intervals: string[] = [];
-		const intervalPairs: string[][] = [];
+		// const intervalPairs: string[][] = [];
 		const rootIndex = NoteIndex(this.root);
-		let seventh = false; /** does chord contain 'b7' or '7'? */
+		// let seventh = false; /** does chord contain 'b7' or '7'? */
 		if (this.instrument !== null && this.notation !== null && rootIndex >= 0) {
 			let firstRoot = 0;
 			const notes = this.notation.notes;
@@ -904,22 +904,32 @@ export class Chord {
 				const openStringPitch = this.instrument.pitches[instrumentString];
 				const frettedPitch = openStringPitch + notes[instrumentString][primaryPitch];
 				const octave = (!firstRoot) ? 0 : Math.floor((frettedPitch - firstRoot) / Notes.length);
-				/** determine the interval pair (e.g., ['1'], ['2','9'] ...) */
+
+				/** determine the interval with higher octave variations */
 				const notesIndex = frettedPitch % Notes.length;
 				const intervalsIndex = (rootIndex <= notesIndex) ? notesIndex - rootIndex : notesIndex + Notes.length - rootIndex;
-				let intervalPair = Chord.Intervals[intervalsIndex].slice(); /** create shallow copy */
-				if (intervalsIndex >= 10) seventh = true;
+				const intervalVariations = Chord.Intervals[intervalsIndex].length; /** number of sub-array elements */
+				const intervalVariation = (intervalVariations > octave) ? octave : intervalVariations - 1;
+				let interval = Chord.Intervals[intervalsIndex][intervalVariation];
+				
+				// /** determine the interval pair (e.g., ['1'], ['2','9'] ...) */
+				// const notesIndex = frettedPitch % Notes.length;
+				// const intervalsIndex = (rootIndex <= notesIndex) ? notesIndex - rootIndex : notesIndex + Notes.length - rootIndex;
+				// let intervalPair = Chord.Intervals[intervalsIndex].slice(); /** create shallow copy */
+				// if (intervalsIndex >= 10) seventh = true;
 				if (intervalsIndex == 0) {
 					if (!firstRoot) firstRoot = frettedPitch;
-					if (octave > 0) intervalPair[0] += `'`.repeat(octave); /** number of ticks is distance between octaves */
+					if (octave > 0) interval += `'`.repeat(octave);
+					// if (octave > 0) intervalPair[0] += `'`.repeat(octave); /** number of ticks is distance between octaves */
 				}
-				intervalPairs.push(intervalPair);
+				intervals.push(interval);
+				// intervalPairs.push(intervalPair);
 			}
-			/** when the chord contains a seventh interval, use the secondary value (i.e., '9', '11', '13') */
-			for (const intervalPair of intervalPairs) {
-				if (!seventh || intervalPair.length == 1) intervals.push(intervalPair[0]);
-				else intervals.push(intervalPair[1]);
-			}
+			// /** when the chord contains a seventh interval, use the secondary value (i.e., '9', '11', '13') */
+			// for (const intervalPair of intervalPairs) {
+			// 	if (!seventh || intervalPair.length == 1) intervals.push(intervalPair[0]);
+			// 	else intervals.push(intervalPair[1]);
+			// }
 		}
 		return intervals;
 	}
@@ -935,8 +945,8 @@ export class Chord {
 				/** determine the pitch of the fretted string and get the note name */
 				const openStringPitch = this.instrument.pitches[instrumentString];
 				const frettedPitch = openStringPitch + notes[instrumentString][primaryPitch];
-				if (includeOctave) noteNames.push(SPN(frettedPitch, this.base));
-				else noteNames.push(PitchName(frettedPitch, this.base))
+				const noteName = (includeOctave) ? SPN(frettedPitch, this.base) : PitchName(frettedPitch, this.base);
+				noteNames.push(noteName);
 			}
 		}
 		return noteNames;
@@ -949,7 +959,7 @@ export class Chord {
 	 * key to a map created from a YAML file such as:
 	 * 
 	 * -  1-3-5-b7: 7
-	 * -  1-3-5: 
+	 * -  1-3-5: major
 	 * -  1-b3-5-b7: m7
 	 */
 	intervalPattern(intervals: string[], addRoot = false) {
@@ -976,14 +986,14 @@ export class Chord {
 		const patternModifiers = [
 			'1-3-5     major',
 			'1-b3-5    m',
-			'1-3-5-b7  7',
+			'1-3-(5-)?b7  7',
 			'1-b3-5-b7 m7',
 			'1-3-5-7   maj7',
 			
-			'1-3-(5-)?b7-9   9',
-			'1-b3-(5-)?b7-9  m9',
-			'1-b3-5-7        m-maj7',
-			'1-3-(5-)?7-9    maj9',
+			'1-3-(5-)?b7-9    9',
+			'1-b3-(5-)?b7-9   m9',
+			'1-b3-5-7         m-maj7',
+			'1-(3-)?(5-)?7-9  maj9',
 
 			'1-(3-)?(5-)?b7-(9-)?11  11',
 			'1-b3-5-b7-9-11          m11',

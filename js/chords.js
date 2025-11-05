@@ -1,6 +1,35 @@
 import { Page } from './lib/page.js';
 import { Instrument, Chord } from './lib/fakesheet.js';
 import * as W from './lib/widgets.js';
+// const W3NameSpace = 'http://www.w3.org/2000/svg';
+/**
+ * @todo
+ * Draw a simple fretboard made up of toggle buttons in a grid, with toggle
+ * buttons for open vs muted strings, styled drop-down for starting fret number
+ * (usually 1). Also need refresh/clear/undo/redo. Text input should allow a
+ * chord name--on resolution create the notation and log it if so desired. The
+ * reverse operation is done when the user operates the fretboard, announcing
+ * notations and possible chord name(s) with every button press. Interpretation
+ * of the chord names will rely primarily upon 1) designation of the root and at
+ * least one other note, 2) looking up the interval pattern in an intervals/chord
+ * name library.
+ *
+ * Lots of display-chord possibilities. In addition to displaying fretboard
+ * fingering, we can display piano fingering.
+ */
+/**
+ * Display a table of guitar chords, showing name, notation, intervals, notes
+ * (and diagram?). Chord data is taken from fakesheets' "chords" metadata,
+ * sorted uniquely by name and notation.
+ */
+// type ChordStructure = {
+// 	name: string;
+// 	notation: string;
+// 	intervals: string[];
+// 	pattern: string;
+// 	notes: string[];
+// 	diagram: SVGSVGElement|null;
+// }
 const PAGE = new Page();
 PAGE.setTitle('Chords', 1);
 export function render() {
@@ -9,9 +38,11 @@ export function render() {
     const textWidgetParagraph = document.createElement('p');
     const svgParagraph = document.createElement('p');
     const intervalsDiv = document.createElement('div');
+    const testDiv = document.createElement('div');
     PAGE.content.append(textWidgetParagraph);
     PAGE.content.append(svgParagraph);
     PAGE.content.append(intervalsDiv);
+    PAGE.content.append(testDiv);
     const textEntry = new W.Text('Enter Notation: ', '');
     // textEntry.label.className = 'sans-serif';
     textWidgetParagraph.append(textEntry.label);
@@ -26,54 +57,72 @@ export function render() {
         svgParagraph.append(diagramChord.diagram('sans-serif', 1, 16, notation)); // 'sans-serif', 0.5
         const grid = document.createElement('div');
         grid.className = 'grid-auto';
-        const chordData = [];
-        for (const root of roots) {
-            const chord = new Chord(root, instrument, notation);
-            const intervals = chord.intervals();
-            const notes = chord.notes(true);
-            const intervalPattern = chord.intervalPattern(intervals);
-            if (intervalPattern.startsWith('1-')) {
-                let modifier = chord.modifier(intervals);
-                chordData.push({
-                    root: root,
-                    intervals: intervals,
-                    notes: notes,
-                    intervalPattern: intervalPattern,
-                    modifier: modifier
-                });
-            }
-        }
-        /** sort chord w/ root at first interval to the top, then sort by root */
-        chordData.sort((a, b) => {
-            const aKnownModifier = (a.modifier != '?') ? 1 : 0;
-            const bKnownModifier = (b.modifier != '?') ? 1 : 0;
-            const aPrimary = (a.intervals[0] == '1') ? 1 : 0;
-            const bPrimary = (b.intervals[0] == '1') ? 1 : 0;
-            let result = bKnownModifier - aKnownModifier;
-            if (!result)
-                result = bPrimary - aPrimary;
-            if (!result)
-                result = a.root.localeCompare(b.root);
-            return result;
-        });
-        for (const chordDatum of chordData) {
-            const gridItem = document.createElement('div');
-            gridItem.className = 'grid-cell small';
-            if (chordDatum.modifier != '?') {
-                const highlight = (chordDatum.intervals[0] == '1') ? 'red' : 'blue';
-                gridItem.classList.add(highlight);
-            }
-            gridItem.innerHTML += `${chordDatum.root}${chordDatum.modifier} (${chordDatum.intervalPattern})`;
-            const intervalsAndNotes = [];
-            for (let i = 0; i < chordDatum.intervals.length; i += 1) {
-                intervalsAndNotes.push(`${chordDatum.intervals[i]}: ${chordDatum.notes[i]}`);
-            }
-            gridItem.innerHTML += `<br>${intervalsAndNotes.join(`\u00A0\u00A0`)}`;
-            grid.append(gridItem);
-        }
-        intervalsDiv.append(grid);
+        const chordData = getChordData(instrument, notation);
+        sortChordData(chordData);
+        displayChordData(chordData, grid, intervalsDiv);
         textEntry.element.value = '';
     });
+    if (PAGE.local) {
+        const fretboard = document.createElement('p');
+        fretboard.style.width = '173px';
+        fretboard.style.height = '231px';
+        fretboard.style.backgroundImage = `url(${PAGE.site}/Images/fretboard.png)`;
+        fretboard.innerHTML = `The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog.`;
+        testDiv.append(fretboard);
+    }
+}
+function getChordData(instrument, notation) {
+    const chordData = [];
+    const roots = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
+    for (const root of roots) {
+        const chord = new Chord(root, instrument, notation);
+        const intervals = chord.intervals();
+        const notes = chord.notes(true);
+        const intervalPattern = chord.intervalPattern(intervals);
+        if (intervalPattern.startsWith('1-')) {
+            let modifier = chord.modifier(intervals);
+            chordData.push({
+                root: root,
+                intervals: intervals,
+                notes: notes,
+                intervalPattern: intervalPattern,
+                modifier: modifier
+            });
+        }
+    }
+    return chordData;
+}
+function sortChordData(chordData) {
+    chordData.sort((a, b) => {
+        const aKnownModifier = (a.modifier != '?') ? 1 : 0;
+        const bKnownModifier = (b.modifier != '?') ? 1 : 0;
+        const aPrimary = (a.intervals[0] == '1') ? 1 : 0;
+        const bPrimary = (b.intervals[0] == '1') ? 1 : 0;
+        let result = bKnownModifier - aKnownModifier;
+        if (!result)
+            result = bPrimary - aPrimary;
+        if (!result)
+            result = a.root.localeCompare(b.root);
+        return result;
+    });
+}
+function displayChordData(chordData, grid, intervalsDiv) {
+    for (const chordDatum of chordData) {
+        const gridItem = document.createElement('div');
+        gridItem.className = 'grid-cell small';
+        if (chordDatum.modifier != '?') {
+            const highlight = (chordDatum.intervals[0] == '1') ? 'red' : 'blue';
+            gridItem.classList.add(highlight);
+        }
+        gridItem.innerHTML += `${chordDatum.root}${chordDatum.modifier} (${chordDatum.intervalPattern})`;
+        const intervalsAndNotes = [];
+        for (let i = 0; i < chordDatum.intervals.length; i += 1) {
+            intervalsAndNotes.push(`${chordDatum.intervals[i]}: ${chordDatum.notes[i]}`);
+        }
+        gridItem.innerHTML += `<br>${intervalsAndNotes.join(`\u00A0\u00A0`)}`;
+        grid.append(gridItem);
+    }
+    intervalsDiv.append(grid);
 }
 /** Simply list Chords */
 // const listSection = document.createElement('div');

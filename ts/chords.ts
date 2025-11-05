@@ -29,14 +29,15 @@ import { Markup } from './lib/markup.js';
  * (and diagram?). Chord data is taken from fakesheets' "chords" metadata,
  * sorted uniquely by name and notation.
  */
-type ChordStructure = {
-	name: string;
-	notation: string;
-	intervals: string[];
-	pattern: string;
-	notes: string[];
-	diagram: SVGSVGElement|null;
-}
+
+// type ChordStructure = {
+// 	name: string;
+// 	notation: string;
+// 	intervals: string[];
+// 	pattern: string;
+// 	notes: string[];
+// 	diagram: SVGSVGElement|null;
+// }
 
 const PAGE = new Page();
 PAGE.setTitle('Chords', 1);
@@ -60,9 +61,11 @@ export function render() {
 	const textWidgetParagraph = document.createElement('p');
 	const svgParagraph = document.createElement('p');
 	const intervalsDiv = document.createElement('div');
+			const testDiv = document.createElement('div');
 	PAGE.content.append(textWidgetParagraph);
 	PAGE.content.append(svgParagraph);
 	PAGE.content.append(intervalsDiv);
+			PAGE.content.append(testDiv);
 	const textEntry = new W.Text('Enter Notation: ', '');
 	// textEntry.label.className = 'sans-serif';
 	textWidgetParagraph.append(textEntry.label);
@@ -76,59 +79,76 @@ export function render() {
 		intervalsDiv.innerHTML = '';
 		const diagramChord = new Chord('C', instrument, notation);
 		svgParagraph.append(diagramChord.diagram('sans-serif', 1, 16, notation)); // 'sans-serif', 0.5
-
 		const grid = document.createElement('div');
 		grid.className = 'grid-auto';
-
-		const chordData: ChordData[] = [];
-		for (const root of roots) {
-			const chord = new Chord(root, instrument, notation);
-			const intervals = chord.intervals();
-			const notes = chord.notes(true);
-			const intervalPattern = chord.intervalPattern(intervals);
-			if (intervalPattern.startsWith('1-')) {
-				let modifier = chord.modifier(intervals);
-				chordData.push({
-					root: root,
-					intervals: intervals,
-					notes: notes,
-					intervalPattern: intervalPattern,
-					modifier: modifier
-				});
-			}
-		}
-
-		/** sort chord w/ root at first interval to the top, then sort by root */
-		chordData.sort((a,b) => {
-			const aKnownModifier = (a.modifier != '?') ? 1 : 0;
-			const bKnownModifier = (b.modifier != '?') ? 1 : 0;
-			const aPrimary = (a.intervals[0] == '1') ? 1 : 0;
-			const bPrimary = (b.intervals[0] == '1') ? 1 : 0;
-			let result = bKnownModifier - aKnownModifier;
-			if (!result) result = bPrimary - aPrimary;
-			if (!result) result = a.root.localeCompare(b.root);
-			return result;
-		});
-			
-		for (const chordDatum of chordData) {
-			const gridItem = document.createElement('div');
-			gridItem.className = 'grid-cell small';
-			if (chordDatum.modifier != '?') {
-				const highlight = (chordDatum.intervals[0] == '1') ? 'red' : 'blue';
-				gridItem.classList.add(highlight);
-			}
-			gridItem.innerHTML += `${chordDatum.root}${chordDatum.modifier} (${chordDatum.intervalPattern})`;
-			const intervalsAndNotes: string[] = [];
-			for (let i = 0; i < chordDatum.intervals.length; i += 1) {
-				intervalsAndNotes.push(`${chordDatum.intervals[i]}: ${chordDatum.notes[i]}`);
-			}
-			gridItem.innerHTML += `<br>${intervalsAndNotes.join(`\u00A0\u00A0`)}`;
-			grid.append(gridItem);
-
-		}
-		intervalsDiv.append(grid);
+		const chordData = getChordData(instrument, notation);
+		sortChordData(chordData);
+		displayChordData(chordData, grid, intervalsDiv);
 		textEntry.element.value = '';
 	});
+
+	if (PAGE.local) {
+		const fretboard = document.createElement('p');
+		fretboard.style.width = '173px';
+		fretboard.style.height = '231px';
+		fretboard.style.backgroundImage = `url(${PAGE.site}/Images/fretboard.png)`;
+		fretboard.innerHTML = `The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog.`;
+		testDiv.append(fretboard);
+	}
+}
+
+function getChordData(instrument: Instrument, notation: string) {
+	const chordData: ChordData[] = [];
+	const roots = ['C','C#','D','Eb','E','F','F#','G','G#','A','Bb','B'];
+	for (const root of roots) {
+		const chord = new Chord(root, instrument, notation);
+		const intervals = chord.intervals();
+		const notes = chord.notes(true);
+		const intervalPattern = chord.intervalPattern(intervals);
+		if (intervalPattern.startsWith('1-')) {
+			let modifier = chord.modifier(intervals);
+			chordData.push({
+				root: root,
+				intervals: intervals,
+				notes: notes,
+				intervalPattern: intervalPattern,
+				modifier: modifier
+			});
+		}
+	}
+	return chordData;
+}
+
+function sortChordData(chordData: ChordData[]) {
+	chordData.sort((a,b) => {
+		const aKnownModifier = (a.modifier != '?') ? 1 : 0;
+		const bKnownModifier = (b.modifier != '?') ? 1 : 0;
+		const aPrimary = (a.intervals[0] == '1') ? 1 : 0;
+		const bPrimary = (b.intervals[0] == '1') ? 1 : 0;
+		let result = bKnownModifier - aKnownModifier;
+		if (!result) result = bPrimary - aPrimary;
+		if (!result) result = a.root.localeCompare(b.root);
+		return result;
+	});
+}
+
+function displayChordData(chordData: ChordData[], grid: HTMLDivElement, intervalsDiv: HTMLDivElement) {		
+	for (const chordDatum of chordData) {
+		const gridItem = document.createElement('div');
+		gridItem.className = 'grid-cell small';
+		if (chordDatum.modifier != '?') {
+			const highlight = (chordDatum.intervals[0] == '1') ? 'red' : 'blue';
+			gridItem.classList.add(highlight);
+		}
+		gridItem.innerHTML += `${chordDatum.root}${chordDatum.modifier} (${chordDatum.intervalPattern})`;
+		const intervalsAndNotes: string[] = [];
+		for (let i = 0; i < chordDatum.intervals.length; i += 1) {
+			intervalsAndNotes.push(`${chordDatum.intervals[i]}: ${chordDatum.notes[i]}`);
+		}
+		gridItem.innerHTML += `<br>${intervalsAndNotes.join(`\u00A0\u00A0`)}`;
+		grid.append(gridItem);
+	}
+	intervalsDiv.append(grid);
 }
 
 	/** Simply list Chords */

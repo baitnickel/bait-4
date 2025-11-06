@@ -732,12 +732,12 @@ export class Chord {
         ['1'],
         ['b2', 'b9'],
         ['2', '9'],
-        ['b3', '#9'],
+        ['b3'], //'#9'],
         ['3'],
         ['4', '11'],
-        ['b5', '#11'],
+        ['b5'], //'#11'],
         ['5'],
-        ['#5', 'b13'],
+        ['#5'], //'b13'],
         ['6', '13'],
         ['b7'],
         ['7']
@@ -994,14 +994,15 @@ export class Chord {
             '1-4-5-b7-b9   sus4b9',
             '1-4-5-b7-13   13sus4',
             '1-4-5-9       sus4-add9',
-            '1-2-3-4-5  add2/4', // e.g., D/G 554030
-            '1-2-3-4    add4(no5)',
-            '1-3-4-5    add4',
-            '1-3-5-6    6',
-            '1-b3-5-6   m6',
-            '1-3-5-9    add9',
-            '1-b3-5-9   m-add9',
-            '1-3-5-13   add13',
+            '1-2-3-4-5    add2+4',
+            '1-2-3-4      add4(no5)',
+            '1-3-4-5.     add4',
+            '1-3-4-5-9    add4+9', // e.g., D/A 554030
+            '1-3-5-6      6',
+            '1-b3-5-6     m6',
+            '1-3-5-9      add9',
+            '1-b3-5-9     m-add9',
+            '1-3-5-13     add13',
         ];
         let chordModifier = '?';
         for (const patternModifier of patternModifiers) {
@@ -1017,7 +1018,7 @@ export class Chord {
         }
         return chordModifier;
     }
-    diagram(fontFamily = 'sans-serif', svgScaling = 0.85, stringSpacing = 16, diagramText = '') {
+    diagram(fontFamily = 'sans-serif', svgScaling = 0.85, stringSpacing = 16, diagramText = null) {
         /**
          * Return an SVG element representing the chord diagram. 'stringSpacing'
          * is the horizontal distance between adjacent strings; this value
@@ -1061,7 +1062,7 @@ export class Chord {
             radius: 0
         };
         text = {
-            value: (diagramText) ? MarkupLine(diagramText, 'E') : MarkupLine(this.name, 'E'),
+            value: (diagramText !== null) ? MarkupLine(diagramText, 'E') : MarkupLine(this.name, 'E'),
             fontSize: nameFontSize,
             fontFamily: fontFamily
         };

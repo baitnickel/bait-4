@@ -87,14 +87,30 @@ export function render() {
 		textEntry.element.value = '';
 	});
 
-	if (PAGE.local) {
-		const fretboard = document.createElement('p');
-		fretboard.style.width = '173px';
-		fretboard.style.height = '231px';
-		fretboard.style.backgroundImage = `url(${PAGE.site}/Images/fretboard.png)`;
-		fretboard.innerHTML = `The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog.`;
-		testDiv.append(fretboard);
-	}
+	// if (PAGE.local) {
+	// 	const fretboard = document.createElement('p');
+	// 	// fretboard.style.width = '173px';
+	// 	// fretboard.style.height = '231px';
+	// 	// fretboard.style.backgroundImage = `url(${PAGE.site}/Images/fretboard.png)`;
+	// 	const diagramChord = new Chord('C', instrument, 'xxxxxx');
+	// 	const svg = diagramChord.diagram('sans-serif', 1, 16, ' okay ');
+	// 	const outerHTML = svg.outerHTML;
+	// 	fretboard.innerText = outerHTML; /** displays SVG as text */
+	// 	// fretboard.innerHTML = outerHTML; /** displays SVG image */
+	// 	// fretboard.style.backgroundImage = outerHTML; /** does not work */
+
+
+	// 	// const diagramImage = document.createElement('img');
+	// 	// diagramImage.setAttribute('src', 'data:image/sg+xml,' + svg);
+	// 	// fretboard.style.backgroundImage = `url(${'data:image/sg+xml,' + outerHTML})`;
+	// 	// fretboard.style.backgroundImage = `url(${outerHTML})`;
+	// 	// fretboard.style.backgroundImage = `url(${diagramChord.diagram('sans-serif', 1, 16, ' okay ')})`;
+	// 	// fretboard.innerHTML += `width: ${width}<br>`;
+	// 	// fretboard.innerHTML += `height: ${height}<br>`;
+
+	// 	// fretboard.innerHTML = 'The quick brown fox jumps over the lazy dog. '.repeat(8);
+	// 	testDiv.append(fretboard);
+	// }
 }
 
 function getChordData(instrument: Instrument, notation: string) {

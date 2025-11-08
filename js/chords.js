@@ -62,27 +62,44 @@ export function render() {
         displayChordData(chordData, grid, intervalsDiv);
         textEntry.element.value = '';
     });
-    // if (PAGE.local) {
-    // 	const fretboard = document.createElement('p');
-    // 	// fretboard.style.width = '173px';
-    // 	// fretboard.style.height = '231px';
-    // 	// fretboard.style.backgroundImage = `url(${PAGE.site}/Images/fretboard.png)`;
-    // 	const diagramChord = new Chord('C', instrument, 'xxxxxx');
-    // 	const svg = diagramChord.diagram('sans-serif', 1, 16, ' okay ');
-    // 	const outerHTML = svg.outerHTML;
-    // 	fretboard.innerText = outerHTML; /** displays SVG as text */
-    // 	// fretboard.innerHTML = outerHTML; /** displays SVG image */
-    // 	// fretboard.style.backgroundImage = outerHTML; /** does not work */
-    // 	// const diagramImage = document.createElement('img');
-    // 	// diagramImage.setAttribute('src', 'data:image/sg+xml,' + svg);
-    // 	// fretboard.style.backgroundImage = `url(${'data:image/sg+xml,' + outerHTML})`;
-    // 	// fretboard.style.backgroundImage = `url(${outerHTML})`;
-    // 	// fretboard.style.backgroundImage = `url(${diagramChord.diagram('sans-serif', 1, 16, ' okay ')})`;
-    // 	// fretboard.innerHTML += `width: ${width}<br>`;
-    // 	// fretboard.innerHTML += `height: ${height}<br>`;
-    // 	// fretboard.innerHTML = 'The quick brown fox jumps over the lazy dog. '.repeat(8);
-    // 	testDiv.append(fretboard);
-    // }
+    if (PAGE.local) {
+        // /** display hand-drawn SVG */
+        // const fretboard = document.createElement('img');
+        // fretboard.setAttribute('src', `${PAGE.site}/images/music/fretboard.svg`);
+        // fretboard.width = 180;
+        // testDiv.append(fretboard);
+        /** display side-by-side diagramed chords to compare scaling */
+        const chords = ['Cmaj7 332000', 'Gmaj7 320002'];
+        let first = true;
+        for (const chord of chords) {
+            const [chordName, notation] = chord.split(/\s+/);
+            const diagramChord = new Chord(chordName, instrument, notation);
+            if (first)
+                testDiv.append(diagramChord.diagram()); /** default */
+            else
+                testDiv.append(diagramChord.diagram('sans-serif', 1, 14)); /** nearly equivalent grid; xoxo, dots, name scaled a little differently */
+            first = false;
+        }
+        // const fretboard = document.createElement('p');
+        // // fretboard.style.width = '173px';
+        // // fretboard.style.height = '231px';
+        // // fretboard.style.backgroundImage = `url(${PAGE.site}/Images/fretboard.png)`;
+        // const diagramChord = new Chord('C', instrument, 'xxxxxx');
+        // const svg = diagramChord.diagram('sans-serif', 1, 16, ' okay ');
+        // const outerHTML = svg.outerHTML;
+        // fretboard.innerText = outerHTML; /** displays SVG as text */
+        // // fretboard.innerHTML = outerHTML; /** displays SVG image */
+        // // fretboard.style.backgroundImage = outerHTML; /** does not work */
+        // // const diagramImage = document.createElement('img');
+        // // diagramImage.setAttribute('src', 'data:image/sg+xml,' + svg);
+        // // fretboard.style.backgroundImage = `url(${'data:image/sg+xml,' + outerHTML})`;
+        // // fretboard.style.backgroundImage = `url(${outerHTML})`;
+        // // fretboard.style.backgroundImage = `url(${diagramChord.diagram('sans-serif', 1, 16, ' okay ')})`;
+        // // fretboard.innerHTML += `width: ${width}<br>`;
+        // // fretboard.innerHTML += `height: ${height}<br>`;
+        // // fretboard.innerHTML = 'The quick brown fox jumps over the lazy dog. '.repeat(8);
+        // testDiv.append(fretboard);
+    }
 }
 function getChordData(instrument, notation) {
     const chordData = [];

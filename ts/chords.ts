@@ -90,6 +90,18 @@ export function render() {
 	if (PAGE.local) {
 
 		// /** display hand-drawn SVG */
+		/**
+		 * @todo
+		 * If we can draw a frame with hidden buttons (circles, rectangles,
+		 * triangles, etc.), we could modify the SVG in place (dynamic file),
+		 * turning fret spots on and off, etc. This would eliminate scaling
+		 * issues. (drawing can be done with a new Chord.diagram method)
+		 * 
+		 * But a panel (div) with a framework background, and an array of button
+		 * elements laid across it, buttons positioned via relative percentages
+		 * within the panel. Buttons can be turned on and off, hidden and
+		 * visible, in a very straightforward (and scalable) way. Right?
+		 */
 		// const fretboard = document.createElement('img');
 		// fretboard.setAttribute('src', `${PAGE.site}/images/music/fretboard.svg`);
 		// fretboard.width = 180;

@@ -979,7 +979,7 @@ export class Chord {
 	}
 
 	/**
-	 * @todo support adding slash-bass note 
+	 * Interpret intervals and return chord name (including "/bass-note")
 	 */
 	modifier(intervals: string[], hideMajor = true, addRoot = false) {
 		const intervalPattern = this.intervalPattern(intervals, addRoot);

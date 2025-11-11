@@ -48,7 +48,6 @@ export function render() {
     PAGE.articleID = (markdown.metadata && 'id' in markdown.metadata) ? markdown.metadata['id'] : null;
     /** adding heading above text, below quote */
     ArticleText.innerHTML = Markup('# Home\n' + markdown.text);
-    /** @todo mini app: enter string--chord name and pattern and display chord diagram */
     /** display the file's revision date in the footer */
     let revision = null;
     if (Articles.has(HomeTextFile)) {

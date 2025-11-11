@@ -957,7 +957,7 @@ export class Chord {
         return uniqueIntervals.join('-');
     }
     /**
-     * @todo support adding slash-bass note
+     * Interpret intervals and return chord name (including "/bass-note")
      */
     modifier(intervals, hideMajor = true, addRoot = false) {
         const intervalPattern = this.intervalPattern(intervals, addRoot);

@@ -7,7 +7,7 @@ import { MarkupLine } from './lib/markup.js';
 
 /**
  * @todo create a version of the timeline with hashtag IDs included in a
- * delimited record. Adding articles to the timeline could simply be merging the
+ * CSV record. Adding articles to the timeline could simply be merging the
  * articles with the timeline outline.
  */
 

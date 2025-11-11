@@ -57,8 +57,6 @@ export function render() {
 	/** adding heading above text, below quote */
 	ArticleText.innerHTML = Markup('# Home\n' + markdown.text);
 
-	/** @todo mini app: enter string--chord name and pattern and display chord diagram */
-
 	/** display the file's revision date in the footer */
 	let revision: number|null = null;
 	if (Articles.has(HomeTextFile)) {

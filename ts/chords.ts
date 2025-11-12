@@ -130,10 +130,32 @@ export function render() {
 		rectangle2.setAttribute('width', '100');
 		rectangle2.setAttribute('height', '100');
 		rectangle2.setAttribute('fill', '#00f');
+		rectangle2.setAttribute('fill-opacity', '1');
 
 		svg.appendChild(rectangle1);
 		svg.appendChild(rectangle2);
 		testDiv.append(svg);
+
+		rectangle1.addEventListener('click', () => { console.log('clicked on red'); });
+		rectangle2.addEventListener('click', () => {
+			console.log('clicked on blue');
+
+			/** toggle between hidden and visible */
+			const opacity = rectangle2.getAttribute('fill-opacity');
+			if (opacity !== null) {
+				if (opacity == '0') rectangle2.setAttribute('fill-opacity', '1');
+				else rectangle2.setAttribute('fill-opacity', '0');
+			}
+
+			/** fade out with each click then return to visible */
+			// let opacity = rectangle2.getAttribute('fill-opacity');
+			// if (opacity !== null) {
+			// 	let value = Number(opacity);
+			// 	if (value <= 0) value = 1;
+			// 	else value -= .1;
+			// 	rectangle2.setAttribute('fill-opacity', `${value}`);
+			// }
+		});
 
 		/** display SVG image from file created using the "Graphic" app */
 		// const fretboard = document.createElement('img');

@@ -1046,14 +1046,27 @@ export class Chord {
 		return chordModifier;
 	}
 
+	/**
+	 * @todo
+	 * We need a complex `diagramOptions` object, with attributes such as:
+	 * - fontFamily
+	 * - svgScaling
+	 * - stringSpacing
+	 * - diagramText
+	 * - template
+	 * - etc.
+	 * 
+	 * We should be able to call `diagram` to get a template on which dynamic
+	 * fret buttons can be hidden/displayed, etc.
+	 */
+	/**
+	 * Return an SVG element representing the chord diagram. 'stringSpacing'
+	 * is the horizontal distance between adjacent strings; this value
+	 * determines the size of all objects in the chord diagram. 'svgScaling'
+	 * determines the scale of the diagram, where 0.85 is 85% of normal.
+	 * 'fontFamily' is the default font used in the SVG-drawn text.
+	 */
 	diagram(fontFamily = 'sans-serif', svgScaling = 0.85, stringSpacing = 16, diagramText: string|null = null) {
-		/**
-		 * Return an SVG element representing the chord diagram. 'stringSpacing'
-		 * is the horizontal distance between adjacent strings; this value
-		 * determines the size of all objects in the chord diagram. 'svgScaling'
-		 * determines the scale of the diagram, where 0.85 is 85% of normal.
-		 * 'fontFamily' is the default font used in the SVG-drawn text.
-		 */
 
 		let coordinates: Coordinates;
 		let text: RichText;

@@ -38,10 +38,10 @@ export function render() {
     const textWidgetParagraph = document.createElement('p');
     const svgParagraph = document.createElement('p');
     const intervalsDiv = document.createElement('div');
-    const testDiv = document.createElement('div');
     PAGE.content.append(textWidgetParagraph);
     PAGE.content.append(svgParagraph);
     PAGE.content.append(intervalsDiv);
+    const testDiv = document.createElement('div');
     PAGE.content.append(testDiv);
     const textEntry = new W.Text('Enter Notation: ', '');
     // textEntry.label.className = 'sans-serif';
@@ -76,22 +76,41 @@ export function render() {
          * within the panel. Buttons can be turned on and off, hidden and
          * visible, in a very straightforward (and scalable) way. Right?
          */
+        const SVGNameSpace = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(SVGNameSpace, 'svg');
+        svg.setAttribute('width', '400');
+        svg.setAttribute('height', '400');
+        svg.setAttribute('viewBox', '0 0 400 400');
+        const rectangle1 = document.createElementNS(SVGNameSpace, 'rect');
+        rectangle1.setAttribute('x', '150');
+        rectangle1.setAttribute('y', '150');
+        rectangle1.setAttribute('width', '100');
+        rectangle1.setAttribute('height', '100');
+        rectangle1.setAttribute('fill', '#f00');
+        const rectangle2 = document.createElementNS(SVGNameSpace, 'rect');
+        rectangle2.setAttribute('x', '100');
+        rectangle2.setAttribute('y', '200');
+        rectangle2.setAttribute('width', '100');
+        rectangle2.setAttribute('height', '100');
+        rectangle2.setAttribute('fill', '#00f');
+        svg.appendChild(rectangle2);
+        svg.appendChild(rectangle1);
+        testDiv.append(svg);
+        /** display SVG image from file created using the "Graphic" app */
         // const fretboard = document.createElement('img');
         // fretboard.setAttribute('src', `${PAGE.site}/images/music/fretboard.svg`);
         // fretboard.width = 180;
         // testDiv.append(fretboard);
         /** display side-by-side diagramed chords to compare scaling */
-        const chords = ['Cmaj7 332000', 'Gmaj7 320002'];
-        let first = true;
-        for (const chord of chords) {
-            const [chordName, notation] = chord.split(/\s+/);
-            const diagramChord = new Chord(chordName, instrument, notation);
-            if (first)
-                testDiv.append(diagramChord.diagram()); /** default */
-            else
-                testDiv.append(diagramChord.diagram('sans-serif', 1, 14)); /** nearly equivalent grid; xoxo, dots, name scaled a little differently */
-            first = false;
-        }
+        // const chords = ['Cmaj7 332000', 'Gmaj7 320002'];
+        // let first = true;
+        // for (const chord of chords) {
+        // 	const [chordName, notation] = chord.split(/\s+/);
+        // 	const diagramChord = new Chord(chordName, instrument, notation);
+        // 	if (first) testDiv.append(diagramChord.diagram()); /** default */
+        // 	else testDiv.append(diagramChord.diagram('sans-serif', 1, 14)); /** nearly equivalent grid; xoxo, dots, name scaled a little differently */
+        // 	first = false;
+        // }
         // const fretboard = document.createElement('p');
         // // fretboard.style.width = '173px';
         // // fretboard.style.height = '231px';

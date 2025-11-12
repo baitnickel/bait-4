@@ -3,7 +3,8 @@ id: 42
 access: 0
 title: Nobody Needs to Know
 artist: The Baitnickels
-composers: [Dan]
+composers:
+  - Dan
 key: A
 chords:
   - A x02220

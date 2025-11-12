@@ -717,7 +717,7 @@ class Section {
         return fakeLines;
     }
 }
-const W3NameSpace = 'http://www.w3.org/2000/svg';
+const SVG = 'http://www.w3.org/2000/svg';
 export class Chord {
     name; /** chord name (in original key, e.g., 'Dbm7/Ab') */
     instrument; /** Instrument object */
@@ -1059,71 +1059,40 @@ export class Chord {
         let fullWidth = fretPositionWidth + nameWidth + rightPadding; /* ### will change when we add this.firstFret */
         let fullHeight = nameHeight + nutHeight + neckHeight + bottomPadding;
         /** Create the main SVG element */
-        let svg = document.createElementNS(W3NameSpace, 'svg');
+        let svg = document.createElementNS(SVG, 'svg');
         svg.setAttribute('width', fullWidth.toString());
         svg.setAttribute('height', fullHeight.toString());
         svg.setAttribute('viewBox', `0 0 ${fullWidth} ${fullHeight}`);
         /** Create an SVG group element--a container for all the sub-elements */
-        let svgGroup = document.createElementNS(W3NameSpace, 'g');
+        let svgGroup = document.createElementNS(SVG, 'g');
         svgGroup.setAttribute('transform', `scale(${svgScaling})`);
         /** Add chord name (or notation) to group container */
-        coordinates = {
-            x: fretPositionWidth,
-            y: 0,
-            width: nameWidth,
-            height: nameHeight,
-            radius: 0
-        };
-        text = {
-            value: (diagramText !== null) ? MarkupLine(diagramText, 'E') : MarkupLine(this.name, 'E'),
-            fontSize: nameFontSize,
-            fontFamily: fontFamily
-        };
+        coordinates = { x: fretPositionWidth, y: 0, width: nameWidth, height: nameHeight, radius: 0 };
+        const textValue = (diagramText !== null) ? MarkupLine(diagramText, 'E') : MarkupLine(this.name, 'E');
+        text = { value: textValue, fontSize: nameFontSize, fontFamily: fontFamily };
         svgGroup.appendChild(this.diagramName(coordinates, text));
         /* Draw 'x' and 'o' marks above the nut */
-        coordinates = {
-            x: fretPositionWidth,
-            y: nameHeight,
-            width: nameWidth,
-            height: nutHeight,
-            radius: nutMarkRadius
-        };
+        coordinates = { x: fretPositionWidth, y: nameHeight, width: nameWidth, height: nutHeight, radius: nutMarkRadius };
         svgGroup.appendChild(this.diagramNutMarks(coordinates, stringSpacing, neckMargin));
         /* Draw the first fret number when it isn't the default '1' */
         if (fretPositionWidth) {
-            coordinates = {
-                x: 0,
-                y: nameHeight + nutHeight,
-                width: fretPositionWidth,
-                height: fretPositionHeight,
-                radius: 0
-            };
-            text = {
-                value: this.notation.firstFret.toString(),
-                fontSize: fretPositionFontSize,
-                fontFamily: fontFamily
-            };
+            coordinates = { x: 0, y: nameHeight + nutHeight, width: fretPositionWidth, height: fretPositionHeight, radius: 0 };
+            text = { value: this.notation.firstFret.toString(), fontSize: fretPositionFontSize, fontFamily: fontFamily };
             svgGroup.appendChild(this.diagramFretPosition(coordinates, text));
         }
         /* Draw neck with fingerings--primary and secondary notes and barres */
-        coordinates = {
-            x: fretPositionWidth,
-            y: nameHeight + nutHeight,
-            width: neckWidth,
-            height: neckHeight,
-            radius: fingerRadius
-        };
+        coordinates = { x: fretPositionWidth, y: nameHeight + nutHeight, width: neckWidth, height: neckHeight, radius: fingerRadius };
         svgGroup.appendChild(this.diagramNeck(coordinates, stringSpacing, fretSpacing, neckMargin));
         svg.appendChild(svgGroup);
         return svg;
     }
     diagramName(coordinates, text) {
-        let svg = document.createElementNS(W3NameSpace, 'svg');
+        let svg = document.createElementNS(SVG, 'svg');
         svg.setAttribute('x', coordinates.x.toString());
         svg.setAttribute('y', coordinates.y.toString());
         svg.setAttribute('width', coordinates.width.toString());
         svg.setAttribute('height', coordinates.height.toString());
-        let svgText = document.createElementNS(W3NameSpace, 'text');
+        let svgText = document.createElementNS(SVG, 'text');
         svgText.setAttribute('x', Math.round(coordinates.width * .5).toString());
         svgText.setAttribute('y', Math.round(coordinates.height * .7).toString());
         svgText.setAttribute('text-anchor', 'middle');
@@ -1147,7 +1116,7 @@ export class Chord {
             }
             i += 1;
         }
-        let svg = document.createElementNS(W3NameSpace, 'svg');
+        let svg = document.createElementNS(SVG, 'svg');
         svg.setAttribute('x', coordinates.x.toString());
         svg.setAttribute('y', coordinates.y.toString());
         svg.setAttribute('width', coordinates.width.toString());
@@ -1159,7 +1128,7 @@ export class Chord {
             let stringCenter = Math.floor(i * spacing) + margin;
             if (note == 'x') {
                 /* first line of the 'x' shape, above nut at stringCenter */
-                let svgX1 = document.createElementNS(W3NameSpace, 'line');
+                let svgX1 = document.createElementNS(SVG, 'line');
                 svgX1.setAttribute('x1', (stringCenter - coordinates.radius).toString());
                 svgX1.setAttribute('y1', (nutCenter - coordinates.radius).toString());
                 svgX1.setAttribute('x2', (stringCenter + coordinates.radius).toString());
@@ -1168,7 +1137,7 @@ export class Chord {
                 svgX1.setAttribute('stroke-width', '1');
                 svg.appendChild(svgX1);
                 /* second line of the 'x' shape */
-                let svgX2 = document.createElementNS(W3NameSpace, 'line');
+                let svgX2 = document.createElementNS(SVG, 'line');
                 svgX2.setAttribute('x1', (stringCenter + coordinates.radius).toString());
                 svgX2.setAttribute('y1', (nutCenter - coordinates.radius).toString());
                 svgX2.setAttribute('x2', (stringCenter - coordinates.radius).toString());
@@ -1179,7 +1148,7 @@ export class Chord {
             }
             else if (note == "o") {
                 /* 'o' above nut at stringCenter */
-                let svgO = document.createElementNS(W3NameSpace, 'circle');
+                let svgO = document.createElementNS(SVG, 'circle');
                 svgO.setAttribute('cx', stringCenter.toString());
                 svgO.setAttribute('cy', nutCenter.toString());
                 svgO.setAttribute('r', coordinates.radius.toString());
@@ -1193,12 +1162,12 @@ export class Chord {
         return svg;
     }
     diagramFretPosition(coordinates, text) {
-        let svg = document.createElementNS(W3NameSpace, 'svg');
+        let svg = document.createElementNS(SVG, 'svg');
         svg.setAttribute('x', coordinates.x.toString());
         svg.setAttribute('y', coordinates.y.toString());
         svg.setAttribute('width', coordinates.width.toString());
         svg.setAttribute('height', coordinates.height.toString());
-        let svgText = document.createElementNS(W3NameSpace, 'text');
+        let svgText = document.createElementNS(SVG, 'text');
         svgText.setAttribute('x', Math.round(coordinates.width * 0.75).toString());
         svgText.setAttribute('y', Math.round(coordinates.height * .7).toString());
         svgText.setAttribute('text-anchor', 'end');
@@ -1209,7 +1178,7 @@ export class Chord {
         return svg;
     }
     diagramNeck(coordinates, stringSpacing, fretSpacing, margin) {
-        let svg = document.createElementNS(W3NameSpace, 'svg');
+        let svg = document.createElementNS(SVG, 'svg');
         svg.setAttribute('x', coordinates.x.toString());
         svg.setAttribute('y', coordinates.y.toString());
         svg.setAttribute('width', coordinates.width.toString());
@@ -1217,7 +1186,7 @@ export class Chord {
         let i = 0;
         while (i < this.stringCount) {
             let xx = Math.floor(i * stringSpacing) + margin;
-            let svgLine = document.createElementNS(W3NameSpace, 'line');
+            let svgLine = document.createElementNS(SVG, 'line');
             svgLine.setAttribute('x1', xx.toString());
             svgLine.setAttribute('y1', '0');
             svgLine.setAttribute('x2', xx.toString());
@@ -1233,7 +1202,7 @@ export class Chord {
             let yy = Math.floor(i * fretSpacing);
             let x2 = coordinates.width - margin;
             let strokeWidth = (i == 0 || i == this.notation.fretCount) ? 2 : 1;
-            let svgLine = document.createElementNS(W3NameSpace, 'line');
+            let svgLine = document.createElementNS(SVG, 'line');
             svgLine.setAttribute('x1', margin.toString());
             svgLine.setAttribute('y1', yy.toString());
             svgLine.setAttribute('x2', x2.toString());
@@ -1266,7 +1235,7 @@ export class Chord {
                 for (let stringBound of stringBounds) { /* draw the starting and ending dots */
                     let stringCenter = Math.floor(stringBound * stringSpacing) + margin;
                     let fingerCenter = Math.floor(fretSpacing * relativeFret) - Math.floor(fretSpacing * 0.5);
-                    let svgCircle = document.createElementNS(W3NameSpace, 'circle');
+                    let svgCircle = document.createElementNS(SVG, 'circle');
                     svgCircle.setAttribute('cx', stringCenter.toString());
                     svgCircle.setAttribute('cy', fingerCenter.toString());
                     svgCircle.setAttribute('r', coordinates.radius.toString());
@@ -1283,7 +1252,7 @@ export class Chord {
                 let recty = fingerCenter - Math.floor(coordinates.radius);
                 let rectw = Math.floor(stringSpacing) * (stringBounds[1] - stringBounds[0]);
                 let recth = Math.floor(coordinates.radius) * 2;
-                let svgRectangle = document.createElementNS(W3NameSpace, 'rect');
+                let svgRectangle = document.createElementNS(SVG, 'rect');
                 svgRectangle.setAttribute('x', rectx.toString());
                 svgRectangle.setAttribute('y', recty.toString());
                 svgRectangle.setAttribute('width', rectw.toString());
@@ -1307,7 +1276,7 @@ export class Chord {
                         relativeFret -= this.notation.firstFret - 1;
                     }
                     let fingerCenter = Math.floor(fretSpacing * relativeFret) - Math.floor(fretSpacing * 0.5);
-                    let svgCircle = document.createElementNS(W3NameSpace, 'circle');
+                    let svgCircle = document.createElementNS(SVG, 'circle');
                     svgCircle.setAttribute('cx', stringCenter.toString());
                     svgCircle.setAttribute('cy', fingerCenter.toString());
                     svgCircle.setAttribute('r', coordinates.radius.toString());

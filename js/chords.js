@@ -35,14 +35,24 @@ PAGE.setTitle('Chords', 1);
 export function render() {
     /** Interactive chord/interval utilities */
     const roots = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
+    const rangeWidgetParagraph = document.createElement('p');
     const textWidgetParagraph = document.createElement('p');
     const svgParagraph = document.createElement('p');
     const intervalsDiv = document.createElement('div');
+    PAGE.content.append(rangeWidgetParagraph);
     PAGE.content.append(textWidgetParagraph);
     PAGE.content.append(svgParagraph);
     PAGE.content.append(intervalsDiv);
     const testDiv = document.createElement('div');
     PAGE.content.append(testDiv);
+    // const diagramSize = new W.Range('Diagram Size', 16, 4, 64, 1, ['Pixels'], true);
+    const sizes = [];
+    for (let i = 4; i < 30; i += 2)
+        sizes.push(i.toString());
+    const diagramSize = new W.Select('Diagram Size: ', sizes);
+    rangeWidgetParagraph.append(diagramSize.label);
+    rangeWidgetParagraph.append(diagramSize.element);
+    rangeWidgetParagraph.append(diagramSize.element.outerText);
     const textEntry = new W.Text('Enter Notation: ', '');
     // textEntry.label.className = 'sans-serif';
     textWidgetParagraph.append(textEntry.label);
@@ -54,7 +64,8 @@ export function render() {
         svgParagraph.innerHTML = '';
         intervalsDiv.innerHTML = '';
         const diagramChord = new Chord('C', instrument, notation);
-        svgParagraph.append(diagramChord.diagram('sans-serif', 1, 16, notation)); // 'sans-serif', 0.5
+        const pixels = Number(diagramSize.element.value);
+        svgParagraph.append(diagramChord.diagram('sans-serif', 1, pixels, notation)); // 'sans-serif', 0.5
         const grid = document.createElement('div');
         grid.className = 'grid-auto';
         const chordData = getChordData(instrument, notation);
@@ -76,25 +87,25 @@ export function render() {
          * within the panel. Buttons can be turned on and off, hidden and
          * visible, in a very straightforward (and scalable) way. Right?
          */
-        const SVGNameSpace = 'http://www.w3.org/2000/svg';
-        const svg = document.createElementNS(SVGNameSpace, 'svg');
+        const SVG = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(SVG, 'svg');
         svg.setAttribute('width', '400');
         svg.setAttribute('height', '400');
         svg.setAttribute('viewBox', '0 0 400 400');
-        const rectangle1 = document.createElementNS(SVGNameSpace, 'rect');
+        const rectangle1 = document.createElementNS(SVG, 'rect');
         rectangle1.setAttribute('x', '150');
         rectangle1.setAttribute('y', '150');
         rectangle1.setAttribute('width', '100');
         rectangle1.setAttribute('height', '100');
         rectangle1.setAttribute('fill', '#f00');
-        const rectangle2 = document.createElementNS(SVGNameSpace, 'rect');
+        const rectangle2 = document.createElementNS(SVG, 'rect');
         rectangle2.setAttribute('x', '100');
         rectangle2.setAttribute('y', '200');
         rectangle2.setAttribute('width', '100');
         rectangle2.setAttribute('height', '100');
         rectangle2.setAttribute('fill', '#00f');
-        svg.appendChild(rectangle2);
         svg.appendChild(rectangle1);
+        svg.appendChild(rectangle2);
         testDiv.append(svg);
         /** display SVG image from file created using the "Graphic" app */
         // const fretboard = document.createElement('img');

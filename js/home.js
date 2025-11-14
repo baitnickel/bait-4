@@ -8,6 +8,7 @@ import * as W from './lib/widgets.js';
 import { Moment } from './lib/moments.js';
 import { Park } from './lib/parks.js';
 import { Instrument, Chord, SPN } from './lib/fakesheet.js';
+import * as G from './lib/graphics.js';
 const PAGE = new Page();
 const IndicesPath = `${PAGE.site}/Indices`;
 const Articles = await Fetch.map(`${IndicesPath}/articles.json`);
@@ -70,6 +71,7 @@ export function render() {
         const testOutput = document.createElement('div');
         testContent.append(testOutput);
         const testers = [];
+        testers.push({ name: 'SVG', function: testSVG });
         testers.push({ name: 'Chord', function: testChord });
         testers.push({ name: 'MIDI Notes', function: testMidiNotes });
         testers.push({ name: 'Table', function: testTable });
@@ -106,6 +108,17 @@ export function render() {
             testButtons.append(button);
         }
     }
+}
+function testSVG(testOutput) {
+    const fretWidth = 32;
+    const fretHeight = fretWidth * 1.5;
+    const strings = 6;
+    const frets = 5;
+    const svg = new G.SVG(((strings - 1) * fretWidth) + 2, (frets * fretHeight) + 2);
+    svg.addGrid(1, 1, strings - 1, frets, fretWidth, fretHeight);
+    const paragraph = document.createElement('p');
+    paragraph.append(svg.element);
+    testOutput.append(paragraph);
 }
 async function testChord(testOutput) {
     const chordModifiers = await Fetch.map(`${PAGE.site}/data/chords/intervals.yaml`);

@@ -1126,7 +1126,7 @@ export class Chord {
 		return svg;
 	}
 
-	private diagramName(coordinates: Coordinates, text: RichText) {
+	private diagramName(coordinates: Coordinates, text: RichText) { // G.textElement
 		let svg = document.createElementNS(SVG, 'svg');
 		svg.setAttribute('x', coordinates.x.toString());
 		svg.setAttribute('y', coordinates.y.toString());

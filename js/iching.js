@@ -99,6 +99,8 @@ function newRange(rangeTypeKey, limit) {
 /**
  * Set up the dropdown selection at the top of the page that will be used to
  * choose the Range Type (Dice, Coins, etc.) for selecting an I Ching chapter.
+ *
+ * @todo selection of dice/coin values must be cleaner--use unicode 2460...246B.
  */
 function initializeRangeTypeSelection() {
     const selectElement = document.createElement('select');

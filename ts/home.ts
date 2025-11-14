@@ -8,6 +8,7 @@ import * as W from './lib/widgets.js';
 import { Moment } from './lib/moments.js';
 import { Park } from './lib/parks.js';
 import { Instrument, Chord, SPN } from './lib/fakesheet.js';
+import * as G from './lib/graphics.js';
 
 type TestFunction = (output: HTMLDivElement) => void;
 type Tester = { name: string; function: TestFunction };
@@ -81,6 +82,7 @@ export function render() {
 		testContent.append(testOutput);
 
 		const testers: Tester[] = [];
+		testers.push( { name: 'SVG', function: testSVG } );
 		testers.push( { name: 'Chord', function: testChord } );
 		testers.push( { name: 'MIDI Notes', function: testMidiNotes } );
 		testers.push( { name: 'Table', function: testTable } );
@@ -119,6 +121,18 @@ export function render() {
 			testButtons.append(button);
 		}
 	}
+}
+
+function testSVG(testOutput: HTMLDivElement) {
+	const fretWidth = 32;
+	const fretHeight = fretWidth * 1.5;
+	const strings = 6;
+	const frets = 5;
+	const svg = new G.SVG(((strings - 1) * fretWidth) + 2, (frets * fretHeight) + 2);
+	svg.addGrid(1, 1, strings - 1, frets, fretWidth, fretHeight);
+	const paragraph = document.createElement('p');
+	paragraph.append(svg.element);
+	testOutput.append(paragraph);
 }
 
 async function testChord(testOutput: HTMLDivElement) {

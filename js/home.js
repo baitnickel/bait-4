@@ -110,12 +110,38 @@ export function render() {
     }
 }
 function testSVG(testOutput) {
-    const fretWidth = 32;
+    const width = 280;
+    const height = 400;
+    const fretWidth = 40;
     const fretHeight = fretWidth * 1.5;
     const strings = 6;
     const frets = 5;
-    const svg = new G.SVG(((strings - 1) * fretWidth) + 2, (frets * fretHeight) + 2);
-    svg.addGrid(1, 1, strings - 1, frets, fretWidth, fretHeight);
+    // const width = ((strings - 1) * fretWidth) + 20;
+    // const height = (frets * fretHeight) + 50;
+    const svg = new G.SVG(width, height);
+    svg.addGrid('60,100', strings - 1, frets, fretWidth, fretHeight);
+    svg.addText('160,30', 'middle', { value: 'G Major is the text', fontSize: fretHeight / 3, fontFamily: 'sans-serif' });
+    for (let fret = 0; fret < frets; fret += 1) {
+        const x = 40;
+        const y = 100 + (fret * fretHeight) + (fretHeight / 2);
+        const point = svg.point(x, y);
+        const fretNumber = fret + 1;
+        let dots = '';
+        if ([3, 5, 7, 9, 15, 17, 19, 21].includes(fretNumber))
+            dots = '\u2802';
+        else if (fretNumber == 12)
+            dots = '\u2805';
+        const fretMark = `${dots}${fretNumber}`;
+        svg.addText(point, 'end', { value: fretMark, fontSize: fretHeight / 4, fontFamily: 'sans-serif' });
+    }
+    for (let string = 0; string < strings; string += 1) {
+        const x = 60 + (string * fretWidth);
+        const y = 80;
+        const point = svg.point(x, y);
+        const nutMarks = ['\u25CB', '\u00D7']; // (25CB) (26AC) (2B58)
+        const nutMark = nutMarks[string % 2];
+        svg.addText(point, 'middle', { value: nutMark, fontSize: fretHeight / 4, fontFamily: 'sans-serif' });
+    }
     const paragraph = document.createElement('p');
     paragraph.append(svg.element);
     testOutput.append(paragraph);

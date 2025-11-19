@@ -100,7 +100,21 @@ export function render() {
 
 	if (PAGE.local) {
 
-		const fretWidth = 32; /** this determines the scale of everything. 25...50 is a reasonable range */
+		/**
+		 * @todo
+		 * 
+		 * One button for the whole fretboard would be OK if we can determine
+		 * the point in which the button was pressed, but this requires a
+		 * mapping that adjusts with every scale.
+		 * 
+		 * Maintain an undo/redo array of buttons clicked; the values being
+		 * (taken from) button IDs--pointing to the clicked element and also
+		 * indicating string and fret.
+		 */
+
+		const fingerings: string[] = [];
+
+		const fretWidth = 36; /** this determines the scale of everything. 25...50 is a reasonable range */
 		const fretHeight = fretWidth * 1.5;
 		const strings = 6;
 		const frets = 5;
@@ -127,7 +141,7 @@ export function render() {
 			const x = gridPoint.x + (string * fretWidth);
 			const y = nameHeight + Math.round(nutHeight / 3 * 2);
 			const point = new Point(x, y);
-			nutMarks.push(svg.addText(point, 'middle', {value: '', fontSize: fretHeight / 4, fontFamily: 'sans-serif'}));
+			nutMarks.push(svg.addText(point, 'middle', {value: '', fontSize: fretHeight / 3, fontFamily: 'sans-serif'}));
 		}
 		/** initialize the fret number elements (one for each fret relative to the top fret) */
 		const fretNumbers: SVGTextElement[] = [];
@@ -142,30 +156,31 @@ export function render() {
 		 * string). These will serve as hotspots, becoming visible only when
 		 * clicked.
 		 */
-		const fingerMarks: SVGCircleElement[][] = [];
-		const radius = Math.round(fretWidth / 4);
+		const fingerIDs: string[] = [];
+		const radius = Math.round(fretWidth / 3);
 		for (let string = 0; string < strings; string += 1) {
-			fingerMarks[string] = [];
 			const x = gridPoint.x + (string * fretWidth);
 			for (let fret = 0; fret < frets; fret += 1) {
 				const y = nameHeight + nutHeight + Math.round(fretHeight / 2) + (fret * fretHeight);
 				const point = new Point(x, y);
 				// const visible = (string == 0 && fret == 2) || (string == 1 && fret == 1) || (string == 5 && fret == 2);
 				const fingerMark = svg.addCircle(point, radius, false);
-				fingerMarks[string].push(fingerMark);
+				fingerMark.id = `${string},${fret}`;
+
+				fingerMark.addEventListener('click', () => {
+					fingered(fingerMark.id, fingerIDs);
+					// fingerIDs.push(fingerMark.id);
+					// fingerMark.setAttribute('visibility', 'visible');
+				});
 			}
 		}
-		// fingerMarks[string][fret].addEventListener('click', () => {
-		// 	// fingered(string, fret);
-		// 	fingerMarks[string][fret].setAttribute('visibility', 'visible');
-		// });
 	
 		svg.addGrid(gridPoint, strings - 1, frets, fretWidth, fretHeight);
 		svg.addText(namePoint, 'middle', {value: 'G major', fontSize: fretHeight / 3, fontFamily: 'sans-serif'});
+		for (let fret = 0; fret < frets; fret += 1) fretNumbers[fret].innerHTML = `${fret + 1}`;
 		nutMarks[2].innerHTML = 'o';
 		nutMarks[3].innerHTML = 'o';
 		nutMarks[4].innerHTML = 'o';
-		fretNumbers[0].innerHTML = '1';
 	
 		const paragraph = document.createElement('p');
 		paragraph.append(svg.element);
@@ -279,8 +294,21 @@ export function render() {
 	// }
 }
 
-function fingered(string: number, fret: number) {
-
+function fingered(id: string, fingerIDs: string[]) {
+	console.log(id);
+	fingerIDs.push(id);
+	const element = document.getElementById(id);
+	if (element) {
+		console.log('trying to change visibility')
+		/** toggle between hidden and visible */
+		const opacity = element.getAttribute('fill-opacity');
+		if (opacity !== null) {
+			if (opacity == '0') element.setAttribute('fill-opacity', '1');
+			else element.setAttribute('fill-opacity', '0');
+		}
+		// element.setAttribute('visibility', 'visible');
+	}
+	else console.log('cannot get element ID');
 }
 
 function getChordData(instrument: Instrument, notation: string) {

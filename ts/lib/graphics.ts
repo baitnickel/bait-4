@@ -136,10 +136,14 @@ export class SVG extends Graphic {
 		svgCircle.setAttribute('cx', `${point.x}`);
 		svgCircle.setAttribute('cy', `${point.y}`);
 		svgCircle.setAttribute('r', `${radius}`);
-		svgCircle.setAttribute('stroke', SVG.strokeColor);
+		// svgCircle.setAttribute('stroke', SVG.strokeColor);
 		svgCircle.setAttribute('fill', SVG.fillColor);
-		svgCircle.setAttribute('stroke-width', `${SVG.strokeWidth}`);
-		if (!visible) svgCircle.setAttribute('visibility', 'hidden');
+		// svgCircle.setAttribute('stroke-width', `${SVG.strokeWidth}`);
+		svgCircle.setAttribute('fill-opacity', '1');
+		if (!visible) {
+			svgCircle.setAttribute('fill-opacity', '0');
+			// svgCircle.setAttribute('visibility', 'hidden');
+		}
 		this.element.appendChild(svgCircle);
 		return svgCircle;
 	}

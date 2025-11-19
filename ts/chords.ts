@@ -4,6 +4,7 @@ import * as Fetch from './lib/fetch.js';
 import * as MD from './lib/md.js';
 import { Instrument, Chord } from './lib/fakesheet.js';
 import * as W from './lib/widgets.js';
+import { SVG, Point } from './lib/graphics.js';
 
 import { Markup } from './lib/markup.js';
 // const W3NameSpace = 'http://www.w3.org/2000/svg';
@@ -99,6 +100,85 @@ export function render() {
 
 	if (PAGE.local) {
 
+		const fretWidth = 32; /** this determines the scale of everything. 25...50 is a reasonable range */
+		const fretHeight = fretWidth * 1.5;
+		const strings = 6;
+		const frets = 5;
+	
+		const fretNumberWidth = Math.round(fretWidth * .75);
+		const fretMargin = Math.round(fretWidth / 2);
+		const gridWidth = fretWidth * (strings - 1);
+		const gridHeight = fretHeight * frets + fretMargin; /** fretMargin adds margin on bottom (necessary?) */
+		const gridCenter = Math.round(gridWidth / 2);
+		const nameHeight = Math.round(fretHeight * .75);
+		const nutHeight = Math.round(fretHeight / 4);
+	
+		const width = fretNumberWidth + (fretMargin * 2) + gridWidth;
+		const height = nameHeight + nutHeight + gridHeight;
+		
+		const svg = new SVG(width, height);
+	
+		const gridPoint = new Point(fretNumberWidth + fretMargin, nameHeight + nutHeight);
+		const namePoint = new Point(gridPoint.x + gridCenter, Math.round(nameHeight / 3 * 2));
+	
+		/** initialize the nut mark elements (one for each string, 6th thru 1st) */
+		const nutMarks: SVGTextElement[] = [];
+		for (let string = 0; string < strings; string += 1) {
+			const x = gridPoint.x + (string * fretWidth);
+			const y = nameHeight + Math.round(nutHeight / 3 * 2);
+			const point = new Point(x, y);
+			nutMarks.push(svg.addText(point, 'middle', {value: '', fontSize: fretHeight / 4, fontFamily: 'sans-serif'}));
+		}
+		/** initialize the fret number elements (one for each fret relative to the top fret) */
+		const fretNumbers: SVGTextElement[] = [];
+		for (let fret = 0; fret < frets; fret += 1) {
+			const x = fretNumberWidth;
+			const y = nameHeight + nutHeight + Math.round(fretHeight / 2) + (fret * fretHeight);
+			const point = new Point(x, y);
+			fretNumbers.push(svg.addText(point, 'end', {value: '', fontSize: fretHeight / 4, fontFamily: 'sans-serif'}));
+		}
+		/**
+		 * Initialize the finger mark elements (one for each fret of each
+		 * string). These will serve as hotspots, becoming visible only when
+		 * clicked.
+		 */
+		const fingerMarks: SVGCircleElement[][] = [];
+		const radius = Math.round(fretWidth / 4);
+		for (let string = 0; string < strings; string += 1) {
+			fingerMarks[string] = [];
+			const x = gridPoint.x + (string * fretWidth);
+			for (let fret = 0; fret < frets; fret += 1) {
+				const y = nameHeight + nutHeight + Math.round(fretHeight / 2) + (fret * fretHeight);
+				const point = new Point(x, y);
+				// const visible = (string == 0 && fret == 2) || (string == 1 && fret == 1) || (string == 5 && fret == 2);
+				const fingerMark = svg.addCircle(point, radius, false);
+				fingerMarks[string].push(fingerMark);
+			}
+		}
+		// fingerMarks[string][fret].addEventListener('click', () => {
+		// 	// fingered(string, fret);
+		// 	fingerMarks[string][fret].setAttribute('visibility', 'visible');
+		// });
+	
+		svg.addGrid(gridPoint, strings - 1, frets, fretWidth, fretHeight);
+		svg.addText(namePoint, 'middle', {value: 'G major', fontSize: fretHeight / 3, fontFamily: 'sans-serif'});
+		nutMarks[2].innerHTML = 'o';
+		nutMarks[3].innerHTML = 'o';
+		nutMarks[4].innerHTML = 'o';
+		fretNumbers[0].innerHTML = '1';
+	
+		const paragraph = document.createElement('p');
+		paragraph.append(svg.element);
+		testDiv.append(paragraph);
+
+		/*
+		flagButton.addEventListener('click', () => {
+			const text = `Flagged Image: ${imageSet.images[imageSet.index]}`;
+			const logEntry: T.LogEntry = { text: text };
+			Fetch.api<T.LogEntry>(`${PAGE.backend}/log/`, logEntry).then((response) => { console.log(response)});
+		});
+		*/
+	}
 		// /** display hand-drawn SVG */
 		/**
 		 * @todo
@@ -112,40 +192,40 @@ export function render() {
 		 * within the panel. Buttons can be turned on and off, hidden and
 		 * visible, in a very straightforward (and scalable) way. Right?
 		 */
-		const SVG = 'http://www.w3.org/2000/svg';
+		// const SVG = 'http://www.w3.org/2000/svg';
 
-		const svg = document.createElementNS(SVG, 'svg');
-		svg.setAttribute('width', '400');
-		svg.setAttribute('height', '400');
-		svg.setAttribute('viewBox', '0 0 400 400');
-		const rectangle1 = document.createElementNS(SVG, 'rect');
-		rectangle1.setAttribute('x', '150');
-		rectangle1.setAttribute('y', '150');
-		rectangle1.setAttribute('width', '100');
-		rectangle1.setAttribute('height', '100');
-		rectangle1.setAttribute('fill', '#f00');
-		const rectangle2 = document.createElementNS(SVG, 'rect');
-		rectangle2.setAttribute('x', '100');
-		rectangle2.setAttribute('y', '200');
-		rectangle2.setAttribute('width', '100');
-		rectangle2.setAttribute('height', '100');
-		rectangle2.setAttribute('fill', '#00f');
-		rectangle2.setAttribute('fill-opacity', '1');
+		// const svg = document.createElementNS(SVG, 'svg');
+		// svg.setAttribute('width', '400');
+		// svg.setAttribute('height', '400');
+		// svg.setAttribute('viewBox', '0 0 400 400');
+		// const rectangle1 = document.createElementNS(SVG, 'rect');
+		// rectangle1.setAttribute('x', '150');
+		// rectangle1.setAttribute('y', '150');
+		// rectangle1.setAttribute('width', '100');
+		// rectangle1.setAttribute('height', '100');
+		// rectangle1.setAttribute('fill', '#f00');
+		// const rectangle2 = document.createElementNS(SVG, 'rect');
+		// rectangle2.setAttribute('x', '100');
+		// rectangle2.setAttribute('y', '200');
+		// rectangle2.setAttribute('width', '100');
+		// rectangle2.setAttribute('height', '100');
+		// rectangle2.setAttribute('fill', '#00f');
+		// rectangle2.setAttribute('fill-opacity', '1');
 
-		svg.appendChild(rectangle1);
-		svg.appendChild(rectangle2);
-		testDiv.append(svg);
+		// svg.appendChild(rectangle1);
+		// svg.appendChild(rectangle2);
+		// testDiv.append(svg);
 
-		rectangle1.addEventListener('click', () => { console.log('clicked on red'); });
-		rectangle2.addEventListener('click', () => {
-			console.log('clicked on blue');
+		// rectangle1.addEventListener('click', () => { console.log('clicked on red'); });
+		// rectangle2.addEventListener('click', () => {
+		// 	console.log('clicked on blue');
 
-			/** toggle between hidden and visible */
-			const opacity = rectangle2.getAttribute('fill-opacity');
-			if (opacity !== null) {
-				if (opacity == '0') rectangle2.setAttribute('fill-opacity', '1');
-				else rectangle2.setAttribute('fill-opacity', '0');
-			}
+		// 	/** toggle between hidden and visible */
+		// 	const opacity = rectangle2.getAttribute('fill-opacity');
+		// 	if (opacity !== null) {
+		// 		if (opacity == '0') rectangle2.setAttribute('fill-opacity', '1');
+		// 		else rectangle2.setAttribute('fill-opacity', '0');
+		// 	}
 
 			/** fade out with each click then return to visible */
 			// let opacity = rectangle2.getAttribute('fill-opacity');
@@ -155,7 +235,7 @@ export function render() {
 			// 	else value -= .1;
 			// 	rectangle2.setAttribute('fill-opacity', `${value}`);
 			// }
-		});
+		// });
 
 		/** display SVG image from file created using the "Graphic" app */
 		// const fretboard = document.createElement('img');
@@ -196,7 +276,11 @@ export function render() {
 
 		// // fretboard.innerHTML = 'The quick brown fox jumps over the lazy dog. '.repeat(8);
 		// testDiv.append(fretboard);
-	}
+	// }
+}
+
+function fingered(string: number, fret: number) {
+
 }
 
 function getChordData(instrument: Instrument, notation: string) {

@@ -9,6 +9,15 @@ export const SVGNameSpace = 'http://www.w3.org/2000/svg';
 // 	bottom: number;
 // 	left: number;
 // }
+export class Point {
+    x;
+    y;
+    constructor(x, y) {
+        this.x = Math.round(x);
+        this.y = Math.round(y);
+    }
+    get position() { return `${this.x},${this.y}`; }
+}
 class Graphic {
     static odometer = 0;
     width;
@@ -49,17 +58,9 @@ class Graphic {
         return `${group}-${Graphic.odometer}`;
     }
 }
-export class Point {
-    x;
-    y;
-    constructor(x, y) {
-        this.x = Math.round(x);
-        this.y = Math.round(y);
-    }
-    get position() { return `${this.x},${this.y}`; }
-}
 export class SVG extends Graphic {
     static strokeColor = 'black';
+    static fillColor = 'black';
     static strokeWidth = 1;
     static group = '';
     element;
@@ -70,7 +71,7 @@ export class SVG extends Graphic {
         this.element.setAttribute('height', `${height}`);
         this.element.setAttribute('viewBox', `0 0 ${width} ${height}`);
         if (borderColor)
-            this.showBorder(borderColor);
+            this.addBorder(borderColor);
     }
     addGrid(point, columns, rows, columnWidth, rowHeight) {
         const lineElements = [];
@@ -99,15 +100,30 @@ export class SVG extends Graphic {
                 svgLine.setAttribute('y1', `${point.y}`);
                 svgLine.setAttribute('y2', `${point.y + gridHeight}`);
                 svgLine.setAttribute('stroke', SVG.strokeColor);
-                svgLine.setAttribute('stroke-width', SVG.strokeWidth.toString());
+                svgLine.setAttribute('stroke-width', `${SVG.strokeWidth}`);
                 this.element.appendChild(svgLine);
                 lineElements.push(svgLine);
             }
         }
-        return lineElements; /** the caller may want to do something with these */
+        return lineElements;
+    }
+    addCircle(point, radius, visible = true) {
+        radius = Math.abs(radius);
+        radius = Math.round(radius);
+        const svgCircle = document.createElementNS(SVGNameSpace, 'circle');
+        svgCircle.setAttribute('cx', `${point.x}`);
+        svgCircle.setAttribute('cy', `${point.y}`);
+        svgCircle.setAttribute('r', `${radius}`);
+        svgCircle.setAttribute('stroke', SVG.strokeColor);
+        svgCircle.setAttribute('fill', SVG.fillColor);
+        svgCircle.setAttribute('stroke-width', `${SVG.strokeWidth}`);
+        if (!visible)
+            svgCircle.setAttribute('visibility', 'hidden');
+        this.element.appendChild(svgCircle);
+        return svgCircle;
     }
     addText(point, anchor, text) {
-        let svgText = document.createElementNS(SVGNameSpace, 'text');
+        const svgText = document.createElementNS(SVGNameSpace, 'text');
         svgText.setAttribute('x', `${point.x}`);
         svgText.setAttribute('y', `${point.y}`);
         svgText.setAttribute('text-anchor', anchor);
@@ -115,9 +131,9 @@ export class SVG extends Graphic {
         svgText.setAttribute('font-size', `${text.fontSize}`);
         svgText.innerHTML = text.value;
         this.element.appendChild(svgText);
-        return svgText; /** the caller may want to do something with this */
+        return svgText;
     }
-    showBorder(borderColor) {
+    addBorder(borderColor) {
         const border = document.createElementNS(SVGNameSpace, 'rect');
         border.setAttribute('x', '0');
         border.setAttribute('y', '0');
@@ -128,5 +144,6 @@ export class SVG extends Graphic {
         border.setAttribute('stroke-width', '2');
         border.setAttribute('stroke-dasharray', '10,5'); // stroke-dasharray="10,5"
         this.element.appendChild(border);
+        return border;
     }
 }

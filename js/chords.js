@@ -1,6 +1,7 @@
 import { Page } from './lib/page.js';
 import { Instrument, Chord } from './lib/fakesheet.js';
 import * as W from './lib/widgets.js';
+import { SVG, Point } from './lib/graphics.js';
 // const W3NameSpace = 'http://www.w3.org/2000/svg';
 /**
  * @todo
@@ -74,95 +75,166 @@ export function render() {
         textEntry.element.value = '';
     });
     if (PAGE.local) {
-        // /** display hand-drawn SVG */
+        const fretWidth = 32; /** this determines the scale of everything. 25...50 is a reasonable range */
+        const fretHeight = fretWidth * 1.5;
+        const strings = 6;
+        const frets = 5;
+        const fretNumberWidth = Math.round(fretWidth * .75);
+        const fretMargin = Math.round(fretWidth / 2);
+        const gridWidth = fretWidth * (strings - 1);
+        const gridHeight = fretHeight * frets + fretMargin; /** fretMargin adds margin on bottom (necessary?) */
+        const gridCenter = Math.round(gridWidth / 2);
+        const nameHeight = Math.round(fretHeight * .75);
+        const nutHeight = Math.round(fretHeight / 4);
+        const width = fretNumberWidth + (fretMargin * 2) + gridWidth;
+        const height = nameHeight + nutHeight + gridHeight;
+        const svg = new SVG(width, height);
+        const gridPoint = new Point(fretNumberWidth + fretMargin, nameHeight + nutHeight);
+        const namePoint = new Point(gridPoint.x + gridCenter, Math.round(nameHeight / 3 * 2));
+        /** initialize the nut mark elements (one for each string, 6th thru 1st) */
+        const nutMarks = [];
+        for (let string = 0; string < strings; string += 1) {
+            const x = gridPoint.x + (string * fretWidth);
+            const y = nameHeight + Math.round(nutHeight / 3 * 2);
+            const point = new Point(x, y);
+            nutMarks.push(svg.addText(point, 'middle', { value: '', fontSize: fretHeight / 4, fontFamily: 'sans-serif' }));
+        }
+        /** initialize the fret number elements (one for each fret relative to the top fret) */
+        const fretNumbers = [];
+        for (let fret = 0; fret < frets; fret += 1) {
+            const x = fretNumberWidth;
+            const y = nameHeight + nutHeight + Math.round(fretHeight / 2) + (fret * fretHeight);
+            const point = new Point(x, y);
+            fretNumbers.push(svg.addText(point, 'end', { value: '', fontSize: fretHeight / 4, fontFamily: 'sans-serif' }));
+        }
         /**
-         * @todo
-         * If we can draw a frame with hidden buttons (circles, rectangles,
-         * triangles, etc.), we could modify the SVG in place (dynamic file),
-         * turning fret spots on and off, etc. This would eliminate scaling
-         * issues. (drawing can be done with a new Chord.diagram method)
-         *
-         * But a panel (div) with a framework background, and an array of button
-         * elements laid across it, buttons positioned via relative percentages
-         * within the panel. Buttons can be turned on and off, hidden and
-         * visible, in a very straightforward (and scalable) way. Right?
+         * Initialize the finger mark elements (one for each fret of each
+         * string). These will serve as hotspots, becoming visible only when
+         * clicked.
          */
-        const SVG = 'http://www.w3.org/2000/svg';
-        const svg = document.createElementNS(SVG, 'svg');
-        svg.setAttribute('width', '400');
-        svg.setAttribute('height', '400');
-        svg.setAttribute('viewBox', '0 0 400 400');
-        const rectangle1 = document.createElementNS(SVG, 'rect');
-        rectangle1.setAttribute('x', '150');
-        rectangle1.setAttribute('y', '150');
-        rectangle1.setAttribute('width', '100');
-        rectangle1.setAttribute('height', '100');
-        rectangle1.setAttribute('fill', '#f00');
-        const rectangle2 = document.createElementNS(SVG, 'rect');
-        rectangle2.setAttribute('x', '100');
-        rectangle2.setAttribute('y', '200');
-        rectangle2.setAttribute('width', '100');
-        rectangle2.setAttribute('height', '100');
-        rectangle2.setAttribute('fill', '#00f');
-        rectangle2.setAttribute('fill-opacity', '1');
-        svg.appendChild(rectangle1);
-        svg.appendChild(rectangle2);
-        testDiv.append(svg);
-        rectangle1.addEventListener('click', () => { console.log('clicked on red'); });
-        rectangle2.addEventListener('click', () => {
-            console.log('clicked on blue');
-            /** toggle between hidden and visible */
-            const opacity = rectangle2.getAttribute('fill-opacity');
-            if (opacity !== null) {
-                if (opacity == '0')
-                    rectangle2.setAttribute('fill-opacity', '1');
-                else
-                    rectangle2.setAttribute('fill-opacity', '0');
+        const fingerMarks = [];
+        const radius = Math.round(fretWidth / 4);
+        for (let string = 0; string < strings; string += 1) {
+            fingerMarks[string] = [];
+            const x = gridPoint.x + (string * fretWidth);
+            for (let fret = 0; fret < frets; fret += 1) {
+                const y = nameHeight + nutHeight + Math.round(fretHeight / 2) + (fret * fretHeight);
+                const point = new Point(x, y);
+                // const visible = (string == 0 && fret == 2) || (string == 1 && fret == 1) || (string == 5 && fret == 2);
+                const fingerMark = svg.addCircle(point, radius, false);
+                fingerMarks[string].push(fingerMark);
             }
-            /** fade out with each click then return to visible */
-            // let opacity = rectangle2.getAttribute('fill-opacity');
-            // if (opacity !== null) {
-            // 	let value = Number(opacity);
-            // 	if (value <= 0) value = 1;
-            // 	else value -= .1;
-            // 	rectangle2.setAttribute('fill-opacity', `${value}`);
-            // }
+        }
+        // fingerMarks[string][fret].addEventListener('click', () => {
+        // 	// fingered(string, fret);
+        // 	fingerMarks[string][fret].setAttribute('visibility', 'visible');
+        // });
+        svg.addGrid(gridPoint, strings - 1, frets, fretWidth, fretHeight);
+        svg.addText(namePoint, 'middle', { value: 'G major', fontSize: fretHeight / 3, fontFamily: 'sans-serif' });
+        nutMarks[2].innerHTML = 'o';
+        nutMarks[3].innerHTML = 'o';
+        nutMarks[4].innerHTML = 'o';
+        fretNumbers[0].innerHTML = '1';
+        const paragraph = document.createElement('p');
+        paragraph.append(svg.element);
+        testDiv.append(paragraph);
+        /*
+        flagButton.addEventListener('click', () => {
+            const text = `Flagged Image: ${imageSet.images[imageSet.index]}`;
+            const logEntry: T.LogEntry = { text: text };
+            Fetch.api<T.LogEntry>(`${PAGE.backend}/log/`, logEntry).then((response) => { console.log(response)});
         });
-        /** display SVG image from file created using the "Graphic" app */
-        // const fretboard = document.createElement('img');
-        // fretboard.setAttribute('src', `${PAGE.site}/images/music/fretboard.svg`);
-        // fretboard.width = 180;
-        // testDiv.append(fretboard);
-        /** display side-by-side diagramed chords to compare scaling */
-        // const chords = ['Cmaj7 332000', 'Gmaj7 320002'];
-        // let first = true;
-        // for (const chord of chords) {
-        // 	const [chordName, notation] = chord.split(/\s+/);
-        // 	const diagramChord = new Chord(chordName, instrument, notation);
-        // 	if (first) testDiv.append(diagramChord.diagram()); /** default */
-        // 	else testDiv.append(diagramChord.diagram('sans-serif', 1, 14)); /** nearly equivalent grid; xoxo, dots, name scaled a little differently */
-        // 	first = false;
-        // }
-        // const fretboard = document.createElement('p');
-        // // fretboard.style.width = '173px';
-        // // fretboard.style.height = '231px';
-        // // fretboard.style.backgroundImage = `url(${PAGE.site}/Images/fretboard.png)`;
-        // const diagramChord = new Chord('C', instrument, 'xxxxxx');
-        // const svg = diagramChord.diagram('sans-serif', 1, 16, ' okay ');
-        // const outerHTML = svg.outerHTML;
-        // fretboard.innerText = outerHTML; /** displays SVG as text */
-        // // fretboard.innerHTML = outerHTML; /** displays SVG image */
-        // // fretboard.style.backgroundImage = outerHTML; /** does not work */
-        // // const diagramImage = document.createElement('img');
-        // // diagramImage.setAttribute('src', 'data:image/sg+xml,' + svg);
-        // // fretboard.style.backgroundImage = `url(${'data:image/sg+xml,' + outerHTML})`;
-        // // fretboard.style.backgroundImage = `url(${outerHTML})`;
-        // // fretboard.style.backgroundImage = `url(${diagramChord.diagram('sans-serif', 1, 16, ' okay ')})`;
-        // // fretboard.innerHTML += `width: ${width}<br>`;
-        // // fretboard.innerHTML += `height: ${height}<br>`;
-        // // fretboard.innerHTML = 'The quick brown fox jumps over the lazy dog. '.repeat(8);
-        // testDiv.append(fretboard);
+        */
     }
+    // /** display hand-drawn SVG */
+    /**
+     * @todo
+     * If we can draw a frame with hidden buttons (circles, rectangles,
+     * triangles, etc.), we could modify the SVG in place (dynamic file),
+     * turning fret spots on and off, etc. This would eliminate scaling
+     * issues. (drawing can be done with a new Chord.diagram method)
+     *
+     * But a panel (div) with a framework background, and an array of button
+     * elements laid across it, buttons positioned via relative percentages
+     * within the panel. Buttons can be turned on and off, hidden and
+     * visible, in a very straightforward (and scalable) way. Right?
+     */
+    // const SVG = 'http://www.w3.org/2000/svg';
+    // const svg = document.createElementNS(SVG, 'svg');
+    // svg.setAttribute('width', '400');
+    // svg.setAttribute('height', '400');
+    // svg.setAttribute('viewBox', '0 0 400 400');
+    // const rectangle1 = document.createElementNS(SVG, 'rect');
+    // rectangle1.setAttribute('x', '150');
+    // rectangle1.setAttribute('y', '150');
+    // rectangle1.setAttribute('width', '100');
+    // rectangle1.setAttribute('height', '100');
+    // rectangle1.setAttribute('fill', '#f00');
+    // const rectangle2 = document.createElementNS(SVG, 'rect');
+    // rectangle2.setAttribute('x', '100');
+    // rectangle2.setAttribute('y', '200');
+    // rectangle2.setAttribute('width', '100');
+    // rectangle2.setAttribute('height', '100');
+    // rectangle2.setAttribute('fill', '#00f');
+    // rectangle2.setAttribute('fill-opacity', '1');
+    // svg.appendChild(rectangle1);
+    // svg.appendChild(rectangle2);
+    // testDiv.append(svg);
+    // rectangle1.addEventListener('click', () => { console.log('clicked on red'); });
+    // rectangle2.addEventListener('click', () => {
+    // 	console.log('clicked on blue');
+    // 	/** toggle between hidden and visible */
+    // 	const opacity = rectangle2.getAttribute('fill-opacity');
+    // 	if (opacity !== null) {
+    // 		if (opacity == '0') rectangle2.setAttribute('fill-opacity', '1');
+    // 		else rectangle2.setAttribute('fill-opacity', '0');
+    // 	}
+    /** fade out with each click then return to visible */
+    // let opacity = rectangle2.getAttribute('fill-opacity');
+    // if (opacity !== null) {
+    // 	let value = Number(opacity);
+    // 	if (value <= 0) value = 1;
+    // 	else value -= .1;
+    // 	rectangle2.setAttribute('fill-opacity', `${value}`);
+    // }
+    // });
+    /** display SVG image from file created using the "Graphic" app */
+    // const fretboard = document.createElement('img');
+    // fretboard.setAttribute('src', `${PAGE.site}/images/music/fretboard.svg`);
+    // fretboard.width = 180;
+    // testDiv.append(fretboard);
+    /** display side-by-side diagramed chords to compare scaling */
+    // const chords = ['Cmaj7 332000', 'Gmaj7 320002'];
+    // let first = true;
+    // for (const chord of chords) {
+    // 	const [chordName, notation] = chord.split(/\s+/);
+    // 	const diagramChord = new Chord(chordName, instrument, notation);
+    // 	if (first) testDiv.append(diagramChord.diagram()); /** default */
+    // 	else testDiv.append(diagramChord.diagram('sans-serif', 1, 14)); /** nearly equivalent grid; xoxo, dots, name scaled a little differently */
+    // 	first = false;
+    // }
+    // const fretboard = document.createElement('p');
+    // // fretboard.style.width = '173px';
+    // // fretboard.style.height = '231px';
+    // // fretboard.style.backgroundImage = `url(${PAGE.site}/Images/fretboard.png)`;
+    // const diagramChord = new Chord('C', instrument, 'xxxxxx');
+    // const svg = diagramChord.diagram('sans-serif', 1, 16, ' okay ');
+    // const outerHTML = svg.outerHTML;
+    // fretboard.innerText = outerHTML; /** displays SVG as text */
+    // // fretboard.innerHTML = outerHTML; /** displays SVG image */
+    // // fretboard.style.backgroundImage = outerHTML; /** does not work */
+    // // const diagramImage = document.createElement('img');
+    // // diagramImage.setAttribute('src', 'data:image/sg+xml,' + svg);
+    // // fretboard.style.backgroundImage = `url(${'data:image/sg+xml,' + outerHTML})`;
+    // // fretboard.style.backgroundImage = `url(${outerHTML})`;
+    // // fretboard.style.backgroundImage = `url(${diagramChord.diagram('sans-serif', 1, 16, ' okay ')})`;
+    // // fretboard.innerHTML += `width: ${width}<br>`;
+    // // fretboard.innerHTML += `height: ${height}<br>`;
+    // // fretboard.innerHTML = 'The quick brown fox jumps over the lazy dog. '.repeat(8);
+    // testDiv.append(fretboard);
+    // }
+}
+function fingered(string, fret) {
 }
 function getChordData(instrument, notation) {
     const chordData = [];

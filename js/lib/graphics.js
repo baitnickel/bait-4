@@ -12,9 +12,9 @@ export const SVGNameSpace = 'http://www.w3.org/2000/svg';
 export class Point {
     x;
     y;
-    constructor(x, y) {
-        this.x = Math.round(x);
-        this.y = Math.round(y);
+    constructor(x, y, round = false) {
+        this.x = (round) ? Math.round(x) : x;
+        this.y = (round) ? Math.round(y) : y;
     }
     get position() { return `${this.x},${this.y}`; }
 }
@@ -45,10 +45,10 @@ class Graphic {
      * x,y point (e.g., "1,2"). `x` and `y` are rounded to the nearest integers.
      * If either `x` or `y` is not a positive number, return the string "0,0".
      */
-    point(x, y) {
+    point(x, y, round = false) {
         let point = '0,0';
-        x = Math.round(x);
-        y = Math.round(y);
+        x = (round) ? Math.round(x) : x;
+        y = (round) ? Math.round(y) : y;
         if (x >= 0 && y >= 0)
             point = `${x},${y}`;
         return point;
@@ -108,8 +108,8 @@ export class SVG extends Graphic {
         return lineElements;
     }
     addCircle(point, radius, visible = true) {
-        radius = Math.abs(radius);
-        radius = Math.round(radius);
+        // radius = Math.abs(radius);
+        // radius = (radius);
         const svgCircle = document.createElementNS(SVGNameSpace, 'circle');
         svgCircle.setAttribute('cx', `${point.x}`);
         svgCircle.setAttribute('cy', `${point.y}`);

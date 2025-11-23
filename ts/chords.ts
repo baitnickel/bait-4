@@ -121,17 +121,17 @@ function newDiagram(division: HTMLDivElement, diagramSize: W.Range) {
 
 	/** fretWidth determines the scale of everything. 25...50 is a reasonable range */
 	const fretWidth = Number(diagramSize.element.value);
-	const fretHeight = fretWidth * 1.5;
+	const fretHeight = fretWidth * 1.3;
 	const strings = 6;
 	const frets = 5;
 
 	const fretNumberWidth = fretWidth * .75;
-	const fretMargin = fretWidth / 2;
+	const fretMargin = fretWidth * .5;
 	const gridWidth = fretWidth * (strings - 1);
 	const gridHeight = fretHeight * frets + fretMargin; /** fretMargin adds margin on bottom (necessary?) */
-	const gridCenter = gridWidth / 2;
+	const gridCenter = gridWidth * .5;
 	const nameHeight = fretHeight * .75;
-	const nutHeight = fretHeight / 4;
+	const nutHeight = fretHeight * .25;
 
 	const width = fretNumberWidth + (fretMargin * 2) + gridWidth;
 	const height = nameHeight + nutHeight + gridHeight;
@@ -147,15 +147,15 @@ function newDiagram(division: HTMLDivElement, diagramSize: W.Range) {
 		const x = gridPoint.x + (string * fretWidth);
 		const y = nameHeight + (nutHeight * .67);
 		const point = new Point(x, y);
-		nutMarks.push(svg.addText(point, 'middle', {value: '', fontSize: fretHeight / 3, fontFamily: 'sans-serif'}));
+		nutMarks.push(svg.addText(point, 'middle', {value: '', fontSize: fretHeight * .33, fontFamily: 'sans-serif'}));
 	}
 	/** initialize the fret number elements (one for each fret relative to the top fret) */
 	const fretNumbers: SVGTextElement[] = [];
 	for (let fret = 0; fret < frets; fret += 1) {
 		const x = fretNumberWidth;
-		const y = nameHeight + nutHeight + (fretHeight / 2) + (fret * fretHeight);
+		const y = nameHeight + nutHeight + (fretHeight * .6) + (fret * fretHeight);
 		const point = new Point(x, y);
-		fretNumbers.push(svg.addText(point, 'end', {value: '', fontSize: fretHeight / 4, fontFamily: 'sans-serif'}));
+		fretNumbers.push(svg.addText(point, 'end', {value: '', fontSize: fretHeight * .25, fontFamily: 'sans-serif'}));
 	}
 	/**
 	 * Initialize the finger mark elements (one for each fret of each
@@ -163,26 +163,23 @@ function newDiagram(division: HTMLDivElement, diagramSize: W.Range) {
 	 * clicked.
 	 */
 	const fingerIDs: string[] = [];
-	const radius = fretWidth / 3;
+	const radius = fretWidth * .275;
 	for (let string = 0; string < strings; string += 1) {
 		const x = gridPoint.x + (string * fretWidth);
 		for (let fret = 0; fret < frets; fret += 1) {
-			const y = nameHeight + nutHeight + (fretHeight / 2) + (fret * fretHeight);
+			const y = nameHeight + nutHeight + (fretHeight * .5) + (fret * fretHeight);
 			const point = new Point(x, y);
-			// const visible = (string == 0 && fret == 2) || (string == 1 && fret == 1) || (string == 5 && fret == 2);
 			const fingerMark = svg.addCircle(point, radius, false);
 			fingerMark.id = `${string},${fret}`;
 
 			fingerMark.addEventListener('click', () => {
 				fingered(fingerMark.id, fingerIDs);
-				// fingerIDs.push(fingerMark.id);
-				// fingerMark.setAttribute('visibility', 'visible');
 			});
 		}
 	}
 
 	svg.addGrid(gridPoint, strings - 1, frets, fretWidth, fretHeight);
-	svg.addText(namePoint, 'middle', {value: 'G major', fontSize: fretHeight / 3, fontFamily: 'sans-serif'});
+	svg.addText(namePoint, 'middle', {value: 'G major', fontSize: fretHeight * .33, fontFamily: 'sans-serif'});
 	for (let fret = 0; fret < frets; fret += 1) fretNumbers[fret].innerHTML = `${fret + 1}`;
 	nutMarks[2].innerHTML = 'o';
 	nutMarks[3].innerHTML = 'o';

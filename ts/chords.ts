@@ -115,9 +115,15 @@ function newDiagram(division: HTMLDivElement, diagramSize: W.Range) {
 	 * Maintain an undo/redo array of buttons clicked; the values being
 	 * (taken from) button IDs--pointing to the clicked element and also
 	 * indicating string and fret.
+	 * 
+	 * Save diagrams to a downloadable "chord library file"--function to take a
+	 * key and notation, and return a chord name--this is enough to generate a
+	 * diagram.
 	 */
 
-	const fingerings: string[] = [];
+	// const fingerings: string[] = [];
+
+	const fretBoard = new FretBoard(6, 5, 36, 'red');
 
 	/** fretWidth determines the scale of everything. 25...50 is a reasonable range */
 	const fretWidth = Number(diagramSize.element.value);
@@ -205,6 +211,94 @@ function fingered(id: string, fingerIDs: string[]) {
 		// element.setAttribute('visibility', 'visible');
 	}
 	else console.log('cannot get element ID');
+}
+
+class FretBoard {
+	svg: SVG;
+	strings: number;
+	frets: number;
+	width: number;
+	height: number;
+	fretWidth: number;
+	fretHeight: number;
+	fretNumberWidth: number;
+	fretMargin: number;
+	gridWidth: number;
+	gridHeight: number;
+	gridCenter: number;
+	nameHeight: number;
+	nutHeight: number;
+	gridPoint: Point;
+	namePoint: Point;
+
+	constructor(strings: number, frets: number, fretWidth: number, borderColor = '') {
+		this.strings = strings;
+		this.frets = frets;
+		this.fretWidth = fretWidth;
+		this.fretHeight = fretWidth * 1.3;
+		this.fretNumberWidth = fretWidth * .75;
+		this.fretMargin = fretWidth * .5;
+		this.gridWidth = fretWidth * (strings - 1);
+		this.gridHeight = this.fretHeight * frets + this.fretMargin; // is bottom margin necessary?
+		this.gridCenter = this.gridWidth * .5;
+		this.nameHeight = this.fretHeight * .75;
+		this.nutHeight = this.fretHeight * .25;
+		this.width = this.fretNumberWidth + (this.fretMargin * 2) + this.gridWidth;
+		this.height = this.nameHeight + this.nutHeight + this.gridHeight;
+		this.gridPoint = new Point(this.fretNumberWidth + this.fretMargin, this.nameHeight + this.nutHeight);
+		this.namePoint = new Point(this.gridPoint.x + this.gridCenter, this.nameHeight * .75);
+		this.svg = new SVG(this.width, this.height, borderColor);
+	}
+
+	/**
+	 * Initialize the nut mark elements (one for each string, bass thru treble).
+	 */
+	nutMarks() {
+		const nutMarks: SVGTextElement[] = [];
+		for (let string = 0; string < this.strings; string += 1) {
+			const x = this.gridPoint.x + (string * this.fretWidth);
+			const y = this.nameHeight + (this.nutHeight * .67);
+			const point = new Point(x, y);
+			nutMarks.push(this.svg.addText(point, 'middle', {value: '', fontSize: this.fretHeight * .33, fontFamily: 'sans-serif'}));
+		}
+	}
+
+	/**
+	 * Initialize the fret number elements (one for each fret relative to the
+	 * top fret).
+	 */
+	fretNumbers() {
+		const fretNumbers: SVGTextElement[] = [];
+		for (let fret = 0; fret < this.frets; fret += 1) {
+			const x = this.fretNumberWidth;
+			const y = this.nameHeight + this.nutHeight + (this.fretHeight * .6) + (fret * this.fretHeight);
+			const point = new Point(x, y);
+			fretNumbers.push(this.svg.addText(point, 'end', {value: '', fontSize: this.fretHeight * .25, fontFamily: 'sans-serif'}));
+		}
+	}
+
+	/**
+	 * Initialize the finger mark elements (one for each fret of each
+	 * string). These will serve as hotspots, becoming visible only when
+	 * clicked.
+	 */
+	fingerMarks() {
+		const fingerIDs: string[] = [];
+		const radius = this.fretWidth * .275;
+		for (let string = 0; string < this.strings; string += 1) {
+			const x = this.gridPoint.x + (string * this.fretWidth);
+			for (let fret = 0; fret < this.frets; fret += 1) {
+				const y = this.nameHeight + this.nutHeight + (this.fretHeight * .5) + (fret * this.fretHeight);
+				const point = new Point(x, y);
+				const fingerMark = this.svg.addCircle(point, radius, false);
+				fingerMark.id = `${string},${fret}`;
+
+				fingerMark.addEventListener('click', () => {
+					fingered(fingerMark.id, fingerIDs);
+				});
+			}
+		}
+	}
 }
 
 function getChordData(instrument: Instrument, notation: string) {

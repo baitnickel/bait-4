@@ -94,58 +94,22 @@ export function render() {
  * diagram.
  */
 function newDiagram(division, diagramSize) {
-    const diagram = new ChordDiagram(6, 5, Number(diagramSize.element.value), 'sans-serif', 'red');
-    diagram.grid();
-    diagram.chordName('G major', .33);
-    const nutMarks = diagram.nutMarks(.67, .33);
-    const fretNumbers = diagram.fretNumbers(.6, .25);
-    const fingerMarks = diagram.fingerMarks(.5, .275);
-    // for (let fingerMark of fingerMarks) console.log(fingerMark.id);
-    for (let fret = 0; fret < diagram.frets; fret += 1)
-        fretNumbers[fret].innerHTML = `${fret + 1}`;
-    for (let string = 0; string < diagram.strings; string += 1)
-        nutMarks[string].innerHTML = 'x';
     const paragraph = document.createElement('p');
+    const diagram = new ChordDiagram(6, 5, Number(diagramSize.element.value), 'sans-serif', 'red');
     paragraph.append(diagram.svg.element);
     division.append(paragraph);
-}
-/**
- * Event Listener: when a finger mark is clicked, toggle its visibility.
- *
- * If we're going to call a ChordDiagram method (or two) in here, we might as
- * well let the method do all the work!
-*/
-function fingered(id, diagram) {
-    const [string, fret] = id.split(',');
-    const element = document.getElementById(id);
-    if (element) {
-        const opacity = element.getAttribute('fill-opacity');
-        if (opacity !== null) {
-            if (opacity == '0') {
-                /**
-                 * Turning on a mark must set that string's nut mark to '' and
-                 * set the opacity of any other marks on that string to 0.
-                 */
-                element.setAttribute('fill-opacity', '1');
-                diagram.setString(Number(string), Number(fret));
-            }
-            else {
-                /**
-                 * Turning off a mark must set that string's nut mark to 'x',
-                 * and ensure that the opacity of all marks on that string are
-                 * set to 0.
-                 */
-                element.setAttribute('fill-opacity', '0');
-                diagram.resetString(Number(string));
-            }
-        }
-    }
 }
 class ChordDiagram {
     svg;
     font;
     strings;
     frets;
+    firstFret;
+    chordName;
+    nutMarks;
+    fretNumbers;
+    fingerMarks;
+    fretted;
     width;
     height;
     fretWidth;
@@ -162,13 +126,16 @@ class ChordDiagram {
     constructor(strings, frets, fretWidth, font, borderColor = '') {
         this.strings = strings;
         this.frets = frets;
+        this.fretted = []; /** an array of actual fretted positions, one for each string */
+        for (let string = 0; string < this.strings; string += 1)
+            this.fretted.push(-1);
         this.fretWidth = fretWidth;
         this.fretHeight = fretWidth * 1.3;
         this.fretNumberWidth = fretWidth * .75;
         this.fretMargin = fretWidth * .5;
         this.gridWidth = fretWidth * (strings - 1);
         this.gridHeight = this.fretHeight * frets + this.fretMargin; // is bottom margin necessary?
-        this.gridCenter = this.gridWidth * .5;
+        this.gridCenter = this.gridWidth * .5; // will always be .5
         this.nameHeight = this.fretHeight * .75;
         this.nutHeight = this.fretHeight * .25;
         this.width = this.fretNumberWidth + (this.fretMargin * 2) + this.gridWidth;
@@ -177,48 +144,62 @@ class ChordDiagram {
         this.namePoint = new Point(this.gridPoint.x + this.gridCenter, this.nameHeight * .75);
         this.font = font;
         this.svg = new SVG(this.width, this.height, borderColor);
-    }
-    /** Draw strings/frets grid in SVG */
-    grid() {
         this.svg.addGrid(this.gridPoint, this.strings - 1, this.frets, this.fretWidth, this.fretHeight);
+        this.chordName = this.chordNameElement(.33);
+        this.nutMarks = this.nutMarkElements(.67, .33);
+        this.firstFret = 1;
+        this.fretNumbers = this.fretNumberElements(this.firstFret, .6, .25);
+        this.fingerMarks = this.fingerMarkElements(.5, .275);
     }
-    /** Set the chord name in the diagram */
-    chordName(name, verticalAdjustment) {
-        this.svg.addText(this.namePoint, 'middle', { value: name, fontSize: this.fretHeight * verticalAdjustment, fontFamily: this.font });
+    /** Initialize the chord name element */
+    chordNameElement(verticalAdjustment) {
+        const chordName = this.svg.addText(this.namePoint, 'middle', { value: '', fontSize: this.fretHeight * verticalAdjustment, fontFamily: this.font });
+        return chordName;
+    }
+    setChordName(name) {
+        this.chordName.innerHTML = name;
     }
     /**
      * Initialize the nut mark elements (one for each string, bass thru treble).
      */
-    nutMarks(verticalAdjustment, fontSizeAdjustment) {
+    nutMarkElements(verticalAdjustment, fontSizeAdjustment) {
         const nutMarks = [];
         for (let string = 0; string < this.strings; string += 1) {
             const x = this.gridPoint.x + (string * this.fretWidth);
             const y = this.nameHeight + (this.nutHeight * verticalAdjustment);
             const point = new Point(x, y);
-            nutMarks.push(this.svg.addText(point, 'middle', { value: '', fontSize: this.fretHeight * fontSizeAdjustment, fontFamily: this.font }));
+            nutMarks.push(this.svg.addText(point, 'middle', { value: 'x', fontSize: this.fretHeight * fontSizeAdjustment, fontFamily: this.font }));
         }
         return nutMarks;
+    }
+    setNutMark(string, value) {
+        this.nutMarks[string].innerHTML = value;
     }
     /**
      * Initialize the fret number elements (one for each fret relative to the
      * top fret).
      */
-    fretNumbers(verticalAdjustment, fontSizeAdjustment) {
+    fretNumberElements(firstFret, verticalAdjustment, fontSizeAdjustment) {
         const fretNumbers = [];
         for (let fret = 0; fret < this.frets; fret += 1) {
             const x = this.fretNumberWidth;
             const y = this.nameHeight + this.nutHeight + (this.fretHeight * verticalAdjustment) + (fret * this.fretHeight);
             const point = new Point(x, y);
-            fretNumbers.push(this.svg.addText(point, 'end', { value: '', fontSize: this.fretHeight * fontSizeAdjustment, fontFamily: this.font }));
+            fretNumbers.push(this.svg.addText(point, 'end', { value: `${fret + firstFret}`, fontSize: this.fretHeight * fontSizeAdjustment, fontFamily: this.font }));
         }
         return fretNumbers;
+    }
+    setFretNumbers(firstFret) {
+        this.firstFret = firstFret;
+        for (let fret = 0; fret < this.frets; fret += 1)
+            this.fretNumbers[fret].innerHTML = `${fret + firstFret}`;
     }
     /**
      * Initialize the finger mark elements (one for each fret of each
      * string). These will serve as hotspots, becoming visible only when
      * clicked.
      */
-    fingerMarks(verticalAdjustment, radiusAdjustment) {
+    fingerMarkElements(verticalAdjustment, radiusAdjustment) {
         const fingerMarks = [];
         const radius = this.fretWidth * radiusAdjustment;
         for (let string = 0; string < this.strings; string += 1) {
@@ -230,33 +211,63 @@ class ChordDiagram {
                 fingerMark.id = `${string},${fret}`;
                 fingerMarks.push(fingerMark);
                 fingerMark.addEventListener('click', () => {
-                    /** Can't we simply do all the work right here? Mostly
-                     * calling one or more methods. */
-                    fingered(fingerMark.id, this);
+                    this.markString(fingerMark, string, fret);
+                    this.setChordName(this.notation());
                 });
             }
         }
         return fingerMarks;
     }
     /**
-     * These methods above need to be clearer when they are initializing
-     * elements of the diagram (and setting array properties that will be
-     * manipulated later). The values of Chord Name, Nut Marks, Finger Marks,
-     * Fret Numbers need separate methods for controlling their values
-     * dynamically!
+     * Called as a fingerMark event listener to update the display and manage
+     * underlying data.
      */
-    /**
-     * These two methods below should maintain `this.notation` and then refresh
-     * the nutMarks and FingerMarks. The notation is initially 'xxxxxx' (or an
-     * array of number|null values for each string).
-     */
-    /** Set string's nutMark to '' and set the opacity of any other marks on that string to 0. */
-    setString(string, fret) {
-        console.log(`remove any nutMark from string ${this.strings - string} and show a fingerMark only at fret ${fret + 1}`);
+    markString(element, stringNumber, fretNumber) {
+        const opacity = element.getAttribute('fill-opacity');
+        if (opacity !== null) {
+            if (opacity == '0')
+                this.setString(stringNumber, fretNumber);
+            else
+                this.resetString(stringNumber);
+        }
     }
-    /** Set string's nutMark to 'x' and set all fingerMarks to opacity 0 */
-    resetString(string) {
-        console.log(`remove all fingerMarks from string ${this.strings - string} and set its nutMark to 'x'`);
+    /** Set string's nutMark to '' and set the opacity of any other marks on that string to 0. */
+    setString(stringNumber, fretNumber) {
+        console.log(`remove any nutMark from string ${this.strings - stringNumber} and show a fingerMark only at fret ${fretNumber + 1}`);
+        this.setNutMark(stringNumber, '');
+        this.fretted[stringNumber] = fretNumber + this.firstFret;
+        for (const fingerMark of this.fingerMarks) {
+            const [string, fret] = fingerMark.id.split(',');
+            if (Number(string) == stringNumber) {
+                const opacity = (Number(fret) == fretNumber) ? '1' : '0';
+                fingerMark.setAttribute('fill-opacity', opacity);
+            }
+        }
+    }
+    /** Set string's nutMark to 'x' (or 'o' if open string) and set all fingerMarks to opacity 0 */
+    resetString(stringNumber, openString = false) {
+        console.log(`remove all fingerMarks from string ${this.strings - stringNumber} and set its nutMark to 'x' or 'o'`);
+        const nutMark = (openString) ? 'o' : 'x';
+        this.setNutMark(stringNumber, nutMark);
+        this.fretted[stringNumber] = (openString) ? 0 : -1;
+        for (const fingerMark of this.fingerMarks) {
+            const [string, fret] = fingerMark.id.split(',');
+            if (Number(string) == stringNumber)
+                fingerMark.setAttribute('fill-opacity', '0');
+        }
+    }
+    /** Given fretted positions, return the guitar tab-like notation. */
+    notation() {
+        let notation = '';
+        for (let i = 0; i < this.fretted.length; i += 1) {
+            if (this.fretted[i] < 0)
+                notation += 'x';
+            else if (this.fretted[i] > 9)
+                notation += `(${this.fretted[i]})`;
+            else
+                notation += `${this.fretted[i]}`;
+        }
+        return notation;
     }
 }
 function getChordData(instrument, notation) {

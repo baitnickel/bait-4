@@ -1,6 +1,5 @@
 import { Page } from './lib/page.js';
 import { Instrument, Chord } from './lib/fakesheet.js';
-import * as W from './lib/widgets.js';
 import { SVG, Point } from './lib/graphics.js';
 // const W3NameSpace = 'http://www.w3.org/2000/svg';
 /**
@@ -46,41 +45,54 @@ export function render() {
     PAGE.content.append(intervalsDiv);
     const testDiv = document.createElement('div');
     PAGE.content.append(testDiv);
-    const diagramSize = new W.Range('Diagram Size', 32, 24, 64, 1, ['Pixels'], true);
+    // const diagramSize = new W.Range('Diagram Size', 32, 24, 64, 1, ['Pixels'], true);
     // const sizes: string[] = [];
     // for (let i = 4; i < 30; i += 2) sizes.push(i.toString());
     // const diagramSize = new W.Select('Diagram Size: ', sizes);
-    rangeWidgetParagraph.append(diagramSize.label);
-    rangeWidgetParagraph.append(diagramSize.element);
-    rangeWidgetParagraph.append(diagramSize.element.outerText);
-    const textEntry = new W.Text('Enter Notation: ', '');
+    // rangeWidgetParagraph.append(diagramSize.label);
+    // rangeWidgetParagraph.append(diagramSize.element);
+    // rangeWidgetParagraph.append(diagramSize.element.outerText);
+    // const textEntry = new W.Text('Enter Notation: ', '');
     // textEntry.label.className = 'sans-serif';
-    textWidgetParagraph.append(textEntry.label);
-    textWidgetParagraph.append(textEntry.element);
-    textWidgetParagraph.append('\u00A0\u00A0 e.g.: "x02210"');
+    // textWidgetParagraph.append(textEntry.label);
+    // textWidgetParagraph.append(textEntry.element);
+    // textWidgetParagraph.append('\u00A0\u00A0 e.g.: "x02210"');
     const instrument = new Instrument('guitar');
-    diagramSize.element.addEventListener('change', () => {
-        if (PAGE.local) {
-            testDiv.innerHTML = '';
-            newDiagram(testDiv, diagramSize);
-        }
-    });
-    textEntry.element.addEventListener('change', () => {
-        const notation = textEntry.element.value.trim().toLowerCase();
-        svgParagraph.innerHTML = '';
-        intervalsDiv.innerHTML = '';
-        const diagramChord = new Chord('C', instrument, notation);
-        const pixels = Number(diagramSize.element.value);
-        svgParagraph.append(diagramChord.diagram('sans-serif', 1, pixels, notation)); // 'sans-serif', 0.5
-        const grid = document.createElement('div');
-        grid.className = 'grid-auto';
-        const chordData = getChordData(instrument, notation);
-        sortChordData(chordData);
-        displayChordData(chordData, grid, intervalsDiv);
-        textEntry.element.value = '';
-    });
-    if (PAGE.local)
-        newDiagram(testDiv, diagramSize);
+    const paragraph = document.createElement('p');
+    // const instrument = new Instrument('guitar');
+    // const diagram = new ChordDiagram(instrument.strings, 5, Number(diagramSize.element.value));
+    const diagram = new ChordDiagram(instrument, 5, 30);
+    paragraph.append(diagram.svg.element);
+    testDiv.append(paragraph);
+    // diagramSize.element.addEventListener('change', () => {
+    // 	// if (PAGE.local) {
+    // 	testDiv.innerHTML = '';
+    // 	const svg = diagram.buildSVG(Number(diagramSize.element.value));
+    // 	paragraph.append(svg.element);
+    // 	testDiv.append(paragraph);
+    // 	// newDiagram(testDiv, diagramSize);
+    // 	// }
+    // });
+    // textEntry.element.addEventListener('change', () => {
+    // 	const notation = textEntry.element.value.trim().toLowerCase();
+    // 	svgParagraph.innerHTML = '';
+    // 	intervalsDiv.innerHTML = '';
+    // 	const diagramChord = new Chord('C', instrument, notation);
+    // 	const pixels = Number(diagramSize.element.value);
+    // 	svgParagraph.append(diagramChord.diagram('sans-serif', 1, pixels, notation)); // 'sans-serif', 0.5
+    // 	const grid = document.createElement('div');
+    // 	grid.className = 'grid-auto';
+    // 	const chordData = getChordData(instrument, notation);
+    // 	sortChordData(chordData);
+    // 	displayChordData(chordData, grid, intervalsDiv);
+    // 	textEntry.element.value = '';
+    // });
+    // if (PAGE.local) newDiagram(testDiv, diagramSize);
+    // const paragraph = document.createElement('p');
+    // // const instrument = new Instrument('guitar');
+    // const diagram = new ChordDiagram(instrument.strings, 5, Number(diagramSize.element.value));
+    // paragraph.append(diagram.svg.element);
+    // testDiv.append(paragraph);
 }
 /**
  * @todo
@@ -93,30 +105,32 @@ export function render() {
  * key and notation, and return a chord name--this is enough to generate a
  * diagram.
  */
-function newDiagram(division, diagramSize) {
-    const paragraph = document.createElement('p');
-    const instrument = new Instrument('guitar');
-    const diagram = new ChordDiagram(instrument.strings, 5, Number(diagramSize.element.value));
-    paragraph.append(diagram.svg.element);
-    division.append(paragraph);
-}
+// function newDiagram(division: HTMLDivElement, diagramSize: W.Range) {
+// 	const paragraph = document.createElement('p');
+// 	const instrument = new Instrument('guitar');
+// 	const diagram = new ChordDiagram(instrument.strings, 5, Number(diagramSize.element.value));
+// 	paragraph.append(diagram.svg.element);
+// 	division.append(paragraph);
+// }
 class ChordDiagram {
     svg;
+    instrument;
     strings;
     frets;
     firstFret;
+    fretted;
     chordName;
     nutMarks;
     fretNumbers;
     fingerMarks;
-    fretted;
     static open = 'o';
     static mute = 'x';
     static up = '\u21e7';
     static down = '\u21e9';
     static defaultText = { value: '', fontSize: 12, fontFamily: 'sans-serif' };
-    constructor(strings, frets, fretWidth, borderColor = '') {
-        this.strings = strings;
+    constructor(instrument, frets, fretWidth, borderColor = '') {
+        this.instrument = instrument;
+        this.strings = instrument.strings;
         this.frets = frets;
         this.firstFret = 1;
         this.fretted = []; /** an array of actual fretted positions, one for each string */
@@ -126,32 +140,6 @@ class ChordDiagram {
         this.fingerMarks = [];
         this.svg = this.buildSVG(fretWidth, borderColor);
         this.loadSVGData('');
-        // const fretHeight = fretWidth * 1.3;
-        // const nameHeight = fretHeight;
-        // const nutHeight = fretHeight * .3;
-        // const fretNumberWidth = fretWidth * .6;
-        // const fretMargin = fretWidth * .4;
-        // const gridWidth = fretWidth * (this.strings - 1);
-        // const gridHeight = fretHeight * this.frets;
-        // const gridCenter = gridWidth * .5; // will always be .5 (centered in the middle)
-        // const gridPoint = new Point(fretNumberWidth + fretMargin, nameHeight + nutHeight);
-        // const namePoint = new Point(gridPoint.x + gridCenter, nameHeight * .6);
-        // const width = fretNumberWidth + gridWidth + (fretMargin * 2);
-        // const height = nameHeight + nutHeight + gridHeight;
-        // this.svg = new SVG(width, height, borderColor);
-        // this.svg.addGrid(gridPoint, this.strings - 1, this.frets, fretWidth, fretHeight);
-        // this.chordName = this.chordNameElement(namePoint, fretHeight * .5);
-        // this.nutMarks = this.nutMarkElements(gridPoint, fretWidth, nameHeight + (nutHeight * .5), fretHeight * .4);
-        // const fretNumberPoint = new Point(0, nameHeight + nutHeight);
-        // this.fretNumbers = this.fretNumberElements(fretNumberPoint, fretNumberWidth, fretHeight, .6, fretHeight * .25);
-        // const fingerMarkPoint = new Point(gridPoint.x, nameHeight + nutHeight);
-        // this.fingerMarks = this.fingerMarkElements(fingerMarkPoint, fretWidth, fretHeight, .5, fretWidth * .275);
-        // /** Initialize fretted, nutMarks, fretNumbers ... for new diagram */
-        // for (let string = 0; string < this.strings; string += 1) {
-        // 	this.fretted.push(-1); /** -1 is muted string */
-        // 	this.setNutMark(string, ChordDiagram.mute);
-        // }
-        // this.setFretNumbers(this.firstFret);
     }
     /** Create the SVG element with all of its component elements */
     buildSVG(fretWidth, borderColor = '') {
@@ -222,7 +210,11 @@ class ChordDiagram {
                     const newMark = (currentMark == ChordDiagram.mute) ? ChordDiagram.open : ChordDiagram.mute;
                     this.setNutMark(string, newMark);
                     this.fretted[string] = (newMark == ChordDiagram.open) ? 0 : -1;
-                    this.setChordName(this.notation());
+                    // this.setChordName(this.notation());
+                    const chordData = getChordData(this.instrument, this.notation());
+                    sortChordData(chordData);
+                    const chordName = (chordData.length) ? `${chordData[0].root}${chordData[0].modifier}` : '';
+                    this.setChordName(chordName);
                 }
             });
         }
@@ -269,7 +261,11 @@ class ChordDiagram {
                 fingerMarks.push(fingerMark);
                 fingerMark.addEventListener('click', () => {
                     this.markString(fingerMark, string, fret);
-                    this.setChordName(this.notation());
+                    // this.setChordName(this.notation());
+                    const chordData = getChordData(this.instrument, this.notation());
+                    sortChordData(chordData);
+                    const chordName = (chordData.length) ? `${chordData[0].root}${chordData[0].modifier}` : '';
+                    this.setChordName(chordName);
                 });
             }
         }

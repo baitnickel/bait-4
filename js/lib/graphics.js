@@ -63,6 +63,8 @@ export class SVG extends Graphic {
     static fillColor = 'black';
     static strokeWidth = 1;
     static group = '';
+    static clear = '0';
+    static opaque = '1';
     element;
     constructor(width, height, borderColor = '') {
         super(width, height);
@@ -119,7 +121,7 @@ export class SVG extends Graphic {
         // svgCircle.setAttribute('stroke-width', `${SVG.strokeWidth}`);
         svgCircle.setAttribute('fill-opacity', '1');
         if (!visible) {
-            svgCircle.setAttribute('fill-opacity', '0');
+            svgCircle.setAttribute('fill-opacity', SVG.clear);
             // svgCircle.setAttribute('visibility', 'hidden');
         }
         this.element.appendChild(svgCircle);

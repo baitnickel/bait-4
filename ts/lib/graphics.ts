@@ -83,6 +83,8 @@ export class SVG extends Graphic {
 	static fillColor = 'black';
 	static strokeWidth = 1;
 	static group = '';
+	static clear = '0';
+	static opaque = '1';
 	element: SVGSVGElement;
 	
 	constructor(width: number, height: number, borderColor = '') {
@@ -94,7 +96,7 @@ export class SVG extends Graphic {
 		if (borderColor) this.addBorder(borderColor);
 	}
 
-	addGrid(point: Point, columns: number, rows: number, columnWidth: number, rowHeight: number) {
+	addGrid(point: DOMPoint, columns: number, rows: number, columnWidth: number, rowHeight: number) {
 		const lineElements: SVGLineElement[] = [];
 		if (rows > 0 && columns > 0) {
 			const gridWidth = columns * columnWidth;
@@ -129,7 +131,7 @@ export class SVG extends Graphic {
 		return lineElements;
 	}
 
-	addCircle(point: Point, radius: number, visible = true) {
+	addCircle(point: DOMPoint, radius: number, visible = true) {
 		// radius = Math.abs(radius);
 		// radius = (radius);
 		const svgCircle = document.createElementNS(SVGNameSpace, 'circle');
@@ -141,14 +143,14 @@ export class SVG extends Graphic {
 		// svgCircle.setAttribute('stroke-width', `${SVG.strokeWidth}`);
 		svgCircle.setAttribute('fill-opacity', '1');
 		if (!visible) {
-			svgCircle.setAttribute('fill-opacity', '0');
+			svgCircle.setAttribute('fill-opacity', SVG.clear);
 			// svgCircle.setAttribute('visibility', 'hidden');
 		}
 		this.element.appendChild(svgCircle);
 		return svgCircle;
 	}
 
-	addText(point: Point, anchor: string, text: RichText) {
+	addText(point: DOMPoint, anchor: string, text: RichText) {
 		const svgText = document.createElementNS(SVGNameSpace, 'text');
 		svgText.setAttribute('x', `${point.x}`);
 		svgText.setAttribute('y', `${point.y}`);

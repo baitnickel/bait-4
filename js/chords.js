@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import { Instrument, Chord } from './lib/fakesheet.js';
-import { SVG, Point } from './lib/graphics.js';
+import { SVG } from './lib/graphics.js';
 // const W3NameSpace = 'http://www.w3.org/2000/svg';
 /**
  * @todo
@@ -125,6 +125,8 @@ class ChordDiagram {
     fingerMarks;
     static open = 'o';
     static mute = 'x';
+    static clear = '0';
+    static opaque = '1';
     static up = '\u21e7';
     static down = '\u21e9';
     static defaultText = { value: '', fontSize: 12, fontFamily: 'sans-serif' };
@@ -151,10 +153,10 @@ class ChordDiagram {
         const gridWidth = fretWidth * (this.strings - 1);
         const gridHeight = fretHeight * this.frets;
         const gridCenter = gridWidth * .5; // will always be .5 (centered in the middle)
-        const gridPoint = new Point(fretNumberWidth + fretMargin, nameHeight + nutHeight);
-        const namePoint = new Point(gridPoint.x + gridCenter, nameHeight * .6);
-        const fretNumberPoint = new Point(0, nameHeight + nutHeight);
-        const fingerMarkPoint = new Point(gridPoint.x, nameHeight + nutHeight);
+        const gridPoint = new DOMPoint(fretNumberWidth + fretMargin, nameHeight + nutHeight);
+        const namePoint = new DOMPoint(gridPoint.x + gridCenter, nameHeight * .6);
+        const fretNumberPoint = new DOMPoint(0, nameHeight + nutHeight);
+        const fingerMarkPoint = new DOMPoint(gridPoint.x, nameHeight + nutHeight);
         const width = fretNumberWidth + gridWidth + (fretMargin * 2);
         const height = nameHeight + nutHeight + gridHeight;
         const svg = new SVG(width, height, borderColor);
@@ -201,7 +203,7 @@ class ChordDiagram {
         const y = height;
         for (let string = 0; string < this.strings; string += 1) {
             const x = nutPoint.x + (string * width);
-            const point = new Point(x, y);
+            const point = new DOMPoint(x, y);
             const nutMark = svg.addText(point, 'middle', richText);
             nutMarks.push(nutMark);
             nutMark.addEventListener('click', () => {
@@ -210,11 +212,11 @@ class ChordDiagram {
                     const newMark = (currentMark == ChordDiagram.mute) ? ChordDiagram.open : ChordDiagram.mute;
                     this.setNutMark(string, newMark);
                     this.fretted[string] = (newMark == ChordDiagram.open) ? 0 : -1;
-                    // this.setChordName(this.notation());
                     const chordData = getChordData(this.instrument, this.notation());
                     sortChordData(chordData);
                     const chordName = (chordData.length) ? `${chordData[0].root}${chordData[0].modifier}` : '';
                     this.setChordName(chordName);
+                    // this.setChordName(this.notation());
                 }
             });
         }
@@ -234,7 +236,7 @@ class ChordDiagram {
         const x = fretNumberPoint.x + fretNumberWidth;
         for (let fret = 0; fret < this.frets; fret += 1) {
             const y = fretNumberPoint.y + (fretHeight * offset) + (fret * fretHeight);
-            const point = new Point(x, y);
+            const point = new DOMPoint(x, y);
             fretNumbers.push(svg.addText(point, 'end', richText));
         }
         return fretNumbers;
@@ -255,17 +257,17 @@ class ChordDiagram {
             const x = fingerMarkPoint.x + (string * fretWidth);
             for (let fret = 0; fret < this.frets; fret += 1) {
                 const y = fingerMarkPoint.y + (fretHeight * offset) + (fret * fretHeight);
-                const point = new Point(x, y);
+                const point = new DOMPoint(x, y);
                 const fingerMark = svg.addCircle(point, radius, false);
                 fingerMark.id = `${string},${fret}`;
                 fingerMarks.push(fingerMark);
                 fingerMark.addEventListener('click', () => {
                     this.markString(fingerMark, string, fret);
-                    // this.setChordName(this.notation());
                     const chordData = getChordData(this.instrument, this.notation());
                     sortChordData(chordData);
                     const chordName = (chordData.length) ? `${chordData[0].root}${chordData[0].modifier}` : '';
                     this.setChordName(chordName);
+                    // this.setChordName(this.notation());
                 });
             }
         }
@@ -278,7 +280,7 @@ class ChordDiagram {
     markString(element, string, fret) {
         const opacity = element.getAttribute('fill-opacity');
         if (opacity !== null) {
-            if (opacity == '0')
+            if (opacity == SVG.clear)
                 this.setString(string, fret);
             else
                 this.resetString(string);
@@ -294,22 +296,23 @@ class ChordDiagram {
         for (const fingerMark of this.fingerMarks) {
             const [stringID, fretID] = fingerMark.id.split(',');
             if (Number(stringID) == string) {
-                const opacity = (Number(fretID) == fret) ? '1' : '0';
+                const opacity = (Number(fretID) == fret) ? SVG.opaque : SVG.clear;
                 fingerMark.setAttribute('fill-opacity', opacity);
             }
         }
     }
     /**
-     * Set string's nutMark to muted and hide all fingerMarks.
+     * When a fingerMark is cleared, et string's nutMark to open or muted (based
+     * on the `openString` option) and clear all the fingerMarks on the string.
      */
-    resetString(string) {
-        const nutMark = ChordDiagram.mute;
+    resetString(string, openString = true) {
+        const nutMark = (openString) ? ChordDiagram.open : ChordDiagram.mute;
         this.setNutMark(string, nutMark);
-        this.fretted[string] = -1;
+        this.fretted[string] = (openString) ? 0 : -1;
         for (const fingerMark of this.fingerMarks) {
-            const [stringID, fretID] = fingerMark.id.split(',');
+            const [stringID] = fingerMark.id.split(',');
             if (Number(stringID) == string)
-                fingerMark.setAttribute('fill-opacity', '0');
+                fingerMark.setAttribute('fill-opacity', SVG.clear);
         }
     }
     /**

@@ -157,6 +157,8 @@ class ChordDiagram {
 
 	static open = 'o';
 	static mute = 'x';
+	static clear = '0';
+	static opaque = '1';
 	static up = '\u21e7';
 	static down = '\u21e9';
 	static defaultText: RichText = { value: '', fontSize: 12, fontFamily: 'sans-serif' };
@@ -186,10 +188,10 @@ class ChordDiagram {
 		const gridWidth = fretWidth * (this.strings - 1);
 		const gridHeight = fretHeight * this.frets;
 		const gridCenter = gridWidth * .5; // will always be .5 (centered in the middle)
-		const gridPoint = new Point(fretNumberWidth + fretMargin, nameHeight + nutHeight);
-		const namePoint = new Point(gridPoint.x + gridCenter, nameHeight * .6);
-		const fretNumberPoint = new Point(0, nameHeight + nutHeight);
-		const fingerMarkPoint = new Point(gridPoint.x, nameHeight + nutHeight);
+		const gridPoint = new DOMPoint(fretNumberWidth + fretMargin, nameHeight + nutHeight);
+		const namePoint = new DOMPoint(gridPoint.x + gridCenter, nameHeight * .6);
+		const fretNumberPoint = new DOMPoint(0, nameHeight + nutHeight);
+		const fingerMarkPoint = new DOMPoint(gridPoint.x, nameHeight + nutHeight);
 
 		const width = fretNumberWidth + gridWidth + (fretMargin * 2);
 		const height = nameHeight + nutHeight + gridHeight;
@@ -221,7 +223,7 @@ class ChordDiagram {
 	}
 
 	/** Initialize the chord name element */
-	chordNameElement(svg: SVG, namePoint: Point, fontSize: number) {
+	chordNameElement(svg: SVG, namePoint: DOMPoint, fontSize: number) {
 		const richText = ChordDiagram.defaultText;
 		richText.fontSize = fontSize;
 		const chordName = svg.addText(namePoint, 'middle', richText);
@@ -235,14 +237,14 @@ class ChordDiagram {
 	/**
 	 * Initialize the nut mark elements (one for each string, bass thru treble).
 	 */
-	nutMarkElements(svg: SVG,nutPoint: Point, width: number, height: number, fontSize: number) {
+	nutMarkElements(svg: SVG, nutPoint: DOMPoint, width: number, height: number, fontSize: number) {
 		const nutMarks: SVGTextElement[] = [];
 		const richText = ChordDiagram.defaultText;
 		richText.fontSize = fontSize;
 		const y = height;
 		for (let string = 0; string < this.strings; string += 1) {
 			const x = nutPoint.x + (string * width);
-			const point = new Point(x, y);
+			const point = new DOMPoint(x, y);
 			const nutMark = svg.addText(point, 'middle', richText);
 			nutMarks.push(nutMark);
 
@@ -252,11 +254,11 @@ class ChordDiagram {
 					const newMark = (currentMark == ChordDiagram.mute) ? ChordDiagram.open : ChordDiagram.mute;
 					this.setNutMark(string, newMark);
 					this.fretted[string] = (newMark == ChordDiagram.open) ? 0 : -1;
-					// this.setChordName(this.notation());
 					const chordData = getChordData(this.instrument, this.notation());
 					sortChordData(chordData);
 					const chordName = (chordData.length) ? `${chordData[0].root}${chordData[0].modifier}` : '';
 					this.setChordName(chordName);
+					// this.setChordName(this.notation());
 				}
 			});
 		}
@@ -271,14 +273,14 @@ class ChordDiagram {
 	 * Initialize the fret number elements (one for each fret relative to the
 	 * top fret).
 	 */
-	fretNumberElements(svg: SVG, fretNumberPoint: Point, fretNumberWidth: number, fretHeight: number, offset: number, fontSize: number) {
+	fretNumberElements(svg: SVG, fretNumberPoint: DOMPoint, fretNumberWidth: number, fretHeight: number, offset: number, fontSize: number) {
 		const fretNumbers: SVGTextElement[] = [];
 		const richText = ChordDiagram.defaultText;
 		richText.fontSize = fontSize;
 		const x = fretNumberPoint.x + fretNumberWidth;
 		for (let fret = 0; fret < this.frets; fret += 1) {
 			const y = fretNumberPoint.y + (fretHeight * offset) + (fret * fretHeight);
-			const point = new Point(x, y);
+			const point = new DOMPoint(x, y);
 			fretNumbers.push(svg.addText(point, 'end', richText));
 		}
 		return fretNumbers;
@@ -294,24 +296,24 @@ class ChordDiagram {
 	 * string). These will serve as hotspots, becoming visible only when
 	 * clicked.
 	 */
-	fingerMarkElements(svg: SVG, fingerMarkPoint: Point, fretWidth: number, fretHeight: number, offset: number, radius: number) { // (height: number, radius: number)
+	fingerMarkElements(svg: SVG, fingerMarkPoint: DOMPoint, fretWidth: number, fretHeight: number, offset: number, radius: number) {
 		const fingerMarks: SVGCircleElement[] = [];
 		for (let string = 0; string < this.strings; string += 1) {
 			const x = fingerMarkPoint.x + (string * fretWidth);
 			for (let fret = 0; fret < this.frets; fret += 1) {
 				const y = fingerMarkPoint.y + (fretHeight * offset) + (fret * fretHeight);
-				const point = new Point(x, y);
+				const point = new DOMPoint(x, y);
 				const fingerMark = svg.addCircle(point, radius, false);
 				fingerMark.id = `${string},${fret}`;
 				fingerMarks.push(fingerMark);
 
 				fingerMark.addEventListener('click', () => {
 					this.markString(fingerMark, string, fret);
-					// this.setChordName(this.notation());
 					const chordData = getChordData(this.instrument, this.notation());
 					sortChordData(chordData);
 					const chordName = (chordData.length) ? `${chordData[0].root}${chordData[0].modifier}` : '';
 					this.setChordName(chordName);
+					// this.setChordName(this.notation());
 				});
 			}
 		}
@@ -325,7 +327,7 @@ class ChordDiagram {
 	markString(element: SVGCircleElement, string: number, fret: number) {
 		const opacity = element.getAttribute('fill-opacity');
 		if (opacity !== null) {
-			if (opacity == '0') this.setString(string, fret);
+			if (opacity == SVG.clear) this.setString(string, fret);
 			else this.resetString(string);
 		}
 	}
@@ -340,22 +342,23 @@ class ChordDiagram {
 		for (const fingerMark of this.fingerMarks) {
 			const [stringID, fretID] = fingerMark.id.split(',');
 			if (Number(stringID) == string) {
-				const opacity = (Number(fretID) == fret) ? '1' : '0';
+				const opacity = (Number(fretID) == fret) ? SVG.opaque : SVG.clear;
 				fingerMark.setAttribute('fill-opacity', opacity);
 			}
 		}
 	}
 	
 	/**
-	 * Set string's nutMark to muted and hide all fingerMarks.
+	 * When a fingerMark is cleared, et string's nutMark to open or muted (based
+	 * on the `openString` option) and clear all the fingerMarks on the string.
 	 */
-	resetString(string: number) {
-		const nutMark = ChordDiagram.mute;
+	resetString(string: number, openString = true) {
+		const nutMark = (openString) ? ChordDiagram.open : ChordDiagram.mute;
 		this.setNutMark(string, nutMark);
-		this.fretted[string] = -1;
+		this.fretted[string] = (openString) ? 0 : -1;
 		for (const fingerMark of this.fingerMarks) {
-			const [stringID, fretID] = fingerMark.id.split(',');
-			if (Number(stringID) == string) fingerMark.setAttribute('fill-opacity', '0');
+			const [stringID] = fingerMark.id.split(',');
+			if (Number(stringID) == string) fingerMark.setAttribute('fill-opacity', SVG.clear);
 		}
 	}
 

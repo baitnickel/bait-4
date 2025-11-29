@@ -96,8 +96,9 @@ export class SVG extends Graphic {
 		if (borderColor) this.addBorder(borderColor);
 	}
 
-	addGrid(point: DOMPoint, columns: number, rows: number, columnWidth: number, rowHeight: number) {
+	addGrid(rectangle: DOMRect, columns: number, rows: number, columnWidth: number, rowHeight: number) {
 		const lineElements: SVGLineElement[] = [];
+		const point = new DOMPoint(rectangle.x, rectangle.y);
 		if (rows > 0 && columns > 0) {
 			const gridWidth = columns * columnWidth;
 			const gridHeight = rows * rowHeight;
@@ -150,10 +151,10 @@ export class SVG extends Graphic {
 		return svgCircle;
 	}
 
-	addText(point: DOMPoint, anchor: string, text: RichText) {
+	addText(rectangle: DOMRect, anchor: string, text: RichText) {
 		const svgText = document.createElementNS(SVGNameSpace, 'text');
-		svgText.setAttribute('x', `${point.x}`);
-		svgText.setAttribute('y', `${point.y}`);
+		svgText.setAttribute('x', `${rectangle.x}`);
+		svgText.setAttribute('y', `${rectangle.y}`);
 		svgText.setAttribute('text-anchor', anchor);
 		svgText.setAttribute('font-family', text.fontFamily);
 		svgText.setAttribute('font-size', `${text.fontSize}`);

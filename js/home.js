@@ -8,7 +8,6 @@ import * as W from './lib/widgets.js';
 import { Moment } from './lib/moments.js';
 import { Park } from './lib/parks.js';
 import { Instrument, Chord, SPN } from './lib/fakesheet.js';
-import * as G from './lib/graphics.js';
 const PAGE = new Page();
 const IndicesPath = `${PAGE.site}/Indices`;
 const Articles = await Fetch.map(`${IndicesPath}/articles.json`);
@@ -71,7 +70,7 @@ export function render() {
         const testOutput = document.createElement('div');
         testContent.append(testOutput);
         const testers = [];
-        testers.push({ name: 'SVG', function: testSVG });
+        // testers.push( { name: 'SVG', function: testSVG } );
         testers.push({ name: 'Chord', function: testChord });
         testers.push({ name: 'MIDI Notes', function: testMidiNotes });
         testers.push({ name: 'Table', function: testTable });
@@ -109,64 +108,64 @@ export function render() {
         }
     }
 }
-function testSVG(testOutput) {
-    const fretWidth = 40; /** this determines the scale of everything. 25...50 is a reasonable range */
-    const fretHeight = fretWidth * 1.5;
-    const strings = 6;
-    const frets = 5;
-    const fretNumberWidth = Math.round(fretWidth * .75);
-    const fretMargin = Math.round(fretWidth / 2);
-    const gridWidth = fretWidth * (strings - 1);
-    const gridHeight = fretHeight * frets + fretMargin; /** fretMargin adds margin on bottom (necessary?) */
-    const gridCenter = Math.round(gridWidth / 2);
-    const nameHeight = Math.round(fretHeight * .75);
-    const nutHeight = Math.round(fretHeight / 4);
-    const width = fretNumberWidth + (fretMargin * 2) + gridWidth;
-    const height = nameHeight + nutHeight + gridHeight;
-    const svg = new G.SVG(width, height, 'red');
-    const gridPoint = new G.Point(fretNumberWidth + fretMargin, nameHeight + nutHeight);
-    const namePoint = new G.Point(gridPoint.x + gridCenter, Math.round(nameHeight / 3 * 2));
-    /** initialize the nut mark elements (one for each string, 6th thru 1st) */
-    const nutMarks = [];
-    for (let string = 0; string < strings; string += 1) {
-        const x = gridPoint.x + (string * fretWidth);
-        const y = nameHeight + Math.round(nutHeight / 3 * 2);
-        const point = new G.Point(x, y);
-        nutMarks.push(svg.addText(point, 'middle', { value: '', fontSize: fretHeight / 4, fontFamily: 'sans-serif' }));
-    }
-    /** initialize the fret number elements (one for each fret relative to the top fret) */
-    const fretNumbers = [];
-    for (let fret = 0; fret < frets; fret += 1) {
-        const x = fretNumberWidth;
-        const y = nameHeight + nutHeight + Math.round(fretHeight / 2) + (fret * fretHeight);
-        const point = new G.Point(x, y);
-        fretNumbers.push(svg.addText(point, 'end', { value: '', fontSize: fretHeight / 4, fontFamily: 'sans-serif' }));
-    }
-    svg.addGrid(gridPoint, strings - 1, frets, fretWidth, fretHeight);
-    svg.addText(namePoint, 'middle', { value: 'G13add9', fontSize: fretHeight / 3, fontFamily: 'sans-serif' });
-    nutMarks[0].innerHTML = 'x';
-    fretNumbers[2].innerHTML = '3';
-    // /** add fret number vertical strip centered to the left of the grid */
-    // for (let fret = 0; fret < frets; fret += 1) {
-    // 	const point = new G.Point(fretNumberPoint.x, fretNumberPoint.y + (fret * fretHeight));
-    // 	const fretNumber = fret + 1;
-    // 	let dots = '';
-    // 	if ([3,5,7,9,15,17,19,21].includes(fretNumber)) dots = '\u2802';
-    // 	else if (fretNumber == 12) dots = '\u2805';
-    // 	const fretMark = `${dots}${fretNumber}`;
-    // 	svg.addText(point, 'end', {value: fretMark, fontSize: fretHeight / 4, fontFamily: 'sans-serif'});
-    // }
-    // /** add nut x and o horizontal strip centered above the grid */
-    // for (let string = 0; string < strings; string += 1) {
-    // 	const point = new G.Point(nutPoint.x + (string * fretWidth), nutPoint.y);
-    // 	const nutMarks = ['o', 'x']; // ['\u25CB', '\u00D7']; // (25CB) (26AC) (2B58)
-    // 	const nutMark = nutMarks[string % 2];
-    // 	svg.addText(point, 'middle', {value: nutMark, fontSize: fretHeight / 4, fontFamily: 'sans-serif'});
-    // }
-    const paragraph = document.createElement('p');
-    paragraph.append(svg.element);
-    testOutput.append(paragraph);
-}
+// function testSVG(testOutput: HTMLDivElement) {
+// 	const fretWidth = 40; /** this determines the scale of everything. 25...50 is a reasonable range */
+// 	const fretHeight = fretWidth * 1.5;
+// 	const strings = 6;
+// 	const frets = 5;
+// 	const fretNumberWidth = Math.round(fretWidth * .75);
+// 	const fretMargin = Math.round(fretWidth / 2);
+// 	const gridWidth = fretWidth * (strings - 1);
+// 	const gridHeight = fretHeight * frets + fretMargin; /** fretMargin adds margin on bottom (necessary?) */
+// 	const gridCenter = Math.round(gridWidth / 2);
+// 	const nameHeight = Math.round(fretHeight * .75);
+// 	const nutHeight = Math.round(fretHeight / 4);
+// 	const width = fretNumberWidth + (fretMargin * 2) + gridWidth;
+// 	const height = nameHeight + nutHeight + gridHeight;
+// 	const svg = new G.SVG(width, height, 'red');
+// 	const gridPoint = new DOMRect(0, 0, fretNumberWidth + fretMargin, nameHeight + nutHeight);
+// 	const namePoint = new DOMPoint(gridPoint.x + gridCenter, Math.round(nameHeight / 3 * 2));
+// 	/** initialize the nut mark elements (one for each string, 6th thru 1st) */
+// 	const nutMarks: SVGTextElement[] = [];
+// 	for (let string = 0; string < strings; string += 1) {
+// 		const x = gridPoint.x + (string * fretWidth);
+// 		const y = nameHeight + Math.round(nutHeight / 3 * 2);
+// 		const point = new DOMPoint(x, y);
+// 		nutMarks.push(svg.addText(point, 'middle', {value: '', fontSize: fretHeight / 4, fontFamily: 'sans-serif'}));
+// 	}
+// 	/** initialize the fret number elements (one for each fret relative to the top fret) */
+// 	const fretNumbers: SVGTextElement[] = [];
+// 	for (let fret = 0; fret < frets; fret += 1) {
+// 		const x = fretNumberWidth;
+// 		const y = nameHeight + nutHeight + Math.round(fretHeight / 2) + (fret * fretHeight);
+// 		const point = new DOMPoint(x, y);
+// 		fretNumbers.push(svg.addText(point, 'end', {value: '', fontSize: fretHeight / 4, fontFamily: 'sans-serif'}));
+// 	}
+// 	svg.addGrid(gridPoint, strings - 1, frets, fretWidth, fretHeight);
+// 	svg.addText(namePoint, 'middle', {value: 'G13add9', fontSize: fretHeight / 3, fontFamily: 'sans-serif'});
+// 	nutMarks[0].innerHTML = 'x';
+// 	fretNumbers[2].innerHTML = '3';
+// 	// /** add fret number vertical strip centered to the left of the grid */
+// 	// for (let fret = 0; fret < frets; fret += 1) {
+// 	// 	const point = new G.Point(fretNumberPoint.x, fretNumberPoint.y + (fret * fretHeight));
+// 	// 	const fretNumber = fret + 1;
+// 	// 	let dots = '';
+// 	// 	if ([3,5,7,9,15,17,19,21].includes(fretNumber)) dots = '\u2802';
+// 	// 	else if (fretNumber == 12) dots = '\u2805';
+// 	// 	const fretMark = `${dots}${fretNumber}`;
+// 	// 	svg.addText(point, 'end', {value: fretMark, fontSize: fretHeight / 4, fontFamily: 'sans-serif'});
+// 	// }
+// 	// /** add nut x and o horizontal strip centered above the grid */
+// 	// for (let string = 0; string < strings; string += 1) {
+// 	// 	const point = new G.Point(nutPoint.x + (string * fretWidth), nutPoint.y);
+// 	// 	const nutMarks = ['o', 'x']; // ['\u25CB', '\u00D7']; // (25CB) (26AC) (2B58)
+// 	// 	const nutMark = nutMarks[string % 2];
+// 	// 	svg.addText(point, 'middle', {value: nutMark, fontSize: fretHeight / 4, fontFamily: 'sans-serif'});
+// 	// }
+// 	const paragraph = document.createElement('p');
+// 	paragraph.append(svg.element);
+// 	testOutput.append(paragraph);
+// }
 async function testChord(testOutput) {
     const chordModifiers = await Fetch.map(`${PAGE.site}/data/chords/intervals.yaml`);
     const examples = [];

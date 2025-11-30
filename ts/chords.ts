@@ -1,13 +1,6 @@
 import { Page } from './lib/page.js';
-import * as T from './lib/types.js';
-import * as Fetch from './lib/fetch.js';
-import * as MD from './lib/md.js';
 import { Instrument, Chord } from './lib/fakesheet.js';
-import * as W from './lib/widgets.js';
-import { SVG, Point, RichText } from './lib/graphics.js';
-
-import { Markup } from './lib/markup.js';
-// const W3NameSpace = 'http://www.w3.org/2000/svg';
+import { SVG, RichText } from './lib/graphics.js';
 
 /** 
  * @todo
@@ -82,11 +75,12 @@ export function render() {
 	// textWidgetParagraph.append(textEntry.label);
 	// textWidgetParagraph.append(textEntry.element);
 	// textWidgetParagraph.append('\u00A0\u00A0 e.g.: "x02210"');
-	const instrument = new Instrument('guitar');
-	const paragraph = document.createElement('p');
 	// const instrument = new Instrument('guitar');
 	// const diagram = new ChordDiagram(instrument.strings, 5, Number(diagramSize.element.value));
-	const diagram = new ChordDiagram(instrument, 5, 30);
+	
+	const instrument = new Instrument('guitar');
+	const paragraph = document.createElement('p');
+	const diagram = new ChordDiagram(instrument, 5, 30, 'red');
 	paragraph.append(diagram.svg.element);
 	testDiv.append(paragraph);
 
@@ -157,13 +151,11 @@ class ChordDiagram {
 
 	static open = 'o';
 	static mute = 'x';
-	static clear = '0';
-	static opaque = '1';
-	// static up = '\u21e7';
-	// static down = '\u21e9';
-	static defaultText: RichText = { value: '', fontSize: 12, fontFamily: 'sans-serif' };
+	static mutedString = -1;
+	static openString = 0;
+	static defaultText: RichText = { value: '', fontSize: 0, fontFamily: 'sans-serif' };
 
-	constructor(instrument: Instrument, frets: number, baseWidth: number, borderColor = '') {
+	constructor(instrument: Instrument, frets: number, singleFretWidth: number, borderColor = '') {
 		this.instrument = instrument;
 		this.strings = instrument.strings;
 		this.frets = frets;
@@ -174,7 +166,7 @@ class ChordDiagram {
 		this.fretNumbers = [];
 		this.fingerMarks = [];
 
-		this.svg = this.buildSVG(baseWidth, borderColor);
+		this.svg = this.buildSVG(singleFretWidth, borderColor);
 		this.loadSVGData('');
 	}
 
@@ -184,28 +176,46 @@ class ChordDiagram {
 	 * X: fretNumber.width fretMargin.width grid.width fretMargin.width
 	 * Y: name.height nut.height grid.height
 	 */
-	buildSVG(baseWidth: number, borderColor = '') {
-		const fret = new DOMRect(0, 0, baseWidth, baseWidth * 1.3);
-		const fretNumber = new DOMRect(0, 0, fret.width * .6);
-		const fretMargin = new DOMRect(0, 0, fret.width * .4);
-		const gridX = fretNumber.width + fretMargin.width;
-		const nut = new DOMRect(gridX, 0, fret.width, fret.height * .3);
-		const gridWidth = fret.width * (this.strings - 1);
-		const name = new DOMRect(gridX + (gridWidth / 2), fret.height * .6, gridWidth, fret.height);
-		const fingerMark = new DOMRect(gridX, name.height + nut.height);
-		const grid = new DOMRect(gridX, name.height + nut.height, gridWidth, fret.height * this.frets);
+	buildSVG(singleFretWidth: number, borderColor = '') {
+		const singleFret = new DOMRect(0, 0, singleFretWidth, singleFretWidth * 1.3);
+		const gridWidth = singleFret.width * (this.strings - 1);
+		const marginWidth = singleFret.width * .4;
 
-		fretNumber.y = fret.height + nut.height;
+		/** set SVG component width and height dimensions */
+		const name = new DOMRect(0, 0, gridWidth + (marginWidth * 2), singleFret.height);
+		const nut = new DOMRect(0, 0, singleFret.width, singleFret.height * .3);
+		const fretNumber = new DOMRect(0, 0, singleFret.width * .6, singleFret.height);
+		const grid = new DOMRect(0, 0, gridWidth, singleFret.height * this.frets);
+		const fingerMark = new DOMRect(0, 0, singleFret.width, singleFret.height);
 
-		const width = fretNumber.width + grid.width + (fretMargin.width * 2);
+		/** set SVG component positions */
+		name.x = fretNumber.width + marginWidth + (gridWidth / 2)
+		name.y = singleFret.height * .6;
+		nut.x = fretNumber.width + marginWidth;
+		nut.y = name.height + (nut.height * .5);
+		fretNumber.x = fretNumber.width;
+		fretNumber.y = singleFret.height + nut.height;
+		grid.x = fretNumber.width + marginWidth;
+		grid.y = name.height + nut.height;
+		fingerMark.x = grid.x;
+		fingerMark.y = name.height + nut.height;
+
+		/** create SVG container */
+		const width = fretNumber.width + marginWidth + grid.width + marginWidth;
 		const height = name.height + nut.height + grid.height;
 		const svg = new SVG(width, height, borderColor);
 		
-		svg.addGrid(grid, this.strings - 1, this.frets, fret.width, fret.height);
-		this.chordName = this.chordNameElement(svg, name, fret.height * .5);
-		this.nutMarks = this.nutMarkElements(svg, nut, name, fret.height * .4);
-		this.fretNumbers = this.fretNumberElements(svg, fretNumber, fret.height, .6, fret.height * .25);
-		this.fingerMarks = this.fingerMarkElements(svg, fingerMark, fret.width, fret.height, .5, fret.width * .275);
+		/**
+		 * Add SVG component elements.
+		 * 
+		 * Note that `fingerMarks` must be added last, on top of the grid, to
+		 * ensure that clicks on these elements are properly recognized.
+		 */
+		svg.addGrid(grid, this.strings - 1, this.frets, singleFret.width, singleFret.height);
+		this.chordName = this.chordNameElement(svg, name, singleFret.height * .5);
+		this.nutMarks = this.nutMarkElements(svg, nut, singleFret.height * .4);
+		this.fretNumbers = this.fretNumberElements(svg, fretNumber, singleFret.height * .25);
+		this.fingerMarks = this.fingerMarkElements(svg, fingerMark, singleFret.width * .275);
 
 		return svg;
 	}
@@ -220,7 +230,7 @@ class ChordDiagram {
 	loadSVGData(chordName: string) {
 		this.setChordName(chordName);
 		for (let string = 0; string < this.strings; string += 1) {
-			this.fretted.push(-1); /** -1 is muted string */
+			this.fretted.push(ChordDiagram.mutedString);
 			this.setNutMark(string, ChordDiagram.mute);
 		}
 		this.setFretNumbers(this.firstFret);
@@ -241,15 +251,14 @@ class ChordDiagram {
 	/**
 	 * Initialize the nut mark elements (one for each string, bass thru treble).
 	 */
-	nutMarkElements(svg: SVG, nut: DOMRect, name: DOMRect, fontSize: number) {
+	nutMarkElements(svg: SVG, nut: DOMRect, fontSize: number) {
 		const nutMarks: SVGTextElement[] = [];
 		const richText = ChordDiagram.defaultText;
 		richText.fontSize = fontSize;
-		const y = (nut.height * .5) + name.height; // const y = height;
 		for (let string = 0; string < this.strings; string += 1) {
 			const x = nut.x + (string * nut.width);
-			const rectangle = new DOMRect(x, y);
-			const nutMark = svg.addText(rectangle, 'middle', richText);
+			const point = new DOMPoint(x, nut.y);
+			const nutMark = svg.addText(point, 'middle', richText);
 			nutMarks.push(nutMark);
 
 			nutMark.addEventListener('click', () => {
@@ -257,7 +266,7 @@ class ChordDiagram {
 				if (currentMark) {
 					const newMark = (currentMark == ChordDiagram.mute) ? ChordDiagram.open : ChordDiagram.mute;
 					this.setNutMark(string, newMark);
-					this.fretted[string] = (newMark == ChordDiagram.open) ? 0 : -1;
+					this.fretted[string] = (newMark == ChordDiagram.open) ? ChordDiagram.openString : ChordDiagram.mutedString;
 					const chordData = getChordData(this.instrument, this.notation());
 					sortChordData(chordData);
 					const chordName = (chordData.length) ? `${chordData[0].root}${chordData[0].modifier}` : '';
@@ -277,14 +286,14 @@ class ChordDiagram {
 	 * Initialize the fret number elements (one for each fret relative to the
 	 * top fret).
 	 */
-	fretNumberElements(svg: SVG, fretNumber: DOMRect, fretHeight: number, offset: number, fontSize: number) {
+	fretNumberElements(svg: SVG, fretNumber: DOMRect, fontSize: number) {
 		const fretNumbers: SVGTextElement[] = [];
 		const richText = ChordDiagram.defaultText;
 		richText.fontSize = fontSize;
-		const x = fretNumber.x + fretNumber.width;
+		const verticalOffset = fretNumber.height * .6;
 		for (let fret = 0; fret < this.frets; fret += 1) {
-			const y = fretNumber.y + (fretHeight * offset) + (fret * fretHeight);
-			const rectangle = new DOMRect(x, y);
+			const y = fretNumber.y + verticalOffset + (fret * fretNumber.height);
+			const rectangle = new DOMRect(fretNumber.x, y);
 			fretNumbers.push(svg.addText(rectangle, 'end', richText));
 		}
 		return fretNumbers;
@@ -300,12 +309,13 @@ class ChordDiagram {
 	 * string). These will serve as hotspots, becoming visible only when
 	 * clicked.
 	 */
-	fingerMarkElements(svg: SVG, fingerMark: DOMRect, baseWidth: number, fretHeight: number, offset: number, radius: number) {
+	fingerMarkElements(svg: SVG, fingerMark: DOMRect, radius: number) {
 		const fingerMarks: SVGCircleElement[] = [];
 		for (let string = 0; string < this.strings; string += 1) {
-			const x = fingerMark.x + (string * baseWidth);
+			const x = fingerMark.x + (string * fingerMark.width);
+			const verticalOffset = fingerMark.height * .5;
 			for (let fret = 0; fret < this.frets; fret += 1) {
-				const y = fingerMark.y + (fretHeight * offset) + (fret * fretHeight);
+				const y = fingerMark.y + verticalOffset + (fret * fingerMark.height);
 				const point = new DOMPoint(x, y);
 				const fingerMarkElement = svg.addCircle(point, radius, false);
 				fingerMarkElement.id = `${string},${fret}`;
@@ -359,7 +369,7 @@ class ChordDiagram {
 	resetString(string: number, openString = true) {
 		const nutMark = (openString) ? ChordDiagram.open : ChordDiagram.mute;
 		this.setNutMark(string, nutMark);
-		this.fretted[string] = (openString) ? 0 : -1;
+		this.fretted[string] = (openString) ? ChordDiagram.openString : ChordDiagram.mutedString;
 		for (const fingerMark of this.fingerMarks) {
 			const [stringID] = fingerMark.id.split(',');
 			if (Number(stringID) == string) fingerMark.setAttribute('fill-opacity', SVG.clear);

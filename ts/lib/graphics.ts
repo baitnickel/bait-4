@@ -96,9 +96,8 @@ export class SVG extends Graphic {
 		if (borderColor) this.addBorder(borderColor);
 	}
 
-	addGrid(rectangle: DOMRect, columns: number, rows: number, columnWidth: number, rowHeight: number) {
+	addGrid(point: DOMRect|DOMPoint, columns: number, rows: number, columnWidth: number, rowHeight: number) {
 		const lineElements: SVGLineElement[] = [];
-		const point = new DOMPoint(rectangle.x, rectangle.y);
 		if (rows > 0 && columns > 0) {
 			const gridWidth = columns * columnWidth;
 			const gridHeight = rows * rowHeight;
@@ -132,29 +131,22 @@ export class SVG extends Graphic {
 		return lineElements;
 	}
 
-	addCircle(point: DOMPoint, radius: number, visible = true) {
-		// radius = Math.abs(radius);
-		// radius = (radius);
+	addCircle(point: DOMRect|DOMPoint, radius: number, visible = true) {
 		const svgCircle = document.createElementNS(SVGNameSpace, 'circle');
 		svgCircle.setAttribute('cx', `${point.x}`);
 		svgCircle.setAttribute('cy', `${point.y}`);
 		svgCircle.setAttribute('r', `${radius}`);
-		// svgCircle.setAttribute('stroke', SVG.strokeColor);
 		svgCircle.setAttribute('fill', SVG.fillColor);
-		// svgCircle.setAttribute('stroke-width', `${SVG.strokeWidth}`);
-		svgCircle.setAttribute('fill-opacity', '1');
-		if (!visible) {
-			svgCircle.setAttribute('fill-opacity', SVG.clear);
-			// svgCircle.setAttribute('visibility', 'hidden');
-		}
+		const opacity = (visible) ? SVG.opaque : SVG.clear;
+		svgCircle.setAttribute('fill-opacity', opacity);
 		this.element.appendChild(svgCircle);
 		return svgCircle;
 	}
 
-	addText(rectangle: DOMRect, anchor: string, text: RichText) {
+	addText(point: DOMRect|DOMPoint, anchor: string, text: RichText) {
 		const svgText = document.createElementNS(SVGNameSpace, 'text');
-		svgText.setAttribute('x', `${rectangle.x}`);
-		svgText.setAttribute('y', `${rectangle.y}`);
+		svgText.setAttribute('x', `${point.x}`);
+		svgText.setAttribute('y', `${point.y}`);
 		svgText.setAttribute('text-anchor', anchor);
 		svgText.setAttribute('font-family', text.fontFamily);
 		svgText.setAttribute('font-size', `${text.fontSize}`);

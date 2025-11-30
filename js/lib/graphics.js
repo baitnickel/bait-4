@@ -75,9 +75,8 @@ export class SVG extends Graphic {
         if (borderColor)
             this.addBorder(borderColor);
     }
-    addGrid(rectangle, columns, rows, columnWidth, rowHeight) {
+    addGrid(point, columns, rows, columnWidth, rowHeight) {
         const lineElements = [];
-        const point = new DOMPoint(rectangle.x, rectangle.y);
         if (rows > 0 && columns > 0) {
             const gridWidth = columns * columnWidth;
             const gridHeight = rows * rowHeight;
@@ -111,27 +110,20 @@ export class SVG extends Graphic {
         return lineElements;
     }
     addCircle(point, radius, visible = true) {
-        // radius = Math.abs(radius);
-        // radius = (radius);
         const svgCircle = document.createElementNS(SVGNameSpace, 'circle');
         svgCircle.setAttribute('cx', `${point.x}`);
         svgCircle.setAttribute('cy', `${point.y}`);
         svgCircle.setAttribute('r', `${radius}`);
-        // svgCircle.setAttribute('stroke', SVG.strokeColor);
         svgCircle.setAttribute('fill', SVG.fillColor);
-        // svgCircle.setAttribute('stroke-width', `${SVG.strokeWidth}`);
-        svgCircle.setAttribute('fill-opacity', '1');
-        if (!visible) {
-            svgCircle.setAttribute('fill-opacity', SVG.clear);
-            // svgCircle.setAttribute('visibility', 'hidden');
-        }
+        const opacity = (visible) ? SVG.opaque : SVG.clear;
+        svgCircle.setAttribute('fill-opacity', opacity);
         this.element.appendChild(svgCircle);
         return svgCircle;
     }
-    addText(rectangle, anchor, text) {
+    addText(point, anchor, text) {
         const svgText = document.createElementNS(SVGNameSpace, 'text');
-        svgText.setAttribute('x', `${rectangle.x}`);
-        svgText.setAttribute('y', `${rectangle.y}`);
+        svgText.setAttribute('x', `${point.x}`);
+        svgText.setAttribute('y', `${point.y}`);
         svgText.setAttribute('text-anchor', anchor);
         svgText.setAttribute('font-family', text.fontFamily);
         svgText.setAttribute('font-size', `${text.fontSize}`);

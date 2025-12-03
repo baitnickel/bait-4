@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import { Instrument, Chord } from './lib/fakesheet.js';
-import { SVG } from './lib/graphics.js';
+import { SVG, XY } from './lib/graphics.js';
 /**
  * @todo
  * Draw a simple fretboard made up of toggle buttons in a grid, with toggle
@@ -60,7 +60,7 @@ export function render() {
     // const diagram = new ChordDiagram(instrument.strings, 5, Number(diagramSize.element.value));
     const instrument = new Instrument('guitar');
     const paragraph = document.createElement('p');
-    const diagram = new ChordDiagram(instrument, 5, 30, 'red');
+    const diagram = new ChordDiagram(instrument, 5, 32, 'red');
     paragraph.append(diagram.svg.element);
     testDiv.append(paragraph);
     // diagramSize.element.addEventListener('change', () => {
@@ -122,6 +122,8 @@ class ChordDiagram {
     nutMarks;
     fretNumbers;
     fingerMarks;
+    notes;
+    intervals;
     static open = 'o';
     static mute = 'x';
     static mutedString = -1;
@@ -137,6 +139,8 @@ class ChordDiagram {
         this.nutMarks = [];
         this.fretNumbers = [];
         this.fingerMarks = [];
+        this.notes = [];
+        this.intervals = [];
         this.svg = this.buildSVG(singleFretWidth, borderColor);
         this.loadSVGData('');
     }
@@ -156,6 +160,8 @@ class ChordDiagram {
         const fretNumber = new DOMRect(0, 0, singleFret.width * .6, singleFret.height);
         const grid = new DOMRect(0, 0, gridWidth, singleFret.height * this.frets);
         const fingerMark = new DOMRect(0, 0, singleFret.width, singleFret.height);
+        const note = new DOMRect(0, 0, singleFret.width, singleFret.height * .5);
+        const interval = new DOMRect(0, 0, singleFret.width, singleFret.height * .5);
         /** set SVG component positions */
         name.x = fretNumber.width + marginWidth + (gridWidth / 2);
         name.y = singleFret.height * .6;
@@ -167,9 +173,11 @@ class ChordDiagram {
         grid.y = name.height + nut.height;
         fingerMark.x = grid.x;
         fingerMark.y = name.height + nut.height;
+        XY(note, fretNumber.width + marginWidth, name.height + nut.height + grid.height);
+        XY(interval, fretNumber.width + marginWidth, name.height + nut.height + grid.height + note.height);
         /** create SVG container */
         const width = fretNumber.width + marginWidth + grid.width + marginWidth;
-        const height = name.height + nut.height + grid.height;
+        const height = name.height + nut.height + grid.height + note.height + interval.height;
         const svg = new SVG(width, height, borderColor);
         /**
          * Add SVG component elements.
@@ -182,6 +190,8 @@ class ChordDiagram {
         this.nutMarks = this.nutMarkElements(svg, nut, singleFret.height * .4);
         this.fretNumbers = this.fretNumberElements(svg, fretNumber, singleFret.height * .25);
         this.fingerMarks = this.fingerMarkElements(svg, fingerMark, singleFret.width * .275);
+        this.notes = this.noteElements(svg, note, singleFret.height * .3);
+        this.intervals = this.intervalElements(svg, interval, singleFret.height * .25);
         return svg;
     }
     /**
@@ -261,6 +271,40 @@ class ChordDiagram {
         this.firstFret = firstFret;
         for (let fret = 0; fret < this.frets; fret += 1)
             this.fretNumbers[fret].innerHTML = `${fret + firstFret}`;
+    }
+    noteElements(svg, note, fontSize) {
+        const noteNames = [];
+        const richText = ChordDiagram.defaultText;
+        richText.fontSize = fontSize;
+        for (let string = 0; string < this.strings; string += 1) {
+            const x = note.x + (string * note.width);
+            const point = new DOMPoint(x, note.y + note.height * .75);
+            const noteName = svg.addText(point, 'middle', richText);
+            noteNames.push(noteName);
+        }
+        this.setNoteNames(noteNames);
+        return noteNames;
+    }
+    setNoteNames(noteNames, values = ['A', 'Bb', 'B', 'C', 'Db', 'D']) {
+        for (let i = 0; i < values.length; i += 1)
+            noteNames[i].innerHTML = values[i];
+    }
+    intervalElements(svg, interval, fontSize) {
+        const intervals = [];
+        const richText = ChordDiagram.defaultText;
+        richText.fontSize = fontSize;
+        for (let string = 0; string < this.strings; string += 1) {
+            const x = interval.x + (string * interval.width);
+            const point = new DOMPoint(x, interval.y + interval.height * .5);
+            const noteName = svg.addText(point, 'middle', richText);
+            intervals.push(noteName);
+        }
+        this.setIntervals(intervals);
+        return intervals;
+    }
+    setIntervals(intervals = [], values = ['1', 'b3', '5', 'b7', '9', '11']) {
+        for (let i = 0; i < values.length; i += 1)
+            intervals[i].innerHTML = values[i];
     }
     /**
      * Initialize the finger mark elements (one for each fret of each

@@ -18,6 +18,14 @@ export class Point {
     }
     get position() { return `${this.x},${this.y}`; }
 }
+/**
+ * A convenience function for setting the `x` and `y` coordinates of a DOM
+ * rectangle or point object.
+ */
+export function XY(DOMobject, x, y) {
+    DOMobject.x = x;
+    DOMobject.y = y;
+}
 class Graphic {
     static odometer = 0;
     width;

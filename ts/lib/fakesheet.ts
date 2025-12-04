@@ -889,7 +889,7 @@ export class Chord {
 	 * Secondary interval values are used once the notes have entered the second
 	 * (or later) octave of the chord's notes.
 	 */
-	intervals() {
+	intervals(allStrings = false) {
 		const intervals: string[] = [];
 		// const intervalPairs: string[][] = [];
 		const rootIndex = NoteIndex(this.root);
@@ -899,7 +899,10 @@ export class Chord {
 			const notes = this.notation.notes;
 			const primaryPitch = 0;
 			for (let instrumentString = 0; instrumentString < this.instrument.strings; instrumentString += 1) {
-				if (isNaN(notes[instrumentString][0])) continue; /** ignore "x" (unplayed) strings */
+				if (isNaN(notes[instrumentString][0])) {
+					if (allStrings) intervals.push('');
+					continue; /** ignore "x" (unplayed) strings */
+				}
 				/** determine the pitch of the fretted string and the octave */
 				const openStringPitch = this.instrument.pitches[instrumentString];
 				const frettedPitch = openStringPitch + notes[instrumentString][primaryPitch];
@@ -934,14 +937,17 @@ export class Chord {
 		return intervals;
 	}
 
-	notes(includeOctave = false) {
+	notes(includeOctave = false, allStrings = false) {
 		const noteNames: string[] = [];
 		const rootIndex = NoteIndex(this.root);
 		if (this.instrument !== null && this.notation !== null && rootIndex >= 0) {
 			const notes = this.notation.notes;
 			const primaryPitch = 0;
 			for (let instrumentString = 0; instrumentString < this.instrument.strings; instrumentString += 1) {
-				if (isNaN(notes[instrumentString][0])) continue; /** ignore "x" (unplayed) strings */
+				if (isNaN(notes[instrumentString][0])) {
+					if (allStrings) noteNames.push('');
+					continue; /** ignore "x" (unplayed) strings */
+				}
 				/** determine the pitch of the fretted string and get the note name */
 				const openStringPitch = this.instrument.pitches[instrumentString];
 				const frettedPitch = openStringPitch + notes[instrumentString][primaryPitch];

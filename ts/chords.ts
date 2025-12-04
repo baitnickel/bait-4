@@ -80,7 +80,7 @@ export function render() {
 	
 	const instrument = new Instrument('guitar');
 	const paragraph = document.createElement('p');
-	const diagram = new ChordDiagram(instrument, 5, 32, 'red');
+	const diagram = new ChordDiagram(instrument, 5, 32);
 	paragraph.append(diagram.svg.element);
 	testDiv.append(paragraph);
 
@@ -277,11 +277,15 @@ class ChordDiagram {
 					const newMark = (currentMark == ChordDiagram.mute) ? ChordDiagram.open : ChordDiagram.mute;
 					this.setNutMark(string, newMark);
 					this.fretted[string] = (newMark == ChordDiagram.open) ? ChordDiagram.openString : ChordDiagram.mutedString;
+					let chordName = '';
 					const chordData = getChordData(this.instrument, this.notation());
-					sortChordData(chordData);
-					const chordName = (chordData.length) ? `${chordData[0].root}${chordData[0].modifier}` : '';
+					if (chordData.length) {
+						sortChordData(chordData);
+						chordName = `${chordData[0].root}${chordData[0].modifier}`;
+						this.setNoteNames(chordData[0].notes);
+						this.setIntervals(chordData[0].intervals);
+					}
 					this.setChordName(chordName);
-					// this.setChordName(this.notation());
 				}
 			});
 		}
@@ -324,12 +328,14 @@ class ChordDiagram {
 			const noteName = svg.addText(point, 'middle', richText);
 			noteNames.push(noteName);
 		}
-		this.setNoteNames(noteNames);
 		return noteNames;
 	}
 
-	setNoteNames(noteNames: SVGTextElement[], values = ['A','Bb','B','C','Db','D']) {
-		for (let i = 0; i < values.length; i += 1) noteNames[i].innerHTML = values[i];
+	setNoteName(string: number, value: string) {
+		this.notes[string].innerHTML = value;
+	}
+	setNoteNames(values: string[]) {
+		for (let i = 0; i < values.length; i += 1) this.notes[i].innerHTML = values[i];
 	}
 
 	intervalElements(svg: SVG, interval: DOMRect, fontSize: number) {
@@ -342,12 +348,14 @@ class ChordDiagram {
 			const noteName = svg.addText(point, 'middle', richText);
 			intervals.push(noteName);
 		}
-		this.setIntervals(intervals);
 		return intervals;
 	}
 
-	setIntervals(intervals: SVGTextElement[] = [], values = ['1','b3','5','b7','9','11']) {
-		for (let i = 0; i < values.length; i += 1) intervals[i].innerHTML = values[i];
+	setInterval(string: number, value: string) {
+		this.intervals[string].innerHTML = value;
+	}
+	setIntervals(values: string[]) {
+		for (let i = 0; i < values.length; i += 1) this.intervals[i].innerHTML = values[i];
 	}
 
 	/**
@@ -369,11 +377,15 @@ class ChordDiagram {
 
 				fingerMarkElement.addEventListener('click', () => {
 					this.markString(fingerMarkElement, string, fret);
+					let chordName = '';
 					const chordData = getChordData(this.instrument, this.notation());
-					sortChordData(chordData);
-					const chordName = (chordData.length) ? `${chordData[0].root}${chordData[0].modifier}` : '';
+					if (chordData.length) {
+						sortChordData(chordData);
+						chordName = `${chordData[0].root}${chordData[0].modifier}`;
+						this.setNoteNames(chordData[0].notes);
+						this.setIntervals(chordData[0].intervals);
+					}
 					this.setChordName(chordName);
-					// this.setChordName(this.notation());
 				});
 			}
 		}
@@ -444,8 +456,8 @@ function getChordData(instrument: Instrument, notation: string) {
 	const roots = ['C','C#','D','Eb','E','F','F#','G','G#','A','Bb','B'];
 	for (const root of roots) {
 		const chord = new Chord(root, instrument, notation);
-		const intervals = chord.intervals();
-		const notes = chord.notes(true);
+		const intervals = chord.intervals(true);
+		const notes = chord.notes(false, true);
 		const intervalPattern = chord.intervalPattern(intervals);
 		if (intervalPattern.startsWith('1-')) {
 			let modifier = chord.modifier(intervals);

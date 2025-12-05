@@ -238,15 +238,7 @@ class ChordDiagram {
                     const newMark = (currentMark == ChordDiagram.mute) ? ChordDiagram.open : ChordDiagram.mute;
                     this.setNutMark(string, newMark);
                     this.fretted[string] = (newMark == ChordDiagram.open) ? ChordDiagram.openString : ChordDiagram.mutedString;
-                    let chordName = '';
-                    const chordData = getChordData(this.instrument, this.notation());
-                    if (chordData.length) {
-                        sortChordData(chordData);
-                        chordName = `${chordData[0].root}${chordData[0].modifier}`;
-                        this.setNoteNames(chordData[0].notes);
-                        this.setIntervals(chordData[0].intervals);
-                    }
-                    this.setChordName(chordName);
+                    this.resetChord();
                 }
             });
         }
@@ -332,15 +324,7 @@ class ChordDiagram {
                 fingerMarks.push(fingerMarkElement);
                 fingerMarkElement.addEventListener('click', () => {
                     this.markString(fingerMarkElement, string, fret);
-                    let chordName = '';
-                    const chordData = getChordData(this.instrument, this.notation());
-                    if (chordData.length) {
-                        sortChordData(chordData);
-                        chordName = `${chordData[0].root}${chordData[0].modifier}`;
-                        this.setNoteNames(chordData[0].notes);
-                        this.setIntervals(chordData[0].intervals);
-                    }
-                    this.setChordName(chordName);
+                    this.resetChord();
                 });
             }
         }
@@ -388,6 +372,19 @@ class ChordDiagram {
                 fingerMark.setAttribute('fill-opacity', SVG.clear);
         }
     }
+    resetChord() {
+        let chordName = '';
+        const chordData = getChordData(this.instrument, this.notation());
+        if (chordData.length) {
+            sortChordData(chordData);
+            if (chordData[0].notes.find((element) => element != '') !== undefined) {
+                chordName = `${chordData[0].root}${chordData[0].modifier}`;
+            }
+            this.setNoteNames(chordData[0].notes);
+            this.setIntervals(chordData[0].intervals);
+        }
+        this.setChordName(chordName);
+    }
     /**
      * Given fretted positions, return the guitar tab-like notation.
      */
@@ -412,16 +409,17 @@ function getChordData(instrument, notation) {
         const intervals = chord.intervals(true);
         const notes = chord.notes(false, true);
         const intervalPattern = chord.intervalPattern(intervals);
-        if (intervalPattern.startsWith('1-')) {
-            let modifier = chord.modifier(intervals);
-            chordData.push({
-                root: root,
-                intervals: intervals,
-                notes: notes,
-                intervalPattern: intervalPattern,
-                modifier: modifier
-            });
-        }
+        const modifier = (intervalPattern.startsWith('1-')) ? chord.modifier(intervals) : '?';
+        // if (intervalPattern.startsWith('1-')) {
+        // 	let modifier = chord.modifier(intervals);
+        chordData.push({
+            root: root,
+            intervals: intervals,
+            notes: notes,
+            intervalPattern: intervalPattern,
+            modifier: modifier
+        });
+        // }
     }
     return chordData;
 }
@@ -429,8 +427,10 @@ function sortChordData(chordData) {
     chordData.sort((a, b) => {
         const aKnownModifier = (a.modifier != '?') ? 1 : 0;
         const bKnownModifier = (b.modifier != '?') ? 1 : 0;
-        const aPrimary = (a.intervals[0] == '1') ? 1 : 0;
-        const bPrimary = (b.intervals[0] == '1') ? 1 : 0;
+        const aFirstInterval = a.intervals.find((element) => element != '');
+        const bFirstInterval = b.intervals.find((element) => element != '');
+        const aPrimary = (aFirstInterval === '1') ? 1 : 0;
+        const bPrimary = (bFirstInterval === '1') ? 1 : 0;
         let result = bKnownModifier - aKnownModifier;
         if (!result)
             result = bPrimary - aPrimary;

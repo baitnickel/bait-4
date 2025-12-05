@@ -968,11 +968,11 @@ export class Chord {
     modifier(intervals, hideMajor = true, addRoot = false) {
         const intervalPattern = this.intervalPattern(intervals, addRoot);
         const patternModifiers = [
-            '1-3-5     major',
-            '1-b3-5    m',
+            '1-3-5        major',
+            '1-b3-5       m',
             '1-3-(5-)?b7  7',
-            '1-b3-5-b7 m7',
-            '1-3-5-7   maj7',
+            '1-b3-5-b7    m7',
+            '1-3-5-7      maj7',
             '1-3-(5-)?b7-9    9',
             '1-b3-(5-)?b7-9   m9',
             '1-b3-5-7         m-maj7',
@@ -1002,7 +1002,7 @@ export class Chord {
             '1-4-5-9       sus4-add9',
             '1-2-3-4-5    add2+4',
             '1-2-3-4      add4(no5)',
-            '1-3-4-5.     add4',
+            '1-3-4-5      add4',
             '1-3-4-5-9    add4+9', // e.g., D/A 554030
             '1-3-5-6      6',
             '1-b3-5-6     m6',

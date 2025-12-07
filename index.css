@@ -162,6 +162,11 @@ nav {
 	position: absolute;
 }
 
+.simple-button {
+	margin: 0 1em;
+	font-size: 1em;
+}
+
 figure {
 	float: right;
 	width: 30%;
@@ -517,7 +522,7 @@ dialog.threads-dialog button {
 .grid-container {
 	display: grid;
 	grid-template-columns: 2fr 1fr;
-	background-color: dodgerblue;
+	background-color: rgba(249, 249, 229, 0.647);
 	padding: 5px;
 	/* align-content: center; */
 }

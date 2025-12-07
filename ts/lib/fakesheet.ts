@@ -1037,6 +1037,9 @@ export class Chord {
 			'1-3-5-9      add9',
 			'1-b3-5-9     m-add9',
 			'1-3-5-13     add13',
+
+			'1-5-9        sus2',   // exceptions??
+			'1-5-11       sus4',
 		];
 		let chordModifier = '?';
 		for (const patternModifier of patternModifiers) {

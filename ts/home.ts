@@ -91,7 +91,7 @@ export function render() {
 		// testers.push( { name: 'IP', function: testIP } );
 		// testers.push( { name: 'Dialog', function: testDialog } );
 		// testers.push( { name: 'Radio', function: testRadio } );
-		// testers.push( { name: 'Grid', function: gridTest } );
+		testers.push( { name: 'Grid', function: gridTest } );
 		// testers.push( { name: 'Spinner', function: testSpinner } );
 		// testers.push( { name: 'Images', function: testImages } );
 		// testers.push( { name: 'Map', function: testMap } );

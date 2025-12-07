@@ -74,7 +74,7 @@ class ChordDiagram {
         this.fingerMarks = [];
         this.notes = [];
         this.intervals = [];
-        this.savedChordDefinitions = [];
+        this.savedChordDefinitions = ['chords:'];
         this.svg = this.buildSVG(singleFretWidth, borderColor);
         this.loadSVGData('');
         this.diagramCell.append(this.svg.element);
@@ -92,13 +92,12 @@ class ChordDiagram {
         this.saveButton.disabled = true;
         this.diagramCell.append(this.saveButton);
         buttons.append(this.saveButton);
-        // this.saveButton.addEventListener('click', (e) => {
-        // });
-        // this.saveButton.hidden = false;
-        // this.saveButton.addEventListener('click', (e) => {
-        // 	chordItem.innerHTML = `${chordDatum.root}${chordDatum.modifier} ${this.notation()}`;
-        // 	this.notationsCell.append(chordItem);
-        // });
+        this.saveButton.addEventListener('click', () => {
+            const notation = `  - ${this.chordName.innerHTML} ${this.notation()}`;
+            this.savedChordDefinitions.push(notation);
+            this.notationsCell.innerHTML = PAGE.wrapCode(this.savedChordDefinitions);
+            this.saveButton.disabled = true;
+        });
     }
     /**
      * Create the SVG element with all of its component elements.
@@ -405,7 +404,6 @@ class ChordDiagram {
      */
     displayChordData(chordData) {
         this.chordsCell.innerHTML = '';
-        this.notationsCell.innerHTML = this.savedChordDefinitions.join('<br>');
         let knownChords = false;
         for (const chordDatum of chordData) {
             // console.log(`${chordDatum.root}${chordDatum.modifier} (${chordDatum.intervalPattern})`);
@@ -418,23 +416,23 @@ class ChordDiagram {
                     chordItem.classList.add(highlight);
                     // chordItem.innerHTML += `<br>${chordName} (${intervals.join(', ')})`;
                     chordItem.innerHTML += `<br>${chordName} (${chordDatum.intervalPattern})`;
-                    // knownChords = true; // don't enable "Save" until it works
+                    knownChords = true; // don't enable "Save" until it works
                 }
                 this.chordsCell.append(chordItem);
             }
         }
         this.saveButton.disabled = !knownChords;
-        let chordDefinition = '';
-        if (knownChords && chordData.length) {
-            chordDefinition = `${chordData[0].root}${chordData[0].modifier} ${this.notation()}`;
-        }
-        this.saveButton.addEventListener('click', () => {
-            if (chordDefinition) {
-                this.savedChordDefinitions.push(chordDefinition);
-                this.notationsCell.innerHTML = this.savedChordDefinitions.join('<br>');
-            }
-            this.saveButton.disabled = true;
-        });
+        // let chordDefinition = '';
+        // if (knownChords && chordData.length) {
+        // 	chordDefinition = `${chordData[0].root}${chordData[0].modifier} ${this.notation()}`;
+        // }
+        // this.saveButton.addEventListener('click', () => {
+        // 	if (chordDefinition) {
+        // 		this.savedChordDefinitions.push(chordDefinition);
+        // 		this.notationsCell.innerHTML = this.savedChordDefinitions.join('<br>');
+        // 	}
+        // 	this.saveButton.disabled = true;
+        // });
     }
 }
 /** Simply list Chords */

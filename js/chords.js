@@ -406,7 +406,6 @@ class ChordDiagram {
         this.chordsCell.innerHTML = '';
         let knownChords = false;
         for (const chordDatum of chordData) {
-            // console.log(`${chordDatum.root}${chordDatum.modifier} (${chordDatum.intervalPattern})`);
             const intervals = chordDatum.intervals.filter((element) => element != '');
             if (chordDatum.intervalPattern.startsWith('1-')) {
                 const chordItem = document.createElement('p');
@@ -414,25 +413,13 @@ class ChordDiagram {
                 if (chordDatum.modifier != '?') {
                     const highlight = (intervals[0] == '1') ? 'red' : 'blue';
                     chordItem.classList.add(highlight);
-                    // chordItem.innerHTML += `<br>${chordName} (${intervals.join(', ')})`;
                     chordItem.innerHTML += `<br>${chordName} (${chordDatum.intervalPattern})`;
-                    knownChords = true; // don't enable "Save" until it works
+                    knownChords = true;
                 }
                 this.chordsCell.append(chordItem);
             }
         }
         this.saveButton.disabled = !knownChords;
-        // let chordDefinition = '';
-        // if (knownChords && chordData.length) {
-        // 	chordDefinition = `${chordData[0].root}${chordData[0].modifier} ${this.notation()}`;
-        // }
-        // this.saveButton.addEventListener('click', () => {
-        // 	if (chordDefinition) {
-        // 		this.savedChordDefinitions.push(chordDefinition);
-        // 		this.notationsCell.innerHTML = this.savedChordDefinitions.join('<br>');
-        // 	}
-        // 	this.saveButton.disabled = true;
-        // });
     }
 }
 /** Simply list Chords */

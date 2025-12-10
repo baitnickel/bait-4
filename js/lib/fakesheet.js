@@ -1009,7 +1009,7 @@ export class Chord {
             '1-3-5-9      add9',
             '1-b3-5-9     m-add9',
             '1-3-5-13     add13',
-            '1-3-5-9      sus2', // exceptions - treat 9 as 2, 11 as 4 (e.g., Csus4 x32011)
+            // '1-3-5-9      sus2',   // exceptions - treat 9 as 2, 11 as 4 (e.g., Csus4 x32011)
             '1-5-9        sus2',
             '1-3-5-11     sus4',
             '1-5-11       sus4',

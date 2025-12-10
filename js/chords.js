@@ -13,7 +13,7 @@ export function render() {
     PAGE.content.append(svgParagraph);
     PAGE.content.append(intervalsDiv);
     const gridContainer = document.createElement('div');
-    gridContainer.className = 'grid-auto';
+    gridContainer.className = 'grid-auto3';
     PAGE.content.append(gridContainer);
     const instrument = new Instrument('guitar');
     const diagram = new ChordDiagram(instrument, 5, 32, gridContainer);
@@ -28,13 +28,23 @@ export function render() {
  * Save diagrams to a downloadable "chord library file"--function to take a
  * key and notation, and return a chord name--this is enough to generate a
  * diagram.
+ *
+ * Instead of fingerMark and NutMark buttons, have them simply hide or display
+ * the marks, and define new rectangular buttons that are never seen but just
+ * change the state of the marks (and all that that implies).
+ *
+ * In the middle display cell, add a button to cycle through the chord
+ * name/interval sequences, highlighting each one in turn and causing the
+ * "active" one to be a button used for saving chords to the chord notation
+ * list.
+ *
+ * In the right-hand display cell, add download, upload, and clear buttons.
  */
-// function newDiagram(division: HTMLDivElement, diagramSize: W.Range) {
 class ChordDiagram {
     svg;
     diagramCell;
-    chordsCell;
-    notationsCell;
+    foundChordsCell;
+    chordNotationsCell;
     saveButton;
     instrument;
     strings;
@@ -56,13 +66,14 @@ class ChordDiagram {
     constructor(instrument, frets, singleFretWidth, container, borderColor = '') {
         this.diagramCell = document.createElement('div');
         this.diagramCell.className = 'grid-cell';
-        this.chordsCell = document.createElement('div');
-        this.chordsCell.className = 'grid-cell small sans-serif';
-        this.notationsCell = document.createElement('div');
-        this.notationsCell.className = 'grid-cell small sans-serif';
+        this.foundChordsCell = document.createElement('div');
+        this.foundChordsCell.className = 'grid-cell small sans-serif';
+        this.chordNotationsCell = document.createElement('div');
+        this.chordNotationsCell.className = 'grid-cell small sans-serif';
         container.append(this.diagramCell);
-        container.append(this.chordsCell);
-        container.append(this.notationsCell);
+        container.append(this.foundChordsCell);
+        container.append(this.chordNotationsCell);
+        this.saveButton = document.createElement('button');
         this.instrument = instrument;
         this.strings = instrument.strings;
         this.frets = frets;
@@ -78,26 +89,7 @@ class ChordDiagram {
         this.svg = this.buildSVG(singleFretWidth, borderColor);
         this.loadSVGData('');
         this.diagramCell.append(this.svg.element);
-        const buttons = document.createElement('p');
-        this.diagramCell.append(buttons);
-        const resetButton = document.createElement('button');
-        resetButton.className = 'simple-button';
-        resetButton.innerText = 'Reset';
-        this.diagramCell.append(resetButton);
-        resetButton.addEventListener('click', (e) => { this.resetDiagram(); });
-        buttons.append(resetButton);
-        this.saveButton = document.createElement('button');
-        this.saveButton.className = 'simple-button';
-        this.saveButton.innerText = 'Save';
-        this.saveButton.disabled = true;
-        this.diagramCell.append(this.saveButton);
-        buttons.append(this.saveButton);
-        this.saveButton.addEventListener('click', () => {
-            const notation = `  - ${this.chordName.innerHTML} ${this.notation()}`;
-            this.savedChordDefinitions.push(notation);
-            this.notationsCell.innerHTML = PAGE.wrapCode(this.savedChordDefinitions);
-            this.saveButton.disabled = true;
-        });
+        this.addButtons();
     }
     /**
      * Create the SVG element with all of its component elements.
@@ -159,15 +151,38 @@ class ChordDiagram {
         }
         this.setFretNumbers(this.firstFret);
     }
-    resetDiagram( /** perhaps pass a notation string here */) {
+    addButtons() {
+        const buttons = document.createElement('p');
+        this.diagramCell.append(buttons);
+        const resetButton = document.createElement('button');
+        resetButton.className = 'simple-button';
+        resetButton.innerText = 'Reset';
+        this.diagramCell.append(resetButton);
+        resetButton.addEventListener('click', () => { this.resetDiagram(); });
+        buttons.append(resetButton);
+        this.saveButton.className = 'simple-button';
+        this.saveButton.innerText = 'Save';
+        this.saveButton.disabled = true;
+        this.diagramCell.append(this.saveButton);
+        this.saveButton.addEventListener('click', () => { this.saveChordNotation(); });
+        buttons.append(this.saveButton);
+    }
+    resetDiagram() {
+        const toggleNutMarks = (this.notation() == ChordDiagram.mute.repeat(this.strings));
         this.setFretNumbers(1);
         this.setChordName('');
         for (let string = 0; string < this.strings; string += 1) {
-            this.resetString(string, false);
+            this.resetString(string, toggleNutMarks);
             this.setNoteName(string, '');
             this.setInterval(string, '');
         }
-        this.chordsCell.innerHTML = '';
+        this.foundChordsCell.innerHTML = '';
+    }
+    saveChordNotation() {
+        const notation = `  - ${this.chordName.innerHTML} ${this.notation()}`;
+        this.savedChordDefinitions.push(notation);
+        this.chordNotationsCell.innerHTML = PAGE.wrapCode(this.savedChordDefinitions);
+        this.saveButton.disabled = true;
     }
     /** Initialize the chord name element */
     chordNameElement(svg, name, fontSize) {
@@ -403,7 +418,7 @@ class ChordDiagram {
      * of saved chords.
      */
     displayChordData(chordData) {
-        this.chordsCell.innerHTML = '';
+        this.foundChordsCell.innerHTML = '';
         let knownChords = false;
         for (const chordDatum of chordData) {
             const intervals = chordDatum.intervals.filter((element) => element != '');
@@ -413,10 +428,10 @@ class ChordDiagram {
                 if (chordDatum.modifier != '?') {
                     const highlight = (intervals[0] == '1') ? 'red' : 'blue';
                     chordItem.classList.add(highlight);
-                    chordItem.innerHTML += `<br>${chordName} (${chordDatum.intervalPattern})`;
+                    chordItem.innerHTML += `${chordName} (${chordDatum.intervalPattern})`;
                     knownChords = true;
                 }
-                this.chordsCell.append(chordItem);
+                this.foundChordsCell.append(chordItem);
             }
         }
         this.saveButton.disabled = !knownChords;

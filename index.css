@@ -164,7 +164,7 @@ nav {
 
 .simple-button {
 	margin: 0 1em;
-	font-size: 1em;
+	font-size: .8em;
 }
 
 figure {
@@ -534,10 +534,9 @@ dialog.threads-dialog button {
 	text-align: center;
 	/* vertical-align: middle; */
 }
-.grid-auto {
+.grid-auto3 {
 	display: grid;
-	/* grid-template-columns: repeat(auto-fit, 80px); */
-	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-columns: auto auto auto;
 	gap: .5rem;
 }
 

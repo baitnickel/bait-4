@@ -2,6 +2,14 @@
 id: 55
 access: 0
 ---
+## File/Directory Disk Usage
+Display disk usage in a directory (in current directory if argument is not specified):
+
+```
+du hs .  # summary
+du ha .  # displays usage for each file plus summary
+```
+
 ## Startup Scripts
 Zsh always executes `zshenv`. Then, depending on the case:
 

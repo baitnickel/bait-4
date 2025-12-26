@@ -1,6 +1,6 @@
 import { Page } from './lib/page.js';
 import { Instrument, Chord } from './lib/fakesheet.js';
-import { SVG, RichText, XY } from './lib/graphics.js';
+import { SVG, RichText, Position } from './lib/graphics.js';
 
 type ChordData = {
 	root: string;
@@ -131,16 +131,17 @@ class ChordDiagram {
 		const interval = new DOMRect(0, 0, singleFret.width, singleFret.height * .5);
 
 		/** set SVG component positions */
-		XY(name, fretNumber.width + marginWidth + (gridWidth / 2), singleFret.height * .6);
-		XY(nut, fretNumber.width + marginWidth, name.height + (nut.height * .5));
-		XY(fretNumber, fretNumber.width, singleFret.height + nut.height);
-		XY(grid, fretNumber.width + marginWidth, name.height + nut.height);
-		XY(fingerMark, grid.x, name.height + nut.height);
-		XY(note, fretNumber.width + marginWidth, name.height + nut.height + grid.height);
-		XY(interval, fretNumber.width + marginWidth, name.height + nut.height + grid.height + note.height);
+		const leftEdge = fretNumber.width + marginWidth;
+		Position(name, leftEdge + (gridWidth / 2), singleFret.height * .6);
+		Position(nut, leftEdge, name.height + (nut.height * .5));
+		Position(fretNumber, fretNumber.width, singleFret.height + nut.height);
+		Position(grid, leftEdge, name.height + nut.height);
+		Position(fingerMark, grid.x, name.height + nut.height);
+		Position(note, leftEdge, name.height + nut.height + grid.height);
+		Position(interval, leftEdge, name.height + nut.height + grid.height + note.height);
 
 		/** create SVG container */
-		const width = fretNumber.width + marginWidth + grid.width + marginWidth;
+		const width = leftEdge + grid.width + marginWidth;
 		const height = name.height + nut.height + grid.height + note.height + interval.height;
 		const svg = new SVG(width, height, borderColor);
 		
@@ -181,6 +182,7 @@ class ChordDiagram {
 		const buttons = document.createElement('p');
 		this.diagramCell.append(buttons);
 
+		/** reset diagram */
 		const resetButton = document.createElement('button');
 		resetButton.className = 'simple-button';
 		resetButton.innerText = 'Reset';
@@ -188,6 +190,7 @@ class ChordDiagram {
 		resetButton.addEventListener('click', () => { this.resetDiagram() });
 		buttons.append(resetButton);
 
+		/** add found chord to "saved chords" */
 		this.saveButton.className = 'simple-button';
 		this.saveButton.innerText = 'Save';
 		this.saveButton.disabled = true;
@@ -211,7 +214,22 @@ class ChordDiagram {
 	saveChordNotation() {
 			const notation = `  - ${this.chordName!.innerHTML} ${this.notation()}`;
 			this.savedChordDefinitions.push(notation);
-			this.chordNotationsCell.innerHTML = PAGE.wrapCode(this.savedChordDefinitions);
+			/** remove any previous sub-elements and add new empty ones */
+			this.chordNotationsCell.innerHTML = ''; 
+			const preformattedArea = document.createElement('pre');
+			this.chordNotationsCell.append(preformattedArea);
+			const preformattedText = document.createElement('code');
+			preformattedArea.append(preformattedText);
+			/** write saved chords text into preformatted text element */
+			preformattedText.innerHTML = this.savedChordDefinitions.join('\n');
+			/** on click of preformatted text element, copy text to clipboard */
+			preformattedText.addEventListener('click', () => {
+				if (this.savedChordDefinitions.length > 1) {
+					if (window.confirm('Copy chords to clipboard?')) {
+						navigator.clipboard.writeText(this.savedChordDefinitions.join('\n'));
+					}
+				}
+			});
 			this.saveButton.disabled = true;
 	}
 
@@ -692,18 +710,10 @@ flagButton.addEventListener('click', () => {
 
 /** 
  * @todo
- * Draw a simple fretboard made up of toggle buttons in a grid, with toggle
- * buttons for open vs muted strings, styled drop-down for starting fret number
- * (usually 1). Also need refresh/clear/undo/redo. Text input should allow a
- * chord name--on resolution create the notation and log it if so desired. The
- * reverse operation is done when the user operates the fretboard, announcing
- * notations and possible chord name(s) with every button press. Interpretation
- * of the chord names will rely primarily upon 1) designation of the root and at
- * least one other note, 2) looking up the interval pattern in an intervals/chord
- * name library.
- * 
- * Lots of display-chord possibilities. In addition to displaying fretboard
- * fingering, we can display piano fingering.
+ * need undo/redo. Text input should allow a chord name--on resolution create
+ * the notation and log it if so desired. Lots of display-chord possibilities.
+ * In addition to displaying fretboard fingering, we can display piano
+ * fingering, score, etc.
  */
 
 /**
@@ -741,3 +751,7 @@ flagButton.addEventListener('click', () => {
 	// 	displayChordData(chordData, grid, intervalsDiv);
 	// 	textEntry.element.value = '';
 	// });
+
+/*
+
+*/

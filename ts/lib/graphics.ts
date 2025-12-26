@@ -40,7 +40,7 @@ export class Point {
  * A convenience function for setting the `x` and `y` coordinates of a DOM
  * rectangle or point object.
  */
-export function XY(DOMobject: DOMRect|DOMPoint, x: number, y: number) {
+export function Position(DOMobject: DOMRect|DOMPoint, x: number, y: number) {
 	DOMobject.x = x;
 	DOMobject.y = y;
 }

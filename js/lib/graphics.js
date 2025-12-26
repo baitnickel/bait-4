@@ -22,7 +22,7 @@ export class Point {
  * A convenience function for setting the `x` and `y` coordinates of a DOM
  * rectangle or point object.
  */
-export function XY(DOMobject, x, y) {
+export function Position(DOMobject, x, y) {
     DOMobject.x = x;
     DOMobject.y = y;
 }

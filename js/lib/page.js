@@ -4,7 +4,7 @@ import * as Fetch from './fetch.js';
 import { MarkupLine } from './markup.js';
 const LOCAL = Settings.Session.local;
 const SITE = Settings.Site();
-const BACKEND = 'http://localhost:3000'; //'http://192.168.1.70:3000';
+const BACKEND = `${window.location.protocol}//${window.location.hostname}:3000`;
 let BACKEND_AVAILABLE = false;
 if (LOCAL)
     BACKEND_AVAILABLE = await Fetch.test(`${BACKEND}/`);

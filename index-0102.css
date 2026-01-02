@@ -155,7 +155,7 @@
 /* document defaults */
 
 html {
-	font-size: 12pt; /* root font size (rem) */
+	/* font-size: 12pt; */ /* root font size (rem) */ /* 0102 */
 	color: #000; /* default font color */
 	background-color: var(--viewport-background-color);
 }
@@ -163,6 +163,7 @@ html {
 /* body contains #header, #content, and #footer */
 
 body {
+	font-size: calc(15px + 0.390625vw); /* 0102 */
 	display: grid;
 	max-width: var(--content-width);
 	min-height: 95vh; 

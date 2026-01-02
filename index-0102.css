@@ -1,0 +1,918 @@
+/* 
+	When this file is changed, update the version number in index.html's <head>
+	For color names, see: https://drafts.csswg.org/css-color/#named-colors
+ */
+
+/*
+	Classes & IDs in use:
+
+	::after
+	:focus
+	:hover
+	:root
+	.alert
+	.article-header
+	.article-navigation-button
+	.article-navigation-progress
+	.attribution
+	.blue
+	.camp-button-indent
+	.camp-reservation-controls
+	.campsite-bad
+	.campsite-comments
+	.campsite-good
+	.campsite-limited
+	.carousel
+	.carousel-button
+	.chords
+	.close-button
+	.dialog-button
+	.dialog-button-group
+	.dialog-full-width
+	.dialog-grid
+	.dialog-group
+	.framed-text
+	.grid-auto3
+	.grid-buttons
+	.grid-cell
+	.grid-container
+	.iching
+	.iching-cell
+	.iching-heading
+	.iching-hexagram
+	.iching-hexagram-chapter-name
+	.iching-range-display
+	.iching-range-item-select
+	.iching-row
+	.iching-selection
+	.iching-table
+	.iching-td
+	.iching-tr
+	.iching-verse
+	.input-form
+	.intro
+	.italic
+	.left
+	.modal
+	.modal-body
+	.modal-header
+	.modal.active
+	.pad-top
+	.question
+	.quote
+	.radio-button
+	.radio-button.active
+	.red
+	.right
+	.sans-serif
+	.scroll-text
+	.simple-button
+	.single-space
+	.slide
+	.small
+	.song-title-link
+	.songbook-metadata-label
+	.songbook-metadata-value
+	.spinner
+	.test-columns-2
+	.test-columns-3
+	.test-columns-4
+	.test-icons
+	.text
+	.threads-query-element
+	.timeline-age
+	.timeline-container
+	.timeline-date
+	.timeline-description
+	.timeline-query-element
+	.title
+	.widget-radio-fieldset
+	.widget-radio-inline
+	[data-active]
+	@keyframes
+	#annotate-button
+	#annotate-button
+	#content
+	#footer
+	#footer-bluesky-image
+	#footer-bluesky-item
+	#header
+	#header-input
+	#header-menu
+	#iching-range-type
+	#identity-button
+	#modal-overlay
+	#modal-overlay.active
+	#ok-button
+	#song-error
+	#song-metadata
+	#song-sheet
+	#test-content
+	a
+	a:hover
+	article
+	blockquote
+	body
+	button
+	code
+	dialog.threads-dialog
+	div
+	figure
+	h1
+	h2
+	h3
+	h4
+	h5
+	h6
+	html
+	img
+	label
+	li
+	main
+	nav
+	path:hover
+	pre
+	summary
+	svg
+	table
+	td
+	th
+*/
+
+/* global variables */
+
+:root {
+	--content-width: 820px;
+	--content-background-color: #def; /*  #dfeeff;lightblue */;  
+	--banner-text-color: #eef; /* almost white */
+	--banner-text-highlight-color: #f80; /* dark orange*/
+	--banner-background-color: #57e; /* #5480df; blue */
+	--banner-border-color: #aaa; /* grey */
+	--viewport-background-color: #ccc; /* grey */
+	--diagnositic-border: 0 dashed #000; /* toggle 0 (hide) and 1px (show) */
+}
+
+/* document defaults */
+
+html {
+	font-size: 12pt; /* root font size (rem) */
+	color: #000; /* default font color */
+	background-color: var(--viewport-background-color);
+}
+
+/* body contains #header, #content, and #footer */
+
+body {
+	display: grid;
+	max-width: var(--content-width);
+	min-height: 95vh; 
+	margin: 0 auto; /* 'auto' centers body horizontally in window */
+	padding: .5em 0;
+	border: var(--diagnositic-border);
+	gap: .5em;
+	grid-template-rows: auto 1fr auto; /* header, content, and footer */
+}
+
+/* #header contains the menu items */
+
+#header {
+	/* stick the header (menu) div to the top of the page */
+	position: sticky;
+	top: 0;
+
+	display: block;
+	color: var(--banner-text-color);
+	background-color: var(--banner-background-color);
+	border: var(--diagnositic-border);
+	border-radius: .5em;
+	padding: .5em 1.5em;
+	font-family: sans-serif;
+	font-size: 10pt;
+	font-weight: normal;
+}
+
+/* #content contains all the normal page content */
+
+#content, #test-content {
+	display: block;
+	padding: 1em;
+	border: var(--diagnositic-border);
+	border-radius: .5em;
+	background-color: var(--content-background-color);
+}
+
+/* #footer contains general info and icon link(s) to external social media, etc. */
+
+#footer {
+	/* stick the footer to the bottom of the window (or bottom of Content in short page) */
+	/* position: sticky; */
+	/* bottom: 0; */
+
+	display: grid;
+	gap: 1em;
+	grid-template-columns: auto auto;
+	align-items: center; /* used to center the Bluesky icon vertically in the footer */
+
+	border: var(--diagnositic-border);
+	border-radius: .5em;
+	padding: .5em 1em;
+	color: var(--banner-text-color);
+	background-color: var(--banner-background-color);
+	font-family: sans-serif;
+	font-size: 9pt;
+}
+
+#footer-bluesky-item {
+	float: right;
+}
+#footer-bluesky-image {
+	height: 2em;
+}
+
+#header-menu {
+	margin: 0;
+	padding: .5em;
+}
+#header-menu li {
+	display: inline;
+	padding: .5em; /* spacing around menu items */
+}
+#header-menu li a {
+	text-decoration: none;
+	color: var(--banner-text-color);
+}
+#header-menu li a:hover {
+	color: var(--banner-text-highlight-color);
+}
+#annotate-button,
+#identity-button {
+	background: transparent;
+	border: none;
+	float: right; /* move input element to the right */
+}
+#annotate-button {
+	font-size: 1.5em;
+	position: relative;
+	bottom: .3em;
+	color: var(--banner-text-color);
+}
+/* #annotate-button a:hover { */
+	/* color: var(--banner-text-highlight-color); */
+/* } */
+#header-input {
+	font-family: sans-serif;
+	font-size: 10pt;
+	padding: 0 .3em; /* padding inside the input box */
+	float: right; /* move input element to the right */
+}
+
+h1, h2, h3, h4, h5, h6 { font-family: sans-serif; font-weight: normal; }
+h1 { font-size: 1.7rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.1rem; }
+h4 { font-size: 1.0rem; }
+h5 { font-size: 0.9rem; padding: .3rem; font-weight: bold; }
+h6 { font-size: 0.8rem; padding: .2rem; }
+h5, h6 {
+	width: -moz-fit-content; /* still required for Firefox? */
+	width: fit-content;
+	border: 1px solid #aaa;
+	background-color: #eee;
+	color: #00f;
+}
+summary { font-family: sans-serif; font-size: 1.1rem; } /* font-weight: 200; } */
+/* .threads-output-element summary { font-size: 1.5rem; font-weight: 200; } */
+.threads-query-element button { margin-bottom: 1rem; }
+
+.sans-serif { font-family: sans-serif; }
+.italic { font-style: italic; }
+.small { font-size: small; }
+.single-space { margin: 0; }
+.pad-top { padding-top: 1em; }
+
+nav, article, main {
+	display: block;
+}	
+
+nav {
+	position: absolute;
+}
+
+.simple-button {
+	margin: 0 1em;
+	font-size: .8em;
+}
+
+figure {
+	float: right;
+	width: 30%;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: smaller;
+	border: thin silver solid;
+	max-width: 50px;
+}
+
+code { /* inline <code></code> */
+	font-family: monospace;
+	font-size: 10pt;
+	color: #dc143c;
+	background-color: #cee5ff;
+	padding: 2px;
+}
+
+pre code { /* fenced code blocks */
+	display: block;
+	border: 1px solid #bababa;
+	margin-left: 2em;
+	margin-right: 2em;
+	color: #080808;
+	padding: 1.5em;
+}
+
+.iching-range-item-select {
+	margin-left: .5em;
+}
+.iching-range-display {
+	font-size: 48px;
+}
+
+.input-form {
+	display: flex;
+	justify-content: space-between;
+	width: 60%;
+	margin: 0.5rem;
+}
+
+.question {
+	color: #00f;
+	font-style: italic;
+}
+
+.left {
+	float: left;
+	padding: 0 1em 1em 0;
+}
+
+.right {
+	float: right;
+	padding: 0 1em 1em 1em;
+}
+
+.quote {
+	/* shrink the quote box around its contents */
+	width: -moz-fit-content; /* still required for Firefox? */
+	width: fit-content;
+
+	font-size: 90%;
+	margin: .5em 15em 1em 0;
+	padding: .2em 1em;
+	border: .5em ridge #bbd6f2;
+	background-color: #bbd6f2;
+}
+.quote .text {
+	margin-bottom: 0;
+}
+.quote .attribution {
+	font-size: 90%;
+	text-indent: 1em;
+	margin-top: .5em;
+}
+
+blockquote {
+	/* font: 14px/22px normal helvetica, sans-serif; */
+	font-size: 90%;
+	margin-top: 0;
+	margin-bottom: 0;
+	margin-left: 2em;
+	padding-left: 1em;
+	border-left: .5em solid #ccc;
+} 
+
+/* article pages */
+.article-header {
+	width: -moz-fit-content; /* still required for Firefox? */
+	width: fit-content;
+	padding: .5em 1em .5em 1em;
+	border-radius: .5em;
+	font-family: sans-serif;
+	font-size: .75em;
+	color: #eef;
+	background-color: #5480df;
+}
+
+.article-navigation-button {
+	margin: 0 .3em;
+}
+.article-navigation-progress {
+	margin: 0 .75em;
+	color: #00f;
+	font-family: sans-serif;
+	font-size: .75em;
+}
+
+/* camp page(s) */
+.alert {background-color: #f00; color: #000;}
+.campsite-good {background-color: #90ee90;}
+.campsite-bad {background-color: #e9967a;}
+.campsite-limited {background-color: #c0c0c0;}
+table, th, td {border: 1px solid #000; border-collapse: collapse;}
+th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
+.campsite-comments {font-family: sans-serif; font-size: .75em;}
+
+.radio-button {
+	color: #000;
+	margin: .3em;
+}
+.radio-button.active {
+	color: #000;
+	background-color: #add8e6;
+}
+.framed-text {
+	font-family: sans-serif;
+	font-size: smaller;
+	white-space: pre;
+	/* dotted dashed solid double groove ridge inset outset none hidden */
+	border: 2px dotted #000; 
+	margin: .5rem 0 1rem 0;
+	padding: 0 .5rem;
+}
+.camp-reservation-controls {
+	font-family: sans-serif;
+	font-size: small;
+	margin: .25rem;
+}
+.camp-button-indent {padding-left: 1rem;}
+
+/* iching page(s) */
+.iching-selection {
+	margin: 1rem 0;
+}
+.iching {
+	table-layout:fixed;
+	width: 1rem;
+	height: 1rem;
+	font-family: serif;
+	font-size: 1rem;
+	margin: .5rem;
+	display: inline;
+}
+.iching-row {
+	max-height: 1rem;
+}
+.iching-cell {
+	background-color: #b5daff;
+	border: #111 solid .1rem;
+	text-align: center;
+	width: 1rem;
+	height: 1rem;
+}
+
+.iching-table {
+	table-layout:fixed;
+	width: 50px;
+	height: 50px;
+	font-family: serif;
+	font-size: 3em;
+}
+.iching-tr {
+	max-height: 15px;
+}
+.iching-td {
+	background-color: #2bf;
+	border: #fff solid .1rem;
+	text-align: center;
+	width: 50px;
+	height: 50px;
+}
+
+#iching-range-type {
+	font-family: sans-serif;
+	padding-bottom: .5em;
+}
+.iching-hexagram {
+	font-family: serif;
+	font-size: 3em;
+	line-height: 2em;
+}
+.iching-hexagram-chapter-name {
+	font-family: sans-serif;
+	font-size: 1.5em;
+	line-height: 2em;
+}
+.iching-heading {
+	font-family: sans-serif;
+	font-size: 1.2em;
+}
+.iching-verse {
+	font-style: italic;
+}
+
+/* songbook page(s) */
+.song-title-link {
+	margin: .5em 1em;
+}
+#song-error {
+	font-family: sans-serif;
+	font-size: 80%;
+	color: #f00;
+}
+#song-metadata {
+	font-family: sans-serif;
+	font-size: 80%;
+	margin-top: 0;
+	margin-bottom: 1.75em;
+	margin-left: .4em;
+	padding-left: .5em;
+	border-left: .4em solid #ccc;
+}
+#song-sheet {
+	font-size: 9pt;
+}
+.songbook-metadata-label {
+	font-weight: bold;
+}
+.songbook-metadata-value {
+	font-weight: normal;
+}
+.chords {
+	color: #a76f6f;
+}
+
+/* Threads ====================================================================== */
+
+dialog.threads-dialog li {
+	list-style-type: none;
+	margin: 0 3rem 1rem 1rem;
+}
+
+dialog.threads-dialog button {
+	font-size: .75rem;
+	margin: 1rem .5rem 0 .5rem;
+}
+
+/* Carousel ====================================================================== */
+
+.carousel {
+	width: 100vw;
+	height: 100vh;
+	position: relative;
+}
+
+.slide {
+	position: absolute;
+	inset: 0;
+	opacity: 0; /* prevent slide from showing when it is not the "active" slide */
+	/* transition: 200ms opacity ease-in-out; */
+	/* transition-delay: 200ms; */
+	transition: 1000ms opacity ease-in-out; /* control fade in/out time */
+}
+
+.slide > img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain; /* cover; */
+	object-position: center;
+}
+
+.slide[data-active] {
+	opacity: 1; /* make "active" slide visible */
+	z-index: 1; /* ensure that the active slide always shows up on top */
+	/* transition-delay: 0ms; */
+}
+
+.carousel-button {
+	position: absolute;
+	z-index: 2; /* force buttons to show up on top of images */
+	background: none;
+	border: none;
+	/* font-family: serif;  ... seems to make no difference */
+	font-size: 1.5rem;  /* 4rem; */
+	transform: translateY(-50%); /* push buttons up a bit to exactly dead center of vertical (Y) axis */
+	color: rgba(255, 255, 255, .5);
+	cursor: pointer; /* to support clicking on buttons */
+	border-radius: .25rem;
+	padding: 0 .5rem;
+	background-color: rgba(0, 0, 0, .1); /* dark and mostly transparent background color */
+}
+
+.carousel-button:hover,
+.carousel-button:focus {
+	color: white; /* change button color to full-on white */
+	background-color: rgba(0, 0, 0, .2); /* increase the background color */
+}
+
+.carousel-button:focus {
+	outline: 1px solid black; /* improves focus visibility when using tab key to move between buttons */
+}
+
+.carousel-button.prev { /* position "previous" button on the left side of screen */
+	top: 50%;
+	left: 1rem;
+}
+
+.carousel-button.next { /* position "next" button on the right side of screen */
+	top: 50%;
+	right: 1rem;
+}
+
+.carousel-button.return { /* position "next" button on the right side of screen */
+	top: 3%;
+	right: 1rem;
+}
+
+.carousel-button.flag {
+	bottom: 3%;
+	right: 1rem;
+}
+
+/* Widgets ====================================================================== */
+
+/* https://stackoverflow.com/questions/23530064/how-to-make-label-and-input-appear-on-the-same-line-on-an-html-form */
+
+.widget-radio-fieldset {
+	width: fit-content;
+}
+.widget-radio-fieldset div {
+	display: grid;
+	grid-template-columns: max-content max-content;
+	gap: .25rem;
+}
+
+.widget-radio-inline {
+	display: inline-block;
+}
+.widget-radio-inline label {
+	padding: 0 .4rem 0 .1rem;
+}
+
+/* Tests, etc. =================================================================== */
+
+.grid-buttons {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, 75px);
+	gap: .5rem;
+}
+
+.grid-container {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	background-color: rgba(249, 249, 229, 0.647);
+	padding: 5px;
+	/* align-content: center; */
+}
+.grid-container .grid-cell {
+	background-color: #f1f1f1;
+	border: 1px solid lightgray;
+	padding: .5rem;
+	font-size: .9rem;
+	text-align: center;
+	/* vertical-align: middle; */
+}
+.grid-auto3 {
+	display: grid;
+	grid-template-columns: auto auto auto;
+	gap: .5rem;
+}
+
+.timeline-query-element button { margin-bottom: 1rem; }
+.timeline-container {
+	display: grid;
+	grid-template-columns: 2fr 8fr 1fr;
+	/* background-color: dodgerblue; */
+	font-family: sans-serif;
+	/* padding: 3px; */
+}
+.timeline-date {
+	background-color: lightgray;
+	border: 1px solid gray;;
+	padding: .25rem;
+	font-size: .75rem;
+	text-align: right;
+}
+.timeline-description {
+	background-color: #f1f1f1;
+	border: 1px solid lightgray;
+	padding: .25rem .5rem;
+	font-size: .75rem;
+	text-align: left;
+}
+.timeline-age {
+	background-color: lightgray;
+	border: 1px solid gray;
+	padding: .25rem;
+	font-size: .75rem;
+	text-align: left;
+}
+
+/*
+font-family: 'Cormorant', serif;
+font-family: 'Inter', sans-serif;
+font-family: 'Special Elite', cursive;
+font-family: 'Halant', serif;
+font-family: 'Abhaya Libre', serif;
+font-family: 'Average Sans', sans-serif;
+font-family: 'Cambay', sans-serif;
+font-family: 'NTR', sans-serif;
+font-family: 'Rosarivo', serif;
+font-family: sans-serif;
+*/
+
+/* .image-row { */
+	/* padding: 0 1em 0 0; */
+/* } */
+
+/* home page */
+/* #banner-image { */
+	/* width: auto; */
+	/* max-height: 100vh; */
+/* } */
+/* #home-quote { */
+	/* font-size: 90%; */
+	/* margin-top: 1em; */
+	/* padding-left: 1em; */
+	/* border-left: .5em solid #ccc; */
+/* } */
+
+/* .quote {
+	background-color: #aecef1;
+	padding: 0 1.5em;
+	border: .2em solid #5480df;
+	border-radius: 1em;
+	margin: 1em 3em;
+} */
+
+/* audio
+#controls-block {
+	padding: .5em 0;
+}
+.track-list {
+	width: -moz-fit-content;
+	width: fit-content;
+}
+.track-list-item {
+	cursor: pointer;
+	font-size: small;
+	margin: .2em;
+}
+.track-list-item:hover {
+	color: #f00;
+}
+*/
+
+/* modal, dialog, popup */
+.modal {
+	position: fixed;
+	top: 25%; /* 25 */
+	left: calc(var(--content-width) * .1); /* 150 */
+	/* transform: translate(-50%, -50%); true center */
+	transform: scale(0); /* hide modal */
+	transition: 200ms ease-in-out;
+	border: 1px solid #000;
+	border-radius: 10px;
+	z-index: 10; /* big number ensures modal will draw on top of everything else */
+	background-color: var(--content-background-color);
+	width: calc(var(--content-width) * .50); /* 500px */
+	max-width: 80%;
+}
+.modal.active {
+	/* transform: translate(-50%, -50%); true center */
+	transform: scale(1); /* show modal */
+	transition: 200ms ease-in-out;
+}
+#modal-overlay {
+	position: fixed;
+	opacity: 0;
+	transition: 200ms ease-in-out;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, .5);
+	pointer-events: none; /* prevent click events on overlay */
+}
+#modal-overlay.active {
+	opacity: 1;
+	pointer-events: all; /* allow click events on overlay */
+}
+.modal-header {
+	padding: 5px 15px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #000;
+}
+.modal-header .title {
+	font-weight: bold;
+}
+.modal-header .close-button {
+	cursor: pointer;
+	border: none;
+	outline: none;
+	background: none;
+	font-size: 1.25rem;
+	font-weight: bold;
+}
+.modal-body {
+	padding: 0px 15px 10px;
+}
+
+/* from: https://htmlcodeexamples.com/html-forms/ */
+.dialog-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: .5rem;
+}
+.dialog-group {
+	display: flex;
+	flex-direction: column;
+}
+.dialog-full-width {
+	grid-column: 1 / -1;
+}
+.dialog-button-group {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, 75px);
+	justify-content: center;
+	gap: 2rem;
+	padding: 1rem;
+}
+.dialog-button {
+	font-size: .8rem;
+	padding: .4rem;
+	background-color: rgb(218, 238, 250);
+	border: 1px solid darkgray;
+	border-radius: .5rem;
+}
+
+/*
+	Spinner
+	From: https://www.youtube.com/watch?v=trsuokl2Fp4&t=25s
+	We assume HTML: <div class="spinner"></div>
+*/
+.spinner {
+	display: flex;
+	justify-content: center;
+}
+.spinner::after {
+	content: "";
+	width: 50px;
+	height: 50px;
+	border: 10px solid #dddddd;
+	border-top-color: #009579;
+	border-radius: 50%;
+	/* transform: rotate(0.16turn); */
+	animation: spinner 1s linear infinite;
+}
+/* Safari support? */
+@keyframes spinner {
+	to { transform: rotate(1turn); }
+}
+
+
+.scroll-text {
+	overflow: scroll;
+	margin: 1rem 0;
+	height: 400px;
+}
+
+/* for testing span markup */
+.intro {
+	font-size: smaller;
+}
+.red {
+	color: #f00;
+}
+.blue {
+	color: #00f;
+}
+
+/* used in test-yaml only - button properties should be generalized */
+#ok-button {
+	margin-top: .5em;
+}
+
+.test-icons {
+	transform: scale(2);
+	padding: 0 2em 0 0;
+}
+.test-icons svg path:hover {
+	fill: #f00;
+}
+
+.test-columns-2 {
+	column-width: 150px;
+	column-rule: 1px solid #bbb;
+	column-gap: 3em;
+}
+.test-columns-3 {
+	column-width: 150px;
+	column-rule: 1px solid #bbb;
+	column-gap: 3em;
+}
+.test-columns-4 {
+	column-width: 150px;
+	column-rule: 1px solid #bbb;
+	column-gap: 3em;
+}

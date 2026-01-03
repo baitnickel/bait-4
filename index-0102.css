@@ -10,6 +10,7 @@
 	:focus
 	:hover
 	:root
+	.active
 	.alert
 	.article-header
 	.article-navigation-button
@@ -50,7 +51,6 @@
 	.iching-tr
 	.iching-verse
 	.input-form
-	.intro
 	.italic
 	.left
 	.modal
@@ -61,7 +61,6 @@
 	.question
 	.quote
 	.radio-button
-	.radio-button.active
 	.red
 	.right
 	.sans-serif
@@ -74,11 +73,8 @@
 	.songbook-metadata-label
 	.songbook-metadata-value
 	.spinner
-	.test-columns-2
-	.test-columns-3
-	.test-columns-4
-	.test-icons
 	.text
+	.threads-dialog
 	.threads-query-element
 	.timeline-age
 	.timeline-container
@@ -91,7 +87,6 @@
 	[data-active]
 	@keyframes
 	#annotate-button
-	#annotate-button
 	#content
 	#footer
 	#footer-bluesky-image
@@ -102,20 +97,17 @@
 	#iching-range-type
 	#identity-button
 	#modal-overlay
-	#modal-overlay.active
-	#ok-button
 	#song-error
 	#song-metadata
 	#song-sheet
 	#test-content
 	a
-	a:hover
 	article
 	blockquote
 	body
 	button
 	code
-	dialog.threads-dialog
+	dialog
 	div
 	figure
 	h1
@@ -130,7 +122,7 @@
 	li
 	main
 	nav
-	path:hover
+	path
 	pre
 	summary
 	svg
@@ -156,6 +148,7 @@
 
 html {
 	/* font-size: 12pt; */ /* root font size (rem) */ /* 0102 */
+	font-size: calc(15px + 0.390625vw); /* 0102 */
 	color: #000; /* default font color */
 	background-color: var(--viewport-background-color);
 }
@@ -163,14 +156,13 @@ html {
 /* body contains #header, #content, and #footer */
 
 body {
-	font-size: calc(15px + 0.390625vw); /* 0102 */
 	display: grid;
 	max-width: var(--content-width);
 	min-height: 95vh; 
 	margin: 0 auto; /* 'auto' centers body horizontally in window */
-	padding: .5em 0;
+	padding: .5rem 0; /* 0102 */
 	border: var(--diagnositic-border);
-	gap: .5em;
+	gap: .5rem; /* 0102 */
 	grid-template-rows: auto 1fr auto; /* header, content, and footer */
 }
 
@@ -281,28 +273,20 @@ h5, h6 {
 	background-color: #eee;
 	color: #00f;
 }
-summary { font-family: sans-serif; font-size: 1.1rem; } /* font-weight: 200; } */
-/* .threads-output-element summary { font-size: 1.5rem; font-weight: 200; } */
-.threads-query-element button { margin-bottom: 1rem; }
 
 .sans-serif { font-family: sans-serif; }
 .italic { font-style: italic; }
 .small { font-size: small; }
 .single-space { margin: 0; }
 .pad-top { padding-top: 1em; }
+.red { color: #f00; }
+.blue { color: #00f; }
 
-nav, article, main {
-	display: block;
-}	
+.simple-button { margin: 0 1em; font-size: .8em; }
+nav, article, main { display: block; }	
+nav { position: absolute; }
+summary { font-family: sans-serif; font-size: 1.1rem; } /* font-weight: 200; } */
 
-nav {
-	position: absolute;
-}
-
-.simple-button {
-	margin: 0 1em;
-	font-size: .8em;
-}
 
 figure {
 	float: right;
@@ -329,13 +313,6 @@ pre code { /* fenced code blocks */
 	margin-right: 2em;
 	color: #080808;
 	padding: 1.5em;
-}
-
-.iching-range-item-select {
-	margin-left: .5em;
-}
-.iching-range-display {
-	font-size: 48px;
 }
 
 .input-form {
@@ -390,7 +367,8 @@ blockquote {
 	border-left: .5em solid #ccc;
 } 
 
-/* article pages */
+/* used in articles, panes */
+
 .article-header {
 	width: -moz-fit-content; /* still required for Firefox? */
 	width: fit-content;
@@ -412,7 +390,7 @@ blockquote {
 	font-size: .75em;
 }
 
-/* camp page(s) */
+/* used in camp, camping */
 .alert {background-color: #f00; color: #000;}
 .campsite-good {background-color: #90ee90;}
 .campsite-bad {background-color: #e9967a;}
@@ -445,7 +423,15 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 }
 .camp-button-indent {padding-left: 1rem;}
 
-/* iching page(s) */
+/* used in iching */
+
+.iching-range-item-select {
+	margin-left: .5em;
+}
+.iching-range-display {
+	font-size: 48px;
+}
+
 .iching-selection {
 	margin: 1rem 0;
 }
@@ -509,7 +495,8 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	font-style: italic;
 }
 
-/* songbook page(s) */
+/* used in songbook */
+
 .song-title-link {
 	margin: .5em 1em;
 }
@@ -540,19 +527,15 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	color: #a76f6f;
 }
 
-/* Threads ====================================================================== */
 
-dialog.threads-dialog li {
-	list-style-type: none;
-	margin: 0 3rem 1rem 1rem;
-}
+/* used in threads */
 
-dialog.threads-dialog button {
-	font-size: .75rem;
-	margin: 1rem .5rem 0 .5rem;
-}
+.threads-query-element button { margin-bottom: 1rem; }
+/* .threads-output-element summary { font-size: 1.5rem; font-weight: 200; } */
+/* dialog.threads-dialog li { list-style-type: none; margin: 0 3rem 1rem 1rem; } */
+/* dialog.threads-dialog button { font-size: .75rem; margin: 1rem .5rem 0 .5rem; } */
 
-/* Carousel ====================================================================== */
+/* used in carousel */
 
 .carousel {
 	width: 100vw;
@@ -628,9 +611,11 @@ dialog.threads-dialog button {
 	right: 1rem;
 }
 
-/* Widgets ====================================================================== */
+/*
+  used in widgets, camping, home (testing)
 
-/* https://stackoverflow.com/questions/23530064/how-to-make-label-and-input-appear-on-the-same-line-on-an-html-form */
+  https://stackoverflow.com/questions/23530064/how-to-make-label-and-input-appear-on-the-same-line-on-an-html-form
+*/
 
 .widget-radio-fieldset {
 	width: fit-content;
@@ -648,7 +633,7 @@ dialog.threads-dialog button {
 	padding: 0 .4rem 0 .1rem;
 }
 
-/* Tests, etc. =================================================================== */
+/* used in chords, home (testing) */
 
 .grid-buttons {
 	display: grid;
@@ -676,6 +661,8 @@ dialog.threads-dialog button {
 	grid-template-columns: auto auto auto;
 	gap: .5rem;
 }
+
+/* used in timeline module */
 
 .timeline-query-element button { margin-bottom: 1rem; }
 .timeline-container {
@@ -708,118 +695,11 @@ dialog.threads-dialog button {
 }
 
 /*
-font-family: 'Cormorant', serif;
-font-family: 'Inter', sans-serif;
-font-family: 'Special Elite', cursive;
-font-family: 'Halant', serif;
-font-family: 'Abhaya Libre', serif;
-font-family: 'Average Sans', sans-serif;
-font-family: 'Cambay', sans-serif;
-font-family: 'NTR', sans-serif;
-font-family: 'Rosarivo', serif;
-font-family: sans-serif;
+  used in widget module
+
+  from: https://htmlcodeexamples.com/html-forms/
 */
 
-/* .image-row { */
-	/* padding: 0 1em 0 0; */
-/* } */
-
-/* home page */
-/* #banner-image { */
-	/* width: auto; */
-	/* max-height: 100vh; */
-/* } */
-/* #home-quote { */
-	/* font-size: 90%; */
-	/* margin-top: 1em; */
-	/* padding-left: 1em; */
-	/* border-left: .5em solid #ccc; */
-/* } */
-
-/* .quote {
-	background-color: #aecef1;
-	padding: 0 1.5em;
-	border: .2em solid #5480df;
-	border-radius: 1em;
-	margin: 1em 3em;
-} */
-
-/* audio
-#controls-block {
-	padding: .5em 0;
-}
-.track-list {
-	width: -moz-fit-content;
-	width: fit-content;
-}
-.track-list-item {
-	cursor: pointer;
-	font-size: small;
-	margin: .2em;
-}
-.track-list-item:hover {
-	color: #f00;
-}
-*/
-
-/* modal, dialog, popup */
-.modal {
-	position: fixed;
-	top: 25%; /* 25 */
-	left: calc(var(--content-width) * .1); /* 150 */
-	/* transform: translate(-50%, -50%); true center */
-	transform: scale(0); /* hide modal */
-	transition: 200ms ease-in-out;
-	border: 1px solid #000;
-	border-radius: 10px;
-	z-index: 10; /* big number ensures modal will draw on top of everything else */
-	background-color: var(--content-background-color);
-	width: calc(var(--content-width) * .50); /* 500px */
-	max-width: 80%;
-}
-.modal.active {
-	/* transform: translate(-50%, -50%); true center */
-	transform: scale(1); /* show modal */
-	transition: 200ms ease-in-out;
-}
-#modal-overlay {
-	position: fixed;
-	opacity: 0;
-	transition: 200ms ease-in-out;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: rgba(0, 0, 0, .5);
-	pointer-events: none; /* prevent click events on overlay */
-}
-#modal-overlay.active {
-	opacity: 1;
-	pointer-events: all; /* allow click events on overlay */
-}
-.modal-header {
-	padding: 5px 15px;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	border-bottom: 1px solid #000;
-}
-.modal-header .title {
-	font-weight: bold;
-}
-.modal-header .close-button {
-	cursor: pointer;
-	border: none;
-	outline: none;
-	background: none;
-	font-size: 1.25rem;
-	font-weight: bold;
-}
-.modal-body {
-	padding: 0px 15px 10px;
-}
-
-/* from: https://htmlcodeexamples.com/html-forms/ */
 .dialog-grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
@@ -848,10 +728,11 @@ font-family: sans-serif;
 }
 
 /*
-	Spinner
+	used in home (testing)
 	From: https://www.youtube.com/watch?v=trsuokl2Fp4&t=25s
 	We assume HTML: <div class="spinner"></div>
 */
+
 .spinner {
 	display: flex;
 	justify-content: center;
@@ -871,6 +752,7 @@ font-family: sans-serif;
 	to { transform: rotate(1turn); }
 }
 
+/* used in test-file-api */
 
 .scroll-text {
 	overflow: scroll;
@@ -878,42 +760,15 @@ font-family: sans-serif;
 	height: 400px;
 }
 
-/* for testing span markup */
-.intro {
-	font-size: smaller;
-}
-.red {
-	color: #f00;
-}
-.blue {
-	color: #00f;
-}
-
-/* used in test-yaml only - button properties should be generalized */
-#ok-button {
-	margin-top: .5em;
-}
-
-.test-icons {
-	transform: scale(2);
-	padding: 0 2em 0 0;
-}
-.test-icons svg path:hover {
-	fill: #f00;
-}
-
-.test-columns-2 {
-	column-width: 150px;
-	column-rule: 1px solid #bbb;
-	column-gap: 3em;
-}
-.test-columns-3 {
-	column-width: 150px;
-	column-rule: 1px solid #bbb;
-	column-gap: 3em;
-}
-.test-columns-4 {
-	column-width: 150px;
-	column-rule: 1px solid #bbb;
-	column-gap: 3em;
-}
+/*  Remote Fonts
+font-family: 'Cormorant', serif;
+font-family: 'Inter', sans-serif;
+font-family: 'Special Elite', cursive;
+font-family: 'Halant', serif;
+font-family: 'Abhaya Libre', serif;
+font-family: 'Average Sans', sans-serif;
+font-family: 'Cambay', sans-serif;
+font-family: 'NTR', sans-serif;
+font-family: 'Rosarivo', serif;
+font-family: sans-serif;
+*/

@@ -147,21 +147,32 @@
 /* document defaults */
 
 html {
-	/* font-size: 12pt; */ /* root font size (rem) */ /* 0102 */
-	font-size: calc(15px + 0.390625vw); /* 0102 */
+	font-size: 12pt;
+	/* font-size: calc(12px + 0.390625vw); */
 	color: #000; /* default font color */
 	background-color: var(--viewport-background-color);
+
+	/* set default font size, followed by media-specific sizes */
+	/* body { font-size: calc(20px + 0.390625vw); } */
+	/* @media (min-width:700px) { body { font-size: 16px; } } */
+	/* @media (min-width:800px) { body { font-size: 25px; } } */
+	/* @media (min-width:900px) { body { font-size: 30px; } } */
+	/* @media (min-width:1024px) { body { font-size: 12px; } } */
+	/* @media (min-width:1280px) { body { font-size: 14px; } } */
 }
 
 /* body contains #header, #content, and #footer */
 
 body {
 	display: grid;
-	max-width: var(--content-width);
-	min-height: 95vh; 
-	margin: 0 auto; /* 'auto' centers body horizontally in window */
+	/* max-width: var(--content-width); */
+	max-width: 90vw;
+	/* min-height: 95vh; */
+	min-height: 90vh;
+	/* border: var(--diagnositic-border); */
+	/* margin: 0 auto; 'auto' centers body horizontally in window */
+	margin-inline: auto; /* to center the content on the screen */
 	padding: .5rem 0; /* 0102 */
-	border: var(--diagnositic-border);
 	gap: .5rem; /* 0102 */
 	grid-template-rows: auto 1fr auto; /* header, content, and footer */
 }
@@ -177,8 +188,8 @@ body {
 	color: var(--banner-text-color);
 	background-color: var(--banner-background-color);
 	border: var(--diagnositic-border);
-	border-radius: .5em;
-	padding: .5em 1.5em;
+	border-radius: .5rem;
+	padding: .5rem 1.5rem;
 	font-family: sans-serif;
 	font-size: 10pt;
 	font-weight: normal;
@@ -188,9 +199,9 @@ body {
 
 #content, #test-content {
 	display: block;
-	padding: 1em;
+	padding: 1rem;
 	border: var(--diagnositic-border);
-	border-radius: .5em;
+	border-radius: .5rem;
 	background-color: var(--content-background-color);
 }
 
@@ -202,13 +213,13 @@ body {
 	/* bottom: 0; */
 
 	display: grid;
-	gap: 1em;
+	gap: 1rem;
 	grid-template-columns: auto auto;
 	align-items: center; /* used to center the Bluesky icon vertically in the footer */
 
 	border: var(--diagnositic-border);
-	border-radius: .5em;
-	padding: .5em 1em;
+	border-radius: .5rem;
+	padding: .5rem 1rem;
 	color: var(--banner-text-color);
 	background-color: var(--banner-background-color);
 	font-family: sans-serif;
@@ -219,16 +230,16 @@ body {
 	float: right;
 }
 #footer-bluesky-image {
-	height: 2em;
+	height: 2rem;
 }
 
 #header-menu {
 	margin: 0;
-	padding: .5em;
+	padding: .5rem;
 }
 #header-menu li {
 	display: inline;
-	padding: .5em; /* spacing around menu items */
+	padding: .5rem; /* spacing around menu items */
 }
 #header-menu li a {
 	text-decoration: none;
@@ -244,9 +255,9 @@ body {
 	float: right; /* move input element to the right */
 }
 #annotate-button {
-	font-size: 1.5em;
+	font-size: 1.5rem;
 	position: relative;
-	bottom: .3em;
+	bottom: .3rem;
 	color: var(--banner-text-color);
 }
 /* #annotate-button a:hover { */
@@ -255,38 +266,37 @@ body {
 #header-input {
 	font-family: sans-serif;
 	font-size: 10pt;
-	padding: 0 .3em; /* padding inside the input box */
+	padding: 0 .3rem; /* padding inside the input box */
 	float: right; /* move input element to the right */
 }
 
-h1, h2, h3, h4, h5, h6 { font-family: sans-serif; font-weight: normal; }
-h1 { font-size: 1.7rem; }
-h2 { font-size: 1.2rem; }
+h1, h2, h3, h4, h5, h6, summary { font-family: sans-serif; font-weight: normal; }
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.25rem; }
 h3 { font-size: 1.1rem; }
-h4 { font-size: 1.0rem; }
-h5 { font-size: 0.9rem; padding: .3rem; font-weight: bold; }
+h4 { font-size: 1.0rem; font-weight: bold; }
+h5 { font-size: 0.9rem; padding: .3rem; }
 h6 { font-size: 0.8rem; padding: .2rem; }
+summary { font-size: 1.1rem; }
 h5, h6 {
-	width: -moz-fit-content; /* still required for Firefox? */
+	/* width: -moz-fit-content; still required for Firefox? */
+	color: #00f;
+	background-color: #eee;
 	width: fit-content;
 	border: 1px solid #aaa;
-	background-color: #eee;
-	color: #00f;
 }
 
 .sans-serif { font-family: sans-serif; }
 .italic { font-style: italic; }
 .small { font-size: small; }
 .single-space { margin: 0; }
-.pad-top { padding-top: 1em; }
+.pad-top { padding-top: 1rem; }
 .red { color: #f00; }
 .blue { color: #00f; }
 
-.simple-button { margin: 0 1em; font-size: .8em; }
+.simple-button { margin: 0 1rem; font-size: .8rem; }
 nav, article, main { display: block; }	
 nav { position: absolute; }
-summary { font-family: sans-serif; font-size: 1.1rem; } /* font-weight: 200; } */
-
 
 figure {
 	float: right;
@@ -309,10 +319,10 @@ code { /* inline <code></code> */
 pre code { /* fenced code blocks */
 	display: block;
 	border: 1px solid #bababa;
-	margin-left: 2em;
-	margin-right: 2em;
+	margin-left: 2rem;
+	margin-right: 2rem;
 	color: #080808;
-	padding: 1.5em;
+	padding: 1.5rem;
 }
 
 .input-form {
@@ -329,12 +339,12 @@ pre code { /* fenced code blocks */
 
 .left {
 	float: left;
-	padding: 0 1em 1em 0;
+	padding: 0 1rem 1rem 0;
 }
 
 .right {
 	float: right;
-	padding: 0 1em 1em 1em;
+	padding: 0 1rem 1rem 1rem;
 }
 
 .quote {
@@ -342,29 +352,29 @@ pre code { /* fenced code blocks */
 	width: -moz-fit-content; /* still required for Firefox? */
 	width: fit-content;
 
-	font-size: 90%;
-	margin: .5em 15em 1em 0;
-	padding: .2em 1em;
-	border: .5em ridge #bbd6f2;
+	font-size: .9rem;
+	margin: .5rem 15rem 1rem 0;
+	padding: .2rem 1rem;
+	border: .5rem ridge #bbd6f2;
 	background-color: #bbd6f2;
 }
 .quote .text {
 	margin-bottom: 0;
 }
 .quote .attribution {
-	font-size: 90%;
-	text-indent: 1em;
-	margin-top: .5em;
+	font-size: .9rem;
+	text-indent: 1rem;
+	margin-top: .5rem;
 }
 
 blockquote {
 	/* font: 14px/22px normal helvetica, sans-serif; */
-	font-size: 90%;
+	font-size: .9rem;
 	margin-top: 0;
 	margin-bottom: 0;
-	margin-left: 2em;
-	padding-left: 1em;
-	border-left: .5em solid #ccc;
+	margin-left: 2rem;
+	padding-left: 1rem;
+	border-left: .5rem solid #ccc;
 } 
 
 /* used in articles, panes */
@@ -372,22 +382,22 @@ blockquote {
 .article-header {
 	width: -moz-fit-content; /* still required for Firefox? */
 	width: fit-content;
-	padding: .5em 1em .5em 1em;
-	border-radius: .5em;
+	padding: .5rem 1rem .5rem 1rem;
+	border-radius: .5rem;
 	font-family: sans-serif;
-	font-size: .75em;
+	font-size: .75rem;
 	color: #eef;
 	background-color: #5480df;
 }
 
 .article-navigation-button {
-	margin: 0 .3em;
+	margin: 0 .3rem;
 }
 .article-navigation-progress {
-	margin: 0 .75em;
+	margin: 0 .75rem;
 	color: #00f;
 	font-family: sans-serif;
-	font-size: .75em;
+	font-size: .75rem;
 }
 
 /* used in camp, camping */
@@ -396,12 +406,12 @@ blockquote {
 .campsite-bad {background-color: #e9967a;}
 .campsite-limited {background-color: #c0c0c0;}
 table, th, td {border: 1px solid #000; border-collapse: collapse;}
-th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
-.campsite-comments {font-family: sans-serif; font-size: .75em;}
+th, td {font-family: sans-serif; font-size: .75rem; padding: 3px;}
+.campsite-comments {font-family: sans-serif; font-size: .75rem;}
 
 .radio-button {
 	color: #000;
-	margin: .3em;
+	margin: .3rem;
 }
 .radio-button.active {
 	color: #000;
@@ -426,7 +436,7 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 /* used in iching */
 
 .iching-range-item-select {
-	margin-left: .5em;
+	margin-left: .5rem;
 }
 .iching-range-display {
 	font-size: 48px;
@@ -460,7 +470,7 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	width: 50px;
 	height: 50px;
 	font-family: serif;
-	font-size: 3em;
+	font-size: 3rem;
 }
 .iching-tr {
 	max-height: 15px;
@@ -475,21 +485,21 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 
 #iching-range-type {
 	font-family: sans-serif;
-	padding-bottom: .5em;
+	padding-bottom: .5rem;
 }
 .iching-hexagram {
 	font-family: serif;
-	font-size: 3em;
-	line-height: 2em;
+	font-size: 3rem;
+	line-height: 2rem;
 }
 .iching-hexagram-chapter-name {
 	font-family: sans-serif;
-	font-size: 1.5em;
-	line-height: 2em;
+	font-size: 1.5rem;
+	line-height: 2rem;
 }
 .iching-heading {
 	font-family: sans-serif;
-	font-size: 1.2em;
+	font-size: 1.2rem;
 }
 .iching-verse {
 	font-style: italic;
@@ -498,21 +508,21 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 /* used in songbook */
 
 .song-title-link {
-	margin: .5em 1em;
+	margin: .5rem 1rem;
 }
 #song-error {
 	font-family: sans-serif;
-	font-size: 80%;
+	font-size: .8rem;
 	color: #f00;
 }
 #song-metadata {
 	font-family: sans-serif;
-	font-size: 80%;
+	font-size: .8rem;
 	margin-top: 0;
-	margin-bottom: 1.75em;
-	margin-left: .4em;
-	padding-left: .5em;
-	border-left: .4em solid #ccc;
+	margin-bottom: 1.75rem;
+	margin-left: .4rem;
+	padding-left: .5rem;
+	border-left: .4rem solid #ccc;
 }
 #song-sheet {
 	font-size: 9pt;

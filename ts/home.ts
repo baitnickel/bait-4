@@ -89,13 +89,13 @@ export function render() {
 		testers.push( { name: 'Park', function: testPark } );
 		testers.push( { name: 'Moments', function: testMoments } );
 		// testers.push( { name: 'IP', function: testIP } );
-		// testers.push( { name: 'Dialog', function: testDialog } );
+		testers.push( { name: 'Dialog', function: testDialog } );
 		// testers.push( { name: 'Radio', function: testRadio } );
 		testers.push( { name: 'Grid', function: gridTest } );
 		// testers.push( { name: 'Spinner', function: testSpinner } );
 		// testers.push( { name: 'Images', function: testImages } );
 		// testers.push( { name: 'Map', function: testMap } );
-		// testers.push( { name: 'Markdown', function: testMarkdown } );
+		testers.push( { name: 'Markdown', function: testMarkdown } );
 		// testers.push( { name: 'YAML', function: testYaml } );
 		// testers.push( { name: 'Email', function: testEmail } );
 		// testers.push( { name: 'Cookies', function: testCookies } );

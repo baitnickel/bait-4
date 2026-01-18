@@ -23,7 +23,21 @@
 # mark ("?") when the value is not known. Commas are not allowed in a field value;
 # other special characters (e.g., "&", "+", ";" are OK).
 
+# -Cabin 105 (July 22-28)
+# -10 (Jennifer)
+# -15
+# -43
+# -92
+# -103
+
 smitty:
+  # 2026
+  - { site: 10,   arrival: 2026-07-14, reserved: 7, cancelled: 0, modified: 0, purchaser: Jen, occupants: Jen/Jen & Tom }
+  - { site: 15,   arrival: 2026-07-16, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: P/? }
+  - { site: 43,   arrival: 2026-07-18, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: P/? }
+  - { site: 92,   arrival: 2026-07-17, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: P/? }
+  - { site: 103,  arrival: 2026-07-15, reserved: 7, cancelled: 0, modified: 0, purchaser: D, occupants: D/Zach; Becca }
+  - { site: J105, arrival: 2026-07-17, reserved: 7, cancelled: 0, modified: 1, purchaser: P, occupants: P/Pete & Joni }
   # 2025
   - { site: 10,   arrival: 2025-07-18, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: D/Zach & Wei }
   - { site: 28,   arrival: 2025-07-19, reserved: 7, cancelled: 7, modified: 1, purchaser: D/Zach, occupants: D/Dan & Laurel }

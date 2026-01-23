@@ -38,6 +38,7 @@ smitty:
   - { site: 43,   arrival: 2026-07-18, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: P/? }
   - { site: 92,   arrival: 2026-07-17, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: P/? }
   - { site: 95,   arrival: 2026-07-20, reserved: 7, cancelled: 0, modified: 0, purchaser: D/Laurel, occupants: D/? }
+  - { site: 100,  arrival: 2026-07-23, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: P/? }
   - { site: 103,  arrival: 2026-07-21, reserved: 7, cancelled: 0, modified: 1, purchaser: D, occupants: D/? }
   - { site: J105, arrival: 2026-07-22, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: P/Pete & Joni }
   # 2025

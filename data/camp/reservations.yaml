@@ -32,14 +32,13 @@
 
 smitty:
   # 2026
-  - { site: 10,   arrival: 2026-07-19, reserved: 7, cancelled: 0, modified: 1, purchaser: Jen, occupants: Jen/Jen & Tom }
-  - { site: 15,   arrival: 2026-07-22, reserved: 7, cancelled: 0, modified: 1, purchaser: P, occupants: P/? }
-  - { site: 33,   arrival: 2026-07-21, reserved: 7, cancelled: 0, modified: 0, purchaser: P/Joni, occupants: P/? }
-  - { site: 43,   arrival: 2026-07-18, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: P/? }
-  - { site: 92,   arrival: 2026-07-17, reserved: 7, cancelled: 7, modified: 0, purchaser: P, occupants: P/? }
-  - { site: 95,   arrival: 2026-07-20, reserved: 7, cancelled: 0, modified: 0, purchaser: D/Laurel, occupants: D/? }
-  - { site: 100,  arrival: 2026-07-23, reserved: 7, cancelled: 0, modified: 0, purchaser: P, occupants: P/? }
-  - { site: 103,  arrival: 2026-07-21, reserved: 7, cancelled: 0, modified: 1, purchaser: D, occupants: D/? }
+  - { site: 10,   arrival: 2026-07-25, reserved: 7, cancelled: 0, modified: 2, purchaser: Jen, occupants: Jen/Jen & Tom }
+  - { site: 15,   arrival: 2026-07-25, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: P/? }
+  - { site: 33,   arrival: 2026-07-25, reserved: 7, cancelled: 0, modified: 1, purchaser: P/Joni, occupants: P/? }
+  - { site: 95,   arrival: 2026-07-25, reserved: 7, cancelled: 0, modified: 1, purchaser: D/Laurel, occupants: D/? }
+  - { site: 100,  arrival: 2026-07-25, reserved: 7, cancelled: 0, modified: 1, purchaser: P, occupants: P/? }
+  - { site: 103,  arrival: 2026-07-25, reserved: 7, cancelled: 0, modified: 2, purchaser: D, occupants: D/? }
+  - { site: J24,  arrival: 2026-07-25, reserved: 7, cancelled: 0, modified: 1, purchaser: P, occupants: P/Dan & Laurel }
   - { site: J105, arrival: 2026-07-22, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: P/Pete & Joni }
   # 2025
   - { site: 10,   arrival: 2025-07-18, reserved: 7, cancelled: 0, modified: 2, purchaser: P, occupants: D/Zach & Wei }

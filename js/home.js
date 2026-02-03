@@ -5,7 +5,7 @@ import * as Datasets from './lib/datasets.js';
 import * as MD from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 import * as W from './lib/widgets.js';
-import { Moment } from './lib/moments.js';
+import { XDate } from './lib/xdate.js';
 import { Park } from './lib/parks.js';
 import { Instrument, Chord, SPN } from './lib/fakesheet.js';
 const PAGE = new Page();
@@ -75,7 +75,7 @@ export function render() {
         testers.push({ name: 'MIDI Notes', function: testMidiNotes });
         testers.push({ name: 'Table', function: testTable });
         testers.push({ name: 'Park', function: testPark });
-        testers.push({ name: 'Moments', function: testMoments });
+        testers.push({ name: 'XDates', function: testXDates });
         // testers.push( { name: 'IP', function: testIP } );
         testers.push({ name: 'Dialog', function: testDialog });
         // testers.push( { name: 'Radio', function: testRadio } );
@@ -287,15 +287,15 @@ function testPark(testOutput) {
     }
     PAGE.appendParagraph(testOutput, output);
 }
-function testMoments(testOutput) {
+function testXDates(testOutput) {
     const tests = ['1960', '1961.1.1', '1962/2/29', '3-1963', '21.6.1964', '1965/07/35', '1966/08/0', '1967/0', '1968:11:8', '149'];
     const output = [];
-    const moment = new Moment(new Date());
-    output.push(`(${moment.precision}) Now: ${moment.formatted()}`);
+    const xdate = new XDate();
+    output.push(`(${xdate.precision}) Now: ${xdate.formatted()}`);
     for (const test of tests) {
-        const moment = new Moment(test);
-        if (moment !== null)
-            output.push(`(${moment.precision}) ${test}: ${moment.formatted()}`);
+        const xdate = new XDate(test);
+        if (xdate !== null)
+            output.push(`(${xdate.precision}) ${test}: ${xdate.formatted()}`);
     }
     PAGE.appendParagraph(testOutput, output);
 }

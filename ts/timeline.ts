@@ -165,47 +165,6 @@ function getDateString(date: Date, precision: number) {
 	return dateString;
 }
 
-// /**
-//  * Given a `birthDate` and a `targetDate` (such as the current date), return a
-//  * string representing the age of the person whose birth date you've entered.
-//  * Age is returned as a string--an integer if the target month and day is the
-//  * same as the birth month and day, otherwise a number with a single, unrounded
-//  * decimal place (.0 to .9).
-//  */
-// function getAge(birthDate: Date, targetDate: Date) {
-// 	let age = '';
-// 	// const targetMonth = targetDate.getMonth();
-// 	// const targetDay = targetDate.getDate();
-// 	// const targetYear = targetDate.getFullYear();
-// 	// const birthMonth = birthDate.getMonth();
-// 	// const birthDay = birthDate.getDate();
-// 	// const birthYear = birthDate.getFullYear();
-
-// 	// const yearsDifference = targetYear - birthYear;
-// 	// /** calculate days into year for both dates, pretending they are in the same leap year */
-// 	// const dailyMilliseconds = 24 * 60 * 60 * 1000;
-// 	// const startOfYear = Date.UTC(2000, 0, 0);
-// 	// const targetDayNumber = (Date.UTC(2000, targetMonth, targetDay) - startOfYear) / dailyMilliseconds;
-// 	// const birthDayNumber = (Date.UTC(2000, birthMonth, birthDay) - startOfYear) / dailyMilliseconds;
-// 	// const daysDifferent = targetDayNumber - birthDayNumber;
-// 	// if (daysDifferent == 0) age = `${yearsDifference}`; /** exact birthday */
-// 	// else if (daysDifferent < 0) { /** target is earlier than birthday */
-// 	// 	const fraction = ((366 - Math.abs(daysDifferent)) / 366).toString().substring(1, 3);
-// 	// 	age = `${yearsDifference - 1}${fraction}`;
-// 	// }
-// 	// else { /** target is later than birthday */
-// 	// 	const fraction = (daysDifferent / 366).toString().substring(1, 3);
-// 	// 	age = `${yearsDifference}${fraction}`;
-// 	// }
-// 	const dailyMilliseconds = 24 * 60 * 60 * 1000;
-// 	const millisecondsDifferent = targetDate.valueOf() - birthDate.valueOf();
-// 	const daysDifferent = millisecondsDifferent / dailyMilliseconds;
-// 	const yearsDifferent = daysDifferent / 365.25;
-// 	const decimalPlaces = (birthDate.getMonth() == targetDate.getMonth() && birthDate.getDate() == targetDate.getDate()) ? 0 : 1;
-// 	age = yearsDifferent.toFixed(decimalPlaces);
-// 	return age;
-// }
-
 /**
  * Given a `birthDate`, return the school grade that a person born on this
  * date would typically be attending at the time of `this` event. We make

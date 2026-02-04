@@ -111,7 +111,8 @@ function displayGrid(container, timedEvents, birthday) {
         const description = MarkupLine(timedEvent.description, 'met');
         let ageGrade = '';
         if (birthday !== null) {
-            const age = XDate.yearsDifferent(birthday, date);
+            // const age = XDate.yearsDifferent(birthday, date);
+            const age = birthday.until(date).toFixed(1);
             const grade = getGrade(birthday, date);
             ageGrade = (grade) ? `${age} (${grade})` : `${age}`;
         }
@@ -165,7 +166,8 @@ function getGrade(birthDate, targetDate) {
         /** this year's cutoff date is in the future; use last year's cutoff date */
         cutoff = new Date(targetDate.getFullYear() - 1, cutoffMonth, cutoffDay);
     }
-    const ageAtCutoff = Math.floor(Number(XDate.yearsDifferent(birthDate, cutoff)));
+    // const ageAtCutoff = Math.floor(Number(XDate.yearsDifferent(birthDate, cutoff)));
+    const ageAtCutoff = Math.floor(birthDate.until(cutoff));
     const delta = 5;
     const ageDelta = ageAtCutoff - delta;
     if (ageDelta >= 0 && ageDelta < grades.length)

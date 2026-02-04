@@ -129,7 +129,7 @@ function filterEvents(timedEvents: T.TimedEvent[], options: TimelineOptions) {
 	return timedEvents;
 }
 
-function displayGrid(container: HTMLElement, timedEvents: T.TimedEvent[], birthday: Date|null) {
+function displayGrid(container: HTMLElement, timedEvents: T.TimedEvent[], birthday: XDate|null) {
 	container.innerHTML = '';
 	for (const timedEvent of timedEvents) {
 		const date = new Date(timedEvent.dateValue);
@@ -137,7 +137,8 @@ function displayGrid(container: HTMLElement, timedEvents: T.TimedEvent[], birthd
 		const description = MarkupLine(timedEvent.description, 'met');
 		let ageGrade = '';
 		if (birthday !== null) {
-			const age = XDate.yearsDifferent(birthday, date);
+			// const age = XDate.yearsDifferent(birthday, date);
+			const age = birthday.until(date).toFixed(1);
 			const grade = getGrade(birthday, date);
 			ageGrade = (grade) ? `${age} (${grade})` : `${age}`;
 		}
@@ -173,7 +174,7 @@ function getDateString(date: Date, precision: number) {
  * years of college. (To be more exact would require passing in a profile
  * containing dates for each grade.)
  */
-function getGrade(birthDate: Date, targetDate: Date) {
+function getGrade(birthDate: XDate, targetDate: Date) {
 	let grade = '';
 	const grades = ['K','1','2','3','4','5','6','7','8','9','10','11','12','FR','SO','JR','SR'];
 	/** using kindergarten cutoff date: Sep 1 */
@@ -185,7 +186,8 @@ function getGrade(birthDate: Date, targetDate: Date) {
 		/** this year's cutoff date is in the future; use last year's cutoff date */
 		cutoff = new Date(targetDate.getFullYear() - 1, cutoffMonth, cutoffDay);
 	}
-	const ageAtCutoff = Math.floor(Number(XDate.yearsDifferent(birthDate, cutoff)));
+	// const ageAtCutoff = Math.floor(Number(XDate.yearsDifferent(birthDate, cutoff)));
+	const ageAtCutoff = Math.floor(birthDate.until(cutoff));
 	const delta = 5;
 	const ageDelta = ageAtCutoff - delta;
 	if (ageDelta >= 0  && ageDelta < grades.length) grade = grades[ageDelta];

@@ -4,7 +4,8 @@ const XDateString = new RegExp('(^' + D + '$)|(^' + D + S + D + '$)|(^' + D + S 
 const Separator = new RegExp(S);
 /**
  * XDate is a custom extension of the standard Date class. You may use all Date
- * methods on an XDate.
+ * methods on an XDate. An XDate represents an instant in time with millisecond
+ * granularity (similar to a Temporal.Instant object).
  *
  * XDate supports several custom string constructors, using the following
  * Y(ear), M(onth), D(ay) patterns:
@@ -20,6 +21,8 @@ const Separator = new RegExp(S);
  */
 export class XDate extends Date {
     precision; /** for string date, the number of YMD elements provided; else 6 */
+    leapYear;
+    daysIntoYear;
     constructor(...args) {
         let precision = 6;
         const numberArgs = args.filter((arg) => !isNaN(arg));
@@ -52,6 +55,75 @@ export class XDate extends Date {
         else
             super();
         this.precision = precision;
+        const year = this.getFullYear();
+        this.leapYear = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
+        this.daysIntoYear = (Date.UTC(year, this.getMonth(), this.getDate()) - Date.UTC(year, 0, 0)) / 24 / 60 / 60 / 1000;
+    }
+    /**
+     * Given a Date, return a number representing the time difference between
+     * this Date and the given Date. The difference is positive if the other
+     * Date is before this Date, and negative if after ("this - other"). The
+     * difference is expressed in the given Units (default is years).
+     */
+    since(otherDate, units = 'years') {
+        const milliseconds = this.valueOf() - otherDate.valueOf();
+        return this.difference(milliseconds, otherDate, units);
+    }
+    until(otherDate, units = 'years') {
+        const milliseconds = otherDate.valueOf() - this.valueOf();
+        return this.difference(milliseconds, otherDate, units);
+    }
+    difference(milliseconds, otherDate, units = 'years') {
+        if (units == 'milliseconds')
+            return milliseconds;
+        const seconds = milliseconds / 1000;
+        if (units == 'seconds')
+            return seconds;
+        const minutes = seconds / 60;
+        if (units == 'minutes')
+            return minutes;
+        const hours = minutes / 60;
+        if (units == 'hours')
+            return hours;
+        const days = hours / 24;
+        if (units == 'days')
+            return days;
+        const weeks = (this.getDay() == otherDate.getDay()) ? Math.round(days / 7) : days / 7;
+        if (units == 'weeks') {
+            return weeks;
+        }
+        const sameDay = this.getDate() == otherDate.getDate();
+        const months = (sameDay) ? Math.round(days / 30.4375) : days / 30.4375; /** average number of days in a month */
+        if (units == 'months')
+            return months;
+        const sameDate = this.getMonth() == otherDate.getMonth() && this.getDate() == otherDate.getDate();
+        const years = (sameDate) ? Math.round(days / 365.25) : days / 365.25; /** average number of days in a year */
+        return years;
+    }
+    /**
+     * Given a `duration` of the specified `units` add the duration to this
+     * XDate and return the resulting XDate. A negative duration subtracts the
+     * duration from the date.
+     */
+    add(duration, units = 'years') {
+        const newDate = new XDate(this.valueOf()); /** clone this date */
+        if (units == 'milliseconds')
+            newDate.setTime(newDate.getTime() + duration);
+        else if (units == 'seconds')
+            newDate.setSeconds(newDate.getSeconds() + duration);
+        else if (units == 'minutes')
+            newDate.setMinutes(newDate.getMinutes() + duration);
+        else if (units == 'hours')
+            newDate.setHours(newDate.getHours() + duration);
+        else if (units == 'days')
+            newDate.setDate(newDate.getDate() + duration);
+        else if (units == 'weeks')
+            newDate.setDate(newDate.getDate() + (duration * 7));
+        else if (units == 'months')
+            newDate.setMonth(newDate.getMonth() + duration);
+        else
+            newDate.setFullYear(newDate.getFullYear() + duration);
+        return newDate;
     }
     /**
      * Return a formatted string representing the XDate. When the date has been
@@ -124,7 +196,7 @@ export class XDate extends Date {
         let validity = false;
         if (month < 1 || month > 12 || day < 1 || day > 31)
             return validity;
-        let leapYear = (year % 4 == 0 && year % 400 != 0);
+        let leapYear = (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0));
         if (month == 2) {
             if (day <= 28 || (leapYear && day <= 29))
                 validity = true;
@@ -135,20 +207,23 @@ export class XDate extends Date {
             validity = true;
         return validity;
     }
-    /**
-     * Given a `baseDate` and a `targetDate` (such as a birthday and the current
-     * date), return a string representing the number of years between them
-     * (targetDate - baseDate)--an integer if the base month and day is the same
-     * as the target month and day, otherwise a number with a single decimal
-     * place (.0 to .9). When `baseDate` is a person's birth date, the returned
-     * value represents the age of the person as of the `targetDate`.
-     */
-    static yearsDifferent(baseDate, targetDate) {
-        const dailyMilliseconds = 24 * 60 * 60 * 1000;
-        const millisecondsDifferent = targetDate.valueOf() - baseDate.valueOf();
-        const daysDifferent = millisecondsDifferent / dailyMilliseconds;
-        const yearsDifferent = daysDifferent / 365.25;
-        const decimalPlaces = (baseDate.getMonth() == targetDate.getMonth() && baseDate.getDate() == targetDate.getDate()) ? 0 : 1;
-        return yearsDifferent.toFixed(decimalPlaces);
+    /** Return a date far in the future */
+    static futureDate() {
+        return new Date(9999, 0);
     }
 }
+// const birthday = new XDate(1952, 5, 21);
+// const afterwards = new XDate(1955, 7, 21);
+// console.log(afterwards.since(birthday, 'months').toFixed(1));
+// for (let year = 1990; year < 2015; year += 1) {
+// 	const xdate = new XDate(year, 11 ,31);
+// 	const leap = (xdate.leapYear) ? 'leap' : '';
+// 	console.log(xdate.formatted(), xdate.daysIntoYear, leap);
+// }
+// const xdate = new XDate(2020, 1, 29, 23, 30);
+// const adjustedDate = xdate.add(121, 'minutes');
+// console.log(`${xdate.formatted()} -> ${adjustedDate.formatted()}`);
+/**
+ * static futureDate
+ * timeline use XDate
+ */ 

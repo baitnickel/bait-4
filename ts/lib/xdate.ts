@@ -191,24 +191,97 @@ export class XDate extends Date {
 	static futureDate() {
 		return new Date(9999, 0);
 	}
-
-	// /**
-	//  * Given a `baseDate` and a `targetDate` (such as a birthday and the current
-	//  * date), return a string representing the number of years between them
-	//  * (targetDate - baseDate)--an integer if the base month and day is the same
-	//  * as the target month and day, otherwise a number with a single decimal
-	//  * place (.0 to .9). When `baseDate` is a person's birth date, the returned
-	//  * value represents the age of the person as of the `targetDate`.
-	//  */
-	// static yearsDifferent(baseDate: Date, targetDate: Date) {
-	// 	const dailyMilliseconds = 24 * 60 * 60 * 1000;
-	// 	const millisecondsDifferent = targetDate.valueOf() - baseDate.valueOf();
-	// 	const daysDifferent = millisecondsDifferent / dailyMilliseconds;
-	// 	const yearsDifferent = daysDifferent / 365.25;
-	// 	const decimalPlaces = (baseDate.getMonth() == targetDate.getMonth() && baseDate.getDate() == targetDate.getDate()) ? 0 : 1;
-	// 	return yearsDifferent.toFixed(decimalPlaces);
-	// }
 }
+
+/**
+ * A Duration represents a difference between two time points, which can be used
+ * in date/time arithmetic. It is fundamentally represented as a combination of
+ * years, months, weeks, days, hours, minutes, seconds, milliseconds. Examples:
+ * 
+ * - P1Y1M1DT1H1M1.1S (1 yr, 1 mo, 1 day, 1 hr, 1 min, 1 sec, and 100 ms)
+ * - P1M (1 month)
+ * - PT1M (1 minute)
+ * - P40D (40 days)
+ * - PT0S (zero)
+ * - P0D (zero)
+ * - +P40D (ISO extension: plus 40 days)
+ * - -P40D (ISO extension: minus 40 days)
+ * - P3W1D (ISO extension: 3 weeks and 1 day)
+ * 
+ * See: https://en.wikipedia.org/wiki/ISO_8601#Durations
+ */
+export class Duration {
+	years: number;
+	months: number;
+	weeks: number;
+	days: number;
+	hours: number;
+	minutes: number;
+	seconds: number;
+	negative: boolean;
+
+	constructor(value: string) {
+		this.years = 0;
+		this.months = 0;
+		this.weeks = 0;
+		this.days = 0;
+		this.hours = 0;
+		this.minutes = 0;
+		this.seconds = 0;
+		this.negative = false;
+		this.parse(value);
+	}
+
+	/**
+	 * Parse an ISO duration format string to extract date/time values. The
+	 * `durationFormat` string consists of one or two date and time segments
+	 * separated by a literal 'T'.
+	 */
+	parse(durationFormat: string) {
+		durationFormat = durationFormat.toUpperCase();
+		if (durationFormat[0] == '-' || durationFormat[0] == '+') {
+			this.negative = (durationFormat[0] == '-');
+			durationFormat = durationFormat.slice(1); /** peel off sign */
+		}
+		if (durationFormat[0] == 'P') {
+			durationFormat = durationFormat.slice(1); /** peel off 'P' */
+			const segments = durationFormat.split(/T/);
+			/** pattern[0] for the date segment, and pattern[1] for the time segment */
+			const patterns = [/(\d+Y)*(\d+M)*(\d+W)*(\d+D)*/g, /(\d+H)*(\d+M)*([\d\.]+S)*/g];
+			for (let i = 0; i < 2; i += 1) {
+				if (segments[i]) {
+					const matches = patterns[i].exec(segments[i]);
+					if (matches) {
+						for (let j = 1; j < matches.length; j += 1) {
+							if (matches[j]) {
+								const unit = matches[j].slice(-1);
+								const number = matches[j].slice(0, -1);
+								if (!isNaN(Number(number))) {
+									if (i == 0 && unit == 'Y') this.years = Number(number);
+									else if (i == 0 && unit == 'M') this.months = Number(number);
+									else if (i == 0 && unit == 'W') this.weeks = Number(number);
+									else if (i == 0 && unit == 'D') this.days = Number(number);
+									else if (i == 1 && unit == 'H') this.hours = Number(number);
+									else if (i == 1 && unit == 'M') this.minutes = Number(number);
+									else if (i == 1 && unit == 'S') this.seconds = Number(number);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// static yearsDifferent(baseDate: Date, targetDate: Date) {
+// 	const dailyMilliseconds = 24 * 60 * 60 * 1000;
+// 	const millisecondsDifferent = targetDate.valueOf() - baseDate.valueOf();
+// 	const daysDifferent = millisecondsDifferent / dailyMilliseconds;
+// 	const yearsDifferent = daysDifferent / 365.25;
+// 	const decimalPlaces = (baseDate.getMonth() == targetDate.getMonth() && baseDate.getDate() == targetDate.getDate()) ? 0 : 1;
+// 	return yearsDifferent.toFixed(decimalPlaces);
+// }
 
 // const birthday = new XDate(1952, 5, 21);
 // const afterwards = new XDate(1955, 7, 21);
@@ -228,3 +301,10 @@ export class XDate extends Date {
  * static futureDate
  * timeline use XDate
  */
+
+// const values = ['P1Y2M3DT4H5M6.7S', 'P1M', 'PT1M', 'P40D', 'PT0S', 'P0D', '+P40D', '-P40D', 'P3W1D', 'X'];
+// for (const value of values) {
+// 	const duration = new Duration(value);
+// 	const negative = (duration.negative) ? '-' : '';
+// 	console.log(`${value}: ${negative}${duration.years}Y ${duration.months}M ${duration.weeks}W ${duration.days}D ${duration.hours}H ${duration.minutes}M ${duration.seconds}S `);
+// }

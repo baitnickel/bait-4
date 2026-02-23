@@ -5,7 +5,7 @@ import * as Datasets from './lib/datasets.js';
 import * as MD from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 import * as W from './lib/widgets.js';
-import { XDate } from './lib/xdate.js';
+import { Instant } from './lib/xdate.js';
 import { Park } from './lib/parks.js';
 import { Instrument, Chord, SPN } from './lib/fakesheet.js';
 import * as G from './lib/graphics.js';
@@ -322,12 +322,12 @@ function testPark(testOutput: HTMLDivElement) {
 }
 
 function testXDates(testOutput: HTMLDivElement) {
-	const tests = ['1960', '1961.1.1', '1962/2/29', '3-1963', '21.6.1964', '1965/07/35', '1966/08/0', '1967/0', '1968:11:8', '149'];
+	const tests = ['1960', '1961/1/1', '1962/2/29', '3/1963', '21/6/1964', '1965/07/35', '1966/08/0', '1967/0', '1968/11/8', '149'];
 	const output: string[] = [];
-	const xdate = new XDate();
+	const xdate = new Instant();
 	output.push(`(${xdate.precision}) Now: ${xdate.formatted()}`);
 	for (const test of tests) {
-		const xdate = new XDate(test);
+		const xdate = new Instant(test);
 		if (xdate !== null) output.push(`(${xdate.precision}) ${test}: ${xdate.formatted()}`);
 	}
 	PAGE.appendParagraph(testOutput, output);

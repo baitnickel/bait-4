@@ -2,7 +2,7 @@ import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
-import { XDate } from './lib/xdate.js';
+import { Instant } from './lib/xdate.js';
 import { MarkupLine } from './lib/markup.js';
 const PAGE = new Page(true);
 if (!PAGE.backendAvailable) {
@@ -67,7 +67,7 @@ function processTimedEvents(options) {
                 result = (options.sortAscending) ? a.precision - b.precision : b.precision - a.precision;
             return result;
         });
-        const birthdate = new XDate(options.birthdate);
+        const birthdate = new Instant(options.birthdate);
         displayGrid(TimelineElement, timedEvents, birthdate);
     }
 }
@@ -106,12 +106,12 @@ function filterEvents(timedEvents, options) {
 function displayGrid(container, timedEvents, birthday) {
     container.innerHTML = '';
     for (const timedEvent of timedEvents) {
-        const date = new Date(timedEvent.dateValue);
+        const date = new Instant(timedEvent.dateValue);
         const dateString = getDateString(date, timedEvent.precision);
         const description = MarkupLine(timedEvent.description, 'met');
         let ageGrade = '';
         if (birthday !== null) {
-            // const age = XDate.yearsDifferent(birthday, date);
+            // const age = Instant.yearsDifferent(birthday, date);
             const age = birthday.until(date).toFixed(1);
             const grade = getGrade(birthday, date);
             ageGrade = (grade) ? `${age} (${grade})` : `${age}`;
@@ -161,12 +161,12 @@ function getGrade(birthDate, targetDate) {
     const cutoffMonth = 8; /** month offset */
     const cutoffDay = 1;
     /** get the most recently past cutoff date */
-    let cutoff = new Date(targetDate.getFullYear(), cutoffMonth, cutoffDay);
+    let cutoff = new Instant(`${targetDate.getFullYear()}/${cutoffMonth}/${cutoffDay}`);
     if (cutoff.valueOf() > targetDate.valueOf()) {
         /** this year's cutoff date is in the future; use last year's cutoff date */
-        cutoff = new Date(targetDate.getFullYear() - 1, cutoffMonth, cutoffDay);
+        cutoff = new Instant(`${targetDate.getFullYear() - 1}/${cutoffMonth}/${cutoffDay}`);
     }
-    // const ageAtCutoff = Math.floor(Number(XDate.yearsDifferent(birthDate, cutoff)));
+    // const ageAtCutoff = Math.floor(Number(Instant.yearsDifferent(birthDate, cutoff)));
     const ageAtCutoff = Math.floor(birthDate.until(cutoff));
     const delta = 5;
     const ageDelta = ageAtCutoff - delta;

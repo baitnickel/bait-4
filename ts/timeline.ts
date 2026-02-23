@@ -2,7 +2,7 @@ import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
-import { XDate } from './lib/xdate.js';
+import { Instant } from './lib/xdate.js';
 import { MarkupLine } from './lib/markup.js';
 
 /**
@@ -93,7 +93,7 @@ function processTimedEvents(options: TimelineOptions) {
 			if (!result) result = (options.sortAscending) ? a.precision - b.precision : b.precision - a.precision;
 			return result;
 		});
-		const birthdate = new XDate(options.birthdate);
+		const birthdate = new Instant(options.birthdate);
 		displayGrid(TimelineElement, timedEvents, birthdate);
 	}
 }
@@ -129,15 +129,15 @@ function filterEvents(timedEvents: T.TimedEvent[], options: TimelineOptions) {
 	return timedEvents;
 }
 
-function displayGrid(container: HTMLElement, timedEvents: T.TimedEvent[], birthday: XDate|null) {
+function displayGrid(container: HTMLElement, timedEvents: T.TimedEvent[], birthday: Instant|null) {
 	container.innerHTML = '';
 	for (const timedEvent of timedEvents) {
-		const date = new Date(timedEvent.dateValue);
+		const date = new Instant(timedEvent.dateValue);
 		const dateString = getDateString(date, timedEvent.precision)
 		const description = MarkupLine(timedEvent.description, 'met');
 		let ageGrade = '';
 		if (birthday !== null) {
-			// const age = XDate.yearsDifferent(birthday, date);
+			// const age = Instant.yearsDifferent(birthday, date);
 			const age = birthday.until(date).toFixed(1);
 			const grade = getGrade(birthday, date);
 			ageGrade = (grade) ? `${age} (${grade})` : `${age}`;
@@ -174,19 +174,19 @@ function getDateString(date: Date, precision: number) {
  * years of college. (To be more exact would require passing in a profile
  * containing dates for each grade.)
  */
-function getGrade(birthDate: XDate, targetDate: Date) {
+function getGrade(birthDate: Instant, targetDate: Date) {
 	let grade = '';
 	const grades = ['K','1','2','3','4','5','6','7','8','9','10','11','12','FR','SO','JR','SR'];
 	/** using kindergarten cutoff date: Sep 1 */
 	const cutoffMonth = 8; /** month offset */
 	const cutoffDay = 1;
 	/** get the most recently past cutoff date */
-	let cutoff = new Date(targetDate.getFullYear(), cutoffMonth, cutoffDay);
+	let cutoff = new Instant(`${targetDate.getFullYear()}/${cutoffMonth}/${cutoffDay}`);
 	if (cutoff.valueOf() > targetDate.valueOf()) {
 		/** this year's cutoff date is in the future; use last year's cutoff date */
-		cutoff = new Date(targetDate.getFullYear() - 1, cutoffMonth, cutoffDay);
+		cutoff = new Instant(`${targetDate.getFullYear() - 1}/${cutoffMonth}/${cutoffDay}`);
 	}
-	// const ageAtCutoff = Math.floor(Number(XDate.yearsDifferent(birthDate, cutoff)));
+	// const ageAtCutoff = Math.floor(Number(Instant.yearsDifferent(birthDate, cutoff)));
 	const ageAtCutoff = Math.floor(birthDate.until(cutoff));
 	const delta = 5;
 	const ageDelta = ageAtCutoff - delta;

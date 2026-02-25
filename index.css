@@ -541,12 +541,14 @@ dialog.threads-dialog button {
 }
 
 .timeline-query-element button { margin-bottom: 1rem; }
+.timeline-date { white-space: nowrap; text-align: right; }
+.timeline-age { white-space: nowrap; }
+
+/* DEPRECATED
 .timeline-container {
 	display: grid;
-	grid-template-columns: 2fr 8fr 1fr;
-	/* background-color: dodgerblue; */
+	grid-template-columns: .3fr 2fr 8fr 1fr;
 	font-family: sans-serif;
-	/* padding: 3px; */
 }
 .timeline-date {
 	background-color: lightgray;
@@ -562,13 +564,14 @@ dialog.threads-dialog button {
 	font-size: .75rem;
 	text-align: left;
 }
-.timeline-age {
+.timeline-age, .timeline-type {
 	background-color: lightgray;
 	border: 1px solid gray;
 	padding: .25rem;
 	font-size: .75rem;
 	text-align: left;
 }
+*/
 
 /*
 font-family: 'Cormorant', serif;

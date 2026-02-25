@@ -321,11 +321,15 @@ export class Table {
     /**
      * Add a new cell to the current row (this.row). Optional attributes may be
      * supplied in key:value strings (a single string or an array of strings).
+     * Set the `html` argument to true if the cell text contains HTML.
      */
-    addCell(text, attributes = []) {
+    addCell(text, attributes = [], html = false) {
         const cellType = (this.row && this.row.cells.length < this.rowHeadings) ? 'th' : 'td';
         const cell = document.createElement(cellType);
-        cell.innerText = text;
+        if (html)
+            cell.innerHTML = text;
+        else
+            cell.innerText = text;
         if (typeof attributes == 'string')
             attributes = [attributes];
         this.applyAttributes(cell, attributes);
@@ -337,16 +341,20 @@ export class Table {
      * Given a `table` element, set the table's column and row data from the
      * rows and cells previously added to the object. The `table` parameter is
      * optional, and if it is not provided, a new table will be created and may
-     * be referenced in the object's `element` property.
+     * be referenced in the object's `element` property. Set the `html` argument
+     * to true if the any of the heading texts contain HTML.
      */
-    fillTable(table = null) {
+    fillTable(table = null, html = false) {
         if (table === null)
             table = this.element;
         table.innerHTML = '';
         const row = document.createElement('tr');
         for (const headingValue of this.headingValues) {
             const cell = document.createElement('th');
-            cell.innerText = headingValue;
+            if (html)
+                cell.innerHTML = headingValue;
+            else
+                cell.innerText = headingValue;
             row.append(cell);
         }
         table.append(row);

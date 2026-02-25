@@ -1,4 +1,3 @@
-import { Instant } from './xdate.js';
 /**
  * General Type definitions used by both command line scripts and website code.
  * Also contains functions--it is not to be regarded as merely a type
@@ -419,13 +418,15 @@ export type TimedEvent = {
 	note: string; /** markdown */
 }
 export type Event = { /** replaces TimedEvent */
-	instant: Instant;
+	instantString: string;
+	instantValue: number|null;
 	precision: string; /** YMDhms, Y, YM, YMD, M, MY, MD, MDY */
 	approximate: boolean;
 	personal: boolean;
+	typeIcon: string;
 	description: string; /** markdown */
 	note: string; /** markdown */
-	age: number;
+	age: number|null;
 	grade: string;
 	ageGrade: string; /** age and grade formatted in one string */
 }
@@ -434,7 +435,7 @@ export type EventOptions = {
 	from: string;  /** Instant string, e.g. '12/31/2000' */
 	until: string; /** Instant string, e.g. '12/31/2000' */
 	keywords: string;
-	eventTypes: string
+	eventTypes: string;
 	birthdate: string;
 	sortAscending: boolean;
 }

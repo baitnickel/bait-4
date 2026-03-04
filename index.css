@@ -540,7 +540,17 @@ dialog.threads-dialog button {
 	gap: .5rem;
 }
 
-.timeline-query-element button { margin-bottom: 1rem; }
+.timeline-query-button {
+	position: fixed;
+	/* margin: 1rem; */
+	display: block;
+	padding: .5rem;
+	border: var(--diagnositic-border);
+	border-radius: .5rem;
+	background-color: var(--content-background-color);
+};
+.timeline-query-element button { margin: 1rem; }
+/* .timeline-element { position: relative; display: block; } damn! I just want this div below the query button! */
 .timeline-date { white-space: nowrap; text-align: right; }
 .timeline-age { white-space: nowrap; }
 

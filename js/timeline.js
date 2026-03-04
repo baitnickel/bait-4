@@ -46,14 +46,22 @@ const EventOptions = {
 };
 const ApiRoute = 'events';
 const Options = EventOptions;
+const QueryButtonElement = document.createElement('div');
+QueryButtonElement.classList.add('timeline-query-button');
 const QueryElement = document.createElement('div');
 QueryElement.className = 'timeline-query-element';
 const TimelineElement = document.createElement('div');
+TimelineElement.className = 'timeline-element';
 export function render() {
-    PAGE.content.append(QueryElement);
+    // PAGE.content.after(PAGE.header);
+    PAGE.content.append(QueryButtonElement);
+    // PAGE.content.after(QueryButtonElement);
     PAGE.content.append(TimelineElement);
+    PAGE.content.append(QueryElement);
+    // TimelineElement.after(QueryButtonElement);
     const dialog = createModalDialog(Options);
     addQueryButton(dialog);
+    dialog.element.showModal();
 }
 function createModalDialog(Options) {
     const dialog = new W.Dialog('Timeline Options');
@@ -77,7 +85,7 @@ function createModalDialog(Options) {
 function addQueryButton(dialog) {
     const queryButton = document.createElement('button');
     queryButton.innerText = 'Timeline Query';
-    QueryElement.append(queryButton);
+    QueryButtonElement.append(queryButton);
     queryButton.addEventListener('click', (e) => {
         dialog.element.showModal();
     });

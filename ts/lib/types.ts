@@ -423,6 +423,7 @@ export type Event = { /** replaces TimedEvent */
 	precision: string; /** YMDhms, Y, YM, YMD, M, MY, MD, MDY */
 	approximate: boolean;
 	personal: boolean;
+	private: boolean;
 	typeIcon: string;
 	description: string; /** markdown */
 	note: string; /** markdown */
@@ -439,7 +440,7 @@ export type EventOptions = {
 	birthdate: string;
 	sortAscending: boolean;
 }
-export const EventTypes = ['All', 'Historical', 'Personal'];
+export const EventTypes = ['All', 'Historical', 'Personal', 'Private'];
 
 /** for `media/images` API */
 export type MediaImageData = {

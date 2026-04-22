@@ -194,6 +194,9 @@ pre code { /* fenced code blocks */
 	padding: 1.5em;
 }
 
+.iching-tao-button {
+	margin-bottom: 2em;
+}
 .iching-range-item-select {
 	margin-left: .5em;
 }

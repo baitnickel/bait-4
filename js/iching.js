@@ -3,6 +3,7 @@ import * as Fetch from './lib/fetch.js';
 import { Range, Dice, Coins } from './lib/ranges.js';
 import { Markup } from './lib/markup.js';
 const ThisPage = new Page();
+let TaoButtonDivision;
 let RangeTypeSelection;
 let RangeValueSelection;
 let RangeValueDisplay;
@@ -49,6 +50,8 @@ let range = newRange(Array.from(RangeTypes.keys())[0], NumberOfChapters);
 export function render() {
     ThisPage.setTitle(DefaultTitle);
     ThisPage.addHeading('I Ching: The Book of Changes');
+    TaoButtonDivision = document.createElement('div');
+    ThisPage.content.append(TaoButtonDivision);
     RangeTypeSelection = document.createElement('div');
     RangeTypeSelection.id = 'iching-range-type';
     ThisPage.content.append(RangeTypeSelection);
@@ -72,6 +75,11 @@ export function render() {
     Tables.append(Table3);
     ThisPage.content.append(Tables);
     */
+    /**
+     * Display the Tao button--the option to generate the hexagon using natural
+     * circumstances: the time of day, the lunar phase, the season of the year.
+     */
+    createTaoButton();
     /**
      * Clear the `RangeValueSelection`, `RangeValueDisplay`, and `IChingDisplay`
      * divisions, and create the widgets in `RangeValueSelection` that will be
@@ -172,6 +180,22 @@ function dropDownValues(dropdowns) {
         values.push(Number(dropdown.value));
     }
     return values;
+}
+/**
+ * Create the Tao Button. We're using California values for `utcOffset` and
+ * 'hemisphere` ("N" for North, "S" for South).
+ */
+function createTaoButton(utcOffset = 8, hemisphere = 'N') {
+    let timeValue = 0;
+    let lunarValue = 0;
+    let seasonValue = 0;
+    const now = new Date();
+    const taoButton = document.createElement('button');
+    taoButton.className = 'iching-tao-button';
+    taoButton.innerHTML = 'Go with the Flow';
+    TaoButtonDivision.append(taoButton);
+    taoButton.addEventListener('click', () => {
+    });
 }
 /**
  * Given the desired number of `rows` and `columns`, and a `tableClass` name,

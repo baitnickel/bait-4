@@ -76,6 +76,7 @@ export function render() {
         testers.push({ name: 'Table', function: testTable });
         testers.push({ name: 'Park', function: testPark });
         testers.push({ name: 'XDates', function: testXDates });
+        testers.push({ name: 'UTC', function: testUTC });
         // testers.push( { name: 'IP', function: testIP } );
         testers.push({ name: 'Dialog', function: testDialog });
         // testers.push( { name: 'Radio', function: testRadio } );
@@ -298,6 +299,19 @@ function testXDates(testOutput) {
             output.push(`(${xdate.precision}) ${test}: ${xdate.formatted()}`);
     }
     PAGE.appendParagraph(testOutput, output);
+}
+function testUTC(testOutput) {
+    const hoursOffset = 1000 * 60 * 60 * 8;
+    // const summerTime = new Date('2026-06-21T12:00:00.000Z').getTime();
+    // const winterTime = new Date('2026-12-21T12:00:00.000Z').getTime();
+    const summerTime = new Date(Date.UTC(2026, 5, 21, 12, 0, 0));
+    const winterTime = new Date(Date.UTC(2026, 11, 21, 12, 0, 0));
+    // const summer1 = new Date(summerTime.getTime());
+    const summer = new Date(summerTime.getTime() + hoursOffset); // - hoursOffset);
+    const winter = new Date(winterTime.getTime() + hoursOffset);
+    // PAGE.appendParagraph(testOutput, T.DateString(summer1, 6));
+    PAGE.appendParagraph(testOutput, T.DateString(summer, 6));
+    PAGE.appendParagraph(testOutput, T.DateString(winter, 6));
 }
 function testIP(testOutput) {
     const IPList = [];

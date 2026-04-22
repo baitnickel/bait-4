@@ -4,6 +4,23 @@ import * as Fetch from './lib/fetch.js';
 import { Range, Dice, Coins } from './lib/ranges.js';
 import { Markup } from './lib/markup.js';
 
+/**
+ * There should be an option (a simple button) to create the "random" number
+ * that selects the I Ching chapter using only "nature world" factors, e.g., the
+ * time of day, the lunar phase, the day-of-the-year number (season). Given a
+ * time segment of 7.5 minutes (or 450 seconds), there are 192 time segments in
+ * a day (twenty-four hours). 192 is evenly divisible by 64. We'll want to
+ * assume a fantasy time zone where UTC plus longitude tells us when it's noon
+ * and when it's midnight. The day-of-the-year number is not evenly divisible by
+ * 64, but the hour-of-the year, or minute-of-the-year, etc. may produce better
+ * resolution. Similarly, lunar phases may be divided into hours, minutes,
+ * seconds, etc.
+ * 
+ * We will probably have to provided settings that will establish the time of
+ * the next new moon, our longitude (UTC offset) and maybe latitude--to make
+ * summer and winter correctly pronounced), etc.
+ */
+
 type RangeType = {
 	text: string;
 	items: number;
@@ -11,6 +28,7 @@ type RangeType = {
 }
 
 const ThisPage = new Page();
+let TaoButtonDivision: HTMLDivElement;
 let RangeTypeSelection: HTMLDivElement;
 let RangeValueSelection: HTMLDivElement;
 let RangeValueDisplay: HTMLDivElement;
@@ -63,6 +81,9 @@ let range = newRange(Array.from(RangeTypes.keys())[0], NumberOfChapters);
 export function render() {
 	ThisPage.setTitle(DefaultTitle);
 	ThisPage.addHeading('I Ching: The Book of Changes');
+
+	TaoButtonDivision = document.createElement('div');
+	ThisPage.content.append(TaoButtonDivision);
 	RangeTypeSelection = document.createElement('div');
 	RangeTypeSelection.id = 'iching-range-type';
 	ThisPage.content.append(RangeTypeSelection);
@@ -90,6 +111,12 @@ export function render() {
 	Tables.append(Table3);
 	ThisPage.content.append(Tables);
 	*/
+
+	/**
+	 * Display the Tao button--the option to generate the hexagon using natural
+	 * circumstances: the time of day, the lunar phase, the season of the year.
+	 */
+	createTaoButton();
 
 	/**
 	 * Clear the `RangeValueSelection`, `RangeValueDisplay`, and `IChingDisplay`
@@ -195,6 +222,27 @@ function dropDownValues(dropdowns: HTMLSelectElement[]) {
 		values.push(Number(dropdown.value));
 	}
 	return values;
+}
+
+/**
+ * Create the Tao Button. We're using California values for `utcOffset` and
+ * 'hemisphere` ("N" for North, "S" for South).
+ */
+function createTaoButton(utcOffset = 8, hemisphere = 'N') {
+
+	let timeValue = 0;
+	let lunarValue = 0;
+	let seasonValue = 0;
+
+	const now = new Date();
+
+	const taoButton = document.createElement('button');
+	taoButton.className = 'iching-tao-button';
+	taoButton.innerHTML = 'Go with the Flow';
+	TaoButtonDivision.append(taoButton)
+	taoButton.addEventListener('click', () => {
+
+	});
 }
 
 /**

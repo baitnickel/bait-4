@@ -44,9 +44,8 @@ const ISOFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}\S*$/i;
  * Date methods on an Instant. An Instant represents an instant in time with
  * millisecond granularity (similar to a Temporal.Instant object).
  * 
- * Instant supports several custom string constructors (and not the standard
- * Date string constructors), using the following Y(ear), M(onth), D(ay)
- * patterns:
+ * Instant supports several custom string constructors using the following
+ * Y(ear), M(onth), D(ay) patterns:
  * 
  * - "Y"   ("1984")
  * - "YM"  ("1984/12")
@@ -56,10 +55,6 @@ const ISOFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}\S*$/i;
  * - "MY"  ("12/1984")
  * - "MDY" ("12/31/1984")
  * 
- * Standard ISO Date string constructors can be used, e.g.:
- * 
- * - const instant = new Instant('2020-01-01T00:00:00.000Z');
- * 
  * A question mark character ("?") may be appended to any of the string
  * constructor patterns, and will identify the Instant as an approximation.
  * 
@@ -67,6 +62,15 @@ const ISOFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}\S*$/i;
  * necessary (001...099). The M and D elements must be one or two digits.
  * Elements must be separated by a forward slash or a hyphen. Note that unlike
  * the Date constructor, M is not an offset--values should be 1...12.
+ * 
+ * The Instant constructor will also accept a Date object or a timestamp, as
+ * well as a standard ISO Date string, but an ISO date string should always
+ * include the "Z" timezone suffix if a time is specified, e.g.:
+ * 
+ * - const instant = new Instant('2020-01-01T00:00:00.000Z');
+ * 
+ * If the constructor is called without any arguments, it will create an Instant
+ * representing the current instant (similar to "new Date()").
  */
 export class Instant extends Date {
 	valid: boolean;
@@ -186,6 +190,12 @@ export class Instant extends Date {
 		return Instant.isLeapYear(this.getUTCFullYear());
 	}
 	
+	/** Return true if this Instant is in Daylight Saving Time (DST), else return false. */
+	DST() {
+		const january = new Date(this.getFullYear(), 0);
+		return this.getTimezoneOffset() != january.getTimezoneOffset();
+	}
+
 	/**
 	 * Return the ordinal day of the year. e.g., 32 for Feb 1. When `leap` is
 	 * true, we assume that the year is a leap year, ensuring that dates after
@@ -194,6 +204,20 @@ export class Instant extends Date {
 	ordinal(leap = false) {
 		const year = (leap) ? 2000 : this.getUTCFullYear();
 		return (Date.UTC(year, this.getUTCMonth(), this.getUTCDate()) - Date.UTC(year, 0, 0)) / 24 / 60 / 60 / 1000;
+	}
+
+	/**
+	 * Return an Instant representing this Instant in Standard Time (as if there
+	 * were no Daylight Savings Time). The new Instant's noon will always occur
+	 * when the sun is at its zenith, and its midnight will always occur when
+	 * the sun is at its nadir.
+	 */
+	standardTime() {
+		const instant = this.clone();
+		const january = new Date(this.getFullYear(), 0);
+		const offsetMinutes = january.getTimezoneOffset() - this.getTimezoneOffset();
+		if (offsetMinutes) instant.setTime(instant.getTime() - (offsetMinutes * 60 * 1000));
+		return instant;
 	}
 
 	/**
@@ -367,12 +391,20 @@ export class Instant extends Date {
 	/**
 	 * Given `instant1` and `instant2`, return a number (-1, 0, or 1) indicating
 	 * whether `instant1` comes before, is the same as, or comes after
-	 * `instant2`
+	 * `instant2`.
 	 */
-	static compare(instant1: Instant, instant2: Instant) {
+	static compare(instant1: Instant|Date, instant2: Instant|Date) {
 		const difference = instant1.valueOf() - instant2.valueOf();
 		if (difference == 0) return 0;
 		return (difference > 0) ? 1 : -1;
+	}
+
+	/**
+	 * Does this Instant precede `otherDate`. If the two dates are equal, we
+	 * will return false.
+	 */
+	precedes(otherDate: Instant|Date) {
+		return Instant.compare(this, otherDate) < 0;
 	}
 
 	/**

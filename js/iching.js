@@ -1,6 +1,7 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
 import { Range, Dice, Coins } from './lib/ranges.js';
+import { Instant } from './lib/xdate.js';
 import { Markup } from './lib/markup.js';
 const ThisPage = new Page();
 let TaoButtonDivision;
@@ -186,16 +187,58 @@ function dropDownValues(dropdowns) {
  * 'hemisphere` ("N" for North, "S" for South).
  */
 function createTaoButton(utcOffset = 8, hemisphere = 'N') {
-    let timeValue = 0;
-    let lunarValue = 0;
-    let seasonValue = 0;
-    const now = new Date();
     const taoButton = document.createElement('button');
     taoButton.className = 'iching-tao-button';
     taoButton.innerHTML = 'Go with the Flow';
     TaoButtonDivision.append(taoButton);
     taoButton.addEventListener('click', () => {
+        const value = taoValue();
+        displayHexagram(value);
     });
+}
+/**
+ * These functions might belong in a library--make sure they remain black boxes.
+ *
+ * Given `now`, an Instant, return a number between 0 and 63, where 0 is
+ * midnight and 63 is noon. The number should climb to 63 as the AM hours move
+ * forward, and then descend to 0 as the PM hours return to midnight.
+ */
+function taoValue() {
+    const now = new Instant('2020-06-01T13:00:00.000');
+    console.log('test now:', now);
+    const values = [];
+    values.push(timeValue(now));
+    values.push(lunarValue(now));
+    values.push(seasonValue(now));
+    /** set taoButton's value to the average of all the values */
+    let sum = 0;
+    for (const value of values)
+        sum += value;
+    const value = Math.round(sum / values.length);
+    return value;
+}
+function timeValue(now) {
+    let value = 0;
+    console.log('midnight offset:', now.midnightOffset(), 'DST offset:', now.DSToffset());
+    const midnightOffset = now.midnightOffset() - now.DSToffset();
+    value = Math.floor((midnightOffset / Instant.msPerDay) * 128);
+    console.log('preliminary value:', value);
+    if (value < 0)
+        value = Math.abs(value);
+    else if (value >= 64)
+        value = 127 - value;
+    console.log('value:', value);
+    return value;
+}
+function lunarValue(now) {
+    let value = 0;
+    value = 63;
+    return value;
+}
+function seasonValue(now) {
+    let value = 0;
+    value = 63;
+    return value;
 }
 /**
  * Given the desired number of `rows` and `columns`, and a `tableClass` name,
@@ -227,6 +270,7 @@ function displayHexagram(hexagramNumber) {
     const hexagramImage = document.createElement('div');
     const hexagramJudgment = document.createElement('div');
     if (hexagramNumber >= 0 && hexagramNumber < 64) {
+        console.log('Hex Number:', hexagramNumber);
         const hexagram = IChing.hexagrams[hexagramNumber];
         ThisPage.setTitle(`${DefaultTitle} ${hexagram.character} Chapter ${hexagram.chapter}`);
         const hexagramGlyph = document.createElement('span');

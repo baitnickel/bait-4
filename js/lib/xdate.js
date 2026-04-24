@@ -61,6 +61,11 @@ const ISOFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}\S*$/i;
  * representing the current instant (similar to "new Date()").
  */
 export class Instant extends Date {
+    static msPerSecond = 1000;
+    static msPerMinute = 1000 * 60;
+    static msPerHour = 1000 * 60 * 60;
+    static msPerDay = 1000 * 60 * 60 * 24;
+    static msPerWeek = 1000 * 60 * 60 * 24 * 7;
     valid;
     precision; /** YMDhms, Y, YM, YMD, M, MY, MD, MDY */
     approximation; /** strings ending with '?' are approximations */
@@ -185,13 +190,34 @@ export class Instant extends Date {
         return this.getTimezoneOffset() != january.getTimezoneOffset();
     }
     /**
+     * Return a number representing the number of milliseconds difference
+     * between this time and the same time without Daylight Saving Time (DST).
+     * Return 0 if DST is not in effect for this time).
+     */
+    DSToffset() {
+        const january = new Date(this.getFullYear(), 0);
+        const offset = (january.getTimezoneOffset() - this.getTimezoneOffset()) * Instant.msPerMinute;
+        return offset;
+    }
+    /**
+     * Return the number of milliseconds since midnight for this Instant.
+     */
+    midnightOffset() {
+        let offset = 0;
+        offset += this.getHours() * Instant.msPerHour;
+        offset += this.getMinutes() * Instant.msPerMinute;
+        offset += this.getSeconds() * Instant.msPerSecond;
+        offset += this.getMilliseconds();
+        return offset;
+    }
+    /**
      * Return the ordinal day of the year. e.g., 32 for Feb 1. When `leap` is
      * true, we assume that the year is a leap year, ensuring that dates after
      * Feb 28 return the same ordinal day regardless of the year.
      */
     ordinal(leap = false) {
         const year = (leap) ? 2000 : this.getUTCFullYear();
-        return (Date.UTC(year, this.getUTCMonth(), this.getUTCDate()) - Date.UTC(year, 0, 0)) / 24 / 60 / 60 / 1000;
+        return (Date.UTC(year, this.getUTCMonth(), this.getUTCDate()) - Date.UTC(year, 0, 0)) / Instant.msPerDay; // 24 / 60 / 60 / 1000;
     }
     /**
      * Return an Instant representing this Instant in Standard Time (as if there
@@ -204,7 +230,7 @@ export class Instant extends Date {
         const january = new Date(this.getFullYear(), 0);
         const offsetMinutes = january.getTimezoneOffset() - this.getTimezoneOffset();
         if (offsetMinutes)
-            instant.setTime(instant.getTime() - (offsetMinutes * 60 * 1000));
+            instant.setTime(instant.getTime() - (offsetMinutes * Instant.msPerMinute)); // 60 * 1000
         return instant;
     }
     /**
@@ -280,15 +306,15 @@ export class Instant extends Date {
                 interval = ((later.year - earlier.year) * 12) + monthsDifferent + dayOffset;
         }
         else {
-            let divisor = 1000; /** default: 's' Seconds */
+            let divisor = Instant.msPerSecond; // 1000; /** default: 's' Seconds */
             if (granularity == 'm')
-                divisor = 60 * 1000; /** Minutes */
+                divisor = Instant.msPerMinute; // 60 * 1000; /** Minutes */
             else if (granularity == 'h')
-                divisor = 60 * 60 * 1000; /** Hours */
+                divisor = Instant.msPerHour; // 60 * 60 * 1000; /** Hours */
             else if (granularity == 'D')
-                divisor = 24 * 60 * 60 * 1000; /** Days */
+                divisor = Instant.msPerDay; // 24 * 60 * 60 * 1000; /** Days */
             else if (granularity == 'W')
-                divisor = 7 * 24 * 60 * 60 * 1000; /** Weeks */
+                divisor = Instant.msPerWeek; // 7 * 24 * 60 * 60 * 1000; /** Weeks */
             interval = (this.valueOf() / divisor) - (other.valueOf() / divisor);
         }
         return Math.abs(interval);
@@ -355,15 +381,15 @@ export class Instant extends Date {
         else {
             let multiplier = 0;
             if (granularity == 's')
-                multiplier = 1000; /** default: 's' Seconds */
+                multiplier = Instant.msPerSecond; // 1000; /** default: 's' Seconds */
             else if (granularity == 'm')
-                multiplier = 60 * 1000; /** Minutes */
+                multiplier = Instant.msPerMinute; // 60 * 1000; /** Minutes */
             else if (granularity == 'h')
-                multiplier = 60 * 60 * 1000; /** Hours */
+                multiplier = Instant.msPerHour; // 60 * 60 * 1000; /** Hours */
             else if (granularity == 'D')
-                multiplier = 24 * 60 * 60 * 1000; /** Days */
+                multiplier = Instant.msPerDay; // 24 * 60 * 60 * 1000; /** Days */
             else if (granularity == 'W')
-                multiplier = 7 * 24 * 60 * 60 * 1000; /** Weeks */
+                multiplier = Instant.msPerWeek; // 7 * 24 * 60 * 60 * 1000; /** Weeks */
             interval *= multiplier;
             instant = new Instant(this.valueOf() + interval);
         }

@@ -22,8 +22,11 @@ const DefaultTitle = 'I Ching';
  */
 /** load all the I Ching texts */
 const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
+const NewMoonsPath = `${ThisPage.site}/data/iching/new-moons.txt`;
 const IChing = await Fetch.object(IChingPath);
 const NumberOfChapters = 64; /* number of Range values needed (number of I Ching chapters) */
+const NewMoons = await Fetch.text(NewMoonsPath);
+console.log(NewMoons);
 /**
  * Supported Range Types. If this list is modified, it might also be necessary to
  * modify the `newRange` function as well.
@@ -217,6 +220,11 @@ function taoValue() {
     const value = Math.round(sum / values.length);
     return value;
 }
+/**
+ * Determine the current day range (the date/time of the most recent midnight
+ * and the date/time of the next midnight). Determine where `now` falls
+ * within this range, and return its value as an integer in 0...63.
+ */
 function timeValue(now) {
     let value = 0;
     console.log('midnight offset:', now.midnightOffset(), 'DST offset:', now.DSToffset());
@@ -230,11 +238,21 @@ function timeValue(now) {
     console.log('value:', value);
     return value;
 }
+/**
+ * Determine the current lunation range (the date/time of the most recent new
+ * moon and the date/time of the next new moon). Determine where `now` falls
+ * within this range, and return its value as an integer in 0...63.
+ */
 function lunarValue(now) {
     let value = 0;
     value = 63;
     return value;
 }
+/**
+ * Determine the current orbital range (the date/time of the most recent winter solstice
+ * and the date/time of the next winter solstice). Determine where `now` falls
+ * within this range, and return its value as an integer in 0...63.
+ */
 function seasonValue(now) {
     let value = 0;
     value = 63;

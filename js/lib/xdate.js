@@ -211,6 +211,19 @@ export class Instant extends Date {
         return offset;
     }
     /**
+     * Return a new Instant, rounding its value down to the nearest second,
+     * minute, hour, or day, stripping off lower-order milliseconds.
+     */
+    trunc(resolution) {
+        let milliseconds = Instant.msPerSecond;
+        if (resolution == 'minute')
+            milliseconds = Instant.msPerMinute;
+        else if (resolution == 'hour')
+            milliseconds = Instant.msPerHour;
+        const time = this.getTime();
+        return new Date(time - (time % milliseconds));
+    }
+    /**
      * Return the ordinal day of the year. e.g., 32 for Feb 1. When `leap` is
      * true, we assume that the year is a leap year, ensuring that dates after
      * Feb 28 return the same ordinal day regardless of the year.

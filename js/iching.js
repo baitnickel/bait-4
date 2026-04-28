@@ -201,7 +201,8 @@ function createTaoButton(utcOffset = 8, hemisphere = 'N') {
 }
 /**
  * These functions might belong in a library--make sure they remain black boxes.
- *
+ */
+/**
  * Given `now`, an Instant, return a number between 0 and 63, where 0 is
  * midnight and 63 is noon. The number should climb to 63 as the AM hours move
  * forward, and then descend to 0 as the PM hours return to midnight.
@@ -257,6 +258,28 @@ function seasonValue(now) {
     let value = 0;
     value = 63;
     return value;
+}
+/**
+ * Given an `array` of any type of elements, return a new array, created by
+ * rotating the elements of the original array to the left (negative `count`) or
+ * to the right (positive `count`.) If `count` equals zero the new array will be
+ * a copy of the original `array`. The absolute value of `count` may be greater
+ * than the length of the array; the rotation will continue around the array
+ * circle (count becomes count modulo the array length).
+ */
+function rotate(array, count) {
+    const newArray = array.slice();
+    const left = count < 0;
+    const shiftCount = Math.abs(count) % newArray.length;
+    if (shiftCount && shiftCount < newArray.length) {
+        for (let i = 0; i < shiftCount; i += 1) {
+            if (left)
+                newArray.push(newArray.shift());
+            else
+                newArray.unshift(newArray.pop());
+        }
+    }
+    return newArray;
 }
 /**
  * Given the desired number of `rows` and `columns`, and a `tableClass` name,

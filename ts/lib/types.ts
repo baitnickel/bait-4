@@ -418,9 +418,9 @@ export type TimedEvent = {
 	note: string; /** markdown */
 }
 export type Event = { /** replaces TimedEvent */
-	instantString: string;
-	instantValue: number|null;
-	precision: string; /** YMDhms, Y, YM, YMD, M, MY, MD, MDY */
+	timeString: string;
+	timeValue: number|null;
+	precision: string; /** Y, YM, YMD, Full (DEPRECATED: YMDhms,  M, MY, MD, MDY) */
 	approximate: boolean;
 	personal: boolean;
 	private: boolean;
@@ -432,9 +432,9 @@ export type Event = { /** replaces TimedEvent */
 	ageGrade: string; /** age and grade formatted in one string */
 }
 export type EventOptions = {
-	source: string;     /** path of file containing raw data */
-	from: string;  /** Instant string, e.g. '12/31/2000' */
-	until: string; /** Instant string, e.g. '12/31/2000' */
+	source: string; /** path of file containing raw data */
+	from: string;  /** Time string, e.g. '12/31/2000' */
+	until: string; /** Time string, e.g. '12/31/2000' */
 	keywords: string;
 	eventTypes: string;
 	birthdate: string;

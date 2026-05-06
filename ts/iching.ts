@@ -2,7 +2,7 @@ import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import { Range, Dice, Coins } from './lib/ranges.js';
-import { Instant } from './lib/xdate.js';
+import { Time } from './lib/time.js';
 import { Markup } from './lib/markup.js';
 
 /**
@@ -247,12 +247,12 @@ function createTaoButton(utcOffset = 8, hemisphere = 'N') {
  * These functions might belong in a library--make sure they remain black boxes.
  */
 /**
- * Given `now`, an Instant, return a number between 0 and 63, where 0 is
+ * Given `now`, a Time, return a number between 0 and 63, where 0 is
  * midnight and 63 is noon. The number should climb to 63 as the AM hours move
  * forward, and then descend to 0 as the PM hours return to midnight.
  */
 function taoValue() {
-	const now = new Instant('2020-06-01T13:00:00.000');
+	const now = new Time('2020-06-01T13:00:00.000');
 	console.log('test now:', now);
 	const values: number[] = [];
 	values.push(timeValue(now));
@@ -269,11 +269,11 @@ function taoValue() {
  * and the date/time of the next midnight). Determine where `now` falls
  * within this range, and return its value as an integer in 0...63.
  */
-function timeValue(now: Instant) {
+function timeValue(now: Time) {
 	let value = 0;
-	console.log('midnight offset:', now.midnightOffset(), 'DST offset:', now.DSToffset())
-	const midnightOffset = now.midnightOffset() - now.DSToffset();
-	value = Math.floor((midnightOffset / Instant.msPerDay) * 128);
+	console.log('midnight offset:', now.midnightOffset(), 'DST offset:', now.DSTOffset())
+	const midnightOffset = now.midnightOffset() - now.DSTOffset();
+	value = Math.floor((midnightOffset / Time.msPerDay) * 128);
 	console.log('preliminary value:', value);
 	if (value < 0) value = Math.abs(value);
 	else if (value >= 64) value = 127 - value;
@@ -285,7 +285,7 @@ function timeValue(now: Instant) {
  * moon and the date/time of the next new moon). Determine where `now` falls
  * within this range, and return its value as an integer in 0...63.
  */
-function lunarValue(now: Instant) {
+function lunarValue(now: Time) {
 	let value = 0;
 	value = 63;
 	return value;
@@ -295,7 +295,7 @@ function lunarValue(now: Instant) {
  * and the date/time of the next winter solstice). Determine where `now` falls
  * within this range, and return its value as an integer in 0...63.
  */
-function seasonValue(now: Instant) {
+function seasonValue(now: Time) {
 	let value = 0;
 	value = 63;
 	return value;

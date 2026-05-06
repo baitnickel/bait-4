@@ -14,25 +14,23 @@
  * essence, this means that the day of the year needs to have weight.
  */
 
-type TimeComponents = { date: Date; precision: string; estimate: boolean; }
 type YMD = {year: number; month: number; day: number };
 
-const Months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MonthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MonthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const Weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const FullPrecision = 'YMDhms';
+const FullPrecision = 'FULL';
 const YearPrecision = 'Y';
 const YearMonthPrecision = 'YM';
 const YearMonthDayPrecision = 'YMD';
-const MonthPrecision = 'M';
-const MonthDayPrecision = 'MD';
-
-
-const D = '\\d+';
-const S = '[\\/\\-]';
-const TimeString = new RegExp('(^'+D+'$)|(^'+D+S+D+'$)|(^'+D+S+D+S+D+'$)');
-const Separator = new RegExp(S);
-// const ISOFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}\S*$/i;
+const Years = 'Y';
+const Months = 'M';
+const Days = 'D';
+const Weeks = 'W';
+const Hours = 'h';
+const Minutes = 'm';
+const Seconds = 's';
+const AlternateSeparators = ['/'];
 
 /**
  * Time is a custom extension of the standard Date class. The Time constructor
@@ -60,24 +58,33 @@ export class Time extends Date {
 	static msPerWeek = 1000 * 60 * 60 * 24 * 7;
 
 	valid: boolean;
-	precision: string; /** 'Y', 'YM', 'YMD', or '' */
+	precision: string; /** YearPrecision, YearMonthPrecision, YearMonthDayPrecision, or FullPrecision */
 	estimate: boolean; /** string values ending with '?' are estimates */
 
 	constructor(parameter: null|Date|number|string = null,
 		monthIndex: null|number = null,
-		day: number = 1,
+		day: null|number = null,
 		hours: number = 0,
 		minutes: number = 0,
 		seconds: number = 0,
 		milliseconds: number = 0
 	) {
-		let precision = '';
+		let precision = FullPrecision;
 		let estimate = false;
 		if (parameter === null) super();
 		else if (parameter instanceof Date) super(parameter.valueOf());
 		else if (typeof parameter == 'number') {
 			if (monthIndex == null) super(parameter); /** a single numeric parameter is a timestamp */
-			else super(parameter, monthIndex, day, hours, minutes, seconds, milliseconds);
+			else if (day === null) {
+				/** only year and monthIndex have been supplied */
+				precision = YearMonthPrecision;
+				super(parameter, monthIndex);
+			}
+			else {
+				/** year, monthIndex, and day (and possibly time elements) have been supplied */
+				if (hours == 0 && minutes == 0 && seconds == 0 && milliseconds == 0) precision = YearMonthDayPrecision;
+				super(parameter, monthIndex, day, hours, minutes, seconds, milliseconds);
+			}
 		}
 		else {
 			/** parameter is a string--determine estimate and precision */
@@ -86,94 +93,30 @@ export class Time extends Date {
 				estimate = true;
 				parameter = parameter.slice(0, -1).trim();
 			}
-			if (/^\d{4}$/.test(parameter)) precision = 'Y';
-			else if (/^\d{4}-\d{2}$/.test(parameter)) precision = 'YM';
-			else if (/^\d{4}-\d{2}-\d{2}$/.test(parameter)) precision = 'YMD';
-			if (precision) parameter += 'T00:00:00.000'; /** convert UTC to local */
+			/** convert alternate separators to ISO-standard hyphens */
+			for (const separator of AlternateSeparators) {
+				const separatorRegExp = new RegExp(`\\${separator}`, 'g');
+				parameter = parameter.replace(separatorRegExp, '-');
+			}
+			/** determine precision and treat all date-times as local */
+			if (/^\d{4}$/.test(parameter)) precision = YearPrecision;
+			else if (/^\d{4}-\d{2}$/.test(parameter)) precision = YearMonthPrecision;
+			else if (/^\d{4}-\d{2}-\d{2}$/.test(parameter)) precision = YearMonthDayPrecision;
+			if (precision != FullPrecision) parameter += 'T00:00:00.000'; /** specify time to convert UTC to local */
 			super(parameter);
 		}
+
+		if (
+			precision == FullPrecision &&
+			this.getHours() == 0 &&
+			this.getMinutes() == 0 &&
+			this.getSeconds() == 0 &&
+			this.getMilliseconds() == 0
+		) precision = YearMonthDayPrecision;
+
 		this.valid = !isNaN(this.valueOf());
 		this.precision = precision;
 		this.estimate = estimate;
-	}
-
-	/**
-	 * ********** DEPRECATED **********
-	 * 
-	 * Factory method. Pass in Y, YM, YMD strings, then create and return a Time
-	 * object, setting valid, precision, and estimate properties. This will be
-	 * used by "timeline" and similar applications where date entries need to
-	 * support custom strings.
-	 * 
-	 * The `timeZone` parameter (e.g., '+07:00', 'Z', etc.); when `timeZone`
-	 * is '', we will assume local time.
-	 */
-	static makeTime(timeString: string, timeZone = '') {
-		let time = new Time(NaN);
-		let precision = '';
-		let estimate = false;
-
-		timeString = timeString.trim();
-		if (timeString.endsWith('?')) {
-			estimate = true;
-			timeString = timeString.slice(0, -1).trim();
-		}
-
-		if (TimeString.test(timeString)) {
-			/** having passed the test, we know there are 1-3 components, each a valid integer */
-			const components = timeString.split(Separator);
-			const segments: number[] = [];
-			for (const component of components) segments.push(Number(component));
-			if (components[0].length >= 3) { // Y, YM, YMD
-				if (segments.length == 1) segments.push(0); // append 0 month (Y0)
-				if (segments.length == 2) segments.push(0); // append 0 day (Y00)
-			}
-			else { // M, MY, MD, MDY (create YMD)
-				if (segments.length == 1) { // M
-					segments.unshift(0); // insert 0 year (0M)
-					segments.push(0); // append 0 day (0M0)
-				}
-				else if (segments.length == 2) { // MY, MD
-					const yearOrDay = segments.pop()!; // remove second segment (year or day)
-					if (components[1].length >= 3) { // MY (yearOrDay is year)
-						segments.unshift(yearOrDay); // insert year (YM)
-						segments.push(0); // append 0 day (YM0)
-					}
-					else { /** yearOrDay is D */
-						segments.unshift(0); // insert 0 year (0M)
-						segments.push(yearOrDay); // MD -- insert day (0MD)
-					}
-				}
-				else { // 3 segments: MDY
-					const year = segments.pop()!; // remove year (Y)
-					segments.unshift(year); // insert year (YMD)
-				}
-			}
-
-			/**
-			 * At this point, segments are YMD -- any segment may be 0. A 0 segment
-			 * indicates that it has not been supplied, and will not be included in
-			 * the precision. In the Date object, a 0 year will become the year
-			 * 0000; a 0 month will become January (month offset 0); a 0 day will
-			 * become * 1. For example, if only a year is provided as '1980', the
-			 * precision will be `YearPrecision` and the Date will be Jan 1, 1980.
-			 */
-			const year = segments[0];
-			const month = segments[1];
-			const day = segments[2];
-			if (year > 0) precision += 'Y';
-			if (month > 0) precision += 'M';
-			if (day > 0) precision += 'D';
-
-			/** create a Time object -- the superclass (Date) will handle overflow months, dates, etc. */
-			const YYYY = year.toString().padStart(4,'0');
-			const MM = (month == 0) ? '01' : month.toString().padStart(2,'0');
-			const DD = (day == 0) ? '01' : day.toString().padStart(2,'0');
-			time = new Time(`${YYYY}-${MM}-${DD}T00:00:00.000${timeZone}`);
-			time.precision = precision;
-			time.estimate = estimate;
-		}
-		return time;
 	}
 
 	/**
@@ -197,8 +140,7 @@ export class Time extends Date {
 	
 	/** Return true if this Time is in Daylight Saving Time (DST), else return false. */
 	DST() {
-		const january = new Date(this.getFullYear(), 0);
-		return this.getTimezoneOffset() != january.getTimezoneOffset();
+		return this.DSTOffset() != 0;
 	}
 
 	/**
@@ -206,7 +148,7 @@ export class Time extends Date {
 	 * between this time and the same time without Daylight Saving Time (DST).
 	 * Return 0 if DST is not in effect for this time).
 	 */
-	DSToffset() {
+	DSTOffset() {
 		const january = new Date(this.getFullYear(), 0);
 		const offset = (january.getTimezoneOffset() - this.getTimezoneOffset()) * Time.msPerMinute;
 		return offset;
@@ -241,7 +183,7 @@ export class Time extends Date {
 	 * When `leap` is true, we treat every year as a leap year, ensuring that
 	 * dates after Feb 28 return the same ordinal day regardless of the year.
 	 */
-	ordinal(leap = false) { // should be: ordinalDay
+	ordinalDay(leap = false) {
 		const year = (leap) ? 2000 : this.getFullYear();
 		const january1 = new Date(year, 0);
 		const thisDay = new Date(year, this.getMonth(), this.getDate())
@@ -263,14 +205,14 @@ export class Time extends Date {
 	}
 
 	/**
-	 * Return a formatted string representing the Time. When the date has
-	 * been instantiated using custom formats (such as Y, YM, YMD, MY, and MDY),
-	 * the formatted string will be adjusted accordingly. Passing a `precision`
-	 * argument will temporarily override the Time's precision property.
+	 * Return a formatted string representing the Time. When the time has been
+	 * instantiated using custom formats (such as Y, YM, YMD), the formatted
+	 * string will be adjusted accordingly. Passing a `precision` argument will
+	 * temporarily override the Time's precision property.
 	 */
 	formatted(precision = '') {
 		if (!precision) precision = this.precision;
-		const mo = Months[this.getMonth()];
+		const mo = MonthNames[this.getMonth()];
 		const d = this.getDate().toString();
 		const wd = Weekdays[this.getDay()];
 		const year = this.getFullYear().toString().padStart(2, '0');
@@ -282,11 +224,9 @@ export class Time extends Date {
 		const second = this.getSeconds().toString().padStart(2, '0');
 
 		let format: string;
-		if (precision == YearPrecision) format = `${year}`; /** year only */
-		else if (precision == YearMonthPrecision) format = `${mo} ${year}`; /** year and month only */
-		else if (precision == YearMonthDayPrecision) format = `${wd} ${mo} ${d}, ${year}`; /** year, month, and day only */
-		// else if (precision == MonthPrecision) format = `${mo}`; /** month only */
-		// else if (precision == MonthDayPrecision) format = `${mo} ${d}`; /** month and day only */
+		if (precision == YearPrecision) format = `${year}`;
+		else if (precision == YearMonthPrecision) format = `${mo} ${year}`;
+		else if (precision == YearMonthDayPrecision) format = `${wd} ${mo} ${d}, ${year}`;
 		else format = `${wd} ${mo} ${d}, ${year} ${h}:${minute}:${second}${amPm}`; /** full timestamp */
 		return format;
 	}
@@ -308,14 +248,14 @@ export class Time extends Date {
 		const earlier: YMD = { year: earlierTime.getFullYear(), month: earlierTime.getMonth(), day: earlierTime.getDate() };
 		const later: YMD = { year: laterTime.getFullYear(), month: laterTime.getMonth(), day: laterTime.getDate() };
 		
-		if (granularity == 'Y') { /** Years */
+		if (granularity == Years) {
 			const solarDays = 366; //365.24217;  /** we are treating all years as leap years for our purposes here */
-			const daysDifferent = laterTime.ordinal(true) - earlierTime.ordinal(true);
-			if (later.year == earlier.year) interval = (laterTime.ordinal() - earlierTime.ordinal()) / solarDays;
+			const daysDifferent = laterTime.ordinalDay(true) - earlierTime.ordinalDay(true);
+			if (later.year == earlier.year) interval = (laterTime.ordinalDay() - earlierTime.ordinalDay()) / solarDays;
 			else if (daysDifferent >= 0) interval = (later.year - earlier.year) + (daysDifferent / solarDays);
 			else interval = (later.year - earlier.year - 1) + ((solarDays + daysDifferent) / solarDays);
 		}
-		else if (granularity == 'M') { /** Months */
+		else if (granularity == Months) {
 			const monthsDifferent = later.month - earlier.month;
 			const laterDayOffset = (later.day - 1) / 31;
 			const earlierDayOffset = (earlier.day - 1) / 31;
@@ -324,11 +264,11 @@ export class Time extends Date {
 			else interval = ((later.year - earlier.year) * 12) + monthsDifferent + dayOffset;
 		} 
 		else {
-			let divisor = Time.msPerSecond; /** default: 's' Seconds */
-			if (granularity == 'm') divisor = Time.msPerMinute; /** Minutes */
-			else if (granularity == 'h') divisor = Time.msPerHour; /** Hours */
-			else if (granularity == 'D') divisor = Time.msPerDay; /** Days */
-			else if (granularity == 'W') divisor = Time.msPerWeek; /** Weeks */
+			let divisor = Time.msPerSecond; /** default: Seconds */
+			if (granularity == Minutes) divisor = Time.msPerMinute;
+			else if (granularity == Hours) divisor = Time.msPerHour;
+			else if (granularity == Days) divisor = Time.msPerDay;
+			else if (granularity == Weeks) divisor = Time.msPerWeek;
 			interval = (this.valueOf() / divisor) - (other.valueOf() / divisor);
 		}
 		return Math.abs(interval);
@@ -341,7 +281,7 @@ export class Time extends Date {
 	 * `earlierDate` is actually later than this Time, the interval returned
 	 * will be negative.
 	 */
-	since(earlierDate: Time, granularity: string = 'Y') {
+	since(earlierDate: Time, granularity: string = Years) {
 		let interval = this.interval(earlierDate, granularity);
 		if (this.valueOf() < earlierDate.valueOf()) interval = -interval;
 		return interval;
@@ -354,52 +294,10 @@ export class Time extends Date {
 	 * is actually earlier than this Time, the interval returned will be
 	 * negative.
 	 */
-	until(laterDate: Time, granularity: string = 'Y') {
+	until(laterDate: Time, granularity: string = Years) {
 		let interval = this.interval(laterDate, granularity);
 		if (this.valueOf() > laterDate.valueOf()) interval = -interval;
 		return interval;
-	}
-
-	/**
-	 * Add or subtract an `interval` of a given `granularity` to or from this
-	 * Time, and return a new Time. With the exception of seconds (s),
-	 * only integer intervals are supported. Valid granularities are: Y, M, W,
-	 * D, h, m, s. Given an invalid granularity, we return a clone of this
-	 * Time.
-	 */
-	private adjustment(interval: number, granularity: string, addition: boolean) {
-		if (interval < 0) addition = !addition;
-		interval = Math.abs(interval);
-		if (granularity != 's') interval = Math.floor(interval);
-		if (!addition) interval = -interval;
-
-		let time: Time;
-		if (granularity == 'Y' || granularity == 'M') { /** Years or Months */
-			const yearOffset = (granularity == 'Y') ? interval : Math.floor((this.getMonth() + interval) / 12);
-			const monthOffset = (granularity == 'Y') ? this.getMonth() : (this.getMonth() + interval) % 12;
-			const year = this.getFullYear() + yearOffset;
-			let lastDayOfMonth = MonthDays[monthOffset];
-			if (monthOffset == 1 && Time.isLeapYear(year)) lastDayOfMonth += 1; /** Feb 29 */
-			const day = (this.getDate() <= lastDayOfMonth) ? this.getDate() : lastDayOfMonth;
-			const YYYY = year.toString().padStart(4,'0');
-			const MM = (monthOffset + 1).toString().padStart(2,'0');
-			const DD = day.toString().padStart(2,'0');
-			let initializer = `${YYYY}-${MM}-${DD}`;
-			const timeString = this.toISOString().split('T')[1];
-			if (this.precision == FullPrecision) initializer += `T${timeString}`;
-			time = new Time(initializer);
-		}
-		else {
-			let multiplier = 0;
-			if (granularity == 's') multiplier = Time.msPerSecond; /** default: 's' Seconds */
-			else if (granularity == 'm') multiplier = Time.msPerMinute; /** Minutes */
-			else if (granularity == 'h') multiplier = Time.msPerHour; /** Hours */
-			else if (granularity == 'D') multiplier = Time.msPerDay; /** Days */
-			else if (granularity == 'W') multiplier = Time.msPerWeek; /** Weeks */
-			interval *= multiplier;
-			time = new Time(this.valueOf() + interval);
-		}
-		return time;
 	}
 
 	/**
@@ -431,6 +329,56 @@ export class Time extends Date {
 	}
 
 	/**
+	 * Does this Time precede `otherDate`. If the two dates are equal, we
+	 * will return false.
+	 */
+	precedes(otherDate: Time|Date) {
+		return Time.compare(this, otherDate) < 0;
+	}
+
+	/**
+	 * Add or subtract an `interval` of a given `granularity` to or from this
+	 * Time, and return a new Time. With the exception of seconds (s),
+	 * only integer intervals are supported. Valid granularities are: Y, M, W,
+	 * D, h, m, s. Given an invalid granularity, we return a clone of this
+	 * Time.
+	 */
+	private adjustment(interval: number, granularity: string, addition: boolean) {
+		if (interval < 0) addition = !addition;
+		interval = Math.abs(interval);
+		if (granularity != Seconds) interval = Math.floor(interval);
+		if (!addition) interval = -interval;
+
+		let time: Time;
+		if (granularity == Years || granularity == Months) {
+			const yearOffset = (granularity == Years) ? interval : Math.floor((this.getMonth() + interval) / 12);
+			const monthOffset = (granularity == Years) ? this.getMonth() : (this.getMonth() + interval) % 12;
+			const year = this.getFullYear() + yearOffset;
+			let lastDayOfMonth = MonthDays[monthOffset];
+			if (monthOffset == 1 && Time.isLeapYear(year)) lastDayOfMonth += 1; /** Feb 29 */
+			const day = (this.getDate() <= lastDayOfMonth) ? this.getDate() : lastDayOfMonth;
+			const YYYY = year.toString().padStart(4,'0');
+			const MM = (monthOffset + 1).toString().padStart(2,'0');
+			const DD = day.toString().padStart(2,'0');
+			let initializer = `${YYYY}-${MM}-${DD}`;
+			const timeString = this.toISOString().split('T')[1];
+			if (this.precision == FullPrecision) initializer += `T${timeString}`;
+			time = new Time(initializer);
+		}
+		else {
+			let multiplier = 0;
+			if (granularity == Seconds) multiplier = Time.msPerSecond; /** default: Seconds */
+			else if (granularity == Minutes) multiplier = Time.msPerMinute;
+			else if (granularity == Hours) multiplier = Time.msPerHour;
+			else if (granularity == Days) multiplier = Time.msPerDay;
+			else if (granularity == Weeks) multiplier = Time.msPerWeek;
+			interval *= multiplier;
+			time = new Time(this.valueOf() + interval);
+		}
+		return time;
+	}
+
+	/**
 	 * Given `time1` and `time2`, return a number (-1, 0, or 1) indicating
 	 * whether `time1` comes before, is the same as, or comes after
 	 * `time2`.
@@ -440,17 +388,10 @@ export class Time extends Date {
 		if (difference == 0) return 0;
 		return (difference > 0) ? 1 : -1;
 	}
-
+	
 	/**
-	 * Does this Time precede `otherDate`. If the two dates are equal, we
-	 * will return false.
-	 */
-	precedes(otherDate: Time|Date) {
-		return Time.compare(this, otherDate) < 0;
-	}
-
-	/**
-	 * Given a UTC Date or Time, return a Date in the local time zone.
+	 * Given a Date or Time, use its UTC (interval) values to create and return
+	 * a Time in the local time zone.
 	 */
 	static convertUTC(date: Date|Time) {
 		const year = date.getUTCFullYear();
@@ -460,7 +401,7 @@ export class Time extends Date {
 		const minutes = date.getUTCMinutes();
 		const seconds = date.getUTCSeconds();
 		const milliseconds = date.getUTCMilliseconds();
-		const local = new Date(year, monthIndex, day, hours, minutes, seconds, milliseconds);
+		const local = new Time(year, monthIndex, day, hours, minutes, seconds, milliseconds);
 		return local;
 	}
 
@@ -476,7 +417,7 @@ export class Time extends Date {
 	 * Return a Time inconceivably far into the future (for all practical
 	 * purposes).
 	 */
-	static futureDate() {
+	static futureTime() {
 		return new Time(9999, 0);
 	}
 

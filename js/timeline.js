@@ -2,7 +2,7 @@ import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
-import { Instant } from './lib/xdate.js';
+import { Time } from './lib/time.js';
 import { MarkupLine } from './lib/markup.js';
 /**
  * @todo create a version of the timeline with hashtag IDs included in a
@@ -69,7 +69,7 @@ function createModalDialog(Options) {
     const untilYear = dialog.addText('Until Year:', Options.until);
     const keywords = dialog.addText('Search Keywords:', Options.keywords);
     const eventTypes = dialog.addRadioGroup('Event Types', T.EventTypes);
-    const birthdate = dialog.addText('Birthdate:', Options.birthdate);
+    const birthdate = dialog.addText('Birthdate (M/D/Y):', Options.birthdate);
     const sortAscending = dialog.addCheckbox('Sort Ascending:', Options.sortAscending);
     dialog.confirmButton.addEventListener('click', () => {
         Options.from = fromYear.value;
@@ -106,11 +106,11 @@ function displayTable(container, events) {
         headings.push('Age');
     const table = new W.Table(headings, 1);
     for (const event of events) {
-        const instant = new Instant(event.instantString);
+        const time = new Time(event.timeString);
         const description = MarkupLine(event.description, 'met');
         table.addRow();
         table.addCell(event.typeIcon);
-        table.addCell(instant.formatted(), 'class:timeline-date');
+        table.addCell(time.formatted(), 'class:timeline-date');
         table.addCell(description, '', true);
         if (event.ageGrade)
             table.addCell(event.ageGrade, 'class:timeline-age');

@@ -5,7 +5,7 @@ import * as Datasets from './lib/datasets.js';
 import * as MD from './lib/md.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 import * as W from './lib/widgets.js';
-import { Instant } from './lib/xdate.js';
+import { Time } from './lib/time.js';
 import { Park } from './lib/parks.js';
 import { Instrument, Chord, SPN } from './lib/fakesheet.js';
 import * as G from './lib/graphics.js';
@@ -87,7 +87,7 @@ export function render() {
 		testers.push( { name: 'MIDI Notes', function: testMidiNotes } );
 		testers.push( { name: 'Table', function: testTable } );
 		testers.push( { name: 'Park', function: testPark } );
-		testers.push( { name: 'XDates', function: testXDates } );
+		testers.push( { name: 'Times', function: testTimes } );
 		testers.push( { name: 'UTC', function: testUTC } );
 		// testers.push( { name: 'IP', function: testIP } );
 		testers.push( { name: 'Dialog', function: testDialog } );
@@ -322,14 +322,14 @@ function testPark(testOutput: HTMLDivElement) {
 	PAGE.appendParagraph(testOutput, output);
 }
 
-function testXDates(testOutput: HTMLDivElement) {
-	const tests = ['1960', '1961/1/1', '1962/2/29', '3/1963', '21/6/1964', '1965/07/35', '1966/08/0', '1967/0', '1968/11/8', '149'];
+function testTimes(testOutput: HTMLDivElement) {
+	const tests = ['1960', '1961/01/01', '1962/02/28', '3/1963', '21/6/1964', '1965/07/31', '1966/08/01', '1967/01/01', '1968/11/08', '149'];
 	const output: string[] = [];
-	const xdate = new Instant();
-	output.push(`(${xdate.precision}) Now: ${xdate.formatted()}`);
+	const time = new Time();
+	output.push(`(${time.precision}) Now: ${time.formatted()}`);
 	for (const test of tests) {
-		const xdate = new Instant(test);
-		if (xdate !== null) output.push(`(${xdate.precision}) ${test}: ${xdate.formatted()}`);
+		const time = new Time(test);
+		if (time !== null) output.push(`(${time.precision}) ${test}: ${time.formatted()}`);
 	}
 	PAGE.appendParagraph(testOutput, output);
 }

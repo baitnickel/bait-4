@@ -199,16 +199,55 @@ function createTaoButton(utcOffset = 8, hemisphere = 'N') {
         displayHexagram(value);
     });
 }
+const HexagramRange = { first: 0, last: 127 }; /** 127 rather than 63 to support wrapped ranges */
 /**
- * These functions might belong in a library--make sure they remain black boxes.
+ * Give an `oldNumber` belonging to an `oldRange`, return the corresponding new
+ * number in a `newRange`. For example, if the old number is 2 in a range of
+ * 1...3, the corresponding new number in a range 2...8 will be 5--the old
+ * number and the new number are both 50% through their ranges. When `wrap` is
+ * set to true, halfway through the new range, numbers will count down to the
+ * first number in the range, e.g.: 0,1,2,3,3,2,1,0.
+ *
+ * A NumberRange defines the first entry and last entry in a set of consecutive
+ * integers.
+ *
+ * @todo
+ * What happens when the old range is the same length or smaller than the new
+ * range?
  */
+function recalibrate(oldNumber, oldRange, newRange, wrap = false) {
+    oldNumber = Math.round(oldNumber); // make it an integer
+    const oldRangeLength = (oldRange.last - oldRange.first) + 1;
+    const newRangeLength = (newRange.last - newRange.first) + 1;
+    const percentage = (oldNumber - oldRange.first) / oldRangeLength;
+    let newNumber = Math.floor((percentage * newRangeLength) + newRange.first);
+    if (wrap)
+        newNumber = wrapRange(newNumber, newRange);
+    return newNumber;
+}
+/** Wrap a range of consecutive numbers back upon itself. For example:
+ * - 0,1,2,3,4,5,6,7 => 0,1,2,3,3,2,1,0
+ *
+ * @todo
+ * This is working well for a range that contains an even number of entries, but
+ * should be confirmed for ranges with an odd number of entries.
+ */
+function wrapRange(number, numberRange) {
+    const rangeLength = (numberRange.last - numberRange.first) + 1;
+    if (number < numberRange.first)
+        number = Math.abs(number);
+    else if (number >= (Math.floor(rangeLength / 2)))
+        number = numberRange.last - number;
+    return number;
+}
 /**
  * Given `now`, a Time, return a number between 0 and 63, where 0 is
  * midnight and 63 is noon. The number should climb to 63 as the AM hours move
  * forward, and then descend to 0 as the PM hours return to midnight.
  */
 function taoValue() {
-    const now = new Time('2020-06-01T13:00:00.000');
+    const now = new Time();
+    // const now = new Time('2020-06-01T13:00:00.000');
     console.log('test now:', now);
     const values = [];
     values.push(timeValue(now));
@@ -227,16 +266,17 @@ function taoValue() {
  * within this range, and return its value as an integer in 0...63.
  */
 function timeValue(now) {
-    let value = 0;
-    console.log('midnight offset:', now.midnightOffset(), 'DST offset:', now.DSTOffset());
+    // let value = 0;
+    const dailyMilliseconds = { first: 0, last: Time.msPerDay - 1 };
     const midnightOffset = now.midnightOffset() - now.DSTOffset();
-    value = Math.floor((midnightOffset / Time.msPerDay) * 128);
-    console.log('preliminary value:', value);
-    if (value < 0)
-        value = Math.abs(value);
-    else if (value >= 64)
-        value = 127 - value;
-    console.log('value:', value);
+    const value = recalibrate(midnightOffset, dailyMilliseconds, HexagramRange, true);
+    // console.log('midnight offset:', now.midnightOffset(), 'DST offset:', now.DSTOffset())
+    // const midnightOffset = now.midnightOffset() - now.DSTOffset();
+    // value = Math.floor((midnightOffset / Time.msPerDay) * 128);
+    // console.log('preliminary value:', value);
+    // if (value < 0) value = Math.abs(value);
+    // else if (value >= 64) value = 127 - value;
+    console.log('time:', value);
     return value;
 }
 /**
@@ -245,8 +285,8 @@ function timeValue(now) {
  * within this range, and return its value as an integer in 0...63.
  */
 function lunarValue(now) {
-    let value = 0;
-    value = 63;
+    const value = 0;
+    console.log('moon:', value);
     return value;
 }
 /**
@@ -255,8 +295,8 @@ function lunarValue(now) {
  * within this range, and return its value as an integer in 0...63.
  */
 function seasonValue(now) {
-    let value = 0;
-    value = 63;
+    const value = 0;
+    console.log('season:', value);
     return value;
 }
 /**
@@ -281,6 +321,7 @@ function rotate(array, count) {
     }
     return newArray;
 }
+// ******************************************************************************
 /**
  * Given the desired number of `rows` and `columns`, and a `tableClass` name,
  * return an HTMLTableElement.

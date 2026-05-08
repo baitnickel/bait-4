@@ -52,8 +52,8 @@ const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
 const NewMoonsPath = `${ThisPage.site}/data/iching/new-moons.txt`;
 const IChing = await Fetch.object<T.IChing>(IChingPath);
 const NumberOfChapters = 64; /* number of Range values needed (number of I Ching chapters) */
-const NewMoons = await Fetch.text(NewMoonsPath);
-console.log(NewMoons);
+const NewMoonsList = await Fetch.text(NewMoonsPath);
+console.log(NewMoonsList);
 
 /**
  * Supported Range Types. If this list is modified, it might also be necessary to
@@ -118,7 +118,7 @@ export function render() {
 
 	/**
 	 * Display the Tao button--the option to generate the hexagon using natural
-	 * circumstances: the time of day, the lunar phase, the season of the year.
+	 * conditions: the time of day, the lunar phase, the season of the year.
 	 */
 	createTaoButton();
 
@@ -229,13 +229,12 @@ function dropDownValues(dropdowns: HTMLSelectElement[]) {
 }
 
 /**
- * Create the Tao Button. We're using California values for `utcOffset` and
- * 'hemisphere` ("N" for North, "S" for South).
+ * Create the Tao Button.
  */
-function createTaoButton(utcOffset = 8, hemisphere = 'N') {
+function createTaoButton() {
 	const taoButton = document.createElement('button');
 	taoButton.className = 'iching-tao-button';
-	taoButton.innerHTML = 'Go with the Flow';
+	taoButton.innerHTML = '🌎 🌙 ⭐️';
 	TaoButtonDivision.append(taoButton)
 	taoButton.addEventListener('click', () => {
 		const value = taoValue();
@@ -297,12 +296,13 @@ function wrapRange(number: number, numberRange: NumberRange) {
  */
 function taoValue() {
 	const now = new Time();
-	// const now = new Time('2020-06-01T13:00:00.000');
+	// const now = new Time(); 23:59:59.999 12:00:00.000
+	// const now = new Time('2026-05-31T01:00:00.000');
 	console.log('test now:', now);
 	const values: number[] = [];
 	values.push(timeValue(now));
-	values.push(lunarValue(now));
-	values.push(seasonValue(now));
+	values.push(lunationValue(now));
+	values.push(orbitalValue(now));
 	/** set taoButton's value to the average of all the values */
 	let sum = 0;
 	for (const value of values) sum += value;
@@ -310,40 +310,53 @@ function taoValue() {
 	return value;
 }
 /**
- * Determine the current day range (the date/time of the most recent midnight
- * and the date/time of the next midnight). Determine where `now` falls
- * within this range, and return its value as an integer in 0...63.
+ * Determine the current time range (the date/time of the most recent midnight
+ * and the date/time of the next midnight). Determine where `now` falls within
+ * this range and return its value as an integer in 0...63. We make adjustments
+ * for Daylight Saving Time, ensuring that 0 is always returned when the sun is at its
+ * lowest and 63 is always returned when the sun is at its highest.
  */
 function timeValue(now: Time) {
-	// let value = 0;
-	const dailyMilliseconds: NumberRange = { first: 0, last: Time.msPerDay - 1 };
-	const midnightOffset = now.midnightOffset() - now.DSTOffset();
-	const value = recalibrate(midnightOffset, dailyMilliseconds, HexagramRange, true);
-	// console.log('midnight offset:', now.midnightOffset(), 'DST offset:', now.DSTOffset())
-	// const midnightOffset = now.midnightOffset() - now.DSTOffset();
-	// value = Math.floor((midnightOffset / Time.msPerDay) * 128);
-	// console.log('preliminary value:', value);
-	// if (value < 0) value = Math.abs(value);
-	// else if (value >= 64) value = 127 - value;
+	const timeRange: NumberRange = { first: 0, last: Time.msPerDay };
+	const trueMidnight = (now.getTime() - now.midnightOffset()) + now.DSTOffset();
+	const midnightOffset = now.getTime() - trueMidnight;
+	const value = recalibrate(midnightOffset, timeRange, HexagramRange, true);
 	console.log('time:', value);
 	return value;
 }
 /**
  * Determine the current lunation range (the date/time of the most recent new
  * moon and the date/time of the next new moon). Determine where `now` falls
- * within this range, and return its value as an integer in 0...63.
+ * within this range, and return its value as an integer in 0...63 (where 0 is a
+ * new moon and 63 is a full moon--approximately).
  */
-function lunarValue(now: Time) {
-	const value = 0;
+function lunationValue(now: Time) {
+	let value = 0;
+	const nowISO = now.toISOString();
+	const newMoons = NewMoonsList.split('\n');
+	let priorNewMoon = nowISO; 
+	for (const newMoon of newMoons) {
+		if (nowISO < newMoon) {
+			const priorNewMoonTime = new Time(priorNewMoon);
+			const nextNewMoonTime = new Time(newMoon);
+			const first = 0;
+			const last = nextNewMoonTime.getTime() - priorNewMoonTime.getTime();
+			const nowOffset = now.getTime() - priorNewMoonTime.getTime();
+			const lunationRange: NumberRange = { first: first, last: last };
+			value = recalibrate(nowOffset, lunationRange, HexagramRange, true);			
+			break;
+		}
+		priorNewMoon = newMoon;
+	}
 	console.log('moon:', value);
 	return value;
 }
 /**
- * Determine the current orbital range (the date/time of the most recent winter solstice
- * and the date/time of the next winter solstice). Determine where `now` falls
- * within this range, and return its value as an integer in 0...63.
+ * Determine the current orbital range (the date/time of the most recent winter
+ * solstice and the date/time of the next winter solstice). Determine where
+ * `now` falls within this range, and return its value as an integer in 0...63.
  */
-function seasonValue(now: Time) {
+function orbitalValue(now: Time) {
 	const value = 0;
 	console.log('season:', value);
 	return value;

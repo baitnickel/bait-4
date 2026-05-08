@@ -196,9 +196,13 @@ pre code { /* fenced code blocks */
 
 .iching-tao-button {
 	margin-bottom: 2em;
+	padding: .5em;
+	background-color: black;
+	border-width: .25em;
+	border-color: white;
 }
 .iching-range-item-select {
-	margin-left: .5em;
+	margin-left: 1em;
 }
 .iching-range-display {
 	font-size: 48px;

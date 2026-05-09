@@ -26,7 +26,7 @@ const NewMoonsPath = `${ThisPage.site}/data/iching/new-moons.txt`;
 const IChing = await Fetch.object(IChingPath);
 const NumberOfChapters = 64; /* number of Range values needed (number of I Ching chapters) */
 const NewMoonsList = await Fetch.text(NewMoonsPath);
-console.log(NewMoonsList);
+// console.log(NewMoonsList);
 /**
  * Supported Range Types. If this list is modified, it might also be necessary to
  * modify the `newRange` function as well.
@@ -215,7 +215,7 @@ const HexagramRange = { first: 0, last: 127 }; /** 127 rather than 63 to support
  * range?
  */
 function recalibrate(oldNumber, oldRange, newRange, wrap = false) {
-    oldNumber = Math.round(oldNumber); // make it an integer
+    oldNumber = Math.round(oldNumber); /** make it an integer */
     const oldRangeLength = (oldRange.last - oldRange.first) + 1;
     const newRangeLength = (newRange.last - newRange.first) + 1;
     const percentage = (oldNumber - oldRange.first) / oldRangeLength;
@@ -246,9 +246,7 @@ function wrapRange(number, numberRange) {
  */
 function taoValue() {
     const now = new Time();
-    // const now = new Time(); 23:59:59.999 12:00:00.000
-    // const now = new Time('2026-05-31T01:00:00.000');
-    console.log('test now:', now);
+    console.log('now:', now);
     const values = [];
     values.push(timeValue(now));
     values.push(lunationValue(now));
@@ -286,18 +284,15 @@ function lunationValue(now) {
     const nowISO = now.toISOString();
     const newMoons = NewMoonsList.split('\n');
     let priorNewMoon = nowISO;
-    for (const newMoon of newMoons) {
-        if (nowISO < newMoon) {
-            const priorNewMoonTime = new Time(priorNewMoon);
-            const nextNewMoonTime = new Time(newMoon);
-            const first = 0;
-            const last = nextNewMoonTime.getTime() - priorNewMoonTime.getTime();
-            const nowOffset = now.getTime() - priorNewMoonTime.getTime();
-            const lunationRange = { first: first, last: last };
-            value = recalibrate(nowOffset, lunationRange, HexagramRange, true);
+    for (const nextNewMoon of newMoons) {
+        if (nowISO < nextNewMoon) {
+            const priorMoon = new Time(priorNewMoon);
+            const nextMoon = new Time(nextNewMoon);
+            const lunationRange = { first: priorMoon.getTime(), last: nextMoon.getTime() };
+            value = recalibrate(now.getTime(), lunationRange, HexagramRange, true);
             break;
         }
-        priorNewMoon = newMoon;
+        priorNewMoon = nextNewMoon;
     }
     console.log('moon:', value);
     return value;
@@ -308,7 +303,11 @@ function lunationValue(now) {
  * `now` falls within this range, and return its value as an integer in 0...63.
  */
 function orbitalValue(now) {
-    const value = 0;
+    const leapYearDays = 366;
+    const daysBeforeNewYear = 11; /** number of days solstice occurs before New Year */
+    const solsticeOffset = (now.ordinalDay(true) + daysBeforeNewYear) % leapYearDays;
+    const orbitalRange = { first: 0, last: leapYearDays - 1 };
+    const value = recalibrate(solsticeOffset, orbitalRange, HexagramRange, true);
     console.log('season:', value);
     return value;
 }

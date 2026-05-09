@@ -195,11 +195,12 @@ pre code { /* fenced code blocks */
 }
 
 .iching-tao-button {
-	margin-bottom: 2em;
-	padding: .5em;
-	background-color: black;
-	border-width: .25em;
+	font-size: .8em;
+	padding: .75em;
+	background-color: #000000;
+	border-width: .20em;
 	border-color: white;
+	margin-bottom: 2em;
 }
 .iching-range-item-select {
 	margin-left: 1em;

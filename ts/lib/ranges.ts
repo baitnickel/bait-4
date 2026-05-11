@@ -199,3 +199,50 @@ export class Seasonal extends Range { /** ### Calendric? */
 		return season;
 	}
 }
+
+/**
+ * A NumberRange object defines the first entry and last entry in a series of
+ * consecutive positive integers (or zero). Negative numbers are coerced to
+ * zeros, and if last is less than first, last is coerced to first. Floating
+ * point values are coerced to integers using Math.floor().
+ */
+export class NumberRange {
+	first: number;
+	last: number;
+	get size() { return (this.last - this.first) + 1 }
+
+	constructor(first: number, last: number) {
+		/** ensure that both first and last are integers */
+		first = Math.floor(first);
+		last = Math.floor(last);
+		/** ensure that first >= 0 and last >= first */
+		this.first = (first >= 0) ? first : 0;
+		this.last = (last >= first) ? last : first;
+	}
+
+	/**
+	 * Given a `number` belonging to an `otherNumberRange`, return the
+	 * corresponding new number in this NumberRange. For example, if the
+	 * original number is 2 in a range of 1...3, the corresponding new number in
+	 * a range 2...8 will be 5--the original number and the new number are both
+	 * 50% through their ranges in this example. When `wrap` is set to true,
+	 * halfway through the new range, numbers will count down to the first
+	 * number in the range, e.g.: 0,1,2,3,3,2,1,0.
+	 */
+	recalibrate(number: number, otherNumberRange: NumberRange, wrap = false) {
+		number = Math.round(number); /** coerce to an integer */
+		const percentage = (number - otherNumberRange.first) / otherNumberRange.size;
+		let newNumber = Math.floor((percentage * this.size) + this.first);
+		if (wrap) newNumber = this.wrapRange(newNumber);
+		return newNumber;
+	}
+
+	/** Wrap a range of consecutive numbers back upon itself. For example:
+	 * - 0,1,2,3,4,5,6,7 => 0,1,2,3,3,2,1,0
+	 */
+	wrapRange(number: number) {
+		if (number < this.first) number = this.first; // Math.abs(number);
+		else if (number >= (Math.floor(this.size / 2))) number = this.last - number;
+		return number;
+	}
+}

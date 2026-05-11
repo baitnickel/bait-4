@@ -1,26 +1,9 @@
 import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
-import { Range, Dice, Coins } from './lib/ranges.js';
+import { Range, Dice, Coins, NumberRange } from './lib/ranges.js';
 import { Time } from './lib/time.js';
 import { Markup } from './lib/markup.js';
-
-/**
- * There should be an option (a simple button) to create the "random" number
- * that selects the I Ching chapter using only "nature world" factors, e.g., the
- * time of day, the lunar phase, the day-of-the-year number (season). Given a
- * time segment of 7.5 minutes (or 450 seconds), there are 192 time segments in
- * a day (twenty-four hours). 192 is evenly divisible by 64. We'll want to
- * assume a fantasy time zone where UTC plus longitude tells us when it's noon
- * and when it's midnight. The day-of-the-year number is not evenly divisible by
- * 64, but the hour-of-the year, or minute-of-the-year, etc. may produce better
- * resolution. Similarly, lunar phases may be divided into hours, minutes,
- * seconds, etc.
- * 
- * We will probably have to provided settings that will establish the time of
- * the next new moon, our longitude (UTC offset) and maybe latitude--to make
- * summer and winter correctly pronounced), etc.
- */
 
 type RangeType = {
 	text: string;
@@ -51,7 +34,8 @@ const DefaultTitle = 'I Ching';
 const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
 const NewMoonsPath = `${ThisPage.site}/data/iching/new-moons.txt`;
 const IChing = await Fetch.object<T.IChing>(IChingPath);
-const NumberOfChapters = 64; /* number of Range values needed (number of I Ching chapters) */
+const NumberOfChapters = 64; /* number of I Ching chapters */
+const ExtendedHexagramRange = new NumberRange(0, (NumberOfChapters * 2) - 1); /* 0...127 */
 const NewMoonsList = await Fetch.text(NewMoonsPath);
 // console.log(NewMoonsList);
 
@@ -247,8 +231,8 @@ function createTaoButton() {
  */
 // ******************************************************************************
 
-type NumberRange = { first: number, last: number };
-const HexagramRange: NumberRange = { first: 0, last: 127 }; /** 127 rather than 63 to support wrapped ranges */
+type NumRange = { first: number, last: number };
+const HexagramRange: NumRange = { first: 0, last: 127 }; /** 127 rather than 63 to support wrapped ranges */
 
 /**
  * Give an `oldNumber` belonging to an `oldRange`, return the corresponding new
@@ -258,14 +242,14 @@ const HexagramRange: NumberRange = { first: 0, last: 127 }; /** 127 rather than 
  * set to true, halfway through the new range, numbers will count down to the
  * first number in the range, e.g.: 0,1,2,3,3,2,1,0.
  * 
- * A NumberRange defines the first entry and last entry in a set of consecutive
+ * A NumRange defines the first entry and last entry in a set of consecutive
  * integers.
  * 
  * @todo
  * What happens when the old range is the same length or smaller than the new
  * range?
  */
-function recalibrate(oldNumber: number, oldRange: NumberRange, newRange: NumberRange, wrap = false) {
+function recalibrate(oldNumber: number, oldRange: NumRange, newRange: NumRange, wrap = false) {
 	oldNumber = Math.round(oldNumber); /** make it an integer */
 	const oldRangeLength = (oldRange.last - oldRange.first) + 1;
 	const newRangeLength = (newRange.last - newRange.first) + 1;
@@ -280,9 +264,9 @@ function recalibrate(oldNumber: number, oldRange: NumberRange, newRange: NumberR
  * 
  * @todo
  * This is working well for a range that contains an even number of entries, but
- * should be confirmed for ranges with an odd number of entries.
+ * should be tested for ranges with an odd number of entries.
  */
-function wrapRange(number: number, numberRange: NumberRange) {
+function wrapRange(number: number, numberRange: NumRange) {
 	const rangeLength = (numberRange.last - numberRange.first) + 1;
 	if (number < numberRange.first) number = Math.abs(number);
 	else if (number >= (Math.floor(rangeLength / 2))) number = numberRange.last - number;
@@ -295,8 +279,9 @@ function wrapRange(number: number, numberRange: NumberRange) {
  * forward, and then descend to 0 as the PM hours return to midnight.
  */
 function taoValue() {
-	const now = new Time();
-	console.log('now:', now);
+	// const now = new Time();
+	const now = new Time(2026, 8, 21);
+	console.log(`now: ${now}`);
 	const values: number[] = [];
 	values.push(timeValue(now));
 	values.push(lunationValue(now));
@@ -315,11 +300,15 @@ function taoValue() {
  * lowest and 63 is always returned when the sun is at its highest.
  */
 function timeValue(now: Time) {
-	const timeRange: NumberRange = { first: 0, last: Time.msPerDay };
+	const timeRange: NumRange = { first: 0, last: Time.msPerDay };
+	const newTimeRange = new NumberRange(0, Time.msPerDay);
 	const trueMidnight = (now.getTime() - now.midnightOffset()) + now.DSTOffset();
 	const midnightOffset = now.getTime() - trueMidnight;
+	console.log(`midnightOffset: ${now.midnightOffset()}`);
+	console.log(`DSTOffset: ${now.DSTOffset()}`); // something's wrong here
 	const value = recalibrate(midnightOffset, timeRange, HexagramRange, true);
-	console.log('time:', value);
+	const newValue = ExtendedHexagramRange.recalibrate(midnightOffset, newTimeRange, true);
+	console.log(`old time: ${value} new time: ${newValue}`);
 	return value;
 }
 /**
@@ -330,6 +319,7 @@ function timeValue(now: Time) {
  */
 function lunationValue(now: Time) {
 	let value = 0;
+	let newValue = 0;
 	const nowISO = now.toISOString();
 	const newMoons = NewMoonsList.split('\n');
 	let priorNewMoon = nowISO; 
@@ -337,13 +327,15 @@ function lunationValue(now: Time) {
 		if (nowISO < nextNewMoon) {
 			const priorMoon = new Time(priorNewMoon);
 			const nextMoon = new Time(nextNewMoon);
-			const lunationRange: NumberRange = { first: priorMoon.getTime(), last: nextMoon.getTime() };
+			const lunationRange: NumRange = { first: priorMoon.getTime(), last: nextMoon.getTime() };
+			const newLunationRange = new NumberRange(priorMoon.getTime(), nextMoon.getTime());
 			value = recalibrate(now.getTime(), lunationRange, HexagramRange, true);
+			newValue = ExtendedHexagramRange.recalibrate(now.getTime(), newLunationRange, true);
 			break;
 		}
 		priorNewMoon = nextNewMoon;
 	}
-	console.log('moon:', value);
+	console.log(`old moon: ${value} new moon: ${newValue}`);
 	return value;
 }
 /**
@@ -355,9 +347,11 @@ function orbitalValue(now: Time) {
 	const leapYearDays = 366;
 	const daysBeforeNewYear = 11; /** number of days solstice occurs before New Year */
 	const solsticeOffset = (now.ordinalDay(true) + daysBeforeNewYear) % leapYearDays;
-	const orbitalRange: NumberRange = { first: 0, last: leapYearDays - 1 };
+	const orbitalRange: NumRange = { first: 0, last: leapYearDays - 1 };
+	const newOrbitalRange = new NumberRange(0, leapYearDays - 1);
 	const value = recalibrate(solsticeOffset, orbitalRange, HexagramRange, true);
-	console.log('season:', value);
+	const newValue = ExtendedHexagramRange.recalibrate(solsticeOffset, newOrbitalRange, true);
+	console.log(`old season: ${value} new season: ${newValue}`);
 	return value;
 }
 /**
@@ -415,7 +409,7 @@ function displayHexagram(hexagramNumber: number) {
 	const hexagramJudgment = document.createElement('div');
 
 	if (hexagramNumber >= 0 && hexagramNumber < 64) {
-		console.log('Hex Number:', hexagramNumber);
+		console.log(`Hex Number: ${hexagramNumber}`);
 
 		const hexagram = IChing.hexagrams[hexagramNumber];
 		ThisPage.setTitle(`${DefaultTitle} ${hexagram.character} Chapter ${hexagram.chapter}`);

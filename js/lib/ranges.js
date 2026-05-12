@@ -188,22 +188,20 @@ export class Seasonal extends Range {
     }
 }
 /**
- * A NumberRange object defines the first entry and last entry in a series of
- * consecutive positive integers (or zero). Negative numbers are coerced to
- * zeros, and if last is less than first, last is coerced to first. Floating
- * point values are coerced to integers using Math.floor().
+ * A NumberRange object defines a range of consecutive integers, starting with
+ * the `first` integer and ending with the `last` integer. The number of
+ * integers in the range is specified by `size`. All entries must be whole
+ * numbers (fractional digits are removed), and if a `size` less than 1 is
+ * specified, it is coerced to 1.
  */
 export class NumberRange {
+    size;
     first;
     last;
-    get size() { return (this.last - this.first) + 1; }
-    constructor(first, last) {
-        /** ensure that both first and last are integers */
-        first = Math.floor(first);
-        last = Math.floor(last);
-        /** ensure that first >= 0 and last >= first */
-        this.first = (first >= 0) ? first : 0;
-        this.last = (last >= first) ? last : first;
+    constructor(size, first = 0) {
+        this.size = (size >= 1) ? Math.trunc(size) : 1;
+        this.first = Math.trunc(first);
+        this.last = this.first + this.size - 1;
     }
     /**
      * Given a `number` belonging to an `otherNumberRange`, return the
@@ -213,6 +211,9 @@ export class NumberRange {
      * 50% through their ranges in this example. When `wrap` is set to true,
      * halfway through the new range, numbers will count down to the first
      * number in the range, e.g.: 0,1,2,3,3,2,1,0.
+     *
+     * @todo
+     * perhaps: return ((newNumber - this.first) % this.size) + this.first;
      */
     recalibrate(number, otherNumberRange, wrap = false) {
         number = Math.round(number); /** coerce to an integer */

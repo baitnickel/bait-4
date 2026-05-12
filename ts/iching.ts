@@ -35,7 +35,7 @@ const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
 const NewMoonsPath = `${ThisPage.site}/data/iching/new-moons.txt`;
 const IChing = await Fetch.object<T.IChing>(IChingPath);
 const NumberOfChapters = 64; /* number of I Ching chapters */
-const ExtendedHexagramRange = new NumberRange(0, (NumberOfChapters * 2) - 1); /* 0...127 */
+const ExtendedHexagramRange = new NumberRange(NumberOfChapters * 2); /* 0...127 */
 const NewMoonsList = await Fetch.text(NewMoonsPath);
 // console.log(NewMoonsList);
 
@@ -279,8 +279,8 @@ function wrapRange(number: number, numberRange: NumRange) {
  * forward, and then descend to 0 as the PM hours return to midnight.
  */
 function taoValue() {
-	// const now = new Time();
-	const now = new Time(2026, 8, 21);
+	const now = new Time();
+	// const now = new Time(2026, 4, 31);
 	console.log(`now: ${now}`);
 	const values: number[] = [];
 	values.push(timeValue(now));
@@ -300,15 +300,10 @@ function taoValue() {
  * lowest and 63 is always returned when the sun is at its highest.
  */
 function timeValue(now: Time) {
-	const timeRange: NumRange = { first: 0, last: Time.msPerDay };
-	const newTimeRange = new NumberRange(0, Time.msPerDay);
 	const trueMidnight = (now.getTime() - now.midnightOffset()) + now.DSTOffset();
-	const midnightOffset = now.getTime() - trueMidnight;
-	console.log(`midnightOffset: ${now.midnightOffset()}`);
-	console.log(`DSTOffset: ${now.DSTOffset()}`); // something's wrong here
-	const value = recalibrate(midnightOffset, timeRange, HexagramRange, true);
-	const newValue = ExtendedHexagramRange.recalibrate(midnightOffset, newTimeRange, true);
-	console.log(`old time: ${value} new time: ${newValue}`);
+	const timeRange = new NumberRange(Time.msPerDay, trueMidnight);
+	const value = ExtendedHexagramRange.recalibrate(now.getTime(), timeRange, true);
+	console.log(`time: ${value}`);
 	return value;
 }
 /**
@@ -319,23 +314,23 @@ function timeValue(now: Time) {
  */
 function lunationValue(now: Time) {
 	let value = 0;
-	let newValue = 0;
+	const ISOPattern = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\dZ$/;
 	const nowISO = now.toISOString();
 	const newMoons = NewMoonsList.split('\n');
 	let priorNewMoon = nowISO; 
-	for (const nextNewMoon of newMoons) {
+	for (const newMoon of newMoons) {
+		const nextNewMoon = newMoon.trim();
+		if (!ISOPattern.test(nextNewMoon)) continue;
 		if (nowISO < nextNewMoon) {
 			const priorMoon = new Time(priorNewMoon);
 			const nextMoon = new Time(nextNewMoon);
-			const lunationRange: NumRange = { first: priorMoon.getTime(), last: nextMoon.getTime() };
-			const newLunationRange = new NumberRange(priorMoon.getTime(), nextMoon.getTime());
-			value = recalibrate(now.getTime(), lunationRange, HexagramRange, true);
-			newValue = ExtendedHexagramRange.recalibrate(now.getTime(), newLunationRange, true);
+			const lunationRange = new NumberRange(nextMoon.getTime() - priorMoon.getTime() + 1, priorMoon.getTime());
+			value = ExtendedHexagramRange.recalibrate(now.getTime(), lunationRange, true);
 			break;
 		}
 		priorNewMoon = nextNewMoon;
 	}
-	console.log(`old moon: ${value} new moon: ${newValue}`);
+	console.log(`moon: ${value}`);
 	return value;
 }
 /**
@@ -347,11 +342,9 @@ function orbitalValue(now: Time) {
 	const leapYearDays = 366;
 	const daysBeforeNewYear = 11; /** number of days solstice occurs before New Year */
 	const solsticeOffset = (now.ordinalDay(true) + daysBeforeNewYear) % leapYearDays;
-	const orbitalRange: NumRange = { first: 0, last: leapYearDays - 1 };
-	const newOrbitalRange = new NumberRange(0, leapYearDays - 1);
-	const value = recalibrate(solsticeOffset, orbitalRange, HexagramRange, true);
-	const newValue = ExtendedHexagramRange.recalibrate(solsticeOffset, newOrbitalRange, true);
-	console.log(`old season: ${value} new season: ${newValue}`);
+	const orbitalRange = new NumberRange(leapYearDays);
+	const value = ExtendedHexagramRange.recalibrate(solsticeOffset, orbitalRange, true);
+	console.log(`season: ${value}`);
 	return value;
 }
 /**

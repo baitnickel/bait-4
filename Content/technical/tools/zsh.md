@@ -2,6 +2,8 @@
 id: 55
 access: 0
 ---
+Run `. ~/.zprofile` to refresh the current shell's environment variables and aliases
+
 ## File/Directory Disk Usage
 Display disk usage in a directory (in current directory if argument is not specified):
 

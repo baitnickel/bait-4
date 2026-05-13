@@ -35,10 +35,10 @@
 	"Content/drafts/Santa Cruz.md": {
 		"id": 4,
 		"access": 0,
-		"revision": 1750280232348,
+		"revision": 1772410140557,
 		"aliases": [],
 		"tags": [
-			"memoir, era197409"
+			"memoir"
 		]
 	},
 	"Content/drafts/timeline.md": {
@@ -373,7 +373,7 @@
 	"Content/technical/tools/zsh.md": {
 		"id": 55,
 		"access": 0,
-		"revision": 1765306606424,
+		"revision": 1774038155757,
 		"aliases": [],
 		"tags": []
 	},
@@ -429,19 +429,15 @@
 	"Content/test-docs/fragments/Upgrade.md": {
 		"id": 7,
 		"access": 0,
-		"revision": 1750372780260,
+		"revision": 1772410255159,
 		"aliases": [],
-		"tags": [
-			"era202001"
-		]
+		"tags": []
 	},
 	"Content/test-docs/fragments/Yosemite Winter 2005.md": {
 		"id": 8,
 		"access": 0,
-		"revision": 1750372846198,
+		"revision": 1772410274295,
 		"aliases": [],
-		"tags": [
-			"era20050129"
-		]
+		"tags": []
 	}
 }

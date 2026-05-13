@@ -24,8 +24,8 @@ const DefaultTitle = 'I Ching';
 const IChingPath = `${ThisPage.site}/data/iching/iching.json`;
 const NewMoonsPath = `${ThisPage.site}/data/iching/new-moons.txt`;
 const IChing = await Fetch.object(IChingPath);
-const NumberOfChapters = 64; /* number of I Ching chapters */
-const ExtendedHexagramRange = new NumberRange(NumberOfChapters * 2); /* 0...127 */
+// const NumberOfChapters = 64; /* number of I Ching chapters */
+const HexagramRange = new NumberRange(64); /* 0...63 */
 const NewMoonsList = await Fetch.text(NewMoonsPath);
 // console.log(NewMoonsList);
 /**
@@ -43,7 +43,7 @@ RangeTypes.set('C', { text: '6 Coins', items: 6, faces: 2 });
  * lot" is recorded and displayed, as well as how the cast identifies the
  * corresponding I Ching chapter.
  */
-let range = newRange(Array.from(RangeTypes.keys())[0], NumberOfChapters);
+let range = newRange(Array.from(RangeTypes.keys())[0], HexagramRange.size);
 // console.log(`Initialized Range: ${range.items} x ${range.faces}`);
 /**
  * Render the 4 global divisions:
@@ -125,7 +125,7 @@ function initializeRangeTypeSelection() {
     }
     selectElement.addEventListener('change', (e) => {
         let rangeTypeKey = selectElement.value;
-        range = newRange(rangeTypeKey, NumberOfChapters);
+        range = newRange(rangeTypeKey, HexagramRange.size);
         initializeRange(range);
         // console.log(`Updated Range: ${range.items} x ${range.faces}`);
     });
@@ -192,53 +192,12 @@ function dropDownValues(dropdowns) {
 function createTaoButton() {
     const taoButton = document.createElement('button');
     taoButton.className = 'iching-tao-button';
-    taoButton.innerHTML = '🌎 🌙 ⭐️';
+    taoButton.innerHTML = '☀️ 🌎 🌙';
     TaoButtonDivision.append(taoButton);
     taoButton.addEventListener('click', () => {
         const value = taoValue();
         displayHexagram(value);
     });
-}
-const HexagramRange = { first: 0, last: 127 }; /** 127 rather than 63 to support wrapped ranges */
-/**
- * Give an `oldNumber` belonging to an `oldRange`, return the corresponding new
- * number in a `newRange`. For example, if the old number is 2 in a range of
- * 1...3, the corresponding new number in a range 2...8 will be 5--the old
- * number and the new number are both 50% through their ranges. When `wrap` is
- * set to true, halfway through the new range, numbers will count down to the
- * first number in the range, e.g.: 0,1,2,3,3,2,1,0.
- *
- * A NumRange defines the first entry and last entry in a set of consecutive
- * integers.
- *
- * @todo
- * What happens when the old range is the same length or smaller than the new
- * range?
- */
-function recalibrate(oldNumber, oldRange, newRange, wrap = false) {
-    oldNumber = Math.round(oldNumber); /** make it an integer */
-    const oldRangeLength = (oldRange.last - oldRange.first) + 1;
-    const newRangeLength = (newRange.last - newRange.first) + 1;
-    const percentage = (oldNumber - oldRange.first) / oldRangeLength;
-    let newNumber = Math.floor((percentage * newRangeLength) + newRange.first);
-    if (wrap)
-        newNumber = wrapRange(newNumber, newRange);
-    return newNumber;
-}
-/** Wrap a range of consecutive numbers back upon itself. For example:
- * - 0,1,2,3,4,5,6,7 => 0,1,2,3,3,2,1,0
- *
- * @todo
- * This is working well for a range that contains an even number of entries, but
- * should be tested for ranges with an odd number of entries.
- */
-function wrapRange(number, numberRange) {
-    const rangeLength = (numberRange.last - numberRange.first) + 1;
-    if (number < numberRange.first)
-        number = Math.abs(number);
-    else if (number >= (Math.floor(rangeLength / 2)))
-        number = numberRange.last - number;
-    return number;
 }
 /**
  * Given `now`, a Time, return a number between 0 and 63, where 0 is
@@ -247,7 +206,7 @@ function wrapRange(number, numberRange) {
  */
 function taoValue() {
     const now = new Time();
-    // const now = new Time(2026, 4, 31);
+    // const now = new Time(2026, 5, 18, 13);
     console.log(`now: ${now}`);
     const values = [];
     values.push(timeValue(now));
@@ -270,7 +229,7 @@ function taoValue() {
 function timeValue(now) {
     const trueMidnight = (now.getTime() - now.midnightOffset()) + now.DSTOffset();
     const timeRange = new NumberRange(Time.msPerDay, trueMidnight);
-    const value = ExtendedHexagramRange.recalibrate(now.getTime(), timeRange, true);
+    const value = HexagramRange.recalibrate(now.getTime(), timeRange, true);
     console.log(`time: ${value}`);
     return value;
 }
@@ -294,7 +253,7 @@ function lunationValue(now) {
             const priorMoon = new Time(priorNewMoon);
             const nextMoon = new Time(nextNewMoon);
             const lunationRange = new NumberRange(nextMoon.getTime() - priorMoon.getTime() + 1, priorMoon.getTime());
-            value = ExtendedHexagramRange.recalibrate(now.getTime(), lunationRange, true);
+            value = HexagramRange.recalibrate(now.getTime(), lunationRange, true);
             break;
         }
         priorNewMoon = nextNewMoon;
@@ -312,33 +271,10 @@ function orbitalValue(now) {
     const daysBeforeNewYear = 11; /** number of days solstice occurs before New Year */
     const solsticeOffset = (now.ordinalDay(true) + daysBeforeNewYear) % leapYearDays;
     const orbitalRange = new NumberRange(leapYearDays);
-    const value = ExtendedHexagramRange.recalibrate(solsticeOffset, orbitalRange, true);
+    const value = HexagramRange.recalibrate(solsticeOffset, orbitalRange, true);
     console.log(`season: ${value}`);
     return value;
 }
-/**
- * Given an `array` of any type of elements, return a new array, created by
- * rotating the elements of the original array to the left (negative `count`) or
- * to the right (positive `count`.) If `count` equals zero the new array will be
- * a copy of the original `array`. The absolute value of `count` may be greater
- * than the length of the array; the rotation will continue around the array
- * circle (count becomes count modulo the array length).
- */
-function rotate(array, count) {
-    const newArray = array.slice();
-    const left = count < 0;
-    const shiftCount = Math.abs(count) % newArray.length;
-    if (shiftCount && shiftCount < newArray.length) {
-        for (let i = 0; i < shiftCount; i += 1) {
-            if (left)
-                newArray.push(newArray.shift());
-            else
-                newArray.unshift(newArray.pop());
-        }
-    }
-    return newArray;
-}
-// ******************************************************************************
 /**
  * Given the desired number of `rows` and `columns`, and a `tableClass` name,
  * return an HTMLTableElement.

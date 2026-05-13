@@ -233,17 +233,9 @@ export class NumberRange {
 	recalibrate(number: number, otherNumberRange: NumberRange, wrap = false) {
 		number = Math.round(number); /** coerce to an integer */
 		const percentage = (number - otherNumberRange.first) / otherNumberRange.size;
-		let newNumber = Math.floor((percentage * this.size) + this.first);
-		if (wrap) newNumber = this.wrapRange(newNumber);
+		const size = (wrap) ? this.size * 2 : this.size;
+		let newNumber = Math.floor((percentage * size) + this.first);
+		if (wrap && newNumber >= this.size) newNumber = this.last + this.size - newNumber;
 		return newNumber;
-	}
-
-	/** Wrap a range of consecutive numbers back upon itself. For example:
-	 * - 0,1,2,3,4,5,6,7 => 0,1,2,3,3,2,1,0
-	 */
-	wrapRange(number: number) {
-		if (number < this.first) number = this.first; // Math.abs(number);
-		else if (number >= (Math.floor(this.size / 2))) number = this.last - number;
-		return number;
 	}
 }

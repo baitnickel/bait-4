@@ -204,23 +204,36 @@ export class NumberRange {
         this.last = this.first + this.size - 1;
     }
     /**
-     * Given a `number` belonging to an `otherNumberRange`, return the
+     * Given a `number` within `otherRange` (greater than or equal to
+     * otherRange.first and less than or equal to otherRange.last), return the
      * corresponding new number in this NumberRange. For example, if the
      * original number is 2 in a range of 1...3, the corresponding new number in
-     * a range 2...8 will be 5--the original number and the new number are both
-     * 50% through their ranges in this example. When `wrap` is set to true,
-     * halfway through the new range, numbers will count down to the first
-     * number in the range, e.g.: 0,1,2,3,3,2,1,0.
+     * a range 2...8 will be 5, since the original number and the new number are
+     * both in the center of these ranges.
      *
-     * @todo
-     * perhaps: return ((newNumber - this.first) % this.size) + this.first;
+     * When `circular` is set to true, results will increase from this.first to
+     * this.last until the halfway point of `otherRange` is reached, then
+     * results will decrease from this.last to this.first.
+     *
+     * Example - calibrate an array index 0...63 from a value in otherRange:
+     * - const indexRange = new NumberRange(64);
+     * - const index = Math.floor(indexRange.recalibrate(value, otherRange));
+     *
+     * Example - calibrate percentage of value within bounds of otherRange and
+     * use `toFixed` to convert to a string displaying 2 decimal places:
+     * - const range = new NumberRange(100);
+     * - const percentage = range.recalibrate(value, otherRange).toFixed(2);
      */
-    recalibrate(number, otherNumberRange, wrap = false) {
-        number = Math.round(number); /** coerce to an integer */
-        const percentage = (number - otherNumberRange.first) / otherNumberRange.size;
-        const size = (wrap) ? this.size * 2 : this.size;
-        let newNumber = Math.floor((percentage * size) + this.first);
-        if (wrap && newNumber >= this.size)
+    recalibrate(number, otherRange, circular = false) {
+        /** constrain number to the limits of its range */
+        if (number < otherRange.first)
+            number = otherRange.first;
+        else if (number > otherRange.last)
+            number = otherRange.last;
+        const percentage = (number - otherRange.first) / otherRange.size;
+        const size = (circular) ? this.size * 2 : this.size;
+        let newNumber = (percentage * size) + this.first;
+        if (circular && newNumber >= this.size)
             newNumber = this.last + this.size - newNumber;
         return newNumber;
     }

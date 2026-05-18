@@ -255,7 +255,7 @@ function taoValue() {
 function timeValue(now: Time) {
 	const trueMidnight = (now.getTime() - now.midnightOffset()) + now.DSTOffset();
 	const timeRange = new NumberRange(Time.msPerDay, trueMidnight);
-	const value = HexagramRange.recalibrate(now.getTime(), timeRange, true);
+	const value = Math.floor(HexagramRange.recalibrate(now.getTime(), timeRange, true));
 	console.log(`time: ${value}`);
 	return value;
 }
@@ -278,7 +278,7 @@ function lunationValue(now: Time) {
 			const priorMoon = new Time(priorNewMoon);
 			const nextMoon = new Time(nextNewMoon);
 			const lunationRange = new NumberRange(nextMoon.getTime() - priorMoon.getTime() + 1, priorMoon.getTime());
-			value = HexagramRange.recalibrate(now.getTime(), lunationRange, true);
+			value = Math.floor(HexagramRange.recalibrate(now.getTime(), lunationRange, true));
 			break;
 		}
 		priorNewMoon = nextNewMoon;
@@ -296,7 +296,7 @@ function orbitalValue(now: Time) {
 	const daysBeforeNewYear = 11; /** number of days solstice occurs before New Year */
 	const solsticeOffset = (now.ordinalDay(true) + daysBeforeNewYear) % leapYearDays;
 	const orbitalRange = new NumberRange(leapYearDays);
-	const value = HexagramRange.recalibrate(solsticeOffset, orbitalRange, true);
+	const value = Math.floor(HexagramRange.recalibrate(solsticeOffset, orbitalRange, true));
 	console.log(`season: ${value}`);
 	return value;
 }

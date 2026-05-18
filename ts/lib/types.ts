@@ -448,6 +448,12 @@ export type MediaImageData = {
 	filePaths: string[];
 }
 
+/** for `media/audio` API */
+export type MediaAudioData = {
+	playlist: string;
+	filePaths: string[];
+}
+
 /** for `threads` API */
 export type ThreadQuery = {
 	root: string;

@@ -1,0 +1,93 @@
+[
+	{
+		"id": 1,
+		"title": "The Volumes ’65",
+		"images": [],
+		"tracks": [1,2,3,4,5,6,7],
+		"notes": "The Volumes were Paul and Dan, in their teenage years, with a few contributions from Pete. They were given their name by neighbor Don Triguero. All of the Volumes recordings were made on the family's monaural Sony “Tapecorder”, in the bedrooms and bathrooms of the family home in San Jose."
+	},
+	{
+		"id": 2,
+		"title": "The Volumes ’66",
+		"images": [],
+		"tracks": [8,9,10,11,12],
+		"notes": "Things got a little raucous in this era of the Volumes. Perfection was clearly not the goal. Still recording on the family's monaural tape recorder, in some cases they electrified their acoustic guitars with sound-hole pickups, running the signals into the recorder's line-in jack."
+	},
+	{
+		"id": 3,
+		"title": "The Volumes ’67",
+		"images": [],
+		"tracks": [13,14,15,16,17,18,19,20,21,22,23,24,25],
+		"notes": "The Volumes' final recordings were their most formal. Paul and Dan were writing a lot of songs at this point, all the songs here being original compositions. Most of these recordings were done in their bathroom, taking advantage of its natural reverberation."
+	},
+	{
+		"id": 4,
+		"title": "Von Schwartz and Von Eickelmann",
+		"images": [],
+		"tracks": [],
+		"notes": "The family tape recorder was used to make a wide variety of recordings. Here, Paul and Don Triguero created an audio play involving adventures in outer space."
+	},
+	{
+		"id": 5,
+		"title": "Audio Letter from Australia",
+		"images": [],
+		"tracks": [],
+		"notes": "It had been over twenty years since Averyl left her home country of Australia to follow her American bridegroom, Wesley, to the United States. In the summer of 1966, she and Paul traveled back to Australia to visit her brother Knox and his family. They mailed this audio tape back to the family in San Jose during their visit."
+	},
+	{
+		"id": 6,
+		"title": "Dan's Songs 1977-1987",
+		"images": [],
+		"tracks": [],
+		"notes": "Using Naomi's stereo reel-to-reel tape recorder, as well as working with friend David Hislop in his home studio for a couple of tracks, Dan wrote and recorded these songs over a ten year period, encompassing the births of all three of his children. This was Dan's first chance to make stereo and multi-track recordings."
+	},
+	{
+		"id": 100,
+		"title": "Psyche Odyssey",
+		"images": [],
+		"tracks": [],
+		"notes": "This was Dan's first album under the band pseudonym “The Baitnickels”. These recordings were made on a 4-track Teac cassette tape recorder. In most cases, Dan wrote MIDI parts on a Macintosh computer (using Opcode's EZ Vision and Musicshop software) which were fed through a Roland U20 keyboard into two tracks, leaving the final two tracks available for guitar and vocals. The guitar was Dan's acoustic Martin D-18."
+	},
+	{
+		"id": 200,
+		"title": "Camping 2003: True or Funny",
+		"images": [],
+		"tracks": [],
+		"notes": "Sometimes referred to as “The Year of the Seven” because only seven family members made the trip, the campers in 2003 were a smaller group than in previous or subsequent years (to date).\nDan made these recordings—a series of little interviews—on a hand-held micro-cassette recorder."
+	},
+	{
+		"id": 300,
+		"title": "Eightfold",
+		"images": [],
+		"tracks": [],
+		"notes": "Dan spent free Sundays in 2004 and 2005 writing and recording these songs. These are the first digital recordings the Baitnickels made, using Protools on a Windows machine. Dan played his new Martin 00CXAE guitar and Zach's Fender bass, typically with direct lines into the software. MIDI played only a small part in these recordings."
+	},
+	{
+		"id": 400,
+		"title": "Train Tracks",
+		"images": [],
+		"tracks": [],
+		"notes": "The Baitnickels managed only a couple of recordings shortly after moving to Albany. These are instrumentals, featuring Dan's new Fender Stratocaster and Apple's GarageBand software."
+	},
+	{
+		"id": 500,
+		"title": "Ants and Other Neural Networks",
+		"images": [],
+		"tracks": [],
+		"notes": "The Baitnickels began using Apple's Logic Pro X software for these recordings, and returned to extensive use of MIDI. A small 24-key M-Audio USB keyboard was used for all the MIDI parts. Most tracks were recorded in Albany; the last few were recorded in the Berkeley Hills and El Cerrito."
+	},
+	{
+		"id": 600,
+		"title": "A Wake In Time",
+		"images": [],
+		"tracks": [601,603,604,605,606,607,608,609,610,611,612,613,614,615],
+		"notes": "These songs were recorded at home in El Cerrito, using a MacBook Pro laptop, an Apogee Duet A-to-D interface, and Apple's Logic Pro X software. Various guitars were used: an acoustic Martin D-18, acoustic/electric Martin 00CXAE, electric Fender Stratocaster, and Fender Precision Bass (on loan from Zach--thanks, Zach!). All other instruments are Logic \"software instruments\", played on an 88-key Yamaha P-125 keyboard.\n\nThe tracks are sequenced in chronological order, based on dates approximating song origin rather than recording dates. The songs were written between 2019 and 2022--most of them during the height of the COVID-19 pandemic."
+	},
+	{
+		"id": 9999,
+		"title": "in the lab",
+		"images": [],
+		"tracks": [9901,9902,9903,9904,9905,9906,9907,9908],
+		"notes": "These tracks are short experiments, exploring unconventional musical ideas and Logic Pro X audio engineering features."
+	}
+]

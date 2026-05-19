@@ -432,6 +432,25 @@ export class Page {
 		return `<pre><code>${code}</code><pre>`;
 	}
 
+	oxfordJoin(list: string[], conjunction: string = 'and') {
+		/**
+		 * Given a list of strings, return a string where elements are separated
+		 * by commas, and add the conjunction before the last element (following
+		 * the Oxford comma convention). If the list is empty, return an empty
+		 * string.
+		 */
+		let joinedList = '';
+		if (list.length) {
+			let separator = (list.length == 2) ? ` ${conjunction} ` : ', ';
+			joinedList = list.join(separator);
+			if (list.length > 2) {
+				let lastComma = joinedList.lastIndexOf(', ');
+				joinedList = `${joinedList.slice(0, lastComma + 1)} ${conjunction} ${joinedList.slice(lastComma + 2)}`;
+			}
+		}
+		return joinedList;
+	}
+
 	/**
 	 * Given an array of HTML `elements`, return a single-column HTML table
 	 * containing one row for each input control.

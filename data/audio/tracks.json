@@ -1,0 +1,482 @@
+[
+	{
+		"id": 1,
+		"title": "Wonderful World",
+		"performers": ["The Volumes"],
+		"composers": ["Lou Adler","Herb Alpert","Sam Cooke"],
+		"date": "1965",
+		"audio": "The Volumes/01 Wonderful World.m4a",
+		"sheets": [],
+		"notes": "Dan sings lead and strums guitar; Paul sings harmonies and plays lead guitar. Neighborhood friend, Don Triguero, who gave the Volumes their name, introduces the group here. They learned this song from the Herman's Hermits recording."
+	},
+	{
+		"id": 2,
+		"title": "Mr. Tambourine Man",
+		"performers": ["The Volumes"],
+		"composers": ["Bob Dylan"],
+		"date": "1965",
+		"audio": "The Volumes/02 Mr. Tambourine Man.m4a",
+		"sheets": [],
+		"notes": "Dan sings lead, strums guitar, and emulates the Byrd's opening bass line; Paul sings harmonies and plays lead guitar."
+	},
+	{
+		"id": 3,
+		"title": "Travellin' Light",
+		"performers": ["The Volumes"],
+		"composers": ["Sid Tepper","Roy C. Bennett"],
+		"date": "1965",
+		"audio": "The Volumes/03 Travelling Light.m4a",
+		"sheets": [],
+		"notes": "Dan sings lead and strums guitar; Paul whistles and plays lead guitar. Don Triguero provides the send-off. This is another song they learned from the Herman's Hermits recording."
+	},
+	{
+		"id": 4,
+		"title": "Satisfaction",
+		"performers": ["The Volumes"],
+		"composers": ["Mick Jagger","Keith Richards"],
+		"date": "1965",
+		"audio": "The Volumes/04 Satisfaction.m4a",
+		"sheets": [],
+		"notes": "Dan sings lead and strums guitar; Paul sings harmonies and plays lead guitar."
+	},
+	{
+		"id": 5,
+		"title": "Getting There",
+		"performers": ["The Volumes"],
+		"composers": ["Paul Dickinson"],
+		"date": "1965",
+		"audio": "The Volumes/05 Getting There.m4a",
+		"sheets": [],
+		"notes": "Paul sings lead and plays lead guitar; Dan sings harmonies and strums guitar. This was the first original song they recorded, and probably the first song Paul ever wrote."
+	},
+	{
+		"id": 6,
+		"title": "You Don't Know What It's Like",
+		"performers": ["The Volumes"],
+		"composers": ["Dan Dickinson"],
+		"date": "1965",
+		"audio": "The Volumes/06 You Don't Know What It's Like.m4a",
+		"sheets": [],
+		"notes": "Dan sings lead and plays guitar; Pete sings harmonies and drums on a folding card table chair. This was the first song Dan ever wrote."
+	},
+	{
+		"id": 7,
+		"title": "Boys",
+		"performers": ["The Volumes"],
+		"composers": ["Luther Dixon","Wes Farrell"],
+		"date": "1965",
+		"audio": "The Volumes/07 Boys.m4a",
+		"sheets": [],
+		"notes": "Dan sings lead and plays guitar; Pete sings harmonies and drums on a folding card table chair. They learned this song from the Beatles cover version, of course."
+	},
+	{
+		"id": 8,
+		"title": "Gloria",
+		"performers": ["The Volumes"],
+		"composers": ["Van Morrison"],
+		"date": "1966",
+		"audio": "The Volumes/08 Gloria.m4a",
+		"sheets": [],
+		"notes": "Paul sings lead and plays lead guitar; Dan sings harmonies and strums guitar; Pete sings harmonies and drums on a folding card table chair."
+	},
+	{
+		"id": 9,
+		"title": "You're Gonna Lose That Girl",
+		"performers": ["The Volumes"],
+		"composers": ["John Lennon","Paul McCartney"],
+		"date": "1966",
+		"audio": "The Volumes/09 You're Gonna Lose That Girl.m4a",
+		"sheets": [],
+		"notes": "Paul sings lead and plays lead guitar; Dan sings harmonies and strums guitar; John sings harmonies (in his only known Volumes performance); Pete drums on a folding card table chair."
+	},
+	{
+		"id": 10,
+		"title": "Play With Fire",
+		"performers": ["The Volumes"],
+		"composers": ["Mick Jagger","Keith Richards"],
+		"date": "1966",
+		"audio": "The Volumes/10 Play With Fire.m4a",
+		"sheets": [],
+		"notes": "Paul plays lead guitar; Dan plays fingerpicking guitar. Paul's counterpoint part was inspired by Jorma Kaukonen."
+	},
+	{
+		"id": 11,
+		"title": "Day Tripper",
+		"performers": ["The Volumes"],
+		"composers": ["John Lennon","Paul McCartney"],
+		"date": "1966",
+		"audio": "The Volumes/11 Day Tripper.m4a",
+		"sheets": [],
+		"notes": "Paul sings lead and plays tambourine; Dan plays lead guitar; neighborhood friend, Dan Degnan, plays rhythm guitar. Pete adds yelling and screaming and general chaos."
+	},
+	{
+		"id": 12,
+		"title": "So Much Better",
+		"performers": ["The Volumes"],
+		"composers": ["Dan Dickinson"],
+		"date": "1966",
+		"audio": "The Volumes/12 So Much Better.m4a",
+		"sheets": [],
+		"notes": "Dan sings lead; Paul sings background parts and plays lead guitar; Dan Degnan plays rhythm guitar. Pete insists that it's time to eat."
+	},
+	{
+		"id": 13,
+		"title": "She Left Me Last Night",
+		"performers": ["The Volumes"],
+		"composers": ["Dan Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/13 She Left Me Last Night.m4a",
+		"sheets": [],
+		"notes": "Paul sings lead on the verses and harmonies on the bridges, and plays lead guitar; Dan sings lead on the bridges and plays rhythm guitar."
+	},
+	{
+		"id": 14,
+		"title": "I've Met a Girl",
+		"performers": ["The Volumes"],
+		"composers": ["Paul Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/14 I've Met a Girl.m4a",
+		"sheets": [],
+		"notes": "Paul sings lead and plays lead guitar; Dan plays rhythm guitar."
+	},
+	{
+		"id": 15,
+		"title": "Put Me Off",
+		"performers": ["The Volumes"],
+		"composers": ["Paul Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/15 Put Me Off.m4a",
+		"sheets": [],
+		"notes": "Paul sings lead and plays lead guitar; Dan plays rhythm guitar."
+	},
+	{
+		"id": 16,
+		"title": "I Think I'm Falling In Love Again",
+		"performers": ["The Volumes"],
+		"composers": ["Dan Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/16 I Think I'm Falling In Love Again.m4a",
+		"sheets": [],
+		"notes": "Dan sings lead and plays rhythm guitar; Paul sings backing vocals and plays lead guitar."
+	},
+	{
+		"id": 17,
+		"title": "Day After Day",
+		"performers": ["The Volumes"],
+		"composers": ["Paul Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/17 Day After Day.m4a",
+		"sheets": [],
+		"notes": "Dan sings lead on the verses and counterpoint on the last bridge, and plays rhythm guitar; Paul sings harmonies on the verses and plays lead guitar."
+	},
+	{
+		"id": 18,
+		"title": "Go Home to Your Baby",
+		"performers": ["The Volumes"],
+		"composers": ["Paul Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/18 Go Home To Your Baby.m4a",
+		"sheets": [],
+		"notes": "Paul sings lead and plays guitar; Dan sings background vocals and plays guitar"
+	},
+	{
+		"id": 19,
+		"title": "The Woman Always Gets Her Man",
+		"performers": ["The Volumes"],
+		"composers": ["Paul Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/19 The Woman Always Gets Her Man.m4a",
+		"sheets": [],
+		"notes": "Paul sings lead and plays guitar; Dan plays guitar."
+	},
+	{
+		"id": 20,
+		"title": "Hands Off",
+		"performers": ["The Volumes"],
+		"composers": ["Paul Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/20 Hands Off.m4a",
+		"sheets": [],
+		"notes": "Paul sings lead and plays lead guitar; Dan sings harmonies and plays rhythm guitar."
+	},
+	{
+		"id": 21,
+		"title": "Photographs",
+		"performers": ["The Volumes"],
+		"composers": ["Paul Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/21 Photographs.m4a",
+		"sheets": [],
+		"notes": "Paul sings lead and plays lead guitar; Dan plays rhythm guitar."
+	},
+	{
+		"id": 22,
+		"title": "Melon Seller",
+		"performers": ["The Volumes"],
+		"composers": ["Dan Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/22 Melon Seller.m4a",
+		"sheets": [],
+		"notes": "Dan sings lead and plays rhythm guitar; Paul sings harmonies and plays lead guitar."
+	},
+	{
+		"id": 23,
+		"title": "She's In Love With Me",
+		"performers": ["The Volumes"],
+		"composers": ["Paul Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/23 She's In Love With Me.m4a",
+		"sheets": [],
+		"notes": "Dan sings lead on the verses and plays rhythm guitar; Paul sings lead on the choruses and plays lead guitar."
+	},
+	{
+		"id": 24,
+		"title": "She Took a Look At You",
+		"performers": ["The Volumes"],
+		"composers": ["Paul Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/24 She Took a Look At You.m4a",
+		"sheets": [],
+		"notes": "Paul sing lead and plays lead guitar; Dan plays rhythm guitar."
+	},
+	{
+		"id": 25,
+		"title": "I'm Getting Wiser",
+		"performers": ["The Volumes"],
+		"composers": ["Paul Dickinson"],
+		"date": "1967",
+		"audio": "The Volumes/25 I'm Getting Wiser.m4a",
+		"sheets": [],
+		"notes": "Paul sings lead and plays lead guitar; Dan plays rhythm guitar."
+	},
+	{
+		"id": 601,
+		"title": "Even the Angels",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2020",
+		"audio": "A Wake In Time/Even the Other Angels.m4a",
+		"sheets": [],
+		"notes": "Guitars, MIDI: Piano, Drums.\n\nThis is one of the oldest recordings in this collection, and as such, it represents my sound engineering ignorance a bit. But I don't want to mess with it because I think it was exactly what I was going for at the time. I especially like the solo guitar at the end.\n\nI did write some interesting lyrics for this, but a vocal track would have spoiled it.\n\nEven the angels know\nIn some other sort of time\nIn some other kind of world than yours and mine...."
+	},
+	{
+		"id": 602,
+		"title": "We Win",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2019",
+		"audio": "A Wake In Time/We Win.m4a",
+		"sheets": [],
+		"notes": "Guitars, MIDI Drums."
+	},
+	{
+		"id": 603,
+		"title": "True Calling",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "A Wake In Time/True Calling.m4a",
+		"sheets": [],
+		"notes": "Guitars, MIDI: Piano, Double Bass, Drums, Percussion.\n\nPure instrumental. From the time I invented The Baitnickels, my multitracking, MIDI-influenced persona, I've had an interest in quirky, melodic pieces. This is one."
+	},
+	{
+		"id": 604,
+		"title": "Rabbit and the White Fish",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "A Wake In Time/Rabbit4.m4a",
+		"sheets": [],
+		"notes": "Vocals, Guitars, Bass Guitar, MIDI Piano.\n\nA bedtime fable for little Julian. I imagine these creatures living undisturbed along the river under the big trees, but you're free, Julian, to illustrate it in your own mind any way you wish."
+	},
+	{
+		"id": 605,
+		"title": "I Knew the Moment",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "A Wake In Time/The Moment.m4a",
+		"sheets": [],
+		"notes": "Vocals, Guitars, MIDI: Piano, Marimba, Vibraphone, Percussion.\n\nI knew the moment I met you there was something special in store for us."
+	},
+	{
+		"id": 606,
+		"title": "Both Sides",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "A Wake In Time/Both Sides Now.m4a",
+		"sheets": [],
+		"notes": "Guitars, Bass Guitar, MIDI: Piano, Drums.\n\nI've turned to my old Martin D-18 guitar for my most recent songwriting here. And Zach lent me his Fender P-Bass for a while. The songs are still a little quirky, but I like the organic feel—all the nuances available in vibrating strings."
+	},
+	{
+		"id": 607,
+		"title": "A Wake In Time",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "A Wake In Time/A Wake in Time.m4a",
+		"sheets": [],
+		"notes": "Vocals, Guitars, Bass Guitar.\n\nWhen he was about 8 months old, Julian and I sat alone in the courtyard of our old San Jose house, he in his stroller, I on the front doorstep. Chris and Becca were inside, cleaning out the last of their things so the house could be sold. In one of those timeless moments, Julian and I fixed on each others eyes, feeling out our common roots."
+	},
+	{
+		"id": 608,
+		"title": "Promises We Make",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2020",
+		"audio": "A Wake In Time/Promises.m4a",
+		"sheets": [],
+		"notes": "Vocals, Guitars, Bass Guitar, MIDI: Piano, Glockenspiel.\n\nWritten near the beginning of the pandemic, during the acute moments of isolation, dreaming about getting together in the redwoods with people I love."
+	},
+	{
+		"id": 609,
+		"title": "A Meeting of the Minds",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "A Wake In Time/poetry needed.m4a",
+		"sheets": [],
+		"notes": "Vocals, Guitars, Bass Guitar, MIDI: Piano, Harp, Drums.\n\nImagining those private early morning moments between Laurel and Toonie.\n\nIn my latest attempts to smooth out the errors in my vocal pitch, I've resorted to a sound engineering trick that I learned from the early Beatles' records--double-tracking vocals. Multiple vocal performances of the same melody can smooth out pitch imperfections. I use very little reverb here, and apply different EQ balances to each of the three voices. For this song, this also helps to create the mood I'm aiming for--something a bit dreamy and spacious."
+	},
+	{
+		"id": 610,
+		"title": "One Is Fine",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "A Wake In Time/One Is Fine.m4a",
+		"sheets": [],
+		"notes": "Guitars, Bass Guitar, MIDI: Piano, Harp, Drums.\n\nOne is fine they tell me, one is fine\nTwo is too, too many too much of the time\nWhen you lose your nerve\nWhen you start to fall\nOne is fine they tell me, one is all...."
+	},
+	{
+		"id": 611,
+		"title": "Labor Days",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2021",
+		"audio": "A Wake In Time/Labor Days.m4a",
+		"sheets": [],
+		"notes": "MIDI: Piano, Double Bass, Harp, Drums.\n\nJust MIDI."
+	},
+	{
+		"id": 612,
+		"title": "Quotations and Sign Posts",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "A Wake In Time/Quotations.m4a",
+		"sheets": [],
+		"notes": "Vocals, Guitar, MIDI: Piano, Double Bass, Harp, Drums.\n\nTalking to myself."
+	},
+	{
+		"id": 613,
+		"title": "Chambers",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "A Wake In Time/Chambers.m4a",
+		"sheets": [],
+		"notes": "Guitars, Tongue Clicks, MIDI: Piano, Double Bass, Harp, Flute, Phasing Bells, Tubular Bells.\n\nMore instrumental play. Playing with lots of sound effects. The echoing tongue clicks were serendipitous."
+	},
+	{
+		"id": 614,
+		"title": "All I Know",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "A Wake In Time/All I Know.m4a",
+		"sheets": [],
+		"notes": "Vocals, MIDI: Piano, Double Bass, Harp, Drums.\n\nHiking in the forest—the beginning of a deep relationship."
+	},
+	{
+		"id": 615,
+		"title": "Take It Bring It",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "A Wake In Time/Take It Bring It.m4a",
+		"sheets": [],
+		"notes": "Guitars, Bass Guitar, MIDI: Drums.\n\nPlaying bass guitar is really fun."
+	},
+	{
+		"id": 9901,
+		"title": "So and So",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "in the lab/So and So.m4a",
+		"sheets": [],
+		"notes": "Playing with audio pitch alterations."
+	},
+	{
+		"id": 9902,
+		"title": "Karma",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "in the lab/Karma.m4a",
+		"sheets": [],
+		"notes": ""
+	},
+	{
+		"id": 9903,
+		"title": "Limbo",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "in the lab/Limbo.m4a",
+		"sheets": [],
+		"notes": "It's possible this could grow up to be a song someday."
+	},
+	{
+		"id": 9904,
+		"title": "Hum",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "in the lab/Hum.m4a",
+		"sheets": [],
+		"notes": "Sounds of the 2022 Solano Stroll with lots of audio effects."
+	},
+	{
+		"id": 9905,
+		"title": "bass ditty",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "in the lab/bass ditty.m4a",
+		"sheets": [],
+		"notes": "Little bass ideas."
+	},
+	{
+		"id": 9906,
+		"title": "Primates",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "in the lab/Primates.m4a",
+		"sheets": [],
+		"notes": "When the animals run loose...."
+	},
+	{
+		"id": 9907,
+		"title": "Ah So",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "in the lab/Ah So.m4a",
+		"sheets": [],
+		"notes": "Ah, so that's how it is...."
+	},
+	{
+		"id": 9908,
+		"title": "In and Out",
+		"performers": ["The Baitnickels"],
+		"composers": ["Dan Dickinson"],
+		"date": "2022",
+		"audio": "in the lab/In and Out.m4a",
+		"sheets": [],
+		"notes": "Following the breath."
+	}
+]

@@ -23,10 +23,15 @@ type Track = {
 };
 
 const PAGE = new Page();
+if (!PAGE.backendAvailable) {
+	window.alert(`Cannot connect to: ${PAGE.backend}`);
+	window.history.back();
+}
 
-const AudioDirectory = 'data/audio';
-const AlbumData = await Fetch.json<Album[]>(`${AudioDirectory}/albums.json`);
-const TracksData = await Fetch.json<Track[]>(`${AudioDirectory}/tracks.json`);
+const AudioDataDirectory = 'data/audio';
+const AlbumData = await Fetch.json<Album[]>(`${AudioDataDirectory}/albums.json`);
+const TracksData = await Fetch.json<Track[]>(`${AudioDataDirectory}/tracks.json`);
+const MediaFiles = '../media/audio';
 
 
 const SummaryBlock = document.createElement('div');
@@ -226,7 +231,7 @@ function singleTrack(track: Track) {
 	ModalBody.innerHTML = getTrackSummary(track);
 	ModalAudioElement = document.createElement('audio'); /** recreate audio element */
 	ModalAudioElement.controls = true;
-	ModalAudioElement.src = 'media resource URL'; //actualPath(`@db/audio/${track.audio}`);
+	ModalAudioElement.src = `${MediaFiles}/test/F.m4a`; //actualPath(`@db/audio/${track.audio}`);
 	ModalBody.append(ModalAudioElement);
 }
 

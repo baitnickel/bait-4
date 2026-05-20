@@ -3,9 +3,14 @@ import * as Fetch from './lib/fetch.js';
 import { Markup, MarkupLine } from './lib/markup.js';
 import { PlayAudioTracks } from './lib/media.js';
 const PAGE = new Page();
-const AudioDirectory = 'data/audio';
-const AlbumData = await Fetch.json(`${AudioDirectory}/albums.json`);
-const TracksData = await Fetch.json(`${AudioDirectory}/tracks.json`);
+if (!PAGE.backendAvailable) {
+    window.alert(`Cannot connect to: ${PAGE.backend}`);
+    window.history.back();
+}
+const AudioDataDirectory = 'data/audio';
+const AlbumData = await Fetch.json(`${AudioDataDirectory}/albums.json`);
+const TracksData = await Fetch.json(`${AudioDataDirectory}/tracks.json`);
+const MediaFiles = '../media/audio';
 const SummaryBlock = document.createElement('div');
 const ControlsBlock = document.createElement('div');
 const TrackBlock = document.createElement('div');
@@ -202,7 +207,7 @@ function singleTrack(track) {
     ModalBody.innerHTML = getTrackSummary(track);
     ModalAudioElement = document.createElement('audio'); /** recreate audio element */
     ModalAudioElement.controls = true;
-    ModalAudioElement.src = 'media resource URL'; //actualPath(`@db/audio/${track.audio}`);
+    ModalAudioElement.src = `${MediaFiles}/test/F.m4a`; //actualPath(`@db/audio/${track.audio}`);
     ModalBody.append(ModalAudioElement);
 }
 function playTracks(selectedTracks) {

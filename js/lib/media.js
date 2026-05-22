@@ -1,12 +1,53 @@
 /**
  * Utilities for handling audio and video media.
  */
+// function testAudio(testOutput: HTMLDivElement) {
+// 	let audioElement = new Audio();
+// 	const folder = '../media/audio/test';
+// 	const urls = [`${folder}/F.m4a`, `${folder}/Bb.m4a`, `${folder}/C.m4a`, `${folder}/F.m4a`];
+// 	PlayAudio(audioElement, urls);
+// }
+/**
+ * Given an HTMLAudioElement and a list of audio file URLs (path names), load
+ * and play each of the audio files in succession. When the optional "loop"
+ * parameter is set to 'true', all tracks will be repeated continuously.
+ */
+export function PlayAudio(audioElement, urls, loop = false) {
+    let tracks = {
+        urls: urls,
+        loop: loop,
+        index: 0,
+        next: function () { this.index = (this.index + 1) % this.urls.length; },
+        select: function () { return this.urls[this.index]; }
+    };
+    audioElement.src = tracks.select();
+    audioElement.play();
+    audioElement.addEventListener('ended', (e) => {
+        tracks.next();
+        audioElement.src = tracks.select();
+        if (tracks.index != 0 || tracks.loop) {
+            audioElement.load();
+            audioElement.play();
+        }
+    });
+}
+// export async function AudioDuration(uri: string) {
+// 	let duration = 0;
+// 	const audioElement = new Audio(uri); // need to decode? decodeURI(uri)
+// 	audioElement.addEventListener('loadedmetadata', () => {
+// 	});
+// 	audioElement.load();
+// 	duration = audioElement.duration;
+// 	return duration;
+// }
+/**
+ * DEPRECATED: Use `PlayAudio` instead.
+ *
+ * Given an HTMLAudioElement and a list of audio file path names, load and
+ * play each of the audio files in succession. When the optional "loop"
+ * parameter is set to 'true', all tracks will be repeated continuously.
+ */
 export function PlayAudioTracks(audioElement, audioFiles, loop = false) {
-    /**
-     * Given an HTMLAudioElement and a list of audio file path names, load and
-     * play each of the audio files in succession. When the optional "loop"
-     * parameter is set to 'true', all tracks will be repeated continuously.
-     */
     let tracks = {
         list: audioFiles,
         loop: loop,

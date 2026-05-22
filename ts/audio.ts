@@ -1,7 +1,7 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
 import { Markup, MarkupLine } from './lib/markup.js';
-import { PlayAudioTracks } from './lib/media.js'
+import { PlayAudioTracks, PlayAudio } from './lib/media.js'
 
 /** define types for the JSON data */
 type Album = {
@@ -288,3 +288,15 @@ function findAudioTrack(uri: string, tracks: Track[]) {
 // }
 // var span = createOrGetSomeSpanElement();
 // getDuration("./audio/2.mp3", span);
+
+/*
+
+An audio file may or may not have information associated with it.
+
+The bait-3 information is stored in two JSON files: db.2210/albums.json and
+db.2210/tracks.json. We should continue to support this when a preferred method
+is not present.
+
+The bait-4 information is stored in each media/audio folder (formats TBD).
+
+*/

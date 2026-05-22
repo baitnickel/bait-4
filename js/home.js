@@ -8,6 +8,7 @@ import * as W from './lib/widgets.js';
 import { Time } from './lib/time.js';
 import { Park } from './lib/parks.js';
 import { Instrument, Chord, SPN } from './lib/fakesheet.js';
+import { PlayAudio } from './lib/media.js';
 const PAGE = new Page();
 const IndicesPath = `${PAGE.site}/Indices`;
 const Articles = await Fetch.map(`${IndicesPath}/articles.json`);
@@ -77,6 +78,7 @@ export function render() {
         testers.push({ name: 'Park', function: testPark });
         testers.push({ name: 'Times', function: testTimes });
         testers.push({ name: 'UTC', function: testUTC });
+        testers.push({ name: 'Audio', function: testAudio });
         // testers.push( { name: 'IP', function: testIP } );
         testers.push({ name: 'Dialog', function: testDialog });
         // testers.push( { name: 'Radio', function: testRadio } );
@@ -312,6 +314,12 @@ function testUTC(testOutput) {
     // PAGE.appendParagraph(testOutput, T.DateString(summer1, 6));
     PAGE.appendParagraph(testOutput, T.DateString(summer, 6));
     PAGE.appendParagraph(testOutput, T.DateString(winter, 6));
+}
+function testAudio(testOutput) {
+    const audioElement = new Audio();
+    const folder = '../media/audio/test';
+    const urls = [`${folder}/F.m4a`, `${folder}/Bb.m4a`, `${folder}/C.m4a`, `${folder}/F.m4a`];
+    PlayAudio(audioElement, urls);
 }
 function testIP(testOutput) {
     const IPList = [];

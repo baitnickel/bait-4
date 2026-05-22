@@ -261,3 +261,14 @@ function findAudioTrack(uri, tracks) {
 // }
 // var span = createOrGetSomeSpanElement();
 // getDuration("./audio/2.mp3", span);
+/*
+
+An audio file may or may not have information associated with it.
+
+The bait-3 information is stored in two JSON files: db.2210/albums.json and
+db.2210/tracks.json. We should continue to support this when a preferred method
+is not present.
+
+The bait-4 information is stored in each media/audio folder (formats TBD).
+
+*/ 

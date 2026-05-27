@@ -8,7 +8,7 @@ import * as W from './lib/widgets.js';
 import { Time } from './lib/time.js';
 import { Park } from './lib/parks.js';
 import { Instrument, Chord, SPN } from './lib/fakesheet.js';
-import { PlayAudio } from './lib/media.js';
+import * as Media from './lib/media.js';
 import * as G from './lib/graphics.js';
 
 type TestFunction = (output: HTMLDivElement) => void;
@@ -352,12 +352,25 @@ function testUTC(testOutput: HTMLDivElement) {
 	PAGE.appendParagraph(testOutput, T.DateString(winter, 6));
 }
 
+/** 
+ * callback function for PlayAudio - when each track starts playing, PlayAudio
+ * will return the URI of the track, which can be displayed (e.g., using
+ * console.log, as below) or may be used as a key to a Map to gather
+ * information, liner notes, etc. related to the track.
+ */
+const trackPlaying = (track: string) => {
+	console.log(track);
+	return track;
+};
+/** test the PlayAudio function (from lib/media) */
 function testAudio(testOutput: HTMLDivElement) {
 	const audioElement = new Audio();
 	const folder = '../media/audio/test';
-	const urls = [`${folder}/F.m4a`, `${folder}/Bb.m4a`, `${folder}/C.m4a`, `${folder}/F.m4a`];
-	PlayAudio(audioElement, urls);
+	// const uris = `${folder}/C.m4a`; // single track
+	const uris = [`${folder}/F.m4a`, `${folder}/Bb.m4a`, `${folder}/C.m4a`, `${folder}/F.m4a`];
+	Media.PlayAudio(audioElement, uris, trackPlaying);
 }
+
 
 function testIP(testOutput: HTMLDivElement) {
 	const IPList: string[] = [];

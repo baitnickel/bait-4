@@ -8,26 +8,31 @@
 // 	PlayAudio(audioElement, urls);
 // }
 /**
- * Given an HTMLAudioElement and a list of audio file URLs (path names), load
- * and play each of the audio files in succession. When the optional "loop"
- * parameter is set to 'true', all tracks will be repeated continuously.
+ * Given an HTMLAudioElement and an audio file URI or an array of URIs (path
+ * names), load and play each of the audio files in succession. When the
+ * optional "loop" parameter is set to 'true', all tracks will be repeated
+ * continuously.
  */
-export function PlayAudio(audioElement, urls, loop = false) {
+export function PlayAudio(audioElement, uris, callback, loop = false) {
+    if (typeof uris == 'string')
+        uris = [uris];
     let tracks = {
-        urls: urls,
+        uris: uris,
         loop: loop,
         index: 0,
-        next: function () { this.index = (this.index + 1) % this.urls.length; },
-        select: function () { return this.urls[this.index]; }
+        next: function () { this.index = (this.index + 1) % this.uris.length; },
+        select: function () { return this.uris[this.index]; }
     };
     audioElement.src = tracks.select();
     audioElement.play();
+    callback(uris[tracks.index]);
     audioElement.addEventListener('ended', (e) => {
         tracks.next();
         audioElement.src = tracks.select();
         if (tracks.index != 0 || tracks.loop) {
             audioElement.load();
             audioElement.play();
+            callback(uris[tracks.index]);
         }
     });
 }

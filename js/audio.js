@@ -7,10 +7,18 @@ if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
     window.history.back();
 }
-const AudioDataDirectory = 'data/audio';
-const AlbumData = await Fetch.json(`${AudioDataDirectory}/albums.json`);
-const TracksData = await Fetch.json(`${AudioDataDirectory}/tracks.json`);
-const MediaFiles = '../media/audio';
+const MediaFolders = '../media/audio';
+// these folders will be set from an API,
+// all the folders in MediaFolders
+// (or just those that contain "_index.json")
+const PlaylistFolders = ['wake', 'test'];
+const Playlists = [];
+for (const playlistFolder of PlaylistFolders) {
+    const playlist = await Fetch.json(`${MediaFolders}/${playlistFolder}/_index.json`);
+    Playlists.push(playlist);
+}
+Playlists.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
+const HeadingBlock = document.createElement('div');
 const SummaryBlock = document.createElement('div');
 const ControlsBlock = document.createElement('div');
 const TrackBlock = document.createElement('div');
@@ -33,8 +41,8 @@ ModalBody.classList.add('modal-body');
 let MainAudioElement = document.createElement('audio');
 let ModalAudioElement = document.createElement('audio');
 export function render() {
-    const albumQuery = PAGE.parameters.get('album');
-    const tracksQuery = PAGE.parameters.get('tracks');
+    const playlistQuery = PAGE.parameters.get('playlist');
+    PAGE.content.append(HeadingBlock);
     PAGE.content.append(SummaryBlock);
     PAGE.content.append(ControlsBlock);
     PAGE.content.append(TrackBlock);
@@ -45,66 +53,61 @@ export function render() {
     Modal.append(ModalBody);
     ModalHeader.append(ModalHeaderTitle);
     ModalHeader.append(ModalHeaderClose);
-    if (!albumQuery) {
-        /** No album ID has been supplied; display summaries for all albums that have tracks. */
-        displayAlbumSummaries(AlbumData);
-        // fetchData('@db/albums.json').then((albums: Album[]) => {
-        // 	displayAlbumSummaries(albums);
-        // });
-    }
-    else {
-        /** Display the summary of the selected album (or an error message
-         * if the selected album is invalid). Then display the audio element
-         * (with controls) and the track listing (or an error message if no
-         * tracks are defined for the album).
-         */
-        // fetchData('@db/albums.json').then((albums: Album[]) => {
-        let requestedTrackIds = loadAlbum(AlbumData, albumQuery, tracksQuery);
-        if (requestedTrackIds.length) {
-            // fetchData('@db/tracks.json').then((tracks: Track[]) => {
-            let selectedTracks = loadTrackList(TracksData, requestedTrackIds);
-            playTracks(selectedTracks);
-            // });
+    /**
+     * We will display the specified playlist and a list of its tracks when the
+     * URL contains "&playlist=folder", otherwise we will display a summary page
+     * showing all playlists with hyperlinks to specify a "playlist" URL.
+     */
+    if (playlistQuery) { /** The URL contains "&playlist=folder" */
+        const playlist = loadPlaylist(Playlists, playlistQuery);
+        if (playlist !== null) {
+            const tracks = loadTrackList(playlist);
+            playTracks(playlist, tracks);
+            // PlayAudio(MainAudioElement, tracks, trackPlaying);
         }
-        // });
+    }
+    else { /** The URL does *not* contain "&playlist=folder" */
+        displayPlaylistSummaries(Playlists);
     }
 }
-function displayAlbumSummaries(albums) {
+/** callback from PlayAudio */
+const trackPlaying = (audioFile) => {
+    console.log(audioFile);
+    return audioFile;
+};
+/**
+ * Called by `render` when a "playlist" URL query parameter has *not* been
+ * supplied. Given an array of Playlist objects, display a list of playlist
+ * titles, sorted by title, and including the notes for each playlist. The
+ * titles are displayed as hyperlinks here, pointing to the same URL but with
+ * the "&playlist=<playlist.folder>" query parameter added.
+ */
+function displayPlaylistSummaries(playlists) {
     PAGE.setTitle('Audio Recordings');
-    PAGE.addHeading('Audio Recordings', 2);
-    /**
-     * By convention, album IDs reflect the chronology of the
-     * recordings (the oldest album has ID 1, and the newest album
-     * has, e.g., ID 9999). Sorting albums by ID descending displays
-     * the summaries in reverse-chronological order.
-     */
-    albums.sort((a, b) => b.id - a.id);
-    for (let album of albums) {
-        if (album.tracks.length) {
-            let albumTitle = document.createElement('h3');
-            let url = PAGE.url + '?page=audio&album=' + album.id;
-            let albumAnchor = document.createElement('a');
-            albumAnchor.setAttribute('href', url);
-            albumAnchor.innerText = MarkupLine(album.title, 'et');
-            albumTitle.append(albumAnchor);
-            SummaryBlock.append(albumTitle);
+    setHeading(HeadingBlock, 'Audio Recordings', 2);
+    playlists.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
+    for (const playlist of playlists) {
+        if (playlist.sequence.length) {
+            let playlistTitle = document.createElement('h3');
+            let url = PAGE.url + '?page=audio&playlist=' + playlist.folder;
+            let playlistAnchor = document.createElement('a');
+            playlistAnchor.setAttribute('href', url);
+            playlistAnchor.innerText = MarkupLine(playlist.title, 'et');
+            playlistTitle.append(playlistAnchor);
+            SummaryBlock.append(playlistTitle);
             let element = document.createElement('div');
-            element.innerHTML = Markup(album.notes);
+            element.innerHTML = Markup(playlist.notes);
             SummaryBlock.append(element);
         }
     }
 }
+/**
+ * Return the track summary Markup text.
+ */
 function getTrackSummary(track, includeTitle = false) {
-    /**
-     * Return the track summary Markup text.
-     */
     let noteLines = [];
-    /** '\u200B' (zero-width character) prevents Markup from treating '1.' as a list item */
-    // noteLines.push(`${index + 1}\u200B. **${track.title}** (${track.date})`);
     if (includeTitle)
         noteLines.push(`**${track.title}**`);
-    // let time = this.trackTime(this.actualPath(`@db/audio/${track.audio}`));
-    // noteLines.push(`(${time})`);
     let composers = PAGE.oxfordJoin(track.composers);
     if (composers)
         noteLines.push(`Written by: ${composers}`);
@@ -112,79 +115,64 @@ function getTrackSummary(track, includeTitle = false) {
         noteLines.push(`Recorded: ${track.date}`);
     noteLines.push('\n'); /** blank line between title/composers and 'track.notes' */
     noteLines.push(track.notes);
-    // noteLines.push('---'); /** horizontal rule */
     return Markup(noteLines.join('\n'));
 }
-function loadAlbum(albums, albumQuery, tracksQuery) {
-    let requestedTrackIds = [];
-    let albumFound = false;
-    for (let album of albums) {
-        if (album.id.toString() == albumQuery) {
-            /** convert album's numeric track list to a list of track strings */
-            album.tracks.forEach(trackId => { requestedTrackIds.push(trackId.toString()); });
-            let albumTitle = MarkupLine(album.title, 'et');
-            PAGE.setTitle(albumTitle);
-            PAGE.addHeading(albumTitle, 3);
-            SummaryBlock.innerHTML = Markup(album.notes);
-            albumFound = true;
+/**
+ * Given an array of Playlist objects and the playlist folder named in the
+ * "playlist" URL query parameter, return an array of tracks from
+ * playlist.sequence. Assuming the playlist is valid, we set the page title and
+ * heading, and display the playlist notes. If errors are encountered (invalid
+ * playlist or playlist without tracks) we display error messages in the page
+ * and return an empty array.
+ */
+function loadPlaylist(playlists, playlistQuery) {
+    let foundPlaylist = null;
+    for (let playlist of playlists) {
+        if (playlist.folder.toLowerCase() == playlistQuery.toLowerCase()) {
+            const playlistTitle = MarkupLine(playlist.title, 'et');
+            PAGE.setTitle(playlistTitle);
+            setHeading(HeadingBlock, playlistTitle, 3);
+            SummaryBlock.innerHTML = Markup(playlist.notes);
+            foundPlaylist = playlist;
             break;
         }
     }
     let errorMessage = '';
-    if (!albumFound)
-        errorMessage = `Invalid Album ID: ${albumQuery}.`;
-    else if (!requestedTrackIds.length)
-        errorMessage = `Album ${albumQuery} has no tracks.`;
-    else if (tracksQuery) {
-        /** replace the default album tracks with parameter tracks */
-        let queryTrackIds = tracksQuery.split(',');
-        let invalidIds = [];
-        for (let queryTrackId of queryTrackIds) {
-            if (!requestedTrackIds.includes(queryTrackId))
-                invalidIds.push(queryTrackId);
-        }
-        if (invalidIds.length == 1)
-            errorMessage = `Invalid Track ID: ${invalidIds[0]}`;
-        else if (invalidIds.length > 1)
-            errorMessage = `Invalid Track IDs: ${invalidIds.join()}`;
-        else
-            requestedTrackIds = queryTrackIds;
-    }
+    if (foundPlaylist === null)
+        errorMessage = `Invalid Playlist ID: ${playlistQuery}.`;
+    else if (!foundPlaylist.sequence.length)
+        errorMessage = `Playlist ${foundPlaylist.folder} has no tracks.`;
     if (errorMessage) {
         TrackListBlock.innerHTML = `<i>${errorMessage}</i>`;
-        requestedTrackIds.length = 0;
     }
-    return requestedTrackIds;
+    return foundPlaylist;
 }
-function loadTrackList(tracks, requestedTrackIds) {
-    let selectedTracks = [];
-    if (requestedTrackIds.length) {
-        for (let requestedTrackId of requestedTrackIds) {
-            /** get Track objects corresponding to the requested track IDs */
-            let requestedTrack = tracks.find((track => track.id.toString() == requestedTrackId));
-            if (requestedTrack)
-                selectedTracks.push(requestedTrack);
-        }
-        let trackList = document.createDocumentFragment();
-        let i = 0;
-        for (let selectedTrack of selectedTracks) {
-            i += 1;
-            let trackTitle = MarkupLine(selectedTrack.title, 'et');
-            trackTitle = `${i}. ${trackTitle}`;
+// function loadTrackList(tracks: Track[], playlistTracks: string[]) {
+function loadTrackList(playlist) {
+    const selectedTracks = [];
+    let documentFragment = document.createDocumentFragment();
+    if (playlist.sequence.length) {
+        for (let i = 0; i < playlist.sequence.length; i += 1) {
+            const audioFile = playlist.sequence[i];
+            const track = getTrack(playlist, audioFile);
+            selectedTracks.push(track);
+            let trackTitle = MarkupLine(track.title, 'et');
+            trackTitle = `${i + 1}. ${trackTitle}`;
             let trackElement = document.createElement('p');
-            trackElement.id = `audio-track-${selectedTrack.id}`;
-            if (i == 1)
+            trackElement.id = `audio-track-${track.file}`;
+            if (i == 0)
                 trackElement.classList.add('pad-top');
             trackElement.classList.add('track-list-item');
             trackElement.innerText = trackTitle;
             trackElement.addEventListener('click', () => {
                 MainAudioElement.pause();
-                singleTrack(selectedTrack);
+                singleTrack(playlist, track);
+                // PlayAudio(MainAudioElement, `${MediaFolders}/${playlist.folder}/${audioFile}`, trackPlaying);
             });
-            trackList.append(trackElement);
+            documentFragment.append(trackElement);
         }
         TrackListBlock.classList.add('track-list');
-        TrackListBlock.append(trackList);
+        TrackListBlock.append(documentFragment);
         let infoText = 'Click the Play button above to play all tracks, ';
         infoText += 'or click on a track title to display and play only that track.';
         let infoParagraph = document.createElement('p');
@@ -199,32 +187,48 @@ function loadTrackList(tracks, requestedTrackIds) {
     });
     return selectedTracks;
 }
-function singleTrack(track) {
+function getTrack(playlist, audioFile) {
+    const defaultTrack = {
+        file: audioFile,
+        title: audioFile.slice(0, audioFile.lastIndexOf('.')),
+        performers: [],
+        composers: [],
+        date: '',
+        notes: '',
+    };
+    let track = playlist.tracks.find((track => track.file == audioFile));
+    if (track === undefined)
+        track = defaultTrack;
+    return track;
+}
+function singleTrack(playlist, track) {
     Modal.classList.add('active');
     ModalOverlay.classList.add('active');
-    let title = MarkupLine(track.title, 'et');
+    const title = MarkupLine(track.title, 'et');
     ModalHeaderTitle.innerText = title;
     ModalBody.innerHTML = getTrackSummary(track);
     ModalAudioElement = document.createElement('audio'); /** recreate audio element */
     ModalAudioElement.controls = true;
-    ModalAudioElement.src = `${MediaFiles}/test/F.m4a`; //actualPath(`@db/audio/${track.audio}`);
+    const source = `${MediaFolders}/${playlist.folder}/${track.file}`;
+    ModalAudioElement.src = source;
     ModalBody.append(ModalAudioElement);
 }
-function playTracks(selectedTracks) {
+function playTracks(playlist, tracks) {
     let audioFiles = [];
-    for (let selectedTrack of selectedTracks) {
-        audioFiles.push('media resource URL'); // actualPath(`@db/audio/${selectedTrack.audio}`));
+    for (let track of tracks) {
+        const source = `${MediaFolders}/${playlist.folder}/${track.file}`;
+        audioFiles.push(source);
     }
     MainAudioElement = document.createElement('audio');
     MainAudioElement.controls = true;
     ControlsBlock.append(MainAudioElement);
     /** Display the track summary (if any) */
     MainAudioElement.addEventListener('play', (e) => {
-        let element = e.target;
-        let audioURI = decodeURI(element.src);
-        let trackIndex = findAudioTrack(audioURI, selectedTracks);
-        if (trackIndex !== null && trackIndex >= 0 && trackIndex < selectedTracks.length) {
-            let trackSummary = getTrackSummary(selectedTracks[trackIndex], true);
+        const element = e.target;
+        // const audioURI = decodeURI(element.src);
+        const trackIndex = findAudioTrack(element.src, tracks); // replaced audioURI with element.src ... must match the Track record entry
+        if (trackIndex !== null && trackIndex >= 0) {
+            let trackSummary = getTrackSummary(tracks[trackIndex], true);
             if (trackSummary)
                 TrackBlock.innerHTML = trackSummary;
         }
@@ -234,22 +238,26 @@ function playTracks(selectedTracks) {
         TrackBlock.innerHTML = '';
     });
     /** Initialize audio player */
-    PlayAudioTracks(MainAudioElement, audioFiles);
+    // PlayAudio(MainAudioElement, audioFiles, trackPlaying); // new function - having issues
+    PlayAudioTracks(MainAudioElement, audioFiles); // old function - works
 }
+/**
+ * Given an audio URI and a list of track records, find and return the
+ * index of the track record which corresponds to the audio URI, or null
+ * if not found.
+ */
 function findAudioTrack(uri, tracks) {
-    /**
-     * Given an audio URI and a list of track records, find and return the
-     * index of the track record which corresponds to the audio URI, or null
-     * if not found.
-     */
     let trackIndex = null;
     for (let i in tracks) {
-        if (uri.includes(tracks[i].audio)) {
+        if (uri.includes(tracks[i].file)) {
             trackIndex = Number(i);
             break;
         }
     }
     return trackIndex;
+}
+function setHeading(element, text, level = 2) {
+    element.innerHTML = Markup('#'.repeat(level) + ` ${text}`);
 }
 // See: https://stackoverflow.com/questions/34647536/how-to-get-audio-duration-value-by-a-function
 // getDuration(src: string, destination: ) {
@@ -261,14 +269,3 @@ function findAudioTrack(uri, tracks) {
 // }
 // var span = createOrGetSomeSpanElement();
 // getDuration("./audio/2.mp3", span);
-/*
-
-An audio file may or may not have information associated with it.
-
-The bait-3 information is stored in two JSON files: db.2210/albums.json and
-db.2210/tracks.json. We should continue to support this when a preferred method
-is not present.
-
-The bait-4 information is stored in each media/audio folder (formats TBD).
-
-*/ 

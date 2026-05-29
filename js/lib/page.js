@@ -240,6 +240,7 @@ export class Page {
             const element = document.createElement(tag);
             element.innerText = heading;
             this.content.append(element);
+            // this.header.insertAdjacentElement('afterend', element); // from bait-3
         }
     }
     /**

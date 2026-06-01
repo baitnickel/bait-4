@@ -322,7 +322,7 @@ function testUTC(testOutput) {
  * information, liner notes, etc. related to the track.
  */
 const trackPlaying = (track) => {
-    console.log(track);
+    console.log(`Now playing track: ${track}`);
     return track;
 };
 /** test the PlayAudio function (from lib/media) */
@@ -331,7 +331,9 @@ function testAudio(testOutput) {
     const folder = '../media/audio/test';
     // const uris = `${folder}/C.m4a`; // single track
     const uris = [`${folder}/F.m4a`, `${folder}/Bb.m4a`, `${folder}/C.m4a`, `${folder}/F.m4a`];
+    console.log('call PlayAudio...');
     Media.PlayAudio(audioElement, uris, trackPlaying);
+    console.log('...PlayAudio completed');
 }
 function testIP(testOutput) {
     const IPList = [];

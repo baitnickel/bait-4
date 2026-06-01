@@ -11,10 +11,36 @@
 /**
  * Given an HTMLAudioElement and an audio file URI or an array of URIs (path
  * names), load and play each of the audio files in succession. When the
- * optional "loop" parameter is set to 'true', all tracks will be repeated
- * continuously.
+ * optional "loop" parameter is set to 'true', the complete array of audio files
+ * will be repeated continuously.
  */
 export function PlayAudio(
+	audioElement: HTMLAudioElement,
+	uris: string|string[],
+	callback: (uri: string) => string,
+	loop = false) {
+
+	if (typeof uris == 'string') uris = [uris];
+	const tracks = {
+		uris: uris,
+		index: 0,
+		next: function() { this.index = (this.index + 1) % this.uris.length },
+		select: function() { return this.uris[this.index] },
+		play: function() {
+			audioElement.src = tracks.select();
+			audioElement.load();
+			audioElement.play();
+			callback(uris[tracks.index]);
+		}
+	}
+	tracks.play();
+	audioElement.addEventListener('ended', () => {
+		tracks.next();
+		if (tracks.index != 0 || loop) tracks.play();
+	});
+}
+
+export function PlayAudio1(
 	audioElement: HTMLAudioElement,
 	uris: string|string[],
 	callback: (uri: string) => string,
@@ -55,30 +81,22 @@ export function PlayAudio(
 // }
 
 /**
- * DEPRECATED: Use `PlayAudio` instead.
- * 
  * Given an HTMLAudioElement and a list of audio file path names, load and
  * play each of the audio files in succession. When the optional "loop"
  * parameter is set to 'true', all tracks will be repeated continuously.
  */
-export function PlayAudioTracks(audioElement: HTMLAudioElement, audioFiles: string[], loop: boolean = false) {
+export function PlayAudioTracks(audioElement: HTMLAudioElement, uris: string[], loop: boolean = false) {
 	let tracks = {
-		list: audioFiles,
-		loop: loop,
+		uris: uris,
 		index: 0,
-		next: function() {
-			if (this.index == this.list.length - 1) this.index = 0;
-			else this.index += 1;
-		},
-		select: function() {
-			return this.list[this.index];
-		}
+		next: function() { this.index = (this.index + 1) % this.uris.length },
+		select: function() { return this.uris[this.index] }
 	}
 	audioElement.src = tracks.select();
 	audioElement.addEventListener('ended', (e: Event) => {
 		tracks.next();
 		audioElement.src = tracks.select();
-		if (tracks.index != 0 || tracks.loop) {
+		if (tracks.index != 0 || loop) {
 			audioElement.load();
 			audioElement.play();
 		}

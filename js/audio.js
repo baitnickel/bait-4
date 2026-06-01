@@ -166,7 +166,8 @@ function loadTrackList(playlist) {
             trackElement.innerText = trackTitle;
             trackElement.addEventListener('click', () => {
                 MainAudioElement.pause();
-                singleTrack(playlist, track);
+                playTracks(playlist, track);
+                // singleTrack(playlist, track);
                 // PlayAudio(MainAudioElement, `${MediaFolders}/${playlist.folder}/${audioFile}`, trackPlaying);
             });
             documentFragment.append(trackElement);
@@ -214,26 +215,37 @@ function singleTrack(playlist, track) {
     ModalBody.append(ModalAudioElement);
 }
 function playTracks(playlist, tracks) {
+    MainAudioElement = document.createElement('audio');
+    MainAudioElement.controls = true;
+    ControlsBlock.append(MainAudioElement);
+    /**
+     * Convert track entries to `audioFiles` (adding their full paths).
+     */
+    if (!Array.isArray(tracks))
+        tracks = [tracks];
     let audioFiles = [];
     for (let track of tracks) {
         const source = `${MediaFolders}/${playlist.folder}/${track.file}`;
         audioFiles.push(source);
     }
-    MainAudioElement = document.createElement('audio');
-    MainAudioElement.controls = true;
-    ControlsBlock.append(MainAudioElement);
-    /** Display the track summary (if any) */
+    /**
+     * Listen for the "play" event (user clicks the "play" button). Find the
+     * Track record in the array of tracks and display the track record
+     * information (if any) in the TrackBlock div.
+     */
     MainAudioElement.addEventListener('play', (e) => {
         const element = e.target;
-        // const audioURI = decodeURI(element.src);
-        const trackIndex = findAudioTrack(element.src, tracks); // replaced audioURI with element.src ... must match the Track record entry
+        const trackIndex = findAudioTrack(element.src, tracks);
         if (trackIndex !== null && trackIndex >= 0) {
             let trackSummary = getTrackSummary(tracks[trackIndex], true);
             if (trackSummary)
                 TrackBlock.innerHTML = trackSummary;
         }
     });
-    /** Remove the track summary */
+    /**
+     * Listen for the "ended" event; remove the track summary information when
+     * the audio play ends.
+     */
     MainAudioElement.addEventListener('ended', (e) => {
         TrackBlock.innerHTML = '';
     });

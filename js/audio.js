@@ -166,8 +166,8 @@ function loadTrackList(playlist) {
             trackElement.innerText = trackTitle;
             trackElement.addEventListener('click', () => {
                 MainAudioElement.pause();
-                playTracks(playlist, track);
-                // singleTrack(playlist, track);
+                // playTracks(playlist, [track]);
+                singleTrack(playlist, track);
                 // PlayAudio(MainAudioElement, `${MediaFolders}/${playlist.folder}/${audioFile}`, trackPlaying);
             });
             documentFragment.append(trackElement);
@@ -221,8 +221,7 @@ function playTracks(playlist, tracks) {
     /**
      * Convert track entries to `audioFiles` (adding their full paths).
      */
-    if (!Array.isArray(tracks))
-        tracks = [tracks];
+    // if (!Array.isArray(tracks)) tracks = [tracks];
     let audioFiles = [];
     for (let track of tracks) {
         const source = `${MediaFolders}/${playlist.folder}/${track.file}`;
@@ -236,7 +235,7 @@ function playTracks(playlist, tracks) {
     MainAudioElement.addEventListener('play', (e) => {
         const element = e.target;
         const trackIndex = findAudioTrack(element.src, tracks);
-        if (trackIndex !== null && trackIndex >= 0) {
+        if (trackIndex !== null) {
             let trackSummary = getTrackSummary(tracks[trackIndex], true);
             if (trackSummary)
                 TrackBlock.innerHTML = trackSummary;
@@ -260,9 +259,9 @@ function playTracks(playlist, tracks) {
  */
 function findAudioTrack(uri, tracks) {
     let trackIndex = null;
-    for (let i in tracks) {
+    for (let i = 0; i < tracks.length; i += 1) {
         if (uri.includes(tracks[i].file)) {
-            trackIndex = Number(i);
+            trackIndex = i;
             break;
         }
     }
@@ -281,3 +280,15 @@ function setHeading(element, text, level = 2) {
 // }
 // var span = createOrGetSomeSpanElement();
 // getDuration("./audio/2.mp3", span);
+/*
+    Perhaps...
+
+    Select individual track(s) by clicking them. Selected tracks turn red.
+    Deselect tracks by clicking on them again. Play button plays only selected
+    tracks unless none are selected, in which case it plays all tracks.
+
+    Define Event "AudioFinished" (or some such) in Media and dispatch the event
+    when the player has finished playing all the audio files. Listen for
+    "AudioFinished" in the UI program and do the needful (e.g., start playing
+    the next folder's audio files).
+*/ 

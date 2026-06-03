@@ -1,6 +1,44 @@
 /**
  * Utilities for handling audio and video media.
  */
+/** define events */
+export const PlaylistLoaded = 'bait:playlist-started';
+export const TrackPlaying = 'bait:track-started';
+// export const TrackEnded = 'bait:track-ended';
+export const PlaylistEnded = 'bait:playlist-ended';
+/**
+ * Given a `playlist` containing a sequenced list of audio files and an
+ * HTMLAudioElement, load and play each of the audio files in succession. When
+ * the optional "loop" parameter is set to 'true', the entire playlist will be
+ * repeated continuously.
+ */
+export function RunPlaylist(path, playlist, audioElement, loop = false) {
+    const playlistLoaded = new Event(PlaylistLoaded);
+    const trackPlaying = new Event(TrackPlaying);
+    const playlistEnded = new Event(PlaylistEnded);
+    let tracks = {
+        uris: playlist.sequence,
+        index: 0,
+        next: function () { this.index = (this.index + 1) % this.uris.length; },
+        select: function () { return `${path}/${playlist.folder}/${this.uris[this.index]}`; }
+    };
+    audioElement.src = tracks.select();
+    // audioElement.load();
+    document.dispatchEvent(playlistLoaded);
+    audioElement.addEventListener('playing', () => {
+        document.dispatchEvent(trackPlaying);
+    });
+    audioElement.addEventListener('ended', (e) => {
+        tracks.next();
+        audioElement.src = tracks.select();
+        if (tracks.index != 0 || loop) {
+            audioElement.load();
+            audioElement.play();
+        }
+        else
+            document.dispatchEvent(playlistEnded);
+    });
+}
 // function testAudio(testOutput: HTMLDivElement) {
 // 	let audioElement = new Audio();
 // 	const folder = '../media/audio/test';

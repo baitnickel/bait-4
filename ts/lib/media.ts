@@ -80,10 +80,7 @@ export function RunPlaylists(path: string, playlistTracks: PlaylistTrack[], audi
 	}
 	audioElement.src = tracks.select();
 	document.dispatchEvent(playlistLoaded);
-
-	audioElement.addEventListener('playing', () => {
-		document.dispatchEvent(trackPlaying);
-	})
+	document.dispatchEvent(trackPlaying);
 
 	audioElement.addEventListener('ended', (e: Event) => {
 		tracks.next();
@@ -91,6 +88,7 @@ export function RunPlaylists(path: string, playlistTracks: PlaylistTrack[], audi
 		if (tracks.index != 0 || loop) {
 			audioElement.load();
 			audioElement.play();
+			document.dispatchEvent(trackPlaying);
 		}
 		else document.dispatchEvent(playlistEnded);
 	});

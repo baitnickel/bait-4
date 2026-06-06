@@ -51,15 +51,14 @@ export function RunPlaylists(path, playlistTracks, audioElement, loop = false) {
     };
     audioElement.src = tracks.select();
     document.dispatchEvent(playlistLoaded);
-    audioElement.addEventListener('playing', () => {
-        document.dispatchEvent(trackPlaying);
-    });
+    document.dispatchEvent(trackPlaying);
     audioElement.addEventListener('ended', (e) => {
         tracks.next();
         audioElement.src = tracks.select();
         if (tracks.index != 0 || loop) {
             audioElement.load();
             audioElement.play();
+            document.dispatchEvent(trackPlaying);
         }
         else
             document.dispatchEvent(playlistEnded);

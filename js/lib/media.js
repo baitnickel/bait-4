@@ -14,21 +14,60 @@ export function PlaylistTracks(playlists) {
     const playlistTracks = [];
     for (const playlist of playlists) {
         for (const sequencedTrack of playlist.sequence) {
-            const track = playlist.tracks.find((element) => element.file == sequencedTrack);
-            // if (track) {
-            const playlistTrack = {
-                folder: playlist.folder,
-                file: sequencedTrack, // track.file,
-                playlistTitle: playlist.title,
-                trackTitle: (track) ? track.title : sequencedTrack,
-            };
+            // const track = playlist.tracks.find((element) => element.file == sequencedTrack);
+            const playlistTrack = { folder: playlist.folder.toLowerCase(), file: sequencedTrack.toLowerCase() };
+            // playlistTitle: playlist.title,
+            // trackTitle: (track) ? track.title : sequencedTrack,
+            // const trackKey = TrackKey(playlist.folder, sequencedTrack);
             playlistTracks.push(playlistTrack);
-            // }
         }
     }
     return playlistTracks;
 }
 ;
+export function TrackMapKey(folder, file) {
+    return `${folder.toLowerCase()}/${file.toLowerCase()}`;
+}
+/**
+ * Given an array of `playlists`, return a map of Playlist objects keyed by
+ * lowercase folder.
+ */
+export function PlaylistMap(playlists) {
+    const map = new Map();
+    for (const playlist of playlists) {
+        const key = playlist.folder.toLowerCase();
+        map.set(key, playlist);
+    }
+    return map;
+}
+/**
+ * Given an array of `playlists`, return a map of sequenced Track objects keyed
+ * by PlaylistTrack (lowercase folder and lowercase file).
+ */
+export function TrackMap(playlists) {
+    const map = new Map();
+    // const map = new Map<PlaylistTrack, Track>();
+    for (const playlist of playlists) {
+        const folder = playlist.folder.toLowerCase();
+        const tracksMap = new Map();
+        for (const track of playlist.tracks) {
+            const trackKey = track.file.toLowerCase();
+            tracksMap.set(trackKey, track);
+        }
+        for (const sequencedTrack of playlist.sequence) {
+            const file = sequencedTrack.toLowerCase();
+            // const key: PlaylistTrack = { folder: folder, file: file };
+            let track = tracksMap.get(file);
+            if (!track)
+                track = { file: file, title: '', performers: [], composers: [], date: '', notes: '' };
+            if (!track.title)
+                track.title = sequencedTrack.slice(0, sequencedTrack.lastIndexOf('.')); // remove file extension
+            const key = TrackMapKey(folder, track.file);
+            map.set(key, track);
+        }
+    }
+    return map;
+}
 /**
  * Given a `path` under which Playlist folders can be found, an array of
  * `playlistTracks` (one or more Playlist objects), and an `audioElement`, load

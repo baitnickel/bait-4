@@ -7,6 +7,10 @@ if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
     window.history.back();
 }
+const WriteServerLog = PAGE.parameters.has('log');
+let Start = Number(PAGE.parameters.get('start'));
+if (isNaN(Start) || Start < 0)
+    Start = 0;
 // we need to write path/folder/track.file and index number into a log file
 // and support restarting from that index
 const MediaFolders = '../media/audio';
@@ -17,7 +21,9 @@ for (const playlistFolder of PlaylistFolders) {
     const playlist = await Fetch.json(indexFile);
     Playlists.push(playlist);
 }
-const PlaylistTracks = Media.PlaylistTracks(Playlists);
+let PlaylistTracks = Media.PlaylistTracks(Playlists);
+const TotalTracks = PlaylistTracks.length;
+PlaylistTracks = PlaylistTracks.slice(Start);
 const PlaylistMap = Media.PlaylistMap(Playlists);
 const TrackMap = Media.TrackMap(Playlists);
 const NowPlaying = document.createElement('div');
@@ -31,10 +37,14 @@ export function render() {
     PAGE.addHeading('Playlist Console', 2);
     PAGE.content.append(NowPlaying);
     PAGE.content.append(ControlsBlock);
-    Media.RunPlaylists(MediaFolders, PlaylistTracks, MainAudioElement);
+    if (Start >= TotalTracks)
+        log(`"start=${Start}" exceeds highest track number (${TotalTracks - 1})`, true);
+    else
+        Media.RunPlaylists(MediaFolders, PlaylistTracks, MainAudioElement);
 }
 document.addEventListener(Media.PlaylistLoaded, () => {
-    log(`playlist loaded (${PlaylistTracks.length} tracks)`);
+    const skipping = (Start > 0) ? ` (starting with track ${Start})` : '';
+    log(`playlist loaded ${PlaylistTracks.length} tracks${skipping}`);
 });
 document.addEventListener(Media.TrackPlaying, () => {
     const folderKey = PlaylistTracks[CurrentPlaylistTrack].folder.toLowerCase();
@@ -52,7 +62,7 @@ document.addEventListener(Media.TrackPlaying, () => {
         const playlistTitle = playlist.title;
         const trackTitle = track.title;
         NowPlaying.innerHTML = `<h4>${playlistTitle}:<br>${trackTitle}</h4>`;
-        log(`track: [${CurrentPlaylistTrack}] ${folder}/${file}`);
+        log(`track: [${CurrentPlaylistTrack + Start}] ${folder}/${file}`);
     }
     CurrentPlaylistTrack += 1;
 });
@@ -66,11 +76,10 @@ function log(message, error = false) {
         console.error(message);
     else
         console.log(message);
-    const logEntry = { text: message };
-    Fetch.api(`${PAGE.backend}/log/`, logEntry)
-        .then((response) => {
-        // if (error) console.error(message);
-        // else console.log(message);
-        // console.log(response)
-    });
+    if (WriteServerLog) {
+        const logEntry = { text: message };
+        Fetch.api(`${PAGE.backend}/log/`, logEntry)
+            .then((response) => { if (response && response.text)
+            console.log(response); });
+    }
 }

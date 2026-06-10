@@ -5,7 +5,6 @@
 /** define events */
 export const PlaylistLoaded = 'bait:playlist-started';
 export const TrackPlaying = 'bait:track-started';
-// export const TrackEnded = 'bait:track-ended';
 export const PlaylistEnded = 'bait:playlist-ended';
 
 /** define types for the JSON data */
@@ -29,7 +28,7 @@ export type Playlist = {
 /** a flattened object, merged Playlists */
 export type PlaylistTrack = {
 	folder: string,
-	file: string,                 /** file names (URLs) cannot contain the hash (#) character! */
+	file: string, /** file names (URLs) cannot contain the hash (#) character! */
 };
 
 /**
@@ -40,19 +39,40 @@ export function PlaylistTracks(playlists: Playlist[]) {
 	const playlistTracks: PlaylistTrack[] = [];
 	for (const playlist of playlists) {
 		for (const sequencedTrack of playlist.sequence) {
-			// const track = playlist.tracks.find((element) => element.file == sequencedTrack);
 			const playlistTrack = { folder: playlist.folder.toLowerCase(), file: sequencedTrack.toLowerCase() };
-				// playlistTitle: playlist.title,
-				// trackTitle: (track) ? track.title : sequencedTrack,
-			// const trackKey = TrackKey(playlist.folder, sequencedTrack);
 			playlistTracks.push(playlistTrack);
 		}
 	}
 	return playlistTracks;
 };
 
+/**
+ * Given a `folder` and a `file`, concatenate these two strings, separated by a
+ * forward slash, to be used as a Map key in the TrackMap.
+ */
 export function TrackMapKey(folder: string, file: string) {
+	/**
+	 * Note: we initially tried to use a PlaylistTrack object as the TrackMap
+	 * key, but found that it was error-prone when trying to do map.get(key).
+	 */
 	return `${folder.toLowerCase()}/${file.toLowerCase()}`;
+}
+
+export function SequencedTracks(playlist: Playlist) {
+	const sequencedTracks: Track[] = [];
+	const tracksMap = new Map<string, Track>();
+	for (const track of playlist.tracks) {
+		const trackKey = track.file.toLowerCase();
+		tracksMap.set(trackKey, track);
+	}
+	for (const sequencedTrack of playlist.sequence) {
+		const file = sequencedTrack.toLowerCase();
+		let track = tracksMap.get(file);
+		if (!track) track = { file: file, title: '', performers: [], composers: [], date: '', notes: '' }
+		if (!track.title) track.title = sequencedTrack.slice(0, sequencedTrack.lastIndexOf('.')); // remove file extension
+		sequencedTracks.push(track);
+	}
+	return sequencedTracks;
 }
 
 /**
@@ -70,11 +90,10 @@ export function PlaylistMap(playlists: Playlist[]) {
 
 /**
  * Given an array of `playlists`, return a map of sequenced Track objects keyed
- * by PlaylistTrack (lowercase folder and lowercase file).
+ * by TrackMapKey.
  */
 export function TrackMap(playlists: Playlist[]) {
 	const map = new Map<string, Track>();
-	// const map = new Map<PlaylistTrack, Track>();
 	for (const playlist of playlists) {
 		const folder = playlist.folder.toLowerCase();
 		const tracksMap = new Map<string, Track>();
@@ -84,7 +103,6 @@ export function TrackMap(playlists: Playlist[]) {
 		}
 		for (const sequencedTrack of playlist.sequence) {
 			const file = sequencedTrack.toLowerCase();
-			// const key: PlaylistTrack = { folder: folder, file: file };
 			let track = tracksMap.get(file);
 			if (!track) track = { file: file, title: '', performers: [], composers: [], date: '', notes: '' }
 			if (!track.title) track.title = sequencedTrack.slice(0, sequencedTrack.lastIndexOf('.')); // remove file extension
@@ -131,6 +149,11 @@ export function RunPlaylists(path: string, playlistTracks: PlaylistTrack[], audi
 		else document.dispatchEvent(playlistEnded);
 	});
 }
+
+
+/**********************************************************************************************
+ * The code below is deprecated--the `RunPlaylists` function above should be used instead.
+***********************************************************************************************/
 
 /**
  * Given a `playlist` containing a sequenced list of audio files and an

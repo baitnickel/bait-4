@@ -542,6 +542,11 @@ dialog.threads-dialog button {
 	text-align: center;
 	/* vertical-align: middle; */
 }
+.grid-auto2 {
+	display: grid;
+	grid-template-columns: auto auto;
+	gap: .5rem;
+}
 .grid-auto3 {
 	display: grid;
 	grid-template-columns: auto auto auto;
@@ -775,6 +780,14 @@ font-family: sans-serif;
 .blue {
 	color: #00f;
 }
+.bold {
+	font-weight: bold;
+}
+.pronounced {
+	font-weight: bold;
+	font-size: larger;
+}
+
 
 /* used in test-yaml only - button properties should be generalized */
 #ok-button {

@@ -58,6 +58,14 @@ export function TrackMapKey(folder: string, file: string) {
 	return `${folder.toLowerCase()}/${file.toLowerCase()}`;
 }
 
+/**
+ * Playlist.sequence contains an array of audio file names to be played, whereas
+ * Playlist.tracks contains an array of Track objects holding information about
+ * the tracks. Not every sequenced file has a corresponding Track object. Here,
+ * we will create a pseudo Track object for each file that is not included in
+ * Playlist.tracks, to ensure that every sequenced track has at least a minimal
+ * Track object.
+ */
 export function SequencedTracks(playlist: Playlist) {
 	const sequencedTracks: Track[] = [];
 	const tracksMap = new Map<string, Track>();
@@ -68,11 +76,20 @@ export function SequencedTracks(playlist: Playlist) {
 	for (const sequencedTrack of playlist.sequence) {
 		const file = sequencedTrack.toLowerCase();
 		let track = tracksMap.get(file);
-		if (!track) track = { file: file, title: '', performers: [], composers: [], date: '', notes: '' }
-		if (!track.title) track.title = sequencedTrack.slice(0, sequencedTrack.lastIndexOf('.')); // remove file extension
+		if (!track) track = { file: file, title: '', performers: [], composers: [], date: '', notes: '' };
+		if (!track.title) track.title = fileTitle(sequencedTrack);
 		sequencedTracks.push(track);
 	}
 	return sequencedTracks;
+}
+
+/**
+ * Given a `fileName`, derive and return a Track.title.
+ */
+function fileTitle(fileName: string) {
+	let fileTitle = fileName;
+	fileTitle = fileName.slice(0, fileName.lastIndexOf('.')); // remove file extension
+	return fileTitle;
 }
 
 /**
@@ -96,16 +113,8 @@ export function TrackMap(playlists: Playlist[]) {
 	const map = new Map<string, Track>();
 	for (const playlist of playlists) {
 		const folder = playlist.folder.toLowerCase();
-		const tracksMap = new Map<string, Track>();
-		for (const track of playlist.tracks) {
-			const trackKey = track.file.toLowerCase();
-			tracksMap.set(trackKey, track);
-		}
-		for (const sequencedTrack of playlist.sequence) {
-			const file = sequencedTrack.toLowerCase();
-			let track = tracksMap.get(file);
-			if (!track) track = { file: file, title: '', performers: [], composers: [], date: '', notes: '' }
-			if (!track.title) track.title = sequencedTrack.slice(0, sequencedTrack.lastIndexOf('.')); // remove file extension
+		const tracks = SequencedTracks(playlist);
+		for (const track of tracks) {
 			const key = TrackMapKey(folder, track.file);
 			map.set(key, track);
 		}
@@ -116,17 +125,26 @@ export function TrackMap(playlists: Playlist[]) {
 /**
  * Given a `path` under which Playlist folders can be found, an array of
  * `playlistTracks` (one or more Playlist objects), and an `audioElement`, load
- * and play each of the audio files in sequence. When the optional `loop`
- * parameter is set to 'true', the entire playlist will be repeated endlessly
- * (or until the user refreshes their page).
+ * and play each of the audio files in sequence.
+ * 
+ * By default, the playlist starts with track 0, but a different starting track
+ * may be selected by setting the `start` parameter to a different valid number.
+ * When the optional `loop` parameter is set to 'true', the entire playlist will
+ * be repeated endlessly (or until the user refreshes their page).
  */
-export function RunPlaylists(path: string, playlistTracks: PlaylistTrack[], audioElement: HTMLAudioElement, loop = false) {
+export function RunPlaylists(
+	path: string,
+	playlistTracks: PlaylistTrack[],
+	audioElement: HTMLAudioElement,
+	start = 0,
+	loop = false
+) {
 	const playlistLoaded = new Event(PlaylistLoaded);
 	const trackPlaying = new Event(TrackPlaying);
 	const playlistEnded = new Event(PlaylistEnded);
 
 	let tracks = {
-		index: 0,
+		index: (start >= 0 && start < playlistTracks.length) ? start : 0,
 		next: function() { this.index = (this.index + 1) % playlistTracks.length },
 		select: function() {
 			const folder = playlistTracks[this.index].folder;

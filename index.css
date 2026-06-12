@@ -553,7 +553,8 @@ dialog.threads-dialog button {
 	gap: .5rem;
 }
 .framed {
-	border: 1px solid gray; 
+	border: 1px solid gray;
+	border-radius: 20px;
 	margin: .5rem;
 	padding: 1rem;
 }

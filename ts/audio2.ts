@@ -17,6 +17,18 @@ if (!PAGE.backendAvailable) {
 // sequence array that simply lists the audio file names. Having a list of valid
 // folders will allow us to easily catch obvious Dialog entry errors.
 
+type PlaylistGroup = { group: string, folders: string[] };
+const PlaylistGroups: PlaylistGroup[] = [];
+PlaylistGroups.push({ group: '1. Pre-Ceremony', folders: ['test-piano', 'test-strings'] });
+PlaylistGroups.push({ group: '2. Bride Walks In', folders: ['test-strings', 'test-harp'] });
+PlaylistGroups.push({ group: '3. Kiss the Bride', folders: ['test-harp', 'test-piano'] });
+PlaylistGroups.push({ group: '4. Reception', folders: ['wake'] });
+const PlaylistGroupValues = PlaylistGroups.map((element) => element.group);
+const PlaylistGroupMap = new Map<string, string[]>();
+for (const playlistGroup of PlaylistGroups) {
+	PlaylistGroupMap.set(playlistGroup.group, playlistGroup.folders);
+}
+
 type Options = { playlists: string[], start: number, log: boolean };
 const MediaFolders = '../media/audio';
 
@@ -164,22 +176,27 @@ function setQuerySelection() {
 }
 
 function createModalDialog() {
-	const dialog = new W.Dialog('Playlist Options');
-	const folders = dialog.addText('Folders:', Selection.playlists.join(' '));
+	const dialog = new W.Dialog('Options');
+	const playlistGroup = dialog.addSelect('Playlist:', PlaylistGroupValues);
 	const start = dialog.addText('Offset:', '0');
 	const log = dialog.addCheckbox('Update Log:', false);
+	// const folders = '';
 
 	dialog.cancelButton.addEventListener('click', () => {
 		window.history.back();
 	});
 	dialog.confirmButton.addEventListener('click', async () => {
-		if (folders) {
-			Selection.playlists = [];
-			for (let folder of folders.value.split(/\s+/)) {
-				folder = folder.trim();
-				if (folder) Selection.playlists.push(folder);
-			}
-		}
+		// if (folders) {
+		// 	Selection.playlists = [];
+		// 	for (let folder of folders.value.split(/\s+/)) {
+		// 		folder = folder.trim();
+		// 		if (folder) Selection.playlists.push(folder);
+		// 	}
+		// }
+		const folders = PlaylistGroupMap.get(playlistGroup.value);
+		if (folders !== undefined) Selection.playlists = folders;
+		console.log(`folders: ${folders}`);
+
 		Selection.start = Number(start.value);
 		if (isNaN(Selection.start) || Selection.start < 0) Selection.start = 0;
 		Selection.log = log.checked;

@@ -8,6 +8,16 @@ if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
     window.history.back();
 }
+const PlaylistGroups = [];
+PlaylistGroups.push({ group: '1. Pre-Ceremony', folders: ['test-piano', 'test-strings'] });
+PlaylistGroups.push({ group: '2. Bride Walks In', folders: ['test-strings', 'test-harp'] });
+PlaylistGroups.push({ group: '3. Kiss the Bride', folders: ['test-harp', 'test-piano'] });
+PlaylistGroups.push({ group: '4. Reception', folders: ['wake'] });
+const PlaylistGroupValues = PlaylistGroups.map((element) => element.group);
+const PlaylistGroupMap = new Map();
+for (const playlistGroup of PlaylistGroups) {
+    PlaylistGroupMap.set(playlistGroup.group, playlistGroup.folders);
+}
 const MediaFolders = '../media/audio';
 let Selection = { playlists: [], start: 0, log: false };
 let Dialog;
@@ -146,22 +156,26 @@ function setQuerySelection() {
     }
 }
 function createModalDialog() {
-    const dialog = new W.Dialog('Playlist Options');
-    const folders = dialog.addText('Folders:', Selection.playlists.join(' '));
+    const dialog = new W.Dialog('Options');
+    const playlistGroup = dialog.addSelect('Playlist:', PlaylistGroupValues);
     const start = dialog.addText('Offset:', '0');
     const log = dialog.addCheckbox('Update Log:', false);
+    // const folders = '';
     dialog.cancelButton.addEventListener('click', () => {
         window.history.back();
     });
     dialog.confirmButton.addEventListener('click', async () => {
-        if (folders) {
-            Selection.playlists = [];
-            for (let folder of folders.value.split(/\s+/)) {
-                folder = folder.trim();
-                if (folder)
-                    Selection.playlists.push(folder);
-            }
-        }
+        // if (folders) {
+        // 	Selection.playlists = [];
+        // 	for (let folder of folders.value.split(/\s+/)) {
+        // 		folder = folder.trim();
+        // 		if (folder) Selection.playlists.push(folder);
+        // 	}
+        // }
+        const folders = PlaylistGroupMap.get(playlistGroup.value);
+        if (folders !== undefined)
+            Selection.playlists = folders;
+        console.log(`folders: ${folders}`);
         Selection.start = Number(start.value);
         if (isNaN(Selection.start) || Selection.start < 0)
             Selection.start = 0;

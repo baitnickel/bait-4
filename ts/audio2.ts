@@ -11,47 +11,25 @@ if (!PAGE.backendAvailable) {
 	window.history.back();
 }
 
+// Add an API call to retrieve all the folders in MediaFolders, marking those
+// that contain an index file. If a folder that does not contain an index file
+// is selected, we may want to generate one with an empty Tracks array and a
+// sequence array that simply lists the audio file names. Having a list of valid
+// folders will allow us to easily catch obvious Dialog entry errors.
+
 type Options = { playlists: string[], start: number, log: boolean };
 const MediaFolders = '../media/audio';
 
 let Selection: Options = { playlists: [], start: 0, log: false };
+let Dialog: W.Dialog;
 let Playlists: Media.Playlist[];
 let PlaylistTracks: Media.PlaylistTrack[];
 let PlaylistMap: Map<string, Media.Playlist>; // = Media.PlaylistMap(Playlists);
 let TrackMap: Map<string, Media.Track>; // = Media.TrackMap(Playlists);
 
-// const Selection = getQuerySelection();
-// const dialog = createModalDialog(selection);
-// dialog.element.showModal();
-
-// const WriteServerLog = PAGE.parameters.has('log');
-// let Start = Number(PAGE.parameters.get('start'));
-// if (isNaN(Start) || Start < 0) Start = 0;
-// let PlaylistFolders = ['test-piano', 'test-strings', 'test-harp'];
-// const Folders = PAGE.parameters.get('folders');
-// if (Folders) {
-// 	PlaylistFolders = [];
-// 	for (let folder of Folders.split(',')) {
-// 		folder = folder.trim();
-// 		PlaylistFolders.push(folder);
-// 	}
-// }
-
 // we need to write path/folder/track.file and index number into a log file
 // and support restarting from that index
 
-// const PlaylistFolders = ['test-piano', 'test-strings', 'test-harp'];
-
-// THIS DOESN"T WORK ... async await continues to mystify me
-// async function getPlaylists() {
-// 	const playlists: Media.Playlist[] = [];
-// 	for (const playlistFolder of Selection.playlists) {
-// 		const indexFile = `${MediaFolders}/${playlistFolder}/_index.json`;
-// 		const playlist = await Fetch.json<Media.Playlist>(indexFile);
-// 		playlists.push(playlist);
-// 	}
-// 	return playlists;
-// }
 async function getPlaylist(indexFile: string) {
 	const playlist = await Fetch.json<Media.Playlist>(indexFile);
 	return playlist;
@@ -87,20 +65,18 @@ let PlaylistOffset = 0;
 let SequencedTracks: Media.Track[] = [];
 
 export function render() {
-	PAGE.setTitle('Playlist Console');
+	PAGE.setTitle('Audio Playlist Console');
 	setQuerySelection();
-	const dialog = createModalDialog();
-	document.body.append(dialog.element);
-	dialog.element.showModal();
+	// const dialog = createModalDialog();
+	Dialog = createModalDialog();
+	document.body.append(Dialog.element);
+	Dialog.element.showModal();
 
-	PAGE.content.append(PlaylistInfo);
-	PAGE.content.append(ControlsBlock);
-	PAGE.content.append(GridContainer);
-	GridContainer.append(TrackList);
-	GridContainer.append(TrackInfo);
-
-	// if (selection.start >= PlaylistTracks.length) log(`"start=${selection.start}" exceeds highest track number (${PlaylistTracks.length - 1})`, true);
-	// else Media.RunPlaylists(MediaFolders, PlaylistTracks, MainAudioElement, selection.start);
+	// PAGE.content.append(PlaylistInfo);
+	// PAGE.content.append(ControlsBlock);
+	// PAGE.content.append(GridContainer);
+	// GridContainer.append(TrackList);
+	// GridContainer.append(TrackInfo);
 }
 
 document.addEventListener(Media.PlaylistLoaded, () => {
@@ -123,7 +99,6 @@ document.addEventListener(Media.TrackPlaying, () => {
 			SequencedTracks = Media.SequencedTracks(playlist);
 		}
 		refreshInfo(playlist, SequencedTracks, newPlaylist, CurrentPlaylistTrack, PlaylistOffset);
-		// log(`track: [${CurrentPlaylistTrack + Start}] ${playlist.folder}/${track.file}`)
 		log(`track: [${CurrentPlaylistTrack}] ${playlist.folder}/${track.file}`)
 		CurrentFolder = playlist.folder;
 	}
@@ -131,11 +106,13 @@ document.addEventListener(Media.TrackPlaying, () => {
 });
 
 document.addEventListener(Media.PlaylistEnded, () => {
-	PlaylistInfo.innerHTML = '';
-	TrackList.innerHTML = '';
-	TrackInfo.innerHTML = '';
-	CurrentPlaylistTrack = 1; // clicking the play button again will not report track 0 
+	// PlaylistInfo.innerHTML = '';
+	// TrackList.innerHTML = '';
+	// TrackInfo.innerHTML = '';
 	log(`playlist ended`);
+	CurrentPlaylistTrack = 0; // questionable, but clicking the play button again will not report track 0 
+	PAGE.content.innerHTML = '';
+	Dialog.element.showModal();
 });
 
 function refreshInfo(playlist: Media.Playlist, tracks: Media.Track[], newPlaylist: boolean, currentTrack: number, offset: number) {
@@ -170,9 +147,9 @@ function refreshInfo(playlist: Media.Playlist, tracks: Media.Track[], newPlaylis
 }
 
 function setQuerySelection() {
-	const testPlaylists = ['test-piano', 'test-strings', 'test-harp'];
-	// const selection: Options = { playlists: testPlaylists, start: 0, log: false };
-	Selection.playlists = testPlaylists;
+	// const testPlaylists = ['test-piano', 'test-strings', 'test-harp'];
+	// Selection.playlists = testPlaylists;
+	Selection.playlists = [];
 	Selection.log = PAGE.parameters.has('log');
 	Selection.start = Number(PAGE.parameters.get('start'));
 	if (isNaN(Selection.start) || Selection.start < 0) Selection.start = 0;
@@ -181,14 +158,14 @@ function setQuerySelection() {
 		Selection.playlists = [];
 		for (let folder of folders.split(',')) {
 			folder = folder.trim();
-			Selection.playlists.push(folder);
+			if (folder) Selection.playlists.push(folder);
 		}
 	}
 }
 
 function createModalDialog() {
 	const dialog = new W.Dialog('Playlist Options');
-	const folders = dialog.addText('Folders:', Selection.playlists.join(','));
+	const folders = dialog.addText('Folders:', Selection.playlists.join(' '));
 	const start = dialog.addText('Offset:', '0');
 	const log = dialog.addCheckbox('Update Log:', false);
 
@@ -198,9 +175,9 @@ function createModalDialog() {
 	dialog.confirmButton.addEventListener('click', async () => {
 		if (folders) {
 			Selection.playlists = [];
-			for (let folder of folders.value.split(',')) {
+			for (let folder of folders.value.split(/\s+/)) {
 				folder = folder.trim();
-				Selection.playlists.push(folder);
+				if (folder) Selection.playlists.push(folder);
 			}
 		}
 		Selection.start = Number(start.value);
@@ -210,6 +187,13 @@ function createModalDialog() {
 		PlaylistTracks = Media.PlaylistTracks(Playlists);
 		PlaylistMap = Media.PlaylistMap(Playlists);
 		TrackMap = Media.TrackMap(Playlists);
+
+		PAGE.content.append(PlaylistInfo);
+		PAGE.content.append(ControlsBlock);
+		PAGE.content.append(GridContainer);
+		GridContainer.append(TrackList);
+		GridContainer.append(TrackInfo);
+
 		Media.RunPlaylists(MediaFolders, PlaylistTracks, MainAudioElement, Selection.start);
 	});
 	return dialog;

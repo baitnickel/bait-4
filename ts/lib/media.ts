@@ -1,3 +1,5 @@
+import * as T from './types.js';
+
 /**
  * Utilities for handling audio and video media.
  */

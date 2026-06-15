@@ -180,3 +180,5 @@ export function Dollars(number) {
     return '$' + number.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 export const EventTypes = ['All', 'Historical', 'Personal', 'Private'];
+/** for Audio Media */
+export const AudioFiles = ['mp3', 'm4a'];

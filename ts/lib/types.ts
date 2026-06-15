@@ -465,3 +465,22 @@ export type ThreadPassage = {
 	tag: string;
 	text: string;
 }
+
+/** for Audio Media */
+export const AudioFiles = ['mp3','m4a'];
+export type AudioTrack = {
+	file: string;
+	title: string;
+	performers: string[];
+	composers: string[];
+	date: string;
+	notes: string;
+};
+export type AudioPlaylist = {
+	folder: string,
+	title: string,
+	image: string,
+	notes: string,
+	sequence: string[],
+	tracks: AudioTrack[],
+};

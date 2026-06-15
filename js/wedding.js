@@ -8,14 +8,6 @@ if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
     window.history.back();
 }
-// Call API to retrieve all the folders in MediaFolders that contain an
-// "_index.json" file.
-// 
-// Optionally, if a folder that does not contain an index file is selected, we
-// might generate one with an empty Tracks array and a sequence array that
-// simply lists the audio file names.
-const AudioPlaylists = await Fetch.api(`${PAGE.backend}/media/audio/playlists`);
-console.log(AudioPlaylists);
 const PlaylistGroups = [];
 PlaylistGroups.push({ group: '1. Pre-Ceremony', folders: ['test-piano', 'test-strings'] });
 PlaylistGroups.push({ group: '2. Bride Walks In', folders: ['test-strings', 'test-harp'] });

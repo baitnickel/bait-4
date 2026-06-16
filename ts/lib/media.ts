@@ -125,9 +125,9 @@ export function TrackMap(playlists: Playlist[]) {
 }
 
 /**
- * Given a `path` under which Playlist folders can be found, an array of
- * `playlistTracks` (one or more Playlist objects), and an `audioElement`, load
- * and play each of the audio files in sequence.
+ * Given an `audioElement`, a `path` under which Playlist folders can be found,
+ * and an array of `playlistTracks` (one or more Playlist objects), load and
+ * play each of the audio files in sequence.
  * 
  * By default, the playlist starts with track 0, but a different starting track
  * may be selected by setting the `start` parameter to a different valid number.
@@ -135,9 +135,9 @@ export function TrackMap(playlists: Playlist[]) {
  * be repeated endlessly (or until the user refreshes their page).
  */
 export function RunPlaylists(
+	audioElement: HTMLAudioElement,
 	path: string,
 	playlistTracks: PlaylistTrack[],
-	audioElement: HTMLAudioElement,
 	start = 0,
 	loop = false
 ) {

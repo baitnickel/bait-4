@@ -10,53 +10,39 @@ if (!PAGE.backendAvailable) {
 	window.alert(`Cannot connect to: ${PAGE.backend}`);
 	window.history.back();
 }
+console.log('v26.06.16.13.43');
 
-// Call API to retrieve all the folders in MediaFolders that contain an
-// "_index.json" file.
-// 
-// Optionally, if a folder that does not contain an index file is selected, we
+// If a folder that does not contain an index file is selected, we
 // might generate one with an empty Tracks array and a sequence array that
 // simply lists the audio file names.
-const AudioPlaylists = await Fetch.api<string[]>(`${PAGE.backend}/media/audio/playlists`);
-console.log(AudioPlaylists);
 
-type PlaylistGroup = { group: string, folders: string[] };
-const PlaylistGroups: PlaylistGroup[] = [];
-PlaylistGroups.push({ group: '1. Pre-Ceremony', folders: ['test-piano', 'test-strings'] });
-PlaylistGroups.push({ group: '2. Bride Walks In', folders: ['test-strings', 'test-harp'] });
-PlaylistGroups.push({ group: '3. Kiss the Bride', folders: ['test-harp', 'test-piano'] });
-PlaylistGroups.push({ group: '4. Reception', folders: ['wake'] });
-const PlaylistGroupValues = PlaylistGroups.map((element) => element.group);
-const PlaylistGroupMap = new Map<string, string[]>();
-for (const playlistGroup of PlaylistGroups) {
-	PlaylistGroupMap.set(playlistGroup.group, playlistGroup.folders);
-}
+type Options = { playlist: string, start: number, log: boolean };
+const AudioMediaRoot = '../media/audio';
+const IndexFile = '_index.json';
 
-type Options = { playlists: string[], start: number, log: boolean };
-const MediaFolders = '../media/audio';
-
-let Selection: Options = { playlists: [], start: 0, log: false };
+let Selection: Options = { playlist: '', start: 0, log: false };
 let Dialog: W.Dialog;
-let Playlists: Media.Playlist[];
+let Playlist: Media.Playlist;
 let PlaylistTracks: Media.PlaylistTrack[];
-let PlaylistMap: Map<string, Media.Playlist>; // = Media.PlaylistMap(Playlists);
-let TrackMap: Map<string, Media.Track>; // = Media.TrackMap(Playlists);
+let PlaylistMap: Map<string, Media.Playlist>;
+let TrackMap: Map<string, Media.Track>;
 
-// we need to write path/folder/track.file and index number into a log file
-// and support restarting from that index
+/**
+ * Call API to retrieve all the folders in AudioMediaRoot that contain an
+ * "_index.json" file.
+ */ 
+const fetchedPlaylists = await Fetch.api<string[]>(`${PAGE.backend}/media/audio/playlists`);
+const EligiblePlaylists = (fetchedPlaylists !== null) ? fetchedPlaylists : [];
+console.log(EligiblePlaylists);
 
-async function getPlaylist(indexFile: string) {
+/**
+ * Given a playlist directory name (name only, not path) fetch its IndexFile and
+ * create and return a Media.Playlist object.
+ */
+async function getPlaylist(folderName: string) {
+	const indexFile = `${AudioMediaRoot}/${folderName}/${IndexFile}`;
 	const playlist = await Fetch.json<Media.Playlist>(indexFile);
 	return playlist;
-}
-async function getPlaylists(selection: Options) {
-	const playlists: Media.Playlist[] = [];
-	for (const playlistFolder of selection.playlists) {
-		const indexFile = `${MediaFolders}/${playlistFolder}/_index.json`;
-		const playlist = await getPlaylist(indexFile);
-		playlists.push(playlist);
-	}
-	return playlists;
 }
 
 /** define document containers */
@@ -70,28 +56,21 @@ const TrackList = document.createElement('div');
 const TrackInfo = document.createElement('div');
 TrackList.classList.add('framed');
 TrackInfo.classList.add('framed');
-const MainAudioElement = document.createElement('audio');
-MainAudioElement.controls = true;
-ControlsBlock.append(MainAudioElement);
+const AudioElement = document.createElement('audio');
+AudioElement.controls = true;
+ControlsBlock.append(AudioElement);
 
+/** global variables for controlling the process of playing the audio files */
 let CurrentFolder = '';
-let CurrentPlaylistTrack = 0; // Selection.start;
+let CurrentPlaylistTrack = 0;
 let PlaylistOffset = 0;
 let SequencedTracks: Media.Track[] = [];
 
 export function render() {
 	PAGE.setTitle('Audio Playlist Console');
-	setQuerySelection();
-	// const dialog = createModalDialog();
 	Dialog = createModalDialog();
 	document.body.append(Dialog.element);
 	Dialog.element.showModal();
-
-	// PAGE.content.append(PlaylistInfo);
-	// PAGE.content.append(ControlsBlock);
-	// PAGE.content.append(GridContainer);
-	// GridContainer.append(TrackList);
-	// GridContainer.append(TrackInfo);
 }
 
 document.addEventListener(Media.PlaylistLoaded, () => {
@@ -121,11 +100,8 @@ document.addEventListener(Media.TrackPlaying, () => {
 });
 
 document.addEventListener(Media.PlaylistEnded, () => {
-	// PlaylistInfo.innerHTML = '';
-	// TrackList.innerHTML = '';
-	// TrackInfo.innerHTML = '';
 	log(`playlist ended`);
-	CurrentPlaylistTrack = 0; // questionable, but clicking the play button again will not report track 0 
+	CurrentPlaylistTrack = 0; // ?? clicking the play button again will not report track 0 
 	PAGE.content.innerHTML = '';
 	Dialog.element.showModal();
 });
@@ -161,52 +137,24 @@ function refreshInfo(playlist: Media.Playlist, tracks: Media.Track[], newPlaylis
 	TrackList.append(list);
 }
 
-function setQuerySelection() {
-	// const testPlaylists = ['test-piano', 'test-strings', 'test-harp'];
-	// Selection.playlists = testPlaylists;
-	Selection.playlists = [];
-	Selection.log = PAGE.parameters.has('log');
-	Selection.start = Number(PAGE.parameters.get('start'));
-	if (isNaN(Selection.start) || Selection.start < 0) Selection.start = 0;
-	const folders = PAGE.parameters.get('folders');
-	if (folders) {
-		Selection.playlists = [];
-		for (let folder of folders.split(',')) {
-			folder = folder.trim();
-			if (folder) Selection.playlists.push(folder);
-		}
-	}
-}
-
 function createModalDialog() {
 	const dialog = new W.Dialog('Options');
-	const playlistGroup = dialog.addSelect('Playlist:', PlaylistGroupValues);
+	const playlist = dialog.addSelect('Playlist:', EligiblePlaylists);
 	const start = dialog.addText('Offset:', '0');
 	const log = dialog.addCheckbox('Update Log:', false);
-	// const folders = '';
 
 	dialog.cancelButton.addEventListener('click', () => {
 		window.history.back();
 	});
 	dialog.confirmButton.addEventListener('click', async () => {
-		// if (folders) {
-		// 	Selection.playlists = [];
-		// 	for (let folder of folders.value.split(/\s+/)) {
-		// 		folder = folder.trim();
-		// 		if (folder) Selection.playlists.push(folder);
-		// 	}
-		// }
-		const folders = PlaylistGroupMap.get(playlistGroup.value);
-		if (folders !== undefined) Selection.playlists = folders;
-		console.log(`folders: ${folders}`);
-
+		Selection.playlist = playlist.value;
 		Selection.start = Number(start.value);
 		if (isNaN(Selection.start) || Selection.start < 0) Selection.start = 0;
 		Selection.log = log.checked;
-		Playlists = await getPlaylists(Selection);
-		PlaylistTracks = Media.PlaylistTracks(Playlists);
-		PlaylistMap = Media.PlaylistMap(Playlists);
-		TrackMap = Media.TrackMap(Playlists);
+		Playlist = await getPlaylist(Selection.playlist);
+		PlaylistTracks = Media.PlaylistTracks([Playlist]);
+		PlaylistMap = Media.PlaylistMap([Playlist]);
+		TrackMap = Media.TrackMap([Playlist]);
 
 		PAGE.content.append(PlaylistInfo);
 		PAGE.content.append(ControlsBlock);
@@ -214,7 +162,7 @@ function createModalDialog() {
 		GridContainer.append(TrackList);
 		GridContainer.append(TrackInfo);
 
-		Media.RunPlaylists(MediaFolders, PlaylistTracks, MainAudioElement, Selection.start);
+		Media.RunPlaylists(AudioElement, AudioMediaRoot, PlaylistTracks, Selection.start);
 	});
 	return dialog;
 }
@@ -222,7 +170,7 @@ function createModalDialog() {
 function log(message: string, error = false) {
 	if (error) console.error(message);
 	else console.log(message);
-
+	/** when requested via "Update Log" checkbox, write message to server log */
 	if (Selection.log) {
 		const logEntry: T.LogEntry = { text: message };
 		Fetch.api<T.LogEntry>(`${PAGE.backend}/log/`, logEntry)

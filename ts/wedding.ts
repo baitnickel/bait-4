@@ -211,7 +211,7 @@ function createModalDialog() {
 		GridContainer.append(TrackList);
 		GridContainer.append(TrackInfo);
 
-		Media.RunPlaylists(MediaFolders, PlaylistTracks, MainAudioElement, Selection.start);
+		Media.RunPlaylists(MainAudioElement, MediaFolders, PlaylistTracks, Selection.start);
 	});
 	return dialog;
 }

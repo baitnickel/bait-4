@@ -8,7 +8,7 @@ if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
     window.history.back();
 }
-console.log('v26.06.16.13.43');
+console.log('v26.06.17.16.18');
 const AudioMediaRoot = '../media/audio';
 const IndexFile = '_index.json';
 let Selection = { playlist: '', start: 0, log: false };
@@ -21,8 +21,8 @@ let TrackMap;
  * Call API to retrieve all the folders in AudioMediaRoot that contain an
  * "_index.json" file.
  */
-const fetchedPlaylists = await Fetch.api(`${PAGE.backend}/media/audio/playlists`);
-const EligiblePlaylists = (fetchedPlaylists !== null) ? fetchedPlaylists : [];
+const apiResult = await Fetch.api(`${PAGE.backend}/media/audio/playlists`);
+const EligiblePlaylists = (apiResult !== null) ? apiResult : [];
 console.log(EligiblePlaylists);
 /**
  * Given a playlist directory name (name only, not path) fetch its IndexFile and
@@ -58,10 +58,17 @@ export function render() {
     Dialog.element.showModal();
 }
 document.addEventListener(Media.PlaylistLoaded, () => {
-    const startingAt = (Selection.start > 0) ? ` (starting with track ${Selection.start})` : '';
-    log(`playlist loaded ${PlaylistTracks.length} tracks${startingAt}`);
+    console.log(`Event: PlaylistLoaded`);
+    CurrentFolder = '';
+    CurrentPlaylistTrack = 0;
+    PlaylistOffset = 0;
+    SequencedTracks = [];
+    const startingAt = (Selection.start > 0) ? `, starting with track ${Selection.start}` : '';
+    const plural = (PlaylistTracks.length != 1) ? 's' : '';
+    log(`PlaylistLoaded (${PlaylistTracks.length} track${plural}${startingAt})`);
 });
 document.addEventListener(Media.TrackPlaying, () => {
+    console.log(`Event: TrackPlaying`);
     const folderKey = PlaylistTracks[CurrentPlaylistTrack].folder.toLowerCase();
     const fileKey = PlaylistTracks[CurrentPlaylistTrack].file.toLowerCase();
     const trackKey = Media.TrackMapKey(folderKey, fileKey);
@@ -78,17 +85,54 @@ document.addEventListener(Media.TrackPlaying, () => {
             SequencedTracks = Media.SequencedTracks(playlist);
         }
         refreshInfo(playlist, SequencedTracks, newPlaylist, CurrentPlaylistTrack, PlaylistOffset);
-        log(`track: [${CurrentPlaylistTrack}] ${playlist.folder}/${track.file}`);
+        log(`TrackPlaying: [${CurrentPlaylistTrack}] ${playlist.folder}/${track.file}`);
         CurrentFolder = playlist.folder;
     }
     CurrentPlaylistTrack += 1;
 });
 document.addEventListener(Media.PlaylistEnded, () => {
-    log(`playlist ended`);
-    CurrentPlaylistTrack = 0; // ?? clicking the play button again will not report track 0 
-    PAGE.content.innerHTML = '';
-    Dialog.element.showModal();
+    console.log(`Event: PlaylistEnded`);
+    console.log('--------------------');
+    CurrentFolder = '';
+    CurrentPlaylistTrack = 0;
+    PlaylistOffset = 0;
+    SequencedTracks = [];
+    PAGE.content.innerHTML = '<h2>Refresh Page (⌘R) to select another playlist</h2>';
+    // Dialog.element.showModal();
 });
+function createModalDialog() {
+    const dialog = new W.Dialog('Options');
+    const playlist = dialog.addSelect('Playlist:', EligiblePlaylists);
+    const start = dialog.addText('Offset:', '0');
+    const log = dialog.addCheckbox('Update Log:', false);
+    dialog.cancelButton.addEventListener('click', () => {
+        window.history.back();
+    });
+    dialog.confirmButton.addEventListener('click', async () => {
+        console.log(`Event: ConfirmButton`);
+        Selection.playlist = playlist.value;
+        Selection.start = Number(start.value);
+        if (isNaN(Selection.start) || Selection.start < 0)
+            Selection.start = 0;
+        Selection.log = log.checked;
+        Playlist = await getPlaylist(Selection.playlist);
+        PlaylistTracks = Media.PlaylistTracks([Playlist]);
+        PlaylistMap = Media.PlaylistMap([Playlist]);
+        TrackMap = Media.TrackMap([Playlist]);
+        PAGE.content.append(PlaylistInfo);
+        PAGE.content.append(ControlsBlock);
+        PAGE.content.append(GridContainer);
+        GridContainer.append(TrackList);
+        GridContainer.append(TrackInfo);
+        console.log(CurrentPlaylistTrack);
+        Media.RunPlaylists(AudioElement, AudioMediaRoot, PlaylistTracks, Selection.start);
+    });
+    return dialog;
+}
+/**
+ * Refresh the playlist information, track listing, and track information
+ * panels.
+ */
 function refreshInfo(playlist, tracks, newPlaylist, currentTrack, offset) {
     /** set PlaylistInfo */
     if (newPlaylist) {
@@ -121,33 +165,11 @@ function refreshInfo(playlist, tracks, newPlaylist, currentTrack, offset) {
     }
     TrackList.append(list);
 }
-function createModalDialog() {
-    const dialog = new W.Dialog('Options');
-    const playlist = dialog.addSelect('Playlist:', EligiblePlaylists);
-    const start = dialog.addText('Offset:', '0');
-    const log = dialog.addCheckbox('Update Log:', false);
-    dialog.cancelButton.addEventListener('click', () => {
-        window.history.back();
-    });
-    dialog.confirmButton.addEventListener('click', async () => {
-        Selection.playlist = playlist.value;
-        Selection.start = Number(start.value);
-        if (isNaN(Selection.start) || Selection.start < 0)
-            Selection.start = 0;
-        Selection.log = log.checked;
-        Playlist = await getPlaylist(Selection.playlist);
-        PlaylistTracks = Media.PlaylistTracks([Playlist]);
-        PlaylistMap = Media.PlaylistMap([Playlist]);
-        TrackMap = Media.TrackMap([Playlist]);
-        PAGE.content.append(PlaylistInfo);
-        PAGE.content.append(ControlsBlock);
-        PAGE.content.append(GridContainer);
-        GridContainer.append(TrackList);
-        GridContainer.append(TrackInfo);
-        Media.RunPlaylists(AudioElement, AudioMediaRoot, PlaylistTracks, Selection.start);
-    });
-    return dialog;
-}
+/**
+ * Given a text `message`, write it to the console, treating it as an error if
+ * `error` is true. When `Selection.log` is true (checked in the options
+ * Dialog), copy the message to the server log file via an API call.
+ */
 function log(message, error = false) {
     if (error)
         console.error(message);

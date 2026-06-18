@@ -92,13 +92,13 @@ export class Page {
         document.body.append(this.content);
         document.body.append(this.footer);
         if (this.local) { /** Add test pages */
-            MenuItems.push({ module: 'articles', parameters: ['path=Content/drafts'], text: 'Drafts', icon: '' });
+            // MenuItems.push({module: 'articles', parameters: ['path=Content/drafts'], text: 'Drafts', icon: ''});
             // MenuItems.push({module: 'chords', parameters: [], text: 'Chords', icon: ''});
-            MenuItems.push({ module: 'threads', parameters: [], text: 'Threads', icon: '' });
+            // MenuItems.push({module: 'threads', parameters: [], text: 'Threads', icon: ''});
             MenuItems.push({ module: 'timeline', parameters: [], text: 'Timeline', icon: '' });
             MenuItems.push({ module: 'carousel', parameters: [], text: 'Carousel', icon: '' });
             MenuItems.push({ module: 'audio', parameters: [], text: 'Audio', icon: '' });
-            MenuItems.push({ module: 'wedding', parameters: [], text: 'Wedding', icon: '' });
+            MenuItems.push({ module: 'audio', parameters: ['folder=wedding'], text: 'Wedding', icon: '' });
             // MenuItems.push({module: 'camping', parameters: [], text: '(Camping)', icon: ''});
             // MenuItems.push({module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: ''});
             // MenuItems.push({module: 'test-cookies', parameters: [], text: 'Cookies', icon: ''});

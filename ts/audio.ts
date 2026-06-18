@@ -10,14 +10,15 @@ if (!PAGE.backendAvailable) {
 	window.alert(`Cannot connect to: ${PAGE.backend}`);
 	window.history.back();
 }
-console.log('v26.06.17.16.18');
+console.log('v26.06.18.10.39');
 
 // If a folder that does not contain an index file is selected, we
 // might generate one with an empty Tracks array and a sequence array that
 // simply lists the audio file names.
 
 type Options = { playlist: string, start: number, log: boolean };
-const AudioMediaRoot = '../media/audio';
+const Subfolder = (PAGE.parameters.has('folder')) ? PAGE.parameters.get('folder')! : '';
+const AudioMediaRoot = (Subfolder) ? `../media/audio/${Subfolder}` : '../media/audio';
 const IndexFile = '_index.json';
 
 let Selection: Options = { playlist: '', start: 0, log: false };
@@ -109,19 +110,20 @@ document.addEventListener(Media.TrackPlaying, () => {
 document.addEventListener(Media.PlaylistEnded, () => {
 	console.log(`Event: PlaylistEnded`);
 	console.log('--------------------');
-	CurrentFolder = '';
-	CurrentPlaylistTrack = 0;
-	PlaylistOffset = 0;
-	SequencedTracks = [];
-	PAGE.content.innerHTML = '<h2>Refresh Page (⌘R) to select another playlist</h2>';
+	window.location.reload();
+	// CurrentFolder = '';
+	// CurrentPlaylistTrack = 0;
+	// PlaylistOffset = 0;
+	// SequencedTracks = [];
+	// PAGE.content.innerHTML = '<h2>Refresh Page (⌘R) to select another playlist</h2>';
 	// Dialog.element.showModal();
 });
 
 function createModalDialog() {
 	const dialog = new W.Dialog('Options');
 	const playlist = dialog.addSelect('Playlist:', EligiblePlaylists);
-	const start = dialog.addText('Offset:', '0');
-	const log = dialog.addCheckbox('Update Log:', false);
+	// const start = dialog.addText('Offset:', '0');
+	const log = dialog.addCheckbox('Update Log:', true);
 
 	dialog.cancelButton.addEventListener('click', () => {
 		window.history.back();
@@ -129,7 +131,7 @@ function createModalDialog() {
 	dialog.confirmButton.addEventListener('click', async () => {
 		console.log(`Event: ConfirmButton`);
 		Selection.playlist = playlist.value;
-		Selection.start = Number(start.value);
+		Selection.start = 0; // Number(start.value);
 		if (isNaN(Selection.start) || Selection.start < 0) Selection.start = 0;
 		Selection.log = log.checked;
 		Playlist = await getPlaylist(Selection.playlist);

@@ -28,6 +28,7 @@ const MenuItems = [
     // {module: 'iching', parameters: [], text: '\u262f', icon: ''},
     // {module: 'camp', parameters: [], text: '\u26fa', icon: 'camp.svg'},
     // {module: 'articles', parameters: ['path=Content/drafts'], text: String.fromCodePoint(0x1f4da), icon: ''},
+    { module: 'articles', parameters: ['path=Content/drafts/Big Sur Bike Trip 1973.md'], text: 'Bikes', icon: '' },
     // {module: 'songbook', parameters: [], text: '\u266b', icon: 'songbook.svg'},
     // {module: 'articles', parameters: ['path=README.md'], text: '\u24d8', icon: ''},
 ];

@@ -84,7 +84,7 @@ export function render() {
         // testers.push( { name: 'Radio', function: testRadio } );
         testers.push({ name: 'Grid', function: gridTest });
         // testers.push( { name: 'Spinner', function: testSpinner } );
-        // testers.push( { name: 'Images', function: testImages } );
+        testers.push({ name: 'Images', function: testImages });
         // testers.push( { name: 'Map', function: testMap } );
         testers.push({ name: 'Markdown', function: testMarkdown });
         // testers.push( { name: 'YAML', function: testYaml } );

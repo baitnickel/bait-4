@@ -221,6 +221,18 @@ pre code { /* fenced code blocks */
 	font-style: italic;
 }
 
+/* need border on all sides excepting margin side */
+/* need .image-center with image floating above text and occupying 80-90% of view port */
+.image-left {
+	float: left;
+	margin-right: 4em;
+}
+.image-right {
+	float: right;
+	margin-left: 4em;
+}
+
+
 .left {
 	float: left;
 	padding: 0 1em 1em 0;

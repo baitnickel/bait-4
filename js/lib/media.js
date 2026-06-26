@@ -1,6 +1,26 @@
 /**
- * Utilities for handling audio and video media.
+ * Utilities for handling audio, video, image media.
  */
+/*
+<img src="https://photos.smugmug.com/photos/i-SDpf2qV/0/S/i-SDpf2qV-S.jpg">
+*/
+/**
+ * To find a SmugMug photo's `id`, log into SmugMug and display the photo. The
+ * URL will contain the `id`. In the example URL below, the `id` is: i-g6HGgRQ
+ *
+ * https://dand.smugmug.com/Travels/Sierra-Nevada/Yosemite-05/i-g6HGgRQ/A
+ *
+ * Note that the sizes are letters--it's capital 'O' not '0'. 'O' stands for
+ * 'Original'. There are also 'S' for 'Small', 'M' for 'Medium', etc. (see
+ * Obsidian vault: Content/technical/tools/SmugMug).
+ */
+export function SmugURI(id, size = 'O', type = 'jpg') {
+    const smugMug = 'https://photos.smugmug.com/photos';
+    let uri = `${smugMug}/${id}/0/${size}/${id}-${size}.${type}`;
+    if (size == 'O')
+        uri.replace('-O', '');
+    return uri;
+}
 /** define events */
 export const PlaylistLoaded = 'bait:playlist-started';
 export const TrackPlaying = 'bait:track-started';

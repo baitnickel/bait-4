@@ -51,6 +51,16 @@ Expanding the notion of Resource objects beyond things that appear within markdo
 
 Image Resources might have properties such as 'caption' (string), 'frame' (boolean), 'width'/'height' (numbers), etc.
 
+For SmugMug photos the Resource constructor specifications are expected to be in the form:
+    smug/<id>/<size>/<type> <properties>
+
+for example:
+    smug/i-zBTjwgD/M/jpg .image-right width="200" height="200"
+
+`size` is optional and defaults to "O" (Original); `type` is optional and defaults to "jpg".
+`properties` are optional--words starting with "." are CSS classes,
+and words starting with "#" are element IDs (only the first one being honored).
+
 */
 export class Resource {
     url; /** location */
@@ -93,6 +103,14 @@ export class Resource {
                              * e.g., '?page=history&doc=interview'
                              */
                             this.url = Site.BASE_URL + this.url;
+                        }
+                        /** handle special SmugMug API retrieval */
+                        else if (this.url.toLowerCase().startsWith('smug/')) {
+                            const smugComponents = this.url.split('/');
+                            const photoID = smugComponents[1];
+                            const size = (smugComponents.length > 2) ? smugComponents[2].toUpperCase() : 'O';
+                            const type = (smugComponents.length > 3) ? smugComponents[3].toLowerCase() : 'jpg';
+                            this.url = SmugURI(photoID, size, type);
                         }
                         else if (this.url.indexOf('/') > 0) { /** URL begins with text followed by slash, e.g. "images/..." */
                             let urlComponents = this.url.split('/');
@@ -150,3 +168,23 @@ export class Resource {
 }
 // export class Image extends Resource {
 // }
+/*
+<img src="https://photos.smugmug.com/photos/i-SDpf2qV/0/S/i-SDpf2qV-S.jpg">
+*/
+/**
+ * To find a SmugMug photo's `id`, log into SmugMug and display the photo. The
+ * URL will contain the `id`. In the example URL below, the `id` is: i-g6HGgRQ
+ *
+ * https://dand.smugmug.com/Travels/Sierra-Nevada/Yosemite-05/i-g6HGgRQ/A
+ *
+ * Note that the sizes are letters--it's capital 'O' not '0'. 'O' stands for
+ * 'Original'. There are also 'S' for 'Small', 'M' for 'Medium', etc. (see
+ * Obsidian vault: Content/technical/tools/SmugMug).
+ */
+export function SmugURI(id, size = 'O', type = 'jpg') {
+    const smugMug = 'https://photos.smugmug.com/photos';
+    let uri = `${smugMug}/${id}/0/${size}/${id}-${size}.${type}`;
+    if (size == 'O')
+        uri.replace('-O', '');
+    return uri;
+}

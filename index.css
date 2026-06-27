@@ -225,11 +225,11 @@ pre code { /* fenced code blocks */
 /* need .image-center with image floating above text and occupying 80-90% of view port */
 .image-left {
 	float: left;
-	margin: 1em 1em 1em 0;
+	margin: 0 1em 1em 0;
 }
 .image-right {
 	float: right;
-	margin: 1em 0 1em 1em;
+	margin: 0 0 1em 1em;
 }
 
 

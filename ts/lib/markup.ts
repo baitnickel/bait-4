@@ -107,6 +107,7 @@ const SPAN_PATTERN = /\{\{(.*?)\}\}/;
 export function Markup(markdown: string|string[], origin = '') {
 	MARKDOWN = new MarkdownText();
 	MARKDOWN.loadLines(markdown);
+	MARKDOWN.getResources();
 	return MARKDOWN.html();
 }
 
@@ -149,8 +150,8 @@ class MarkdownText {
 		this.index = 0;
 		this.resources = null;
 		this.detailsObject = null;
-		/* extract Resource references from the markdown text and update the `resources` property */
-		this.getResources();
+		// /* extract Resource references from the markdown text and update the `resources` property */
+		// this.getResources();
 	}
 
 	loadLines(lines: string|string[]) {

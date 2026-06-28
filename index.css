@@ -6,7 +6,7 @@
 /* global variables */
 
 :root {
-	--content-width: 820px;
+	--content-width: 900px; /* 820px; */
 	--content-background-color: #def; /*  #dfeeff;lightblue */;  
 	--banner-text-color: #eef; /* almost white */
 	--banner-text-highlight-color: #f80; /* dark orange*/
@@ -231,7 +231,11 @@ pre code { /* fenced code blocks */
 	float: right;
 	margin: 0 0 1em 1em;
 }
-
+.image-inline {
+	/* display: inline; */
+	margin: 0 1em;
+	/* padding: .5em; spacing around image */
+}
 
 .left {
 	float: left;

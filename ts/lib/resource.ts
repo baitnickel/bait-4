@@ -114,7 +114,7 @@ export class Resource {
 						else if (this.url.toLowerCase().startsWith('smug/')) {
 							const smugComponents = this.url.split('/');
 							const photoID = smugComponents[1];
-							const size = (smugComponents.length > 2) ? smugComponents[2].toUpperCase() : 'O';
+							const size = (smugComponents.length > 2) ? smugComponents[2] : 'O';
 							const type = (smugComponents.length > 3) ? smugComponents[3].toLowerCase() : 'jpg';
 							this.url = SmugURI(photoID, size, type);
 						}

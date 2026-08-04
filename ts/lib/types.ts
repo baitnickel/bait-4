@@ -484,3 +484,24 @@ export type AudioPlaylist = {
 	sequence: string[],
 	tracks: AudioTrack[],
 };
+
+export const AudioExtensions = ['aac','aiff','alac','au','flac','m4a','mp3','wav'];
+
+/** 
+ * The AudioData structure will typically be used in a Map, where the Map key is
+ * a filename.
+ */
+export type AudioData = {
+	title: string;
+	sequence: number; /** 0 if not part of a collection or group */
+	duration: number; /** seconds */
+	categories: string[];
+	type: string; /** application-specific */
+	lastPlayed: number; /** milliseconds elapsed since the epoch */
+	playCount: number;
+	writers: string[];
+	contributors: string[];
+	notes: string;
+	firstLine: string; /** typically for spoken word audio */
+	lastLine: string; /** typically for spoken word audio */
+};

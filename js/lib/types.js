@@ -182,3 +182,4 @@ export function Dollars(number) {
 export const EventTypes = ['All', 'Historical', 'Personal', 'Private'];
 /** for Audio Media */
 export const AudioFiles = ['mp3', 'm4a'];
+export const AudioExtensions = ['aac', 'aiff', 'alac', 'au', 'flac', 'm4a', 'mp3', 'wav'];

@@ -180,6 +180,7 @@ export function Dollars(number) {
     return '$' + number.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 export const EventTypes = ['All', 'Historical', 'Personal', 'Private'];
-/** for Audio Media */
-export const AudioFiles = ['mp3', 'm4a'];
+/** for Image, Audio, Video Media */
+export const ImageExtensions = ['bmp', 'gif', 'heic', 'jpeg', 'jpg', 'png', 'svg', 'tiff'];
 export const AudioExtensions = ['aac', 'aiff', 'alac', 'au', 'flac', 'm4a', 'mp3', 'wav'];
+export const VideoExtensions = ['m4v', 'm4p', 'm4v', 'mov', 'mp4', 'mpeg', 'mpg', 'mpv', 'qt', 'wmv',];

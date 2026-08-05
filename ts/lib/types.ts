@@ -466,8 +466,11 @@ export type ThreadPassage = {
 	text: string;
 }
 
-/** for Audio Media */
-export const AudioFiles = ['mp3','m4a'];
+/** for Image, Audio, Video Media */
+export const ImageExtensions = ['bmp','gif','heic','jpeg','jpg','png','svg','tiff'];
+export const AudioExtensions = ['aac','aiff','alac','au','flac','m4a','mp3','wav'];
+export const VideoExtensions = ['m4v','m4p','m4v','mov','mp4','mpeg','mpg','mpv','qt','wmv',];
+
 export type AudioTrack = {
 	file: string;
 	title: string;
@@ -475,7 +478,7 @@ export type AudioTrack = {
 	composers: string[];
 	date: string;
 	notes: string;
-};
+};	
 export type AudioPlaylist = {
 	folder: string,
 	title: string,
@@ -483,9 +486,7 @@ export type AudioPlaylist = {
 	notes: string,
 	sequence: string[],
 	tracks: AudioTrack[],
-};
-
-export const AudioExtensions = ['aac','aiff','alac','au','flac','m4a','mp3','wav'];
+};	
 
 /** 
  * The AudioData structure will typically be used in a Map, where the Map key is
@@ -500,8 +501,13 @@ export type AudioData = {
 	lastPlayed: number; /** milliseconds elapsed since the epoch */
 	playCount: number;
 	writers: string[];
-	contributors: string[];
+	performers: string[];
 	notes: string;
 	firstLine: string; /** typically for spoken word audio */
 	lastLine: string; /** typically for spoken word audio */
 };
+
+export type AudioDB = {
+	updated: number; /** milliseconds elapsed since the epoch */
+	data: Map<string, AudioData>;
+}

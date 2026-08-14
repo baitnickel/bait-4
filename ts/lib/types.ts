@@ -489,25 +489,35 @@ export type AudioPlaylist = {
 };	
 
 /** 
- * The AudioData structure will typically be used in a Map, where the Map key is
+ * The AudioFileData structure will typically be used in a Map, where the Map key is
  * a filename.
  */
+export type AudioMetadata = {
+	updated: number; /** milliseconds elapsed since the epoch */
+	audioFolder: string;
+	notesFolder: string;
+	catalogFile: string;
+}
 export type AudioData = {
-	title: string;
+	title: string; /** audio file name (File.name) */
 	sequence: number; /** 0 if not part of a collection or group */
-	duration: number; /** seconds */
+	duration: string; /** number of seconds or 'HH:MM:SS' */
 	categories: string[];
 	type: string; /** application-specific */
 	lastPlayed: number; /** milliseconds elapsed since the epoch */
 	playCount: number;
-	writers: string[];
-	performers: string[];
+	writers: string;
+	performers: string;
 	notes: string;
-	firstLine: string; /** typically for spoken word audio */
-	lastLine: string; /** typically for spoken word audio */
+	begins: string; /** typically for spoken word audio */
+	ends: string; /** typically for spoken word audio */
 };
-
-export type AudioDB = {
-	updated: number; /** milliseconds elapsed since the epoch */
-	data: Map<string, AudioData>;
+export type AudioDataset = {
+	metadata: AudioMetadata;
+	data: AudioData[];
 }
+
+
+// export type KeyedAudioData = { key: string } & AudioFileData;
+// export type AudioDB = AudioMetadata & { audioData: KeyedAudioData[] };
+// export type AudioMapDB = AudioMetadata & { audioData: Map<string, AudioFileData> };

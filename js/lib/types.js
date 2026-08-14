@@ -184,3 +184,6 @@ export const EventTypes = ['All', 'Historical', 'Personal', 'Private'];
 export const ImageExtensions = ['bmp', 'gif', 'heic', 'jpeg', 'jpg', 'png', 'svg', 'tiff'];
 export const AudioExtensions = ['aac', 'aiff', 'alac', 'au', 'flac', 'm4a', 'mp3', 'wav'];
 export const VideoExtensions = ['m4v', 'm4p', 'm4v', 'mov', 'mp4', 'mpeg', 'mpg', 'mpv', 'qt', 'wmv',];
+// export type KeyedAudioData = { key: string } & AudioFileData;
+// export type AudioDB = AudioMetadata & { audioData: KeyedAudioData[] };
+// export type AudioMapDB = AudioMetadata & { audioData: Map<string, AudioFileData> };

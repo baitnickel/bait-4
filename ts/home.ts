@@ -8,7 +8,7 @@ import * as W from './lib/widgets.js';
 import { Time } from './lib/time.js';
 import { Park } from './lib/parks.js';
 import { Instrument, Chord, SPN } from './lib/fakesheet.js';
-import * as Media from './lib/media.js';
+import * as Media from './lib/play-media.js';
 import * as G from './lib/graphics.js';
 
 type TestFunction = (output: HTMLDivElement) => void;

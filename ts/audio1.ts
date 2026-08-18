@@ -1,7 +1,7 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
 import { Markup, MarkupLine } from './lib/markup.js';
-import { PlayAudio, PlayAudioTracks } from './lib/media.js'
+import { PlayAudio, PlayAudioTracks } from './lib/play-media.js'
 
 /** define types for the JSON data */
 type Track = {

@@ -2,7 +2,7 @@ import { Page } from './lib/page.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import { Markup, MarkupLine } from './lib/markup.js';
-import * as Media from './lib/media.js';
+import * as Media from './lib/play-media.js';
 import * as W from './lib/widgets.js';
 
 const PAGE = new Page();

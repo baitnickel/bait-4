@@ -486,7 +486,16 @@ export type AudioPlaylist = {
 	notes: string,
 	sequence: string[],
 	tracks: AudioTrack[],
-};	
+};
+
+/**
+ * AudioData.notes may be defined as an array of Sections: `notes: Section[]`
+ */
+export type Section = {
+	number: number; /** sequence number 0...N */
+	heading: string;
+	lines: string[];
+}
 
 /** 
  * The AudioFileData structure will typically be used in a Map, where the Map key is
@@ -501,14 +510,15 @@ export type AudioMetadata = {
 export type AudioData = {
 	title: string; /** audio file name (File.name) */
 	sequence: number; /** 0 if not part of a collection or group */
-	duration: string; /** number of seconds or 'HH:MM:SS' */
+	duration: number; /** number of seconds or 'HH:MM:SS' */
 	categories: string[];
 	type: string; /** application-specific */
 	lastPlayed: number; /** milliseconds elapsed since the epoch */
 	playCount: number;
 	writers: string;
 	performers: string;
-	notes: string;
+	// notes: string;
+	notes: Section[];
 	begins: string; /** typically for spoken word audio */
 	ends: string; /** typically for spoken word audio */
 };

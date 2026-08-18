@@ -1,7 +1,7 @@
 import { Page } from './lib/page.js';
 import * as Fetch from './lib/fetch.js';
 import { Markup, MarkupLine } from './lib/markup.js';
-import { PlayAudioTracks } from './lib/media.js';
+import { PlayAudioTracks } from './lib/play-media.js';
 const PAGE = new Page();
 if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);

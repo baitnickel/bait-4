@@ -12,9 +12,19 @@ const AudioDataset = await Fetch.api<T.AudioDataset>(`${PAGE.backend}/media/talk
 
 export function render() {
 	PAGE.setTitle('Talks List');
-	const message = (AudioDataset === null) ? 'Nothing Loaded' : `Loaded ${AudioDataset.data.length} Records`;
-	PAGE.appendParagraph(PAGE.content, message);
-	// Dialog = createModalDialog();
-	// document.body.append(Dialog.element);
-	// Dialog.element.showModal();
+	if (AudioDataset === null) {
+		window.alert(`Cannot get AudioDatset data`);
+		window.history.back();
+	}
+	
+	const records = AudioDataset!.data;
+	records.sort((a,b) => a.lastPlayed - b.lastPlayed);
+	const outputLines: string[] = [];
+	for (const record of records) {
+		const lastPlayedDate = new Date(record.lastPlayed);
+		let line = T.DateString(lastPlayedDate, 3);
+		line += ` ... ${record.title}`;
+		outputLines.push(line)
+	}
+	PAGE.appendParagraph(PAGE.content, outputLines);
 }

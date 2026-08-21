@@ -14,7 +14,7 @@ if (AudioDataset === null) {
     window.history.back();
 }
 const Records = AudioDataset.data;
-let SortBy = 'Title';
+let SortBy = 'Last Played';
 let ReverseSort = false;
 const QueryElement = document.createElement('div');
 QueryElement.className = 'talks-query-element';
@@ -26,9 +26,12 @@ export function render() {
     PAGE.content.append(OutputElement);
     const dialog = createModalDialog();
     addQueryButton(dialog);
+    sortTalks();
+    listTalks(OutputElement);
 }
 function addQueryButton(dialog) {
     const queryButton = document.createElement('button');
+    queryButton.classList.add('query-button');
     queryButton.innerText = 'Enter Query';
     QueryElement.append(queryButton);
     queryButton.addEventListener('click', (e) => {
@@ -37,7 +40,6 @@ function addQueryButton(dialog) {
 }
 function listTalks(division) {
     division.innerHTML = '';
-    const outputLines = [];
     sortTalks();
     const table = new W.Table(['Title', 'Collection', 'Category', 'Plays', 'Last Play']);
     for (const record of Records) {
@@ -58,9 +60,14 @@ function sortTalks() {
     Records.sort((a, b) => {
         let result = 0;
         if (SortBy == 'Categorized Title') {
-            result = a.categories[0].localeCompare(b.categories[0]);
+            /** for sorting purposes, blank categories are treated as 'zzz' */
+            const acollection = (a.categories[0]) ? a.categories[0] : 'zzz';
+            const bcollection = (b.categories[0]) ? b.categories[0] : 'zzz';
+            const acategory = (a.categories[1]) ? a.categories[1] : 'zzz';
+            const bcategory = (b.categories[1]) ? b.categories[1] : 'zzz';
+            result = acollection.localeCompare(bcollection);
             if (!result)
-                result = a.categories[1].localeCompare(b.categories[1]);
+                result = acategory.localeCompare(bcategory);
             if (!result)
                 result = a.title.localeCompare(b.title);
         }
@@ -72,14 +79,6 @@ function sortTalks() {
             result *= -1;
         return result;
     });
-    // if (SortBy == 'Title') Records.sort((a,b) => {
-    // 	let result = a.title.localeCompare(b.title);
-    // 	if (ReverseSort) result *= -1;
-    // });
-    // else if (SortBy == 'Last Played') Records.sort((a,b) => {
-    // 	if (ReverseSort) return b.lastPlayed - a.lastPlayed;
-    // 	else return a.lastPlayed - b.lastPlayed;
-    // });
 }
 function createModalDialog() {
     const dialog = new W.Dialog('Query Options');

@@ -574,7 +574,9 @@ dialog.threads-dialog button {
 	margin: .5rem;
 	padding: 1rem;
 }
-
+.query-button {
+	margin-bottom: 1rem;
+};
 .timeline-query-button {
 	/* position: fixed; */
 	/* margin: 1rem; */

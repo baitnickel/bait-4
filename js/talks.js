@@ -42,24 +42,40 @@ function addQueryButton(dialog) {
 function listTalks(division) {
     division.innerHTML = '';
     sortTalks();
-    const table = new W.Table(['Title', 'Collection', 'Category', 'Plays', 'Last Play']);
+    const table = new W.Table(['', 'Title', /*'Collection', 'Category',*/ 'Plays', 'Last Play']);
     for (const record of Records) {
+        let i = 0;
         if (!Keywords || hasKeyword(record)) {
             const lastPlayedDate = new Date(record.lastPlayed);
             const collection = record.categories[0];
             const category = record.categories[1];
             table.addRow();
-            table.addCell(record.title);
-            table.addCell(collection);
-            table.addCell(category);
+            // table.addCell('\u2d48') // ('\u229b');
+            table.addCell(`<input type='button' value=' ' class='talk-detail' id='${i}' />`, '', true);
+            table.addCell(shortTitle(record.title));
+            // table.addCell(collection);
+            // table.addCell(category);
             table.addCell(record.playCount.toString());
             table.addCell(T.DateString(lastPlayedDate, 3).slice(0, 10));
         }
+        i += 1;
     }
     table.fillTable(table.element);
     if (Keywords)
         division.innerHTML = `<p>Keywords: ${Keywords}</p>`;
     division.append(table.element);
+}
+function shortTitle(title) {
+    let shortTitle = title.trim();
+    const ellipsis = '...';
+    if (title.length > 32) {
+        const matches = title.match(/(.*)\s+(p\d+)$/i);
+        if (matches)
+            shortTitle = matches[1].slice(0, 32) + ellipsis + matches[2];
+        else
+            shortTitle = title.slice(0, 32).trim() + ellipsis;
+    }
+    return shortTitle;
 }
 function hasKeyword(record) {
     let hasKeyword = false;

@@ -439,6 +439,15 @@ dialog.threads-dialog button {
 	margin: 1rem .5rem 0 .5rem;
 }
 
+/* Talks ====================================================================== */
+
+.talk-detail {
+	font-weight: bold;
+	border: none;
+	padding: none;
+	background-color: #cc0 
+
+}
 /* Carousel ====================================================================== */
 
 .carousel {

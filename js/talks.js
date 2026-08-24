@@ -1,4 +1,5 @@
 import { Page } from './lib/page.js';
+import { Markup } from './lib/markup.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
@@ -7,7 +8,7 @@ if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
     window.history.back();
 }
-console.log('v26.08.21.13.43');
+console.log('v26.08.24');
 const AudioDataset = await Fetch.api(`${PAGE.backend}/media/talks`);
 if (AudioDataset === null) {
     window.alert(`AudioDatset is empty!`);
@@ -19,16 +20,18 @@ let SortBy = 'Last Played';
 let ReverseSort = false;
 const QueryElement = document.createElement('div');
 QueryElement.className = 'talks-query-element';
-const OutputElement = document.createElement('div');
-OutputElement.className = 'talks-output-element';
+const ListElement = document.createElement('div');
+ListElement.className = 'talks-list-element';
+const DetailsElement = document.createElement('div');
+DetailsElement.className = 'talks-details-element';
 export function render() {
     PAGE.setTitle('Talks Dataset');
     PAGE.content.append(QueryElement);
-    PAGE.content.append(OutputElement);
-    const dialog = createModalDialog();
+    PAGE.content.append(ListElement);
+    const dialog = createQueryModalDialog();
     addQueryButton(dialog);
     sortTalks();
-    listTalks(OutputElement);
+    listTalks(ListElement);
 }
 function addQueryButton(dialog) {
     const queryButton = document.createElement('button');
@@ -42,19 +45,18 @@ function addQueryButton(dialog) {
 function listTalks(division) {
     division.innerHTML = '';
     sortTalks();
-    const table = new W.Table(['', 'Title', /*'Collection', 'Category',*/ 'Plays', 'Last Play']);
+    const table = new W.Table(['Detail', 'Title', 'Plays', 'Last Play']);
+    let i = 0;
     for (const record of Records) {
-        let i = 0;
         if (!Keywords || hasKeyword(record)) {
             const lastPlayedDate = new Date(record.lastPlayed);
-            const collection = record.categories[0];
-            const category = record.categories[1];
             table.addRow();
-            // table.addCell('\u2d48') // ('\u229b');
-            table.addCell(`<input type='button' value=' ' class='talk-detail' id='${i}' />`, '', true);
+            const buttonCell = table.addCell(`<input type='button' value='•••' class='talk-detail' id='${i}' />`, '', true);
+            buttonCell.addEventListener('click', (e) => {
+                const target = e.target;
+                showRecordDetails(Number(target.id));
+            });
             table.addCell(shortTitle(record.title));
-            // table.addCell(collection);
-            // table.addCell(category);
             table.addCell(record.playCount.toString());
             table.addCell(T.DateString(lastPlayedDate, 3).slice(0, 10));
         }
@@ -64,6 +66,31 @@ function listTalks(division) {
     if (Keywords)
         division.innerHTML = `<p>Keywords: ${Keywords}</p>`;
     division.append(table.element);
+}
+function showRecordDetails(index) {
+    const record = Records[index];
+    const dialog = document.createElement('dialog');
+    const texts = [];
+    texts.push(`### ${record.title}\n`);
+    if (record.begins)
+        texts.push(record.begins);
+    if (record.ends)
+        texts.push(record.ends);
+    let first = true;
+    for (const note of record.notes) {
+        if (!first)
+            texts.push('___');
+        for (const line of note.lines)
+            texts.push(line);
+        first = false;
+    }
+    // if Keywords, call function to return texts with ==keywords==)
+    const markedUpText = Markup(texts);
+    // add 'close' button
+    // style dialog element so that it is less wide than PAGE content
+    dialog.innerHTML = markedUpText;
+    PAGE.content.append(dialog);
+    dialog.showModal();
 }
 function shortTitle(title) {
     let shortTitle = title.trim();
@@ -102,19 +129,7 @@ function hasKeyword(record) {
 function sortTalks() {
     Records.sort((a, b) => {
         let result = 0;
-        if (SortBy == 'Categorized Title') {
-            /** sort blank categories last using '~' */
-            const acollection = (a.categories[0]) ? a.categories[0] : '~';
-            const bcollection = (b.categories[0]) ? b.categories[0] : '~';
-            const acategory = (a.categories[1]) ? a.categories[1] : '~';
-            const bcategory = (b.categories[1]) ? b.categories[1] : '~';
-            result = acollection.localeCompare(bcollection);
-            if (!result)
-                result = acategory.localeCompare(bcategory);
-            if (!result)
-                result = a.title.localeCompare(b.title);
-        }
-        else if (SortBy == 'Last Played')
+        if (SortBy == 'Last Played')
             result = a.lastPlayed - b.lastPlayed;
         else
             result = a.title.localeCompare(b.title); /** default: sort by title */
@@ -123,10 +138,10 @@ function sortTalks() {
         return result;
     });
 }
-function createModalDialog() {
+function createQueryModalDialog() {
     const dialog = new W.Dialog('Query Options');
     const keywords = dialog.addText('Keywords:', '');
-    const sortValues = ['Title', 'Categorized Title', 'Last Played'];
+    const sortValues = ['Title', 'Last Played'];
     const sortDropDown = dialog.addSelect('Sort By:', sortValues);
     const reverseSort = dialog.addCheckbox('Reverse Sort:', false);
     dialog.confirmButton.addEventListener('click', () => {
@@ -134,7 +149,7 @@ function createModalDialog() {
         SortBy = sortDropDown.value;
         ReverseSort = reverseSort.checked;
         sortTalks();
-        listTalks(OutputElement);
+        listTalks(ListElement);
     });
     return dialog;
 }

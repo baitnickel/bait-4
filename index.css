@@ -444,8 +444,9 @@ dialog.threads-dialog button {
 .talk-detail {
 	font-weight: bold;
 	border: none;
+	border-radius: .50rem;
 	padding: none;
-	background-color: #cc0 
+	background-color: #d0d0d0
 
 }
 /* Carousel ====================================================================== */

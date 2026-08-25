@@ -441,6 +441,28 @@ dialog.threads-dialog button {
 
 /* Talks ====================================================================== */
 
+.talk-dialog {
+	width: 50%;
+	height: 75%;
+}
+
+.talk-dialog-exit {
+	position: absolute; /* position: absolute; */
+	top: 5%;
+	left: 95%;
+	z-index: 2; /* force buttons to show up on top of images */
+	background: none;
+	border: none;
+	/* font-family: serif;  ... seems to make no difference */
+	font-size: 1.5rem;  /* 4rem; */
+	/* transform: translateY(-50%); */ /* push buttons up a bit to exactly dead center of vertical (Y) axis */
+	color: black;
+	cursor: pointer; /* to support clicking on buttons */
+	border-radius: .25rem;
+	/* padding: .5rem .5rem .5rem 0; */
+	background-color: rgba(9, 9, 9, .1); /* dark and mostly transparent background color */
+}
+
 .talk-detail {
 	font-weight: bold;
 	border: none;

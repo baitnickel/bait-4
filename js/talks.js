@@ -15,7 +15,7 @@ if (AudioDataset === null) {
     window.history.back();
 }
 const Records = AudioDataset.data;
-let Keywords = '';
+let Keywords = [];
 let SortBy = 'Last Played';
 let ReverseSort = false;
 const QueryElement = document.createElement('div');
@@ -48,7 +48,7 @@ function listTalks(division) {
     const table = new W.Table(['Detail', 'Title', 'Plays', 'Last Play']);
     let i = 0;
     for (const record of Records) {
-        if (!Keywords || hasKeyword(record)) {
+        if (!Keywords.length || hasKeyword(record)) {
             const lastPlayedDate = new Date(record.lastPlayed);
             table.addRow();
             const buttonCell = table.addCell(`<input type='button' value='•••' class='talk-detail' id='${i}' />`, '', true);
@@ -63,34 +63,45 @@ function listTalks(division) {
         i += 1;
     }
     table.fillTable(table.element);
-    if (Keywords)
-        division.innerHTML = `<p>Keywords: ${Keywords}</p>`;
+    if (Keywords.length)
+        division.innerHTML = `<p>Keywords: ${Keywords.join(', ')}</p>`;
     division.append(table.element);
 }
 function showRecordDetails(index) {
     const record = Records[index];
     const dialog = document.createElement('dialog');
-    const texts = [];
-    texts.push(`### ${record.title}\n`);
+    dialog.className = 'talk-dialog';
+    const textLines = [];
+    textLines.push(`### ${record.title}\n`);
     if (record.begins)
-        texts.push(record.begins);
+        textLines.push(record.begins);
     if (record.ends)
-        texts.push(record.ends);
+        textLines.push(record.ends);
     let first = true;
     for (const note of record.notes) {
         if (!first)
-            texts.push('___');
+            textLines.push('___');
+        textLines.push(`###### ${note.heading}\n`);
         for (const line of note.lines)
-            texts.push(line);
+            textLines.push(line);
         first = false;
     }
-    // if Keywords, call function to return texts with ==keywords==)
-    const markedUpText = Markup(texts);
+    const highlightedTextLines = highlightKeywords(Keywords, textLines);
+    const markedUpText = Markup(highlightedTextLines);
     // add 'close' button
-    // style dialog element so that it is less wide than PAGE content
+    const button = document.createElement('button');
+    button.innerHTML = '&times;';
+    button.className = 'talk-dialog-exit';
+    button.addEventListener('click', () => { dialog.close(); });
     dialog.innerHTML = markedUpText;
+    dialog.append(button);
     PAGE.content.append(dialog);
     dialog.showModal();
+}
+function highlightKeywords(keywords, textLines) {
+    const highlightedTextLines = textLines;
+    // const keywordsList = keywords.trim().split(/\s+/);	
+    return highlightedTextLines;
 }
 function shortTitle(title) {
     let shortTitle = title.trim();
@@ -106,20 +117,21 @@ function shortTitle(title) {
 }
 function hasKeyword(record) {
     let hasKeyword = false;
-    if (Keywords) {
-        const keywords = Keywords.trim().split(/\s+/);
-        let texts = [];
-        texts.push(record.title);
-        texts.push(record.begins);
-        texts.push(record.ends);
+    if (Keywords.length) {
+        let textLines = [];
+        textLines.push(record.title);
+        textLines.push(record.begins);
+        textLines.push(record.ends);
         for (const note of record.notes)
-            texts = texts.concat(note.lines);
-        keywordLoop: for (let keyword of keywords) {
-            keyword = keyword.toLowerCase();
-            for (const text of texts) {
-                if (text.toLowerCase().includes(keyword)) {
-                    hasKeyword = true;
-                    break keywordLoop;
+            textLines = textLines.concat(note.lines);
+        keywordLoop: for (let keyword of Keywords) {
+            for (const textLine of textLines) {
+                const uniqueTextWords = uniqueWords(textLine);
+                for (const uniqueTextWord of uniqueTextWords) {
+                    if (uniqueTextWord == keyword) {
+                        hasKeyword = true;
+                        break keywordLoop;
+                    }
                 }
             }
         }
@@ -138,14 +150,26 @@ function sortTalks() {
         return result;
     });
 }
+function uniqueWords(wordString) {
+    const uniqueWords = [];
+    wordString = wordString.toLowerCase();
+    const matches = wordString.match(/\b(\w*)\b/g);
+    if (matches) {
+        for (let match of matches) {
+            if (match && !uniqueWords.includes(match))
+                uniqueWords.push(match);
+        }
+    }
+    return uniqueWords;
+}
 function createQueryModalDialog() {
     const dialog = new W.Dialog('Query Options');
-    const keywords = dialog.addText('Keywords:', '');
+    const keywordString = dialog.addText('Keywords:', '');
     const sortValues = ['Title', 'Last Played'];
     const sortDropDown = dialog.addSelect('Sort By:', sortValues);
     const reverseSort = dialog.addCheckbox('Reverse Sort:', false);
     dialog.confirmButton.addEventListener('click', () => {
-        Keywords = keywords.value;
+        Keywords = uniqueWords(keywordString.value);
         SortBy = sortDropDown.value;
         ReverseSort = reverseSort.checked;
         sortTalks();

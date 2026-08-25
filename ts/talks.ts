@@ -16,7 +16,7 @@ if (AudioDataset === null) {
 	window.history.back();
 }
 const Records = AudioDataset!.data;
-let Keywords = '';
+let Keywords: string[] = [];
 let SortBy = 'Last Played';
 let ReverseSort = false;
 
@@ -53,7 +53,7 @@ function listTalks(division: HTMLDivElement) {
 	const table = new W.Table(['Detail', 'Title', 'Plays', 'Last Play']);
 	let i = 0;
 	for (const record of Records) {
-		if (!Keywords || hasKeyword(record)) {
+		if (!Keywords.length || hasKeyword(record)) {
 			const lastPlayedDate = new Date(record.lastPlayed);
 			table.addRow();
 			const buttonCell = table.addCell(`<input type='button' value='•••' class='talk-detail' id='${i}' />`, '', true);
@@ -68,32 +68,47 @@ function listTalks(division: HTMLDivElement) {
 		i += 1;
 	}
 	table.fillTable(table.element);
-	if (Keywords) division.innerHTML = `<p>Keywords: ${Keywords}</p>`;
+	if (Keywords.length) division.innerHTML = `<p>Keywords: ${Keywords.join(', ')}</p>`;
 	division.append(table.element);
 }
 
 function showRecordDetails(index: number) {
 	const record = Records[index];
 	const dialog = document.createElement('dialog');
+	dialog.className = 'talk-dialog';
 
-	const texts: string[] = [];
-	texts.push(`### ${record.title}\n`);
-	if (record.begins) texts.push(record.begins);
-	if (record.ends) texts.push(record.ends);
+	const textLines: string[] = [];
+	textLines.push(`### ${record.title}\n`);
+	if (record.begins) textLines.push(record.begins);
+	if (record.ends) textLines.push(record.ends);
 	let first = true;
 	for (const note of record.notes) {
-		if (!first) texts.push('___');
-		for (const line of note.lines) texts.push(line);
+		if (!first) textLines.push('___');
+		textLines.push(`###### ${note.heading}\n`);
+		for (const line of note.lines) textLines.push(line);
 		first = false;
 	}
-	// if Keywords, call function to return texts with ==keywords==)
-	const markedUpText = Markup(texts);
+	const highlightedTextLines = highlightKeywords(Keywords, textLines);
+	const markedUpText = Markup(highlightedTextLines);
+	
 	// add 'close' button
-	// style dialog element so that it is less wide than PAGE content
-
+	const button = document.createElement('button');
+	button.innerHTML = '&times;';
+	button.className = 'talk-dialog-exit';
+	button.addEventListener('click', () => { dialog.close() });
+	
 	dialog.innerHTML = markedUpText;
+	dialog.append(button);
+
+
 	PAGE.content.append(dialog);
 	dialog.showModal();
+}
+
+function highlightKeywords(keywords: string[], textLines: string[]) {
+	const highlightedTextLines = textLines;
+	// const keywordsList = keywords.trim().split(/\s+/);	
+	return highlightedTextLines;
 }
 
 function shortTitle(title: string) {
@@ -109,19 +124,20 @@ function shortTitle(title: string) {
 
 function hasKeyword(record: T.AudioData) {
 	let hasKeyword = false;
-	if (Keywords) {
-		const keywords = Keywords.trim().split(/\s+/);
-		let texts: string[] = [];
-		texts.push(record.title);
-		texts.push(record.begins);
-		texts.push(record.ends);
-		for (const note of record.notes) texts = texts.concat(note.lines);
-		keywordLoop: for (let keyword of keywords) {
-			keyword = keyword.toLowerCase();
-			for (const text of texts) {
-				if (text.toLowerCase().includes(keyword)) {
-					hasKeyword = true;
-					break keywordLoop;
+	if (Keywords.length) {
+		let textLines: string[] = [];
+		textLines.push(record.title);
+		textLines.push(record.begins);
+		textLines.push(record.ends);
+		for (const note of record.notes) textLines = textLines.concat(note.lines);
+		keywordLoop: for (let keyword of Keywords) {
+			for (const textLine of textLines) {
+				const uniqueTextWords = uniqueWords(textLine);
+				for (const uniqueTextWord of uniqueTextWords) {
+					if (uniqueTextWord == keyword) {
+						hasKeyword = true;
+						break keywordLoop;
+					}
 				}
 			}
 		}
@@ -139,15 +155,27 @@ function sortTalks() {
 	});
 }
 
+function uniqueWords(wordString: string) {
+	const uniqueWords: string[] = [];
+	wordString = wordString.toLowerCase();
+	const matches = wordString.match(/\b(\w*)\b/g);
+	if (matches) {
+		for (let match of matches) {
+			if (match && !uniqueWords.includes(match)) uniqueWords.push(match);
+		}
+	}
+	return uniqueWords;
+}
+
 function createQueryModalDialog() {
 	const dialog = new W.Dialog('Query Options')
-	const keywords = dialog.addText('Keywords:', '');
+	const keywordString = dialog.addText('Keywords:', '');
 	const sortValues = ['Title', 'Last Played'];
 	const sortDropDown = dialog.addSelect('Sort By:', sortValues);
 	const reverseSort = dialog.addCheckbox('Reverse Sort:', false);
 
 	dialog.confirmButton.addEventListener('click', () => {
-		Keywords = keywords.value;
+		Keywords = uniqueWords(keywordString.value);
 		SortBy = sortDropDown.value;
 		ReverseSort = reverseSort.checked;
 		sortTalks();

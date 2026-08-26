@@ -88,7 +88,7 @@ function showRecordDetails(index: number) {
 		for (const line of note.lines) textLines.push(line);
 		first = false;
 	}
-	const highlightedTextLines = highlightKeywords(Keywords, textLines);
+	const highlightedTextLines = highlightKeywords(textLines, Keywords);
 	const markedUpText = Markup(highlightedTextLines);
 	
 	// add 'close' button
@@ -105,19 +105,39 @@ function showRecordDetails(index: number) {
 	dialog.showModal();
 }
 
-function highlightKeywords(keywords: string[], textLines: string[]) {
-	const highlightedTextLines = textLines;
-	// const keywordsList = keywords.trim().split(/\s+/);	
+/**
+ * Given an array of `textLines` and an array of lowercase `keywords`, add
+ * markdown highlight characters (e.g., "==word==") to words in the `textLines`
+ * that appear in the list of `keywords`.
+ */
+function highlightKeywords(textLines: string[], keywords: string[]) {
+	if (!Keywords.length) return textLines;
+	const highlightedTextLines: string[] = [];
+	for (const textLine of textLines) {
+		const segments = wordSegments(textLine);
+		for (let i = 0; i < segments.length; i += 1) {
+			if (keywords.includes(segments[i].toLowerCase())) segments[i] = `==${segments[i]}==`;
+		}
+		highlightedTextLines.push(segments.join(''));
+	}
 	return highlightedTextLines;
 }
 
-function shortTitle(title: string) {
+/**
+ * Given a `title` text string and a desired `maximumLength`, return a shortened
+ * version of the title with an ellipsis indicating characters removed.
+ * Characters are typically removed from the end of the title string, but when
+ * the title ends with a part number (e.g., "p1"), it is preserved and
+ * characters preceding the part number are removed instead.
+ */
+function shortTitle(title: string, maximumLength = 35) {
 	let shortTitle = title.trim();
 	const ellipsis = '...';
-	if (title.length > 32) {
+	const maximum = maximumLength - ellipsis.length;
+	if (title.length > maximum) {
 		const matches = title.match(/(.*)\s+(p\d+)$/i);
-		if (matches) shortTitle = matches[1].slice(0, 32) + ellipsis + matches[2];
-		else shortTitle = title.slice(0, 32).trim() + ellipsis;
+		if (matches) shortTitle = matches[1].slice(0, maximum) + ellipsis + matches[2];
+		else shortTitle = title.slice(0, maximum).trim() + ellipsis;
 	}
 	return shortTitle;
 }
@@ -155,6 +175,10 @@ function sortTalks() {
 	});
 }
 
+/**
+ * Given a text string containing words separated by boundaries (whitespace,
+ * punctuation, etc.), return an array of unique words converted to lowercase.
+ */
 function uniqueWords(wordString: string) {
 	const uniqueWords: string[] = [];
 	wordString = wordString.toLowerCase();
@@ -166,6 +190,35 @@ function uniqueWords(wordString: string) {
 	}
 	return uniqueWords;
 }
+
+/**
+ * Given a text string, return an array of text segments, where the text is
+ * divided into words and non-words. `segments.join('')` will return the
+ * original text string.
+ * 
+ * The default `regexp` pattern breaks the text into segments by word
+ * boundaries, supporting contractions (e.g. "don't"). Other possible patterns
+ * include basic word boundaries:
+ * - /\b(\w+)\b/g
+ * 
+ * and words including contractions that only start with alpha characters:
+ * - /\b([A-Z]\w*)['’]?(\w+)?\b/gi
+ */
+function wordSegments(text: string, regexp = /\b(\w+)['’]?(\w+)?\b/g) {
+	const segments: string[] = [];
+	let match;
+	let nextIndex = 0;
+	while ((match = regexp.exec(text)) !== null) {
+		const wordIndex = match.index;
+		const nextWordIndex = regexp.lastIndex;
+		if (nextIndex < wordIndex) segments.push(text.slice(nextIndex, wordIndex));
+		segments.push(text.slice(wordIndex, nextWordIndex));
+		nextIndex = nextWordIndex;
+	}
+	if (nextIndex < text.length) segments.push(text.slice(nextIndex));
+	return segments;
+}
+
 
 function createQueryModalDialog() {
 	const dialog = new W.Dialog('Query Options')

@@ -585,20 +585,32 @@ function gridTest(testOutput: HTMLDivElement) {
 
 function testWords(testOutput: HTMLDivElement) {
 	const outputLines: string[] = [];
-	const testString = '....This..is..a.test.1.or.2.3M,You\'re.right!This,is,,only,a..test!';
-	outputLines.push(testString);
-	// const regex = /\b(\w+)'?(\w+)?\b/g; // support contractions
-	const regex = /\b([A-Z]\w*)'?(\w+)?\b/gi; // support contractions and only words starting with A-Z
-	// const regex = /\b(\w+)\b/g;
-
-	outputLines.push('___');
-	let match;
-	while ((match = regex.exec(testString)) !== null) {
-		const word = '"' + testString.slice(match.index, regex.lastIndex) + '"';
-		outputLines.push(`Found ${word} start=${match.index} end=${regex.lastIndex}`);
-	}
-
+	const text = '....This..is..a.test.1 .3M,You’re.right!';
+	const segments = wordSegments(text);
+	for (const segment of segments) outputLines.push(segment);
+	const newText = segments.join('');
+	outputLines.push(text);
+	outputLines.push(newText);
 	PAGE.appendParagraph(testOutput, outputLines);
+}
+
+function wordSegments(text: string) {
+	const segments: string[] = [];
+	// const regex = /\b(\w+)\b/g;
+	// const regex = /\b([A-Z]\w*)'?(\w+)?\b/gi; // support contractions and only words starting with A-Z
+	const regex = /\b(\w+)['’]?(\w+)?\b/g; // support contractions
+
+	let match;
+	let nextIndex = 0;
+	while ((match = regex.exec(text)) !== null) {
+		const wordIndex = match.index;
+		const nextWordIndex = regex.lastIndex;
+		if (nextIndex < wordIndex) segments.push(text.slice(nextIndex, wordIndex));
+		segments.push(text.slice(wordIndex, nextWordIndex));
+		nextIndex = nextWordIndex;
+	}
+	if (nextIndex < text.length) segments.push(text.slice(nextIndex));
+	return segments;
 }
 
 // /* Form POST */

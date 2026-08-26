@@ -363,6 +363,15 @@ export class Table {
 		return cell;
 	}
 
+	// /**
+	//  * Add a new button cell to the current row, where `text` specifies the
+	//  * button label.
+	//  */
+	// addButtonCell(text: string, attributes: string|string[] = []) {
+	// 	const html = `<input type='button' value='${text}'/>`;
+	// 	return this.addCell(html, attributes, true);
+	// }
+
 	/**
 	 * Given a `table` element, set the table's column and row data from the
 	 * rows and cells previously added to the object. The `table` parameter is
@@ -394,6 +403,7 @@ export class Table {
 				let [key, value] = keyValue.map((x) => x.toLowerCase().trim());
 				if (value) {
 					if (key == 'class') element.classList.add(value);
+					else if (key == 'id') element.id = value;
 					else if (key == 'color') element.style.color = value;
 					else if (key == 'backgroundcolor') element.style.backgroundColor = value;
 					else if (key == 'textalign') element.style.textAlign = value;

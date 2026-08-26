@@ -17,8 +17,26 @@ if (AudioDataset === null) {
 }
 const Records = AudioDataset!.data;
 let Keywords: string[] = [];
-let SortBy = 'Last Played';
+let SortBy = 'Title';
 let ReverseSort = false;
+
+//********************************************************************************** */
+const SortByOptions = ['Title', 'Last Played']
+const SelectionElement = document.createElement('div');
+SelectionElement.className = 'talk-selection-div';
+const radioButtons = new W.RadioGroup('', SortByOptions, 'widget-radio-inline');
+const radioSpan = radioButtons.span;
+radioSpan.classList.add('talk-button-indent');
+const textEntry = new W.Text('Keywords: ', '');
+const reverseSort = new W.Checkbox('Reverse Sort: ', false);
+reverseSort.label.classList.add('talk-button-indent');
+
+SelectionElement.append(textEntry.label);
+SelectionElement.append(textEntry.element);
+SelectionElement.append(radioSpan);
+SelectionElement.append(reverseSort.label);
+SelectionElement.append(reverseSort.element);
+//********************************************************************************** */
 
 const QueryElement = document.createElement('div');
 QueryElement.className = 'talks-query-element';
@@ -30,6 +48,7 @@ DetailsElement.className = 'talks-details-element';
 export function render() {
 	PAGE.setTitle('Talks Dataset');
 	PAGE.content.append(QueryElement);
+	PAGE.content.append(SelectionElement);
 	PAGE.content.append(ListElement);
 	const dialog = createQueryModalDialog();
 	addQueryButton(dialog);
@@ -56,14 +75,16 @@ function listTalks(division: HTMLDivElement) {
 		if (!Keywords.length || hasKeyword(record)) {
 			const lastPlayedDate = new Date(record.lastPlayed);
 			table.addRow();
-			const buttonCell = table.addCell(`<input type='button' value='•••' class='talk-detail' id='${i}' />`, '', true);
+			const buttonHTML = `<input type='button' value='•••' class='talk-detail' id='${i}' />`;
+			const buttonCell = table.addCell(buttonHTML, '', true);
+			table.addCell(shortTitle(record.title));
+			table.addCell(record.playCount.toString());
+			table.addCell(T.DateString(lastPlayedDate, 3).slice(0, 10));
+
 			buttonCell.addEventListener('click', (e: Event) => {
 				const target = e.target as HTMLTableCellElement;
 				showRecordDetails(Number(target.id));
 			})
-			table.addCell(shortTitle(record.title));
-			table.addCell(record.playCount.toString());
-			table.addCell(T.DateString(lastPlayedDate, 3).slice(0, 10));
 		}
 		i += 1;
 	}

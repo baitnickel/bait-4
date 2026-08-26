@@ -337,6 +337,14 @@ export class Table {
             this.row.append(cell);
         return cell;
     }
+    // /**
+    //  * Add a new button cell to the current row, where `text` specifies the
+    //  * button label.
+    //  */
+    // addButtonCell(text: string, attributes: string|string[] = []) {
+    // 	const html = `<input type='button' value='${text}'/>`;
+    // 	return this.addCell(html, attributes, true);
+    // }
     /**
      * Given a `table` element, set the table's column and row data from the
      * rows and cells previously added to the object. The `table` parameter is
@@ -372,6 +380,8 @@ export class Table {
                 if (value) {
                     if (key == 'class')
                         element.classList.add(value);
+                    else if (key == 'id')
+                        element.id = value;
                     else if (key == 'color')
                         element.style.color = value;
                     else if (key == 'backgroundcolor')

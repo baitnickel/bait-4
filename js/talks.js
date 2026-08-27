@@ -3,12 +3,13 @@ import { Markup } from './lib/markup.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
+// import * as Media from './lib/play-media.js';
 const PAGE = new Page();
 if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
     window.history.back();
 }
-console.log('v26.08.24');
+console.log('v26.08.27');
 const AudioDataset = await Fetch.api(`${PAGE.backend}/media/talks`);
 if (AudioDataset === null) {
     window.alert(`AudioDatset is empty!`);
@@ -110,6 +111,11 @@ function showRecordDetails(index) {
     const record = Records[index];
     const dialog = document.createElement('dialog');
     dialog.className = 'talk-dialog';
+    // /*************************************************************** */
+    // const audioControl = document.createElement('audio');
+    // audioControl.controls = true;
+    // dialog.append(audioControl);
+    // /*************************************************************** */
     const textLines = [];
     textLines.push(`### ${record.title}\n`);
     if (record.begins)

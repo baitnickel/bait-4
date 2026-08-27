@@ -103,8 +103,7 @@ function listTalks(division) {
         i += 1;
     }
     table.fillTable(table.element);
-    if (Keywords.length)
-        division.innerHTML = `<p>Keywords: ${Keywords.join(', ')}</p>`;
+    // if (Keywords.length) division.innerHTML = `<p>Keywords: ${Keywords.join(', ')}</p>`;
     division.append(table.element);
 }
 function showRecordDetails(index) {

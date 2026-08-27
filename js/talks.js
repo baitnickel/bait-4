@@ -16,49 +16,69 @@ if (AudioDataset === null) {
 }
 const Records = AudioDataset.data;
 let Keywords = [];
-let SortBy = 'Title';
-let ReverseSort = false;
-//********************************************************************************** */
 const SortByOptions = ['Title', 'Last Played'];
-const SelectionElement = document.createElement('div');
-SelectionElement.className = 'talk-selection-div';
-const radioButtons = new W.RadioGroup('', SortByOptions, 'widget-radio-inline');
-const radioSpan = radioButtons.span;
-radioSpan.classList.add('talk-button-indent');
-const textEntry = new W.Text('Keywords: ', '');
-const reverseSort = new W.Checkbox('Reverse Sort: ', false);
-reverseSort.label.classList.add('talk-button-indent');
-SelectionElement.append(textEntry.label);
-SelectionElement.append(textEntry.element);
-SelectionElement.append(radioSpan);
-SelectionElement.append(reverseSort.label);
-SelectionElement.append(reverseSort.element);
-//********************************************************************************** */
-const QueryElement = document.createElement('div');
-QueryElement.className = 'talks-query-element';
+let SortBy = SortByOptions[0];
+let ReverseSort = false;
+// const QueryElement = document.createElement('div');
+// QueryElement.className = 'talks-query-element';
 const ListElement = document.createElement('div');
 ListElement.className = 'talks-list-element';
 const DetailsElement = document.createElement('div');
 DetailsElement.className = 'talks-details-element';
+//********************************************************************************** */
+const SelectionElement = document.createElement('div');
+SelectionElement.className = 'talk-selection-div';
+const sortByLabel = document.createTextNode('\u00a0\u00a0Sort By: ');
+// sortByLabel.classList.add('talk-button-indent');
+const radioButtons = new W.RadioGroup('', SortByOptions, 'widget-radio-inline');
+for (const inputElement of radioButtons.inputElements) {
+    inputElement.addEventListener('click', () => {
+        SortBy = radioButtons.value;
+        sortTalks();
+        listTalks(ListElement);
+    });
+}
+const radioSpan = radioButtons.span;
+// radioSpan.classList.add('talk-button-indent');
+const textEntry = new W.Text('Keywords: ', '');
+textEntry.element.addEventListener('change', () => {
+    Keywords = uniqueWords(textEntry.element.value);
+    sortTalks();
+    listTalks(ListElement);
+});
+const reverseSort = new W.Checkbox('Reverse Sort: ', false);
+reverseSort.label.classList.add('talk-button-indent');
+reverseSort.element.addEventListener('change', () => {
+    ReverseSort = reverseSort.element.checked;
+    sortTalks();
+    listTalks(ListElement);
+});
+SelectionElement.append(textEntry.label);
+SelectionElement.append(textEntry.element);
+SelectionElement.append(sortByLabel);
+SelectionElement.append(radioSpan);
+SelectionElement.append(reverseSort.label);
+SelectionElement.append(reverseSort.element);
+//********************************************************************************** */
 export function render() {
     PAGE.setTitle('Talks Dataset');
-    PAGE.content.append(QueryElement);
+    // PAGE.content.append(QueryElement);
     PAGE.content.append(SelectionElement);
     PAGE.content.append(ListElement);
-    const dialog = createQueryModalDialog();
-    addQueryButton(dialog);
+    // const dialog = createQueryModalDialog();
+    // addQueryButton(dialog);
     sortTalks();
     listTalks(ListElement);
 }
-function addQueryButton(dialog) {
-    const queryButton = document.createElement('button');
-    queryButton.classList.add('query-button');
-    queryButton.innerText = 'Enter Query';
-    QueryElement.append(queryButton);
-    queryButton.addEventListener('click', (e) => {
-        dialog.element.showModal();
-    });
-}
+// function addQueryButton(dialog: W.Dialog) {
+// 	const queryButton = document.createElement('button');
+// 	queryButton.classList.add('query-button');
+// 	queryButton.innerText = 'Enter Query';
+// 	QueryElement.append(queryButton);
+// 	queryButton.addEventListener('click', (e) => {
+// 		dialog.element.showModal();
+// 	});
+// }
 function listTalks(division) {
     division.innerHTML = '';
     sortTalks();
@@ -235,18 +255,18 @@ function wordSegments(text, regexp = /\b(\w+)['’]?(\w+)?\b/g) {
         segments.push(text.slice(nextIndex));
     return segments;
 }
-function createQueryModalDialog() {
-    const dialog = new W.Dialog('Query Options');
-    const keywordString = dialog.addText('Keywords:', '');
-    const sortValues = ['Title', 'Last Played'];
-    const sortDropDown = dialog.addSelect('Sort By:', sortValues);
-    const reverseSort = dialog.addCheckbox('Reverse Sort:', false);
-    dialog.confirmButton.addEventListener('click', () => {
-        Keywords = uniqueWords(keywordString.value);
-        SortBy = sortDropDown.value;
-        ReverseSort = reverseSort.checked;
-        sortTalks();
-        listTalks(ListElement);
-    });
-    return dialog;
-}
+// function createQueryModalDialog() {
+// 	const dialog = new W.Dialog('Query Options')
+// 	const keywordString = dialog.addText('Keywords:', '');
+// 	const sortValues = ['Title', 'Last Played'];
+// 	const sortDropDown = dialog.addSelect('Sort By:', sortValues);
+// 	const reverseSort = dialog.addCheckbox('Reverse Sort:', false);
+// 	dialog.confirmButton.addEventListener('click', () => {
+// 		Keywords = uniqueWords(keywordString.value);
+// 		SortBy = sortDropDown.value;
+// 		ReverseSort = reverseSort.checked;
+// 		sortTalks();
+// 		listTalks(ListElement);  
+// 	});
+// 	return dialog;
+// }

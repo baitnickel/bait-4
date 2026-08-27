@@ -82,7 +82,7 @@ export function render() {
 function listTalks(division) {
     division.innerHTML = '';
     sortTalks();
-    const table = new W.Table(['Detail', 'Title', 'Plays', 'Last Play']);
+    const table = new W.Table(['Detail', 'Title', 'Time', 'Plays', 'Last Play']);
     let i = 0;
     for (const record of Records) {
         if (!Keywords.length || hasKeyword(record)) {
@@ -91,6 +91,7 @@ function listTalks(division) {
             const buttonHTML = `<input type='button' value='•••' class='talk-detail' id='${i}' />`;
             const buttonCell = table.addCell(buttonHTML, '', true);
             table.addCell(shortTitle(record.title));
+            table.addCell(formatTime(record.duration));
             table.addCell(record.playCount.toString());
             table.addCell(T.DateString(lastPlayedDate, 3).slice(0, 10));
             buttonCell.addEventListener('click', (e) => {
@@ -254,6 +255,23 @@ function wordSegments(text, regexp = /\b(\w+)['’]?(\w+)?\b/g) {
     if (nextIndex < text.length)
         segments.push(text.slice(nextIndex));
     return segments;
+}
+/**
+ * Given a number of seconds, return a formatted time string ('HH:MM:SS').
+ * Return an empty string if seconds is a negative number.
+ */
+function formatTime(seconds) {
+    let formattedTime = '';
+    seconds = Math.round(seconds);
+    if (seconds > 0) {
+        const hours = Math.floor(seconds / 3600);
+        seconds -= (hours * 3600);
+        const minutes = Math.floor(seconds / 60);
+        seconds -= (minutes * 60);
+        formattedTime = (hours) ? `${hours}:` + `${minutes}`.padStart(2, '0') : `${minutes}`;
+        formattedTime += `:${seconds}`.padStart(2, '0');
+    }
+    return formattedTime;
 }
 // function createQueryModalDialog() {
 // 	const dialog = new W.Dialog('Query Options')

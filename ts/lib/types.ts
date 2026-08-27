@@ -509,6 +509,7 @@ export type AudioMetadata = {
 }
 export type AudioData = {
 	title: string; /** audio file name (File.name) */
+	extension: string; /** file extension (File.extension) */
 	sequence: number; /** 0 if not part of a collection or group */
 	duration: number; /** number of seconds or 'HH:MM:SS' */
 	categories: string[];

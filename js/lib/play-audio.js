@@ -50,7 +50,7 @@ loop = false) {
 // export async function AudioDuration(uri: string) {
 // 	let duration = 0;
 // 	const audioElement = new Audio(uri); // need to decode? decodeURI(uri)
-// 	audioElement.addEventListener('loadedmetadata', () => {
+// 	audioElement.addEventListener('loadeddata', () => {
 // 	});
 // 	audioElement.load();
 // 	duration = audioElement.duration;

@@ -9,7 +9,7 @@ if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
     window.history.back();
 }
-console.log('v26.08.27');
+console.log('v26.08.28');
 const AudioDataset = await Fetch.api(`${PAGE.backend}/media/talks`);
 if (AudioDataset === null) {
     window.alert(`AudioDatset is empty!`);
@@ -49,7 +49,7 @@ textEntry.element.addEventListener('change', () => {
     sortTalks();
     listTalks(ListElement);
 });
-const reverseSort = new W.Checkbox('Reverse: ', false);
+const reverseSort = new W.Checkbox('Reversed: ', false);
 reverseSort.label.classList.add('talk-button-indent');
 reverseSort.element.addEventListener('change', () => {
     ReverseSort = reverseSort.element.checked;
@@ -132,22 +132,29 @@ function showRecordDetails(index) {
     }
     const highlightedTextLines = highlightKeywords(textLines, Keywords);
     const markedUpText = Markup(highlightedTextLines);
-    /*************************************************************** */
     // add Audio element
     const uri = `${MediaFolder}/${record.title}${record.extension}`;
     const audio = new Audio();
     audio.controls = true;
     dialog.append(audio);
     A.Play(audio, uri);
-    /*************************************************************** */
     // add 'close' button
     const button = document.createElement('button');
     button.innerHTML = '&times;';
     button.className = 'talk-dialog-exit';
-    button.addEventListener('click', () => { dialog.close(); });
+    button.addEventListener('click', () => {
+        dialog.close();
+        dialog.remove();
+    });
+    // support Escape key close
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            dialog.close();
+            dialog.remove();
+        }
+    });
     dialog.innerHTML += markedUpText;
     dialog.append(button);
-    dialog.addEventListener('cancel', () => { audio.pause(); }); // neither 'close' nor 'cancel' stops the audio
     PAGE.content.append(dialog);
     dialog.showModal();
 }

@@ -8,7 +8,7 @@ import * as W from './lib/widgets.js';
 import { Time } from './lib/time.js';
 import { Park } from './lib/parks.js';
 import { Instrument, Chord, SPN } from './lib/fakesheet.js';
-import * as Media from './lib/play-media.js';
+import * as A from './lib/play-audio.js';
 import * as G from './lib/graphics.js';
 
 type TestFunction = (output: HTMLDivElement) => void;
@@ -354,24 +354,34 @@ function testUTC(testOutput: HTMLDivElement) {
 }
 
 /** 
- * callback function for PlayAudio - when each track starts playing, PlayAudio
- * will return the URI of the track, which can be displayed (e.g., using
- * console.log, as below) or may be used as a key to a Map to gather
- * information, liner notes, etc. related to the track.
+ * callback function for PlayAudio - when each audio file starts playing,
+ * PlayAudio will return the URI of the file, which can be displayed (e.g.,
+ * using console.log, as below) or may be used as a key to a Map to gather
+ * information, liner notes, etc. related to the audio file.
  */
-const trackPlaying = (track: string) => {
-	console.log(`Now playing track: ${track}`);
-	return track;
+const uriPlaying = (uri: string) => {
+	console.log(`Playing audio file: ${uri}`);
+	return uri;
 };
 /** test the PlayAudio function (from lib/media) */
 function testAudio(testOutput: HTMLDivElement) {
+	const paragraph = document.createElement('p');
+	const output: string[] = [];
 	const audioElement = new Audio();
-	const folder = '../media/audio/test';
-	// const uris = `${folder}/C.m4a`; // single track
-	const uris = [`${folder}/F.m4a`, `${folder}/Bb.m4a`, `${folder}/C.m4a`, `${folder}/F.m4a`];
-	console.log('call PlayAudio...');
-	Media.PlayAudio(audioElement, uris, trackPlaying);
-	console.log('...PlayAudio completed');
+	const folder = '../media/audio/tests/test-harp';
+
+	const uri = `${folder}/A Minor.m4a`;
+	output.push('call Play...');
+	A.Play(audioElement, uri); //, uriPlaying);
+	output.push('...Play completed');
+
+	// const uris = [`${folder}/A Minor.m4a`];
+	// output.push('call PlayList...');
+	// A.PlayList(audioElement, uris, uriPlaying);
+	// output.push('...PlayList completed');
+
+	paragraph.innerHTML = output.join('<br>');
+	testOutput.append(paragraph);
 }
 
 

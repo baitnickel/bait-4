@@ -3,7 +3,7 @@ import { Markup } from './lib/markup.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
-// import * as Media from './lib/play-media.js';
+import * as A from './lib/play-audio.js';
 const PAGE = new Page();
 if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
@@ -15,9 +15,11 @@ if (AudioDataset === null) {
     window.alert(`AudioDatset is empty!`);
     window.history.back();
 }
+const MediaFolder = '../media/audio/watts';
+;
 const Records = AudioDataset.data;
 let Keywords = [];
-const SortByOptions = ['Title', 'Last Played'];
+const SortByOptions = ['Title', 'Last Play'];
 let SortBy = SortByOptions[0];
 let ReverseSort = false;
 // const QueryElement = document.createElement('div');
@@ -29,7 +31,7 @@ DetailsElement.className = 'talks-details-element';
 //********************************************************************************** */
 const SelectionElement = document.createElement('div');
 SelectionElement.className = 'talk-selection-div';
-const sortByLabel = document.createTextNode('\u00a0\u00a0Sort By: ');
+const sortByLabel = document.createTextNode('\u00a0\u00a0Sorted By: ');
 // sortByLabel.classList.add('talk-button-indent');
 const radioButtons = new W.RadioGroup('', SortByOptions, 'widget-radio-inline');
 for (const inputElement of radioButtons.inputElements) {
@@ -47,7 +49,7 @@ textEntry.element.addEventListener('change', () => {
     sortTalks();
     listTalks(ListElement);
 });
-const reverseSort = new W.Checkbox('Reverse Sort: ', false);
+const reverseSort = new W.Checkbox('Reverse: ', false);
 reverseSort.label.classList.add('talk-button-indent');
 reverseSort.element.addEventListener('change', () => {
     ReverseSort = reverseSort.element.checked;
@@ -110,17 +112,15 @@ function showRecordDetails(index) {
     const record = Records[index];
     const dialog = document.createElement('dialog');
     dialog.className = 'talk-dialog';
-    // /*************************************************************** */
-    // const audioControl = document.createElement('audio');
-    // audioControl.controls = true;
-    // dialog.append(audioControl);
-    // /*************************************************************** */
+    dialog.innerHTML = '';
     const textLines = [];
     textLines.push(`### ${record.title}\n`);
     if (record.begins)
         textLines.push(record.begins);
     if (record.ends)
         textLines.push(record.ends);
+    /** sort most recent note at the top */
+    record.notes.sort((a, b) => b.heading.localeCompare(a.heading));
     let first = true;
     for (const note of record.notes) {
         if (!first)
@@ -132,13 +132,22 @@ function showRecordDetails(index) {
     }
     const highlightedTextLines = highlightKeywords(textLines, Keywords);
     const markedUpText = Markup(highlightedTextLines);
+    /*************************************************************** */
+    // add Audio element
+    const uri = `${MediaFolder}/${record.title}${record.extension}`;
+    const audio = new Audio();
+    audio.controls = true;
+    dialog.append(audio);
+    A.Play(audio, uri);
+    /*************************************************************** */
     // add 'close' button
     const button = document.createElement('button');
     button.innerHTML = '&times;';
     button.className = 'talk-dialog-exit';
     button.addEventListener('click', () => { dialog.close(); });
-    dialog.innerHTML = markedUpText;
+    dialog.innerHTML += markedUpText;
     dialog.append(button);
+    dialog.addEventListener('cancel', () => { audio.pause(); }); // neither 'close' nor 'cancel' stops the audio
     PAGE.content.append(dialog);
     dialog.showModal();
 }
@@ -207,7 +216,7 @@ function hasKeyword(record) {
 function sortTalks() {
     Records.sort((a, b) => {
         let result = 0;
-        if (SortBy == 'Last Played')
+        if (SortBy == 'Last Play')
             result = a.lastPlayed - b.lastPlayed;
         else
             result = a.title.localeCompare(b.title); /** default: sort by title */

@@ -91,6 +91,7 @@ export function render() {
 		testers.push( { name: 'Times', function: testTimes } );
 		testers.push( { name: 'UTC', function: testUTC } );
 		testers.push( { name: 'Audio', function: testAudio } );
+		testers.push( { name: 'Talk Time', function: testTalkTime } );
 		// testers.push( { name: 'IP', function: testIP } );
 		testers.push( { name: 'Dialog', function: testDialog } );
 		// testers.push( { name: 'Radio', function: testRadio } );
@@ -384,6 +385,32 @@ function testAudio(testOutput: HTMLDivElement) {
 	// A.PlayList(audio, uris, uriPlaying);
 	// output.push('...PlayList completed');
 
+	paragraph.innerHTML = output.join('<br>');
+	testOutput.append(paragraph);
+}
+
+function testTalkTime(testOutput: HTMLDivElement) {
+	const MediaFolder = '../media/audio/watts';
+	const paragraph = document.createElement('p');
+	const output: string[] = [];
+	const fileNames = [
+		'Education for Non-Entity.m4a',
+		'House Boat Summit.m4a',
+		'Nature of Consciousness p1',
+	];
+	for (const fileName of fileNames) {
+		const audio = new Audio(`${MediaFolder}/${fileName}`);
+		audio.preload = 'metadata'; // may speed up load
+		audio.load();
+		audio.addEventListener('loadedmetadata', () => {
+			const time = A.FormatTime(audio.duration);
+			console.log(`${fileName} loaded ... Time: ${time}`);
+			output.push(`${fileName} ${audio.duration}`);
+		});
+	}
+		
+		// const duration = A.Duration(`${MediaFolder}/${fileName}`);
+		// output.push(`${fileName} ${duration}`);
 	paragraph.innerHTML = output.join('<br>');
 	testOutput.append(paragraph);
 }

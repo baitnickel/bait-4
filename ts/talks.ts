@@ -10,32 +10,28 @@ if (!PAGE.backendAvailable) {
 	window.alert(`Cannot connect to: ${PAGE.backend}`);
 	window.history.back();
 }
-console.log('v26.08.28');
+console.log('v26.08.31');
 const AudioDataset = await Fetch.api<T.AudioDataset>(`${PAGE.backend}/media/talks`);
 if (AudioDataset === null) {
 	window.alert(`AudioDatset is empty!`);
 	window.history.back();
 }
 
-const MediaFolder = '../media/audio/watts';;
+const MediaFolder = '../media/audio/watts';
 const Records = AudioDataset!.data;
 let Keywords: string[] = [];
 const SortByOptions = ['Title', 'Last Play'];
 let SortBy = SortByOptions[0];
 let ReverseSort = false;
 
-// const QueryElement = document.createElement('div');
-// QueryElement.className = 'talks-query-element';
 const ListElement = document.createElement('div');
 ListElement.className = 'talks-list-element';
 const DetailsElement = document.createElement('div');
 DetailsElement.className = 'talks-details-element';
 
-//********************************************************************************** */
 const SelectionElement = document.createElement('div');
 SelectionElement.className = 'talk-selection-div';
 const sortByLabel = document.createTextNode('\u00a0\u00a0Sorted By: ');
-// sortByLabel.classList.add('talk-button-indent');
 const radioButtons = new W.RadioGroup('', SortByOptions, 'widget-radio-inline');
 for (const inputElement of radioButtons.inputElements) {
 	inputElement.addEventListener('click', () => {
@@ -45,7 +41,6 @@ for (const inputElement of radioButtons.inputElements) {
 	});
 }
 const radioSpan = radioButtons.span;
-// radioSpan.classList.add('talk-button-indent');
 const textEntry = new W.Text('Keywords: ', '');
 textEntry.element.addEventListener('change', () => {
 	Keywords = uniqueWords(textEntry.element.value);
@@ -66,46 +61,33 @@ SelectionElement.append(sortByLabel);
 SelectionElement.append(radioSpan);
 SelectionElement.append(reverseSort.label);
 SelectionElement.append(reverseSort.element);
-//********************************************************************************** */
 
 export function render() {
 	PAGE.setTitle('Talks Dataset');
-	// PAGE.content.append(QueryElement);
 	PAGE.content.append(SelectionElement);
 	PAGE.content.append(ListElement);
-	// const dialog = createQueryModalDialog();
-	// addQueryButton(dialog);
 	sortTalks();
 	listTalks(ListElement);  
 }
 
-// function addQueryButton(dialog: W.Dialog) {
-// 	const queryButton = document.createElement('button');
-// 	queryButton.classList.add('query-button');
-// 	queryButton.innerText = 'Enter Query';
-// 	QueryElement.append(queryButton);
-// 	queryButton.addEventListener('click', (e) => {
-// 		dialog.element.showModal();
-// 	});
-// }
-
 function listTalks(division: HTMLDivElement) {
 	division.innerHTML = '';
 	sortTalks();
-	const table = new W.Table(['Detail', 'Title', 'Time', 'Plays', 'Last Play']);
+	const table = new W.Table(['Title', 'Time', 'Plays', 'Last Play']);
 	let i = 0;
 	for (const record of Records) {
-		if (!Keywords.length || hasKeyword(record)) {
+		if (!Keywords.length || hasKeyword(record, Keywords)) {
+			const title = shortTitle(record.title);
 			const lastPlayedDate = new Date(record.lastPlayed);
+
 			table.addRow();
-			const buttonHTML = `<input type='button' value='•••' class='talk-detail' id='${i}' />`;
-			const buttonCell = table.addCell(buttonHTML, '', true);
-			table.addCell(shortTitle(record.title));
-			table.addCell(formatTime(record.duration));
+			const titleHTML = `<input type='button' value='${title}' class='talk-title' id='${i}' />`;
+			const titleCell = table.addCell(titleHTML, '', true);
+			table.addCell(A.FormatTime(record.duration));
 			table.addCell(record.playCount.toString());
 			table.addCell(T.DateString(lastPlayedDate, 3).slice(0, 10));
 
-			buttonCell.addEventListener('click', (e: Event) => {
+			titleCell.addEventListener('click', (e: Event) => {
 				const target = e.target as HTMLTableCellElement;
 				showRecordDetails(Number(target.id));
 			})
@@ -113,7 +95,6 @@ function listTalks(division: HTMLDivElement) {
 		i += 1;
 	}
 	table.fillTable(table.element);
-	// if (Keywords.length) division.innerHTML = `<p>Keywords: ${Keywords.join(', ')}</p>`;
 	division.append(table.element);
 }
 
@@ -139,14 +120,14 @@ function showRecordDetails(index: number) {
 	const highlightedTextLines = highlightKeywords(textLines, Keywords);
 	const markedUpText = Markup(highlightedTextLines);
 	
-	// add Audio element
+	/** add Audio element */
 	const uri = `${MediaFolder}/${record.title}${record.extension}`;
 	const audio = new Audio();
 	audio.controls = true;
 	dialog.append(audio);
 	A.Play(audio, uri);
 
-	// add 'close' button
+	/** add 'close' button */
 	const button = document.createElement('button');
 	button.innerHTML = '&times;';
 	button.className = 'talk-dialog-exit';
@@ -154,10 +135,9 @@ function showRecordDetails(index: number) {
 		dialog.close();
 		dialog.remove();
 	});
-
-	// support Escape key close
+	/** support Escape key close */
 	document.addEventListener('keydown', (e) => {
-		if (e.key ==='Escape') {
+		if (e.key === 'Escape') {
 			dialog.close();
 			dialog.remove();
 		}
@@ -206,15 +186,19 @@ function shortTitle(title: string, maximumLength = 35) {
 	return shortTitle;
 }
 
-function hasKeyword(record: T.AudioData) {
+/**
+ * Given an AudioData record and an array of `keywords`, return true if any of
+ * the record texts contain any of the `keywords`, else return false.
+ */
+function hasKeyword(record: T.AudioData, keywords: string[]) {
 	let hasKeyword = false;
-	if (Keywords.length) {
+	if (keywords.length) {
 		let textLines: string[] = [];
 		textLines.push(record.title);
 		textLines.push(record.begins);
 		textLines.push(record.ends);
 		for (const note of record.notes) textLines = textLines.concat(note.lines);
-		keywordLoop: for (let keyword of Keywords) {
+		keywordLoop: for (let keyword of keywords) {
 			for (const textLine of textLines) {
 				const uniqueTextWords = uniqueWords(textLine);
 				for (const uniqueTextWord of uniqueTextWords) {
@@ -229,6 +213,9 @@ function hasKeyword(record: T.AudioData) {
 	return hasKeyword;
 }
 
+/**
+ * Sort talk records based on `SortBy` and `ReverseSort` options.
+ */
 function sortTalks() {
 	Records.sort((a,b) => {
 		let result = 0;
@@ -282,39 +269,3 @@ function wordSegments(text: string, regexp = /\b(\w+)['’]?(\w+)?\b/g) {
 	if (nextIndex < text.length) segments.push(text.slice(nextIndex));
 	return segments;
 }
-
-/**
- * Given a number of seconds, return a formatted time string ('HH:MM:SS').
- * Return an empty string if seconds is a negative number.
- */
-function formatTime(seconds: number) {
-	let formattedTime = '';
-	seconds = Math.round(seconds);
-	if (seconds > 0) {
-		const hours = Math.floor(seconds/3600)
-		seconds -= (hours * 3600);
-		const minutes = Math.floor(seconds/60);
-		seconds -= (minutes * 60)
-		formattedTime = (hours) ? `${hours}:` + `${minutes}`.padStart(2, '0') : `${minutes}`;
-		formattedTime += `:${seconds}`.padStart(2, '0');
-	}
-	return formattedTime;
-}
-
-// function createQueryModalDialog() {
-// 	const dialog = new W.Dialog('Query Options')
-// 	const keywordString = dialog.addText('Keywords:', '');
-// 	const sortValues = ['Title', 'Last Played'];
-// 	const sortDropDown = dialog.addSelect('Sort By:', sortValues);
-// 	const reverseSort = dialog.addCheckbox('Reverse Sort:', false);
-
-// 	dialog.confirmButton.addEventListener('click', () => {
-// 		Keywords = uniqueWords(keywordString.value);
-// 		SortBy = sortDropDown.value;
-// 		ReverseSort = reverseSort.checked;
-// 		sortTalks();
-// 		listTalks(ListElement);  
-// 	});
-
-// 	return dialog;
-// }

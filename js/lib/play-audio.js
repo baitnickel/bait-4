@@ -6,11 +6,11 @@
  * taking a single (uri: string) argument), the function will be called when the
  * URI is played.
  */
-export function Play(audioElement, uri, play = false, callback = null) {
-    audioElement.src = uri;
-    audioElement.load();
+export function Play(audio, uri, play = false, callback = null) {
+    audio.src = uri;
+    audio.load();
     if (play)
-        audioElement.play();
+        audio.play();
     if (callback !== null)
         callback(uri);
 }
@@ -23,7 +23,7 @@ export function Play(audioElement, uri, play = false, callback = null) {
  * When the optional `callback` function is provided (a function taking a single
  * (uri: string) argument), the function will be called as each URI is played.
  */
-export function PlayList(audioElement, uris, callback = null, // (uri: string) => string,
+export function PlayList(audio, uris, callback = null, // (uri: string) => string,
 loop = false) {
     if (typeof uris == 'string')
         uris = [uris];
@@ -33,26 +33,46 @@ loop = false) {
         next: function () { this.index = (this.index + 1) % this.uris.length; },
         select: function () { return this.uris[this.index]; },
         play: function () {
-            audioElement.src = tracks.select();
-            audioElement.load();
-            audioElement.play();
+            audio.src = tracks.select();
+            audio.load();
+            audio.play();
             if (callback !== null)
                 callback(uris[tracks.index]);
         }
     };
     tracks.play();
-    audioElement.addEventListener('ended', () => {
+    audio.addEventListener('ended', () => {
         tracks.next();
         if (tracks.index != 0 || loop)
             tracks.play();
     });
 }
-// export async function AudioDuration(uri: string) {
-// 	let duration = 0;
-// 	const audioElement = new Audio(uri); // need to decode? decodeURI(uri)
-// 	audioElement.addEventListener('loadeddata', () => {
-// 	});
-// 	audioElement.load();
-// 	duration = audioElement.duration;
-// 	return duration;
-// }
+export async function MetaData(media) {
+    // initialize Promise
+    // const promise = new Promise<void>(resolve)
+    // media.addEventListener('loadedmetadata', () => {
+    // });
+    // audio.load();
+    // let duration = 0;
+    // const audio = new Audio(uri); // need to decode? decodeURI(uri)
+    // return audio.duration;
+    // duration = audio.duration;
+    // return duration;
+}
+/**
+ * Given a number of seconds, return a formatted time string ('HH:MM:SS').
+ * Return an empty string if seconds is a negative number.
+ */
+export function FormatTime(seconds) {
+    let formattedTime = '';
+    seconds = Math.round(seconds);
+    if (seconds > 0) {
+        const hours = Math.floor(seconds / 3600);
+        seconds -= (hours * 3600);
+        const minutes = Math.floor(seconds / 60);
+        seconds -= (minutes * 60);
+        formattedTime = (hours) ? `${hours}:` + `${minutes}`.padStart(2, '0') : `${minutes}`;
+        formattedTime += ':' + `${seconds}`.padStart(2, '0');
+    }
+    return formattedTime;
+}

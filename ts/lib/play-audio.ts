@@ -9,14 +9,14 @@ type Callback = (uri: string) => string;
  * URI is played.
  */
 export function Play(
-	audioElement: HTMLAudioElement,
+	audio: HTMLAudioElement,
 	uri: string,
 	play = false,
 	callback: Callback|null = null)
 {
-	audioElement.src = uri;
-	audioElement.load();
-	if (play) audioElement.play();
+	audio.src = uri;
+	audio.load();
+	if (play) audio.play();
 	if (callback !== null) callback(uri);
 }
 
@@ -30,7 +30,7 @@ export function Play(
  * (uri: string) argument), the function will be called as each URI is played.
  */
 export function PlayList(
-	audioElement: HTMLAudioElement,
+	audio: HTMLAudioElement,
 	uris: string|string[],
 	callback: Callback|null = null, // (uri: string) => string,
 	loop = false) {
@@ -42,29 +42,50 @@ export function PlayList(
 		next: function() { this.index = (this.index + 1) % this.uris.length },
 		select: function() { return this.uris[this.index] },
 		play: function() {
-			audioElement.src = tracks.select();
-			audioElement.load();
-			audioElement.play();
+			audio.src = tracks.select();
+			audio.load();
+			audio.play();
 			if (callback !== null) callback(uris[tracks.index]);
 		}
 	}
 	tracks.play();
-	audioElement.addEventListener('ended', () => {
+	audio.addEventListener('ended', () => {
 		tracks.next();
 		if (tracks.index != 0 || loop) tracks.play();
 	});
 }
 
 
-// export async function AudioDuration(uri: string) {
-// 	let duration = 0;
-// 	const audioElement = new Audio(uri); // need to decode? decodeURI(uri)
-// 	audioElement.addEventListener('loadeddata', () => {
+export async function MetaData(media: HTMLMediaElement) {
+	// initialize Promise
+	// const promise = new Promise<void>(resolve)
+	// media.addEventListener('loadedmetadata', () => {
+	// });
+		
 
-// 	});
-// 	audioElement.load();
+	// audio.load();
+	// let duration = 0;
+	// const audio = new Audio(uri); // need to decode? decodeURI(uri)
+	// return audio.duration;
 	
-// 	duration = audioElement.duration;
-// 	return duration;
-// }
+	// duration = audio.duration;
+	// return duration;
+}
 
+/**
+ * Given a number of seconds, return a formatted time string ('HH:MM:SS').
+ * Return an empty string if seconds is a negative number.
+ */
+export function FormatTime(seconds: number) {
+	let formattedTime = '';
+	seconds = Math.round(seconds);
+	if (seconds > 0) {
+		const hours = Math.floor(seconds/3600)
+		seconds -= (hours * 3600);
+		const minutes = Math.floor(seconds/60);
+		seconds -= (minutes * 60)
+		formattedTime = (hours) ? `${hours}:` + `${minutes}`.padStart(2, '0') : `${minutes}`;
+		formattedTime += ':' + `${seconds}`.padStart(2, '0');
+	}
+	return formattedTime;
+}

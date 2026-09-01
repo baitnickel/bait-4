@@ -116,8 +116,9 @@ export class Page {
 			MenuItems.push({module: 'threads', parameters: [], text: 'Threads', icon: ''});
 			MenuItems.push({module: 'timeline', parameters: [], text: 'Timeline', icon: ''});
 			MenuItems.push({module: 'carousel', parameters: [], text: 'Carousel', icon: ''});
-			MenuItems.push({module: 'audio', parameters: [], text: 'Audio', icon: ''});
+			// MenuItems.push({module: 'audio', parameters: [], text: 'Audio', icon: ''});
 			MenuItems.push({module: 'talks', parameters: [], text: 'Talks', icon: ''});
+			MenuItems.push({module: 'canvas', parameters: [], text: 'Canvas', icon: ''});
 			// MenuItems.push({module: 'audio', parameters: ['folder=wedding'], text: 'Wedding', icon: ''});
 			// MenuItems.push({module: 'camping', parameters: [], text: '(Camping)', icon: ''});
 			// MenuItems.push({module: 'articles', parameters: ['path=Content/test-redwords'], text: 'Red Words', icon: ''});

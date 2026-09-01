@@ -427,6 +427,47 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	color: #a76f6f;
 }
 
+/* Canvas ====================================================================== */
+
+.canvas-main {
+	width: 100vw;
+	height: 100vh;
+	position: relative;
+	border: 2px solid white;
+	margin: 25px;
+}
+
+.canvas-text {
+	font-family: sans-serif;
+	font-size: 1.5rem;
+	color: beige;
+	position: absolute;
+	width: 500px;
+	height: 300px;
+	top: 20%;
+	left: 30%;
+}
+
+.canvas-box1 {
+	background-color: cornflowerblue;
+	position: absolute;
+	width: 200px;
+	height: 100px;
+	top: 30%;
+	left: 40%;
+	border: 2px solid purple;
+}
+
+.canvas-box2 {
+	background-color: gold;
+	position: absolute;
+	width: 400px;
+	height: 50px;
+	top: 50%;
+	left: 15%;
+	border: 2px solid purple;
+}
+
 /* Threads ====================================================================== */
 
 dialog.threads-dialog li {

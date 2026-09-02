@@ -108,6 +108,11 @@ body {
 #header-menu li a:hover {
 	color: var(--banner-text-highlight-color);
 }
+
+#header-options {
+	padding: .5rem 1.5rem;
+}
+
 #annotate-button,
 #identity-button {
 	background: transparent;
@@ -482,20 +487,10 @@ dialog.threads-dialog button {
 
 /* Talks ====================================================================== */
 
-.talk-selection-div {
-	position: sticky;
-	/* top: 60px; */
-	display: block;
-	font-family: sans-serif;
-	font-size: small;
-	margin: 0 0 1.5rem 0;
-	padding: 1rem;
-	border-style: solid;
-	border-width: thin;
-	border-color: black;
-	width: fit-content;
-}
-.talk-button-indent {padding-left: 1rem;}
+/* .talk-selection-div {
+	padding: .5rem 1.5rem;
+} */
+.talk-button-indent { padding-left: 1rem; }
 
 .talk-dialog {
 	width: 50%;

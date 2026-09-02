@@ -24,47 +24,16 @@ const SortByOptions = ['Title', 'Last Play'];
 let SortBy = SortByOptions[0];
 let ReverseSort = false;
 
+const SelectionElement = selectionElement();
+SelectionElement.id = 'header-options';
 const ListElement = document.createElement('div');
 ListElement.className = 'talks-list-element';
 const DetailsElement = document.createElement('div');
 DetailsElement.className = 'talks-details-element';
 
-const SelectionElement = document.createElement('div');
-SelectionElement.className = 'talk-selection-div';
-const sortByLabel = document.createTextNode('\u00a0\u00a0Sorted By: ');
-const radioButtons = new W.RadioGroup('', SortByOptions, 'widget-radio-inline');
-for (const inputElement of radioButtons.inputElements) {
-	inputElement.addEventListener('click', () => {
-		SortBy = radioButtons.value;
-		sortTalks();
-		listTalks(ListElement);
-	});
-}
-const radioSpan = radioButtons.span;
-const textEntry = new W.Text('Keywords: ', '');
-textEntry.element.addEventListener('change', () => {
-	Keywords = uniqueWords(textEntry.element.value);
-	sortTalks();
-	listTalks(ListElement);
-});
-const reverseSort = new W.Checkbox('Reversed: ', false);
-reverseSort.label.classList.add('talk-button-indent');
-reverseSort.element.addEventListener('change', () => {
-	ReverseSort = reverseSort.element.checked;
-	sortTalks();
-	listTalks(ListElement);
-});
-
-SelectionElement.append(textEntry.label);
-SelectionElement.append(textEntry.element);
-SelectionElement.append(sortByLabel);
-SelectionElement.append(radioSpan);
-SelectionElement.append(reverseSort.label);
-SelectionElement.append(reverseSort.element);
-
 export function render() {
 	PAGE.setTitle('Talks Dataset');
-	PAGE.content.append(SelectionElement);
+	PAGE.header.append(SelectionElement);
 	PAGE.content.append(ListElement);
 	sortTalks();
 	listTalks(ListElement);  
@@ -268,4 +237,40 @@ function wordSegments(text: string, regexp = /\b(\w+)['’]?(\w+)?\b/g) {
 	}
 	if (nextIndex < text.length) segments.push(text.slice(nextIndex));
 	return segments;
+}
+
+function selectionElement() {
+	const selectionElement = document.createElement('div');
+	const sortByLabel = document.createTextNode('\u00a0\u00a0Sorted By: ');
+	const radioButtons = new W.RadioGroup('', SortByOptions, 'widget-radio-inline');
+	for (const inputElement of radioButtons.inputElements) {
+		inputElement.addEventListener('click', () => {
+			SortBy = radioButtons.value;
+			sortTalks();
+			listTalks(ListElement);
+		});
+	}
+	const radioSpan = radioButtons.span;
+	const textEntry = new W.Text('Keywords: ', '');
+	textEntry.element.addEventListener('change', () => {
+		Keywords = uniqueWords(textEntry.element.value);
+		sortTalks();
+		listTalks(ListElement);
+	});
+	const reverseSort = new W.Checkbox('Reversed: ', false);
+	reverseSort.label.classList.add('talk-button-indent');
+	reverseSort.element.addEventListener('change', () => {
+		ReverseSort = reverseSort.element.checked;
+		sortTalks();
+		listTalks(ListElement);
+	});
+
+	selectionElement.append(textEntry.label);
+	selectionElement.append(textEntry.element);
+	selectionElement.append(sortByLabel);
+	selectionElement.append(radioSpan);
+	selectionElement.append(reverseSort.label);
+	selectionElement.append(reverseSort.element);
+
+	return selectionElement;
 }

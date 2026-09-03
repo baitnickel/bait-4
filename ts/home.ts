@@ -394,19 +394,36 @@ function testTalkTime(testOutput: HTMLDivElement) {
 	const paragraph = document.createElement('p');
 	const output: string[] = [];
 	const fileNames = [
+		'Nature of Consciousness p1.mp3',
+		'Philosophy of the Tao p1.m4a',
 		'Education for Non-Entity.m4a',
+		'Limits of Language.m4a',
+		'Wisdom of the Ridiculous.m4a',
 		'House Boat Summit.m4a',
-		'Nature of Consciousness p1',
+		'xxx'
 	];
 	for (const fileName of fileNames) {
-		const audio = new Audio(`${MediaFolder}/${fileName}`);
-		audio.preload = 'metadata'; // may speed up load
-		audio.load();
-		audio.addEventListener('loadedmetadata', () => {
-			const time = A.FormatTime(audio.duration);
-			console.log(`${fileName} loaded ... Time: ${time}`);
-			output.push(`${fileName} ${audio.duration}`);
+		A.LoadAudioData(`${MediaFolder}/${fileName}`)
+		.then((audio) => {
+			console.log(`${fileName}: ${A.FormatTime(audio.duration)}`);
+			output.push(`${fileName}: ${A.FormatTime(audio.duration)}`);
+		})
+		.catch((error: Error) => {
+			console.log(error.message);
 		});
+
+
+		// promise.then((audio) => {
+		// 	console.log(`${audio.src} is loaded`);
+		// });
+		// const audio = new Audio(`${MediaFolder}/${fileName}`);
+		// audio.preload = 'metadata'; // may speed up load
+		// audio.load();
+		// audio.addEventListener('loadedmetadata', () => {
+		// 	const time = A.FormatTime(audio.duration);
+		// 	console.log(`${fileName} loaded ... Time: ${time}`);
+		// 	output.push(`${fileName} ${audio.duration}`);
+		// });
 	}
 		
 		// const duration = A.Duration(`${MediaFolder}/${fileName}`);

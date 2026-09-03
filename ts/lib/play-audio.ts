@@ -55,22 +55,35 @@ export function PlayList(
 	});
 }
 
+/**
+ * Given the `uri` of an audio file, return a Promise to be resolved as a fully
+ * loaded Audio element. Waiting for the full load ensures that the file's
+ * metadata is available.
+ */
+export function LoadAudioData(uri: string) {
+	return new Promise<HTMLAudioElement>((resolve, reject) => {
+		const audio = new Audio();
+		audio.src = uri;
+		audio.onloadeddata = () => resolve(audio);
+		audio.onerror = () => reject(new Error(`Error loading audio: ${uri}`));
+	});
+}
 
-export async function MetaData(media: HTMLMediaElement) {
-	// initialize Promise
-	// const promise = new Promise<void>(resolve)
-	// media.addEventListener('loadedmetadata', () => {
-	// });
+// export async function MetaData(media: HTMLMediaElement) {
+// 	// initialize Promise
+// 	// const promise = new Promise<void>(resolve)
+// 	// media.addEventListener('loadedmetadata', () => {
+// 	// });
 		
 
-	// audio.load();
-	// let duration = 0;
-	// const audio = new Audio(uri); // need to decode? decodeURI(uri)
-	// return audio.duration;
+// 	// audio.load();
+// 	// let duration = 0;
+// 	// const audio = new Audio(uri); // need to decode? decodeURI(uri)
+// 	// return audio.duration;
 	
-	// duration = audio.duration;
-	// return duration;
-}
+// 	// duration = audio.duration;
+// 	// return duration;
+// }
 
 /**
  * Given a number of seconds, return a formatted time string ('HH:MM:SS').

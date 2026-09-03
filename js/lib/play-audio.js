@@ -47,18 +47,31 @@ loop = false) {
             tracks.play();
     });
 }
-export async function MetaData(media) {
-    // initialize Promise
-    // const promise = new Promise<void>(resolve)
-    // media.addEventListener('loadedmetadata', () => {
-    // });
-    // audio.load();
-    // let duration = 0;
-    // const audio = new Audio(uri); // need to decode? decodeURI(uri)
-    // return audio.duration;
-    // duration = audio.duration;
-    // return duration;
+/**
+ * Given the `uri` of an audio file, return a Promise to be resolved as a fully
+ * loaded Audio element. Waiting for the full load ensures that the file's
+ * metadata is available.
+ */
+export function LoadAudioData(uri) {
+    return new Promise((resolve, reject) => {
+        const audio = new Audio();
+        audio.src = uri;
+        audio.onloadeddata = () => resolve(audio);
+        audio.onerror = () => reject(new Error(`Error loading audio: ${uri}`));
+    });
 }
+// export async function MetaData(media: HTMLMediaElement) {
+// 	// initialize Promise
+// 	// const promise = new Promise<void>(resolve)
+// 	// media.addEventListener('loadedmetadata', () => {
+// 	// });
+// 	// audio.load();
+// 	// let duration = 0;
+// 	// const audio = new Audio(uri); // need to decode? decodeURI(uri)
+// 	// return audio.duration;
+// 	// duration = audio.duration;
+// 	// return duration;
+// }
 /**
  * Given a number of seconds, return a formatted time string ('HH:MM:SS').
  * Return an empty string if seconds is a negative number.

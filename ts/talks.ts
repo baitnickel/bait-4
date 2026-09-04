@@ -10,7 +10,7 @@ if (!PAGE.backendAvailable) {
 	window.alert(`Cannot connect to: ${PAGE.backend}`);
 	window.history.back();
 }
-console.log('v26.08.31');
+console.log('v26.09.04');
 const AudioDataset = await Fetch.api<T.AudioDataset>(`${PAGE.backend}/media/talks`);
 if (AudioDataset === null) {
 	window.alert(`AudioDatset is empty!`);
@@ -18,7 +18,16 @@ if (AudioDataset === null) {
 }
 
 const MediaFolder = '../media/audio/watts';
+const TalkTimesData = './data/audio/watts-talk-times.txt';
 const Records = AudioDataset!.data;
+
+ // not yet supported
+if (PAGE.parameters.has('refresh-times')) {
+	refreshTimes(TalkTimesData, Records);
+	window.alert('Audio file times data refreshed');
+	window.history.back();
+}
+
 let Keywords: string[] = [];
 const SortByOptions = ['Title', 'Last Play'];
 let SortBy = SortByOptions[0];
@@ -273,4 +282,17 @@ function selectionElement() {
 	selectionElement.append(reverseSort.element);
 
 	return selectionElement;
+}
+
+// not yet supported
+async function refreshTimes(dataFilePath: string, records: T.AudioData[]) {
+	// Must loop over file names + extensions from `records`,
+	// and for each one create an array of strings consisting of
+	// name+extenstion and duration seconds,
+	// separated by a delimiter (such as '\t').
+	// Use the A.LoadAudioData function as demonstated in the home module,
+	// function testTalkTime.
+	// Then call an API passing the array of strings.
+	// The API will (over)write a text file representing the array.
+	// The text file can be read by the module that builds the AudioDataset.
 }

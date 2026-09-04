@@ -348,7 +348,7 @@ function testAudio(testOutput) {
     paragraph.innerHTML = output.join('<br>');
     testOutput.append(paragraph);
 }
-function testTalkTime(testOutput) {
+async function testTalkTime(testOutput) {
     const MediaFolder = '../media/audio/watts';
     const paragraph = document.createElement('p');
     const output = [];
@@ -359,31 +359,18 @@ function testTalkTime(testOutput) {
         'Limits of Language.m4a',
         'Wisdom of the Ridiculous.m4a',
         'House Boat Summit.m4a',
-        'xxx'
+        // 'xxx'
     ];
     for (const fileName of fileNames) {
-        A.LoadAudioData(`${MediaFolder}/${fileName}`)
-            .then((audio) => {
-            console.log(`${fileName}: ${A.FormatTime(audio.duration)}`);
-            output.push(`${fileName}: ${A.FormatTime(audio.duration)}`);
-        })
-            .catch((error) => {
-            console.log(error.message);
-        });
-        // promise.then((audio) => {
-        // 	console.log(`${audio.src} is loaded`);
-        // });
-        // const audio = new Audio(`${MediaFolder}/${fileName}`);
-        // audio.preload = 'metadata'; // may speed up load
-        // audio.load();
-        // audio.addEventListener('loadedmetadata', () => {
-        // 	const time = A.FormatTime(audio.duration);
-        // 	console.log(`${fileName} loaded ... Time: ${time}`);
-        // 	output.push(`${fileName} ${audio.duration}`);
-        // });
+        try {
+            const audio = await A.LoadAudioData(`${MediaFolder}/${fileName}`);
+            output.push(`${fileName}\t${A.FormatTime(audio.duration)}`);
+        }
+        catch (error) {
+            console.error(error);
+        }
     }
-    // const duration = A.Duration(`${MediaFolder}/${fileName}`);
-    // output.push(`${fileName} ${duration}`);
+    console.log(`${output.length} entries found`);
     paragraph.innerHTML = output.join('<br>');
     testOutput.append(paragraph);
 }

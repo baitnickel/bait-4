@@ -57,7 +57,8 @@ export function LoadAudioData(uri) {
         const audio = new Audio();
         audio.src = uri;
         audio.onloadeddata = () => resolve(audio);
-        audio.onerror = () => reject(new Error(`Error loading audio: ${uri}`));
+        // audio.onerror = () => reject(new Error(`Error loading audio: ${uri}`));
+        audio.onerror = () => reject(`Error loading audio: ${uri}`);
     });
 }
 // export async function MetaData(media: HTMLMediaElement) {

@@ -86,6 +86,7 @@ function showRecordDetails(index: number) {
 
 	const textLines: string[] = [];
 	textLines.push(`### ${record.title}\n`);
+	if (record.performers) textLines.push(`With: ${record.performers}`);
 	if (record.begins) textLines.push(record.begins);
 	if (record.ends) textLines.push(record.ends);
 	/** sort most recent note at the top */
@@ -178,6 +179,7 @@ function hasKeywords(record: T.AudioData, keywords: Set<string>, logicalAnd = fa
 	/** consolidate all the text lines from the record */
 	const noteLines: string[] = [];
 	noteLines.push(record.title);
+	noteLines.push(record.performers);
 	noteLines.push(record.begins);
 	noteLines.push(record.ends);
 	for (const note of record.notes) {

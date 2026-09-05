@@ -76,6 +76,8 @@ function showRecordDetails(index) {
     dialog.innerHTML = '';
     const textLines = [];
     textLines.push(`### ${record.title}\n`);
+    if (record.performers)
+        textLines.push(`With: ${record.performers}`);
     if (record.begins)
         textLines.push(record.begins);
     if (record.ends)
@@ -169,6 +171,7 @@ function hasKeywords(record, keywords, logicalAnd = false) {
     /** consolidate all the text lines from the record */
     const noteLines = [];
     noteLines.push(record.title);
+    noteLines.push(record.performers);
     noteLines.push(record.begins);
     noteLines.push(record.ends);
     for (const note of record.notes) {

@@ -141,7 +141,7 @@ h2 { font-size: 1.2rem; }
 h3 { font-size: 1.1rem; }
 h4 { font-size: 1.0rem; }
 h5 { font-size: 0.9rem; padding: .3rem; font-weight: bold; }
-h6 { font-size: 0.8rem; padding: .2rem; }
+h6 { font-size: 0.7rem; padding: .2rem; margin: .5rem .5rem .2rem; }
 h5, h6 {
 	width: -moz-fit-content; /* still required for Firefox? */
 	width: fit-content;
@@ -487,10 +487,7 @@ dialog.threads-dialog button {
 
 /* Talks ====================================================================== */
 
-/* .talk-selection-div {
-	padding: .5rem 1.5rem;
-} */
-.talk-button-indent { padding-left: 1rem; }
+.talk-button-indent { padding-left: .5rem; }
 
 .talk-dialog {
 	width: 50%;
@@ -498,7 +495,7 @@ dialog.threads-dialog button {
 }
 
 .talk-dialog-exit {
-	position: absolute; /* position: absolute; */
+	position: absolute;
 	top: 3%;
 	right: 3%;
 	z-index: 2; /* force buttons to show up on top of images */

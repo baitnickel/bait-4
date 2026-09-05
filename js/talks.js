@@ -18,14 +18,15 @@ if (AudioDataset === null) {
 const MediaFolder = '../media/audio/watts';
 const TalkTimesData = './data/audio/watts-talk-times.txt';
 const Records = AudioDataset.data;
-// not yet supported
+// not yet supported ... might be better done with a button
+// ... (or done automatically by checking last update in metadata)
 if (PAGE.parameters.has('refresh-times')) {
     refreshTimes(TalkTimesData, Records);
     window.alert('Audio file times data refreshed');
     window.history.back();
 }
-let Keywords = [];
-const LogicalAnd = '&';
+let Keywords = new Set();
+let LogicalAnd = false;
 const WordSegments = /\b(\w+)['’]?(\w+)?\b/g; /** words, including contractions */
 const SortByOptions = ['Title', 'Last Play'];
 let SortBy = SortByOptions[0];
@@ -41,15 +42,15 @@ export function render() {
     PAGE.header.append(SelectionElement);
     PAGE.content.append(ListElement);
     sortTalks();
-    listTalks(ListElement);
+    listTalks(ListElement, Keywords, LogicalAnd);
 }
-function listTalks(division) {
+function listTalks(division, keywords, logicalAnd) {
     division.innerHTML = '';
     sortTalks();
     const table = new W.Table(['Title', 'Time', 'Plays', 'Last Play']);
     let i = 0;
     for (const record of Records) {
-        if (!Keywords.length || hasKeyword(record, Keywords)) {
+        if (!keywords.size || hasKeywords(record, keywords, logicalAnd)) {
             const title = shortTitle(record.title);
             const lastPlayedDate = new Date(record.lastPlayed);
             table.addRow();
@@ -57,7 +58,7 @@ function listTalks(division) {
             const titleCell = table.addCell(titleHTML, '', true);
             table.addCell(A.FormatTime(record.duration));
             table.addCell(record.playCount.toString());
-            table.addCell(T.DateString(lastPlayedDate, 3).slice(0, 10));
+            table.addCell(T.DateString(lastPlayedDate, 14));
             titleCell.addEventListener('click', (e) => {
                 const target = e.target;
                 showRecordDetails(Number(target.id));
@@ -124,13 +125,13 @@ function showRecordDetails(index) {
  * that appear in the list of `keywords`.
  */
 function highlightKeywords(textLines, keywords) {
-    if (!Keywords.length)
+    if (!keywords.size)
         return textLines;
     const highlightedTextLines = [];
     for (const textLine of textLines) {
         const segments = wordSegments(textLine);
         for (let i = 0; i < segments.length; i += 1) {
-            if (keywords.includes(segments[i].toLowerCase()))
+            if (keywords.has(segments[i].toLowerCase()))
                 segments[i] = `==${segments[i]}==`;
         }
         highlightedTextLines.push(segments.join(''));
@@ -158,81 +159,47 @@ function shortTitle(title, maximumLength = 35) {
     return shortTitle;
 }
 /**
- * Given an AudioData record and an array of `keywords`, return true if any of
- * the record texts contain any of the `keywords`, else return false. An exception is made if an ampersand appears in the
+ * Given an AudioData record, an array of `keywords`, and the `logicalAnd`
+ * boolean, return true if any of the record texts contain any of the
+ * `keywords`, else return false. When `logicalAnd` is true, the record texts
+ * must contain all of the keywords to receive a true result.
  */
-function hasKeyword(record, keywords) {
-    let hasKeyword = false;
-    const foundKeywords = [];
-    const findAllKeywords = keywords.includes(LogicalAnd);
-    if (keywords.length) {
-        let textLines = [];
-        textLines.push(record.title);
-        textLines.push(record.begins);
-        textLines.push(record.ends);
-        for (const note of record.notes)
-            textLines = textLines.concat(note.lines);
-        keywordLoop: for (let keyword of keywords) {
-            if (keyword == LogicalAnd)
-                continue;
-            for (const textLine of textLines) {
-                const uniqueTextWords = uniqueWords(textLine);
-                for (const uniqueTextWord of uniqueTextWords) {
-                    if (uniqueTextWord == keyword) {
-                        hasKeyword = true;
-                        if (!findAllKeywords)
-                            break keywordLoop;
-                        else {
-                            if (!foundKeywords.includes(keyword)) {
-                                foundKeywords.push(keyword);
-                                if (foundKeywords.length == keywords.length - 1)
-                                    break keywordLoop;
-                            }
-                        }
-                    }
-                    else
-                        hasKeyword = false;
-                }
-            }
+function hasKeywords(record, keywords, logicalAnd = false) {
+    let hasKeywords = (logicalAnd) ? true : false;
+    /** consolidate all the text lines from the record */
+    const noteLines = [];
+    noteLines.push(record.title);
+    noteLines.push(record.begins);
+    noteLines.push(record.ends);
+    for (const note of record.notes) {
+        for (const line of note.lines) {
+            noteLines.push(line);
         }
     }
-    return hasKeyword;
-}
-/**
- * Sort talk records based on `SortBy` and `ReverseSort` options.
- */
-function sortTalks() {
-    Records.sort((a, b) => {
-        let result = 0;
-        if (SortBy == 'Last Play')
-            result = a.lastPlayed - b.lastPlayed;
-        else
-            result = a.title.localeCompare(b.title); /** default: sort by title */
-        if (ReverseSort)
-            result *= -1;
-        return result;
-    });
+    const noteText = noteLines.join(' ');
+    const noteWords = uniqueWords(noteText);
+    for (const keyword of keywords) {
+        if (logicalAnd && !noteWords.has(keyword))
+            return false;
+        if (!logicalAnd && noteWords.has(keyword))
+            return true;
+    }
+    return hasKeywords;
 }
 /**
  * Given a text string containing words separated by boundaries (whitespace,
- * punctuation, etc.), return an array of unique words converted to lowercase.
- *
- * If `andCharacter`, a special character representing logical "AND" (usually
- * '&') is provided, it will be included as a special "word", indicating that
- * logical "AND" searches will be performed.
+ * punctuation, etc.), return a Set of words converted to lowercase.
  */
-function uniqueWords(wordString, andCharacter = '') {
-    const uniqueWords = [];
+function uniqueWords(wordString) {
+    const uniqueWords = new Set();
     wordString = wordString.toLowerCase();
     const matches = wordString.match(WordSegments);
     if (matches) {
-        for (let match of matches) {
-            if (match && !uniqueWords.includes(match))
-                uniqueWords.push(match);
+        for (const match of matches) {
+            if (match)
+                uniqueWords.add(match);
         }
     }
-    if (andCharacter && wordString.includes(andCharacter))
-        uniqueWords.push(andCharacter);
     return uniqueWords;
 }
 /**
@@ -264,33 +231,57 @@ function wordSegments(text, regexp = WordSegments) {
         segments.push(text.slice(nextIndex));
     return segments;
 }
+/**
+ * Sort talk records based on `SortBy` and `ReverseSort` options.
+ */
+function sortTalks() {
+    Records.sort((a, b) => {
+        let result = 0;
+        if (SortBy == 'Last Play')
+            result = a.lastPlayed - b.lastPlayed;
+        else
+            result = a.title.localeCompare(b.title); /** default: sort by title */
+        if (ReverseSort)
+            result *= -1;
+        return result;
+    });
+}
 function selectionElement() {
     const selectionElement = document.createElement('div');
-    const sortByLabel = document.createTextNode('\u00a0\u00a0Sorted By: ');
+    const sortByLabel = document.createTextNode('\u00a0\u00a0\u00a0\u00a0Sorted By: ');
     const radioButtons = new W.RadioGroup('', SortByOptions, 'widget-radio-inline');
     for (const inputElement of radioButtons.inputElements) {
         inputElement.addEventListener('click', () => {
             SortBy = radioButtons.value;
             sortTalks();
-            listTalks(ListElement);
+            listTalks(ListElement, Keywords, LogicalAnd);
         });
     }
     const radioSpan = radioButtons.span;
     const textEntry = new W.Text('Keywords: ', '');
     textEntry.element.addEventListener('change', () => {
-        Keywords = uniqueWords(textEntry.element.value, LogicalAnd);
+        Keywords = uniqueWords(textEntry.element.value);
         sortTalks();
-        listTalks(ListElement);
+        listTalks(ListElement, Keywords, LogicalAnd);
+    });
+    const logicalAnd = new W.Checkbox('All: ', false);
+    logicalAnd.label.classList.add('talk-button-indent');
+    logicalAnd.element.addEventListener('change', () => {
+        LogicalAnd = logicalAnd.element.checked;
+        sortTalks();
+        listTalks(ListElement, Keywords, LogicalAnd);
     });
     const reverseSort = new W.Checkbox('Reversed: ', false);
     reverseSort.label.classList.add('talk-button-indent');
     reverseSort.element.addEventListener('change', () => {
         ReverseSort = reverseSort.element.checked;
         sortTalks();
-        listTalks(ListElement);
+        listTalks(ListElement, Keywords, LogicalAnd);
     });
     selectionElement.append(textEntry.label);
     selectionElement.append(textEntry.element);
+    selectionElement.append(logicalAnd.label);
+    selectionElement.append(logicalAnd.element);
     selectionElement.append(sortByLabel);
     selectionElement.append(radioSpan);
     selectionElement.append(reverseSort.label);
@@ -299,13 +290,17 @@ function selectionElement() {
 }
 // not yet supported
 async function refreshTimes(dataFilePath, records) {
-    // Must loop over file names + extensions from `records`,
-    // and for each one create an array of strings consisting of
-    // name+extenstion and duration seconds,
-    // separated by a delimiter (such as '\t').
-    // Use the A.LoadAudioData function as demonstated in the home module,
-    // function testTalkTime.
-    // Then call an API passing the array of strings.
-    // The API will (over)write a text file representing the array.
-    // The text file can be read by the module that builds the AudioDataset.
+    /*
+        Must loop over file names + extensions from `records`,
+        and for each one create an array of strings consisting of
+        name+extenstion and duration seconds,
+        separated by a delimiter (such as '\t').
+        Use the A.LoadAudioData function as demonstated in the home module,
+        function testTalkTime.
+        Then call an API passing the array of strings.
+        The API will (over)write a text file representing the array.
+        The text file can be read by the module that builds the AudioDataset.
+        Ideally, we should only *update* the text file for *new* files ...
+        ... if file was JSON, we could include an element for "last update".
+    */
 }

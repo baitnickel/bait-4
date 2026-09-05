@@ -398,17 +398,16 @@ async function testTalkTime(testOutput: HTMLDivElement) {
 		'Philosophy of the Tao p1.m4a',
 		'Education for Non-Entity.m4a',
 		'Limits of Language.m4a',
+		'xxx',
 		'Wisdom of the Ridiculous.m4a',
 		'House Boat Summit.m4a',
-		// 'xxx'
 	];
 	for (const fileName of fileNames) {
 		try {
 			const audio = await A.LoadAudioData(`${MediaFolder}/${fileName}`);
 			output.push(`${fileName}\t${A.FormatTime(audio.duration)}`);
-		} catch (error) {
-			console.error(error);
 		}
+		catch (error) { console.error(error) }
 	}
 	console.log(`${output.length} entries found`);
 	paragraph.innerHTML = output.join('<br>');

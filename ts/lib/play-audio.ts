@@ -65,26 +65,10 @@ export function LoadAudioData(uri: string) {
 		const audio = new Audio();
 		audio.src = uri;
 		audio.onloadeddata = () => resolve(audio);
-		// audio.onerror = () => reject(new Error(`Error loading audio: ${uri}`));
-		audio.onerror = () => reject(`Error loading audio: ${uri}`);
+		audio.onerror = () => reject(`Error loading audio: ${uri}`); // caller handles implicit string
+		// audio.onerror = () => reject(new Error(`Error loading audio: ${uri}`)); // not well-handled by caller
 	});
 }
-
-// export async function MetaData(media: HTMLMediaElement) {
-// 	// initialize Promise
-// 	// const promise = new Promise<void>(resolve)
-// 	// media.addEventListener('loadedmetadata', () => {
-// 	// });
-		
-
-// 	// audio.load();
-// 	// let duration = 0;
-// 	// const audio = new Audio(uri); // need to decode? decodeURI(uri)
-// 	// return audio.duration;
-	
-// 	// duration = audio.duration;
-// 	// return duration;
-// }
 
 /**
  * Given a number of seconds, return a formatted time string ('HH:MM:SS').
@@ -103,43 +87,3 @@ export function FormatTime(seconds: number) {
 	}
 	return formattedTime;
 }
-
-/*
-
-https://stackoverflow.com/questions/46399223/async-await-in-image-loading
-
-// Source - https://stackoverflow.com/a/46399452
-// Posted by Phil, modified by community. See post 'Timeline' for change history
-// Retrieved 2026-09-02, License - CC BY-SA 4.0
-
-addImageProcess(src){
-	return new Promise((resolve, reject) => {
-    let img = new Image()
-    img.onload = () => resolve(img.height)
-    img.onerror = reject
-    img.src = src
-})
-}
-
-// Source - https://stackoverflow.com/a/52851789
-// Posted by Pinna_be, modified by community. See post 'Timeline' for change history
-// Retrieved 2026-09-02, License - CC BY-SA 4.0
-
-interface OnLoadAble {
-	onload: any;
-}
-function onload2promise<T extends OnLoadAble>(obj: T): Promise<T> {
-	return new Promise((resolve, reject) => {
-		obj.onload = () => resolve(obj);
-		obj.onerror = reject;
-	});
-}
-
-async function addImageProcess(src){
-    let img = new Image();
-    let imgpromise = onload2promise(img); // see comment of T S why you should do it this way.
-    img.src = src;
-    await imgpromise;
-    return this.height;
-}
-*/

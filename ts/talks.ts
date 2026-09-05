@@ -29,6 +29,8 @@ if (PAGE.parameters.has('refresh-times')) {
 }
 
 let Keywords: string[] = [];
+const LogicalAnd = '&';
+const WordSegments = /\b(\w+)['’]?(\w+)?\b/g; /** words, including contractions */
 const SortByOptions = ['Title', 'Last Play'];
 let SortBy = SortByOptions[0];
 let ReverseSort = false;
@@ -166,10 +168,12 @@ function shortTitle(title: string, maximumLength = 35) {
 
 /**
  * Given an AudioData record and an array of `keywords`, return true if any of
- * the record texts contain any of the `keywords`, else return false.
+ * the record texts contain any of the `keywords`, else return false. An exception is made if an ampersand appears in the 
  */
 function hasKeyword(record: T.AudioData, keywords: string[]) {
 	let hasKeyword = false;
+	const foundKeywords: string[] = [];
+	const findAllKeywords = keywords.includes(LogicalAnd);
 	if (keywords.length) {
 		let textLines: string[] = [];
 		textLines.push(record.title);
@@ -177,13 +181,21 @@ function hasKeyword(record: T.AudioData, keywords: string[]) {
 		textLines.push(record.ends);
 		for (const note of record.notes) textLines = textLines.concat(note.lines);
 		keywordLoop: for (let keyword of keywords) {
+			if (keyword == LogicalAnd) continue;
 			for (const textLine of textLines) {
 				const uniqueTextWords = uniqueWords(textLine);
 				for (const uniqueTextWord of uniqueTextWords) {
 					if (uniqueTextWord == keyword) {
 						hasKeyword = true;
-						break keywordLoop;
+						if (!findAllKeywords) break keywordLoop;
+						else {
+							if (!foundKeywords.includes(keyword)) {
+								foundKeywords.push(keyword);
+								if (foundKeywords.length == keywords.length - 1) break keywordLoop;
+							}
+						}
 					}
+					else hasKeyword = false;
 				}
 			}
 		}
@@ -207,16 +219,21 @@ function sortTalks() {
 /**
  * Given a text string containing words separated by boundaries (whitespace,
  * punctuation, etc.), return an array of unique words converted to lowercase.
+ * 
+ * If `andCharacter`, a special character representing logical "AND" (usually
+ * '&') is provided, it will be included as a special "word", indicating that
+ * logical "AND" searches will be performed.
  */
-function uniqueWords(wordString: string) {
+function uniqueWords(wordString: string, andCharacter = '') {
 	const uniqueWords: string[] = [];
 	wordString = wordString.toLowerCase();
-	const matches = wordString.match(/\b(\w*)\b/g);
+	const matches = wordString.match(WordSegments);
 	if (matches) {
 		for (let match of matches) {
 			if (match && !uniqueWords.includes(match)) uniqueWords.push(match);
 		}
 	}
+	if (andCharacter && wordString.includes(andCharacter)) uniqueWords.push(andCharacter);
 	return uniqueWords;
 }
 
@@ -233,7 +250,7 @@ function uniqueWords(wordString: string) {
  * and words including contractions that only start with alpha characters:
  * - /\b([A-Z]\w*)['’]?(\w+)?\b/gi
  */
-function wordSegments(text: string, regexp = /\b(\w+)['’]?(\w+)?\b/g) {
+function wordSegments(text: string, regexp = WordSegments) {
 	const segments: string[] = [];
 	let match;
 	let nextIndex = 0;
@@ -262,7 +279,7 @@ function selectionElement() {
 	const radioSpan = radioButtons.span;
 	const textEntry = new W.Text('Keywords: ', '');
 	textEntry.element.addEventListener('change', () => {
-		Keywords = uniqueWords(textEntry.element.value);
+		Keywords = uniqueWords(textEntry.element.value, LogicalAnd);
 		sortTalks();
 		listTalks(ListElement);
 	});

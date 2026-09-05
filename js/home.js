@@ -357,9 +357,9 @@ async function testTalkTime(testOutput) {
         'Philosophy of the Tao p1.m4a',
         'Education for Non-Entity.m4a',
         'Limits of Language.m4a',
+        'xxx',
         'Wisdom of the Ridiculous.m4a',
         'House Boat Summit.m4a',
-        // 'xxx'
     ];
     for (const fileName of fileNames) {
         try {

@@ -4,12 +4,21 @@ import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
 import * as A from './lib/play-audio.js';
+/**
+ * When searching for a proper noun (e.g., person or place name) entering the
+ * word as a Keyword with an apostrophe-s (e.g., "Washington's") will find and
+ * highlight both the name and the possessive ("Washington" and "Washington's").
+ * If you don't need to enter both. Entering only the non-possessive will only
+ * find and highlight the bare word. Note, however, that if you enter
+ * "Washington's" and check the "All" box, only entries that contain both
+ * "Washington" and "Washington's" will be found.
+ */
 const PAGE = new Page();
 if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
     window.history.back();
 }
-console.log('v26.09.04');
+console.log('v26.09.06');
 const AudioDataset = await Fetch.api(`${PAGE.backend}/media/talks`);
 if (AudioDataset === null) {
     window.alert(`AudioDatset is empty!`);
@@ -180,7 +189,7 @@ function hasKeywords(record, keywords, logicalAnd = false) {
         }
     }
     const noteText = noteLines.join(' ');
-    const noteWords = uniqueWords(noteText);
+    const noteWords = uniqueWords(noteText, true);
     for (const keyword of keywords) {
         if (logicalAnd && !noteWords.has(keyword))
             return false;
@@ -191,19 +200,38 @@ function hasKeywords(record, keywords, logicalAnd = false) {
 }
 /**
  * Given a text string containing words separated by boundaries (whitespace,
- * punctuation, etc.), return a Set of words converted to lowercase.
+ * punctuation, etc.), return a Set of words converted to lowercase. When
+ * `expand` is set to true, some words will be generated--for instance, words
+ * ending with "'s" will cause the word without the "'s" to be generated.
  */
-function uniqueWords(wordString) {
+function uniqueWords(wordString, expand = false) {
     const uniqueWords = new Set();
     wordString = wordString.toLowerCase();
     const matches = wordString.match(WordSegments);
     if (matches) {
-        for (const match of matches) {
-            if (match)
-                uniqueWords.add(match);
+        for (const word of matches) {
+            if (word) {
+                uniqueWords.add(word);
+                if (expand) {
+                    const additionalWords = expansions(word);
+                    for (const additionalWord of additionalWords)
+                        uniqueWords.add(additionalWord);
+                }
+            }
         }
     }
     return uniqueWords;
+}
+/**
+ * Given a word, return expansions or variations of the word. For example, the
+ * word "Jung's" might return ["Jung"]
+ */
+function expansions(word) {
+    let expansions = [];
+    const possessive = /\w+['’']s$/i;
+    if (possessive.test(word))
+        expansions.push(word.slice(0, -2));
+    return expansions;
 }
 /**
  * Given a text string, return an array of text segments, where the text is
@@ -263,7 +291,7 @@ function selectionElement() {
     const radioSpan = radioButtons.span;
     const textEntry = new W.Text('Keywords: ', '');
     textEntry.element.addEventListener('change', () => {
-        Keywords = uniqueWords(textEntry.element.value);
+        Keywords = uniqueWords(textEntry.element.value, true);
         sortTalks();
         listTalks(ListElement, Keywords, LogicalAnd);
     });

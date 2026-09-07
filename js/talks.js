@@ -4,15 +4,6 @@ import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
 import * as A from './lib/play-audio.js';
-/**
- * When searching for a proper noun (e.g., person or place name) entering the
- * word as a Keyword with an apostrophe-s (e.g., "Washington's") will find and
- * highlight both the name and the possessive ("Washington" and "Washington's").
- * If you don't need to enter both. Entering only the non-possessive will only
- * find and highlight the bare word. Note, however, that if you enter
- * "Washington's" and check the "All" box, only entries that contain both
- * "Washington" and "Washington's" will be found.
- */
 const PAGE = new Page();
 if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);
@@ -37,6 +28,7 @@ if (PAGE.parameters.has('refresh-times')) {
 let Keywords = new Set();
 let LogicalAnd = false;
 const WordSegments = /\b(\w+)['’]?(\w+)?\b/g; /** words, including contractions */
+const Possessive = /\w+['’']s$/i; /** a word that ends with apostrophe-S */
 const SortByOptions = ['Title', 'Last Play'];
 let SortBy = SortByOptions[0];
 let ReverseSort = false;
@@ -142,32 +134,14 @@ function highlightKeywords(textLines, keywords) {
     for (const textLine of textLines) {
         const segments = wordSegments(textLine);
         for (let i = 0; i < segments.length; i += 1) {
-            if (keywords.has(segments[i].toLowerCase()))
+            const segment = segments[i].toLowerCase();
+            const nonPossessive = (Possessive.test(segment)) ? segment.slice(0, -2) : '';
+            if (keywords.has(segment) || keywords.has(nonPossessive))
                 segments[i] = `==${segments[i]}==`;
         }
         highlightedTextLines.push(segments.join(''));
     }
     return highlightedTextLines;
-}
-/**
- * Given a `title` text string and a desired `maximumLength`, return a shortened
- * version of the title with an ellipsis indicating characters removed.
- * Characters are typically removed from the end of the title string, but when
- * the title ends with a part number (e.g., "p1"), it is preserved and
- * characters preceding the part number are removed instead.
- */
-function shortTitle(title, maximumLength = 35) {
-    let shortTitle = title.trim();
-    const ellipsis = '...';
-    const maximum = maximumLength - ellipsis.length;
-    if (title.length > maximum) {
-        const matches = title.match(/(.*)\s+(p\d+)$/i);
-        if (matches)
-            shortTitle = matches[1].slice(0, maximum) + ellipsis + matches[2];
-        else
-            shortTitle = title.slice(0, maximum).trim() + ellipsis;
-    }
-    return shortTitle;
 }
 /**
  * Given an AudioData record, an array of `keywords`, and the `logicalAnd`
@@ -228,8 +202,7 @@ function uniqueWords(wordString, expand = false) {
  */
 function expansions(word) {
     let expansions = [];
-    const possessive = /\w+['’']s$/i;
-    if (possessive.test(word))
+    if (Possessive.test(word))
         expansions.push(word.slice(0, -2));
     return expansions;
 }
@@ -263,6 +236,26 @@ function wordSegments(text, regexp = WordSegments) {
     return segments;
 }
 /**
+ * Given a `title` text string and a desired `maximumLength`, return a shortened
+ * version of the title with an ellipsis indicating characters removed.
+ * Characters are typically removed from the end of the title string, but when
+ * the title ends with a part number (e.g., "p1"), it is preserved and
+ * characters preceding the part number are removed instead.
+ */
+function shortTitle(title, maximumLength = 35) {
+    let shortTitle = title.trim();
+    const ellipsis = '...';
+    const maximum = maximumLength - ellipsis.length;
+    if (title.length > maximum) {
+        const matches = title.match(/(.*)\s+(p\d+)$/i);
+        if (matches)
+            shortTitle = matches[1].slice(0, maximum) + ellipsis + matches[2];
+        else
+            shortTitle = title.slice(0, maximum).trim() + ellipsis;
+    }
+    return shortTitle;
+}
+/**
  * Sort talk records based on `SortBy` and `ReverseSort` options.
  */
 function sortTalks() {
@@ -291,7 +284,7 @@ function selectionElement() {
     const radioSpan = radioButtons.span;
     const textEntry = new W.Text('Keywords: ', '');
     textEntry.element.addEventListener('change', () => {
-        Keywords = uniqueWords(textEntry.element.value, true);
+        Keywords = uniqueWords(textEntry.element.value);
         sortTalks();
         listTalks(ListElement, Keywords, LogicalAnd);
     });

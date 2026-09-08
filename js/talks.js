@@ -4,6 +4,13 @@ import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
 import * as A from './lib/play-audio.js';
+/**
+ * When the modal DetailElement is displayed, certain fields should become
+ * clickable (this should be indicated by some subtle style). These are the
+ * "static" fields. On click, open a new window or just make the field editable.
+ * On changes, call an API to update the JSON value and upon update confirmation
+ * update the in-memory value.
+ */
 const PAGE = new Page();
 if (!PAGE.backendAvailable) {
     window.alert(`Cannot connect to: ${PAGE.backend}`);

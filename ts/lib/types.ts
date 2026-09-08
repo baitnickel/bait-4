@@ -520,7 +520,6 @@ export type AudioData = {
 	playCount: number;
 	writers: string;
 	performers: string;
-	// notes: string;
 	notes: Section[];
 	begins: string; /** typically for spoken word audio */
 	ends: string; /** typically for spoken word audio */
@@ -530,7 +529,20 @@ export type AudioDataset = {
 	data: AudioData[];
 }
 
-
-// export type KeyedAudioData = { key: string } & AudioFileData;
-// export type AudioDB = AudioMetadata & { audioData: KeyedAudioData[] };
-// export type AudioMapDB = AudioMetadata & { audioData: Map<string, AudioFileData> };
+/**
+ * Static Talk data will be set on the backend and used to fill in details in
+ * the AudioDataset structure.
+ */
+export type TalkDetails = {
+	title: string;
+	type: string; /** e.g., seminar, lecture, program, interview */
+	duration: number; /** number of seconds */
+	categories: string[];
+	performers: string;
+	begins: string;
+	ends: string;
+}
+export type StaticTalkData = {
+	metadata: AudioMetadata;
+	details: TalkDetails[];
+}

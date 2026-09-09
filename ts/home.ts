@@ -91,7 +91,7 @@ export function render() {
 		testers.push( { name: 'Times', function: testTimes } );
 		testers.push( { name: 'UTC', function: testUTC } );
 		testers.push( { name: 'Audio', function: testAudio } );
-		testers.push( { name: 'Talk Time', function: testTalkTime } );
+		testers.push( { name: 'Talk Time', function: testTalkTimes } );
 		// testers.push( { name: 'IP', function: testIP } );
 		testers.push( { name: 'Dialog', function: testDialog } );
 		// testers.push( { name: 'Radio', function: testRadio } );
@@ -389,29 +389,63 @@ function testAudio(testOutput: HTMLDivElement) {
 	testOutput.append(paragraph);
 }
 
-async function testTalkTime(testOutput: HTMLDivElement) {
+/**
+ * Get durations for each audio file in a `MediaFolder`, serialize the data as a
+ * JSON structure, and post it to the backend via an API.
+ */
+async function testTalkTimes(testOutput: HTMLDivElement) {
 	const MediaFolder = '../media/audio/watts';
 	const paragraph = document.createElement('p');
-	const output: string[] = [];
+	const mediaDurations: T.MediaDuration[] = [];
+	const uri = 'media/files?subpath=audio/watts'
+	const audioFiles = await Fetch.api<T.File[]>(`${PAGE.backend}/${uri}`);
+
+	// const fileNames: string[] = [];
+	// if (audioFiles !== null) {
+	// 	for (const audioFile of audioFiles) {
+	// 		if (T.AudioExtensions.includes(audioFile.extension.slice(1).toLowerCase())) {
+	// 			fileNames.push(audioFile.base);
+	// 		}
+	// 	}
+	// }
 	const fileNames = [
 		'Nature of Consciousness p1.mp3',
 		'Philosophy of the Tao p1.m4a',
 		'Education for Non-Entity.m4a',
 		'Limits of Language.m4a',
-		'xxx',
 		'Wisdom of the Ridiculous.m4a',
 		'House Boat Summit.m4a',
 	];
+
 	for (const fileName of fileNames) {
-		try {
-			const audio = await A.LoadAudioData(`${MediaFolder}/${fileName}`);
-			output.push(`${fileName}\t${A.FormatTime(audio.duration)}`);
-		}
-		catch (error) { console.error(error) }
+	// if (audioFiles !== null) {
+	// 	for (const audioFile of audioFiles) {
+	// 		if (T.AudioExtensions.includes(audioFile.extension.slice(1).toLowerCase())) {
+	// 			const fileName = audioFile.base;
+				try {
+					const audio = await A.LoadAudioData(`${MediaFolder}/${fileName}`);
+					mediaDurations.push({ fileName: fileName, seconds: Math.round(audio.duration) });
+				}
+				catch (error) { console.error(error) }
+		// 	}
+		// }
 	}
-	console.log(`${output.length} entries found`);
-	paragraph.innerHTML = output.join('<br>');
-	testOutput.append(paragraph);
+	
+	console.log(`${mediaDurations.length} entries found`);
+
+	// const MediaImages = await Fetch.api<T.MediaImageData[]>(`${PAGE.backend}/media/images`);
+	// const Albums = mediaImagesMap(MediaImages);
+	
+	fetch(`${PAGE.backend}/media/durations`, {
+		method: "POST",
+		body: JSON.stringify(mediaDurations),
+		headers: { "Content-type": "application/json; charset=UTF-8" },
+	})
+	.then((response) => console.log(`API Status: ${response.status}`));
+
+
+	// paragraph.innerHTML = output.join('<br>');
+	// testOutput.append(paragraph);
 }
 
 

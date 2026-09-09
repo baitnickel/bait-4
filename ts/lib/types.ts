@@ -529,6 +529,11 @@ export type AudioDataset = {
 	data: AudioData[];
 }
 
+export type MediaDuration = {
+	fileName: string,
+	seconds: number
+};
+
 /**
  * Static Talk data will be set on the backend and used to fill in details in
  * the AudioDataset structure.

@@ -70,6 +70,20 @@ export function LoadAudioData(uri: string) {
 	});
 }
 
+export function AudioDuration(uri: string) {
+	return new Promise<number>((resolve) => {
+		const audio = new Audio();
+		audio.preload = 'metadata';
+		audio.src = uri;
+		audio.onloadedmetadata = () => {
+			const duration = audio.duration;
+			audio.remove();
+			resolve(duration);
+		}
+		audio.onerror = () => resolve(0);
+	});
+}
+
 /**
  * Given a number of seconds, return a formatted time string ('HH:MM:SS').
  * Return an empty string if seconds is a negative number.

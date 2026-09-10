@@ -348,58 +348,45 @@ function testAudio(testOutput) {
     paragraph.innerHTML = output.join('<br>');
     testOutput.append(paragraph);
 }
+// const fileNames = [
+// 	'Nature of Consciousness p1.mp3',
+// 	'Philosophy of the Tao p1.m4a',
+// 	'Education for Non-Entity.m4a',
+// 	'Limits of Language.m4a',
+// 	'Wisdom of the Ridiculous.m4a',
+// 	'House Boat Summit.m4a',
+// ];
 /**
  * Get durations for each audio file in a `MediaFolder`, serialize the data as a
  * JSON structure, and post it to the backend via an API.
  */
 async function testTalkTimes(testOutput) {
     const MediaFolder = '../media/audio/watts';
-    const paragraph = document.createElement('p');
     const mediaDurations = [];
     const uri = 'media/files?subpath=audio/watts';
     const audioFiles = await Fetch.api(`${PAGE.backend}/${uri}`);
-    // const fileNames: string[] = [];
-    // if (audioFiles !== null) {
-    // 	for (const audioFile of audioFiles) {
-    // 		if (T.AudioExtensions.includes(audioFile.extension.slice(1).toLowerCase())) {
-    // 			fileNames.push(audioFile.base);
-    // 		}
-    // 	}
-    // }
-    const fileNames = [
-        'Nature of Consciousness p1.mp3',
-        'Philosophy of the Tao p1.m4a',
-        'Education for Non-Entity.m4a',
-        'Limits of Language.m4a',
-        'Wisdom of the Ridiculous.m4a',
-        'House Boat Summit.m4a',
-    ];
-    for (const fileName of fileNames) {
-        // if (audioFiles !== null) {
-        // 	for (const audioFile of audioFiles) {
-        // 		if (T.AudioExtensions.includes(audioFile.extension.slice(1).toLowerCase())) {
-        // 			const fileName = audioFile.base;
-        try {
-            const audio = await A.LoadAudioData(`${MediaFolder}/${fileName}`);
-            mediaDurations.push({ fileName: fileName, seconds: Math.round(audio.duration) });
+    if (audioFiles === null)
+        console.error(`/media/files API returned no files!`);
+    else {
+        let counter = 0;
+        const limit = 20;
+        for (const audioFile of audioFiles) {
+            if (!T.AudioExtensions.includes(audioFile.extension.slice(1).toLowerCase()))
+                continue;
+            const duration = await A.AudioDuration(`${MediaFolder}/${audioFile.base}`);
+            mediaDurations.push({ fileName: audioFile.name, seconds: Math.round(duration) });
+            counter += 1;
+            if (counter % limit == 0)
+                console.log(`${counter} of ${audioFiles.length} files processed`);
         }
-        catch (error) {
-            console.error(error);
-        }
-        // 	}
-        // }
+        console.log(`${mediaDurations.length} files processed`);
+        fetch(`${PAGE.backend}/media/durations`, {
+            method: "POST",
+            body: JSON.stringify(mediaDurations),
+            headers: { "Content-type": "application/json; charset=UTF-8" },
+        })
+            .then((response) => console.log(`API Status: ${response.status}`));
     }
-    console.log(`${mediaDurations.length} entries found`);
-    // const MediaImages = await Fetch.api<T.MediaImageData[]>(`${PAGE.backend}/media/images`);
-    // const Albums = mediaImagesMap(MediaImages);
-    fetch(`${PAGE.backend}/media/durations`, {
-        method: "POST",
-        body: JSON.stringify(mediaDurations),
-        headers: { "Content-type": "application/json; charset=UTF-8" },
-    })
-        .then((response) => console.log(`API Status: ${response.status}`));
-    // paragraph.innerHTML = output.join('<br>');
-    // testOutput.append(paragraph);
 }
 function testIP(testOutput) {
     const IPList = [];

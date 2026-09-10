@@ -61,6 +61,19 @@ export function LoadAudioData(uri) {
         // audio.onerror = () => reject(new Error(`Error loading audio: ${uri}`)); // not well-handled by caller
     });
 }
+export function AudioDuration(uri) {
+    return new Promise((resolve) => {
+        const audio = new Audio();
+        audio.preload = 'metadata';
+        audio.src = uri;
+        audio.onloadedmetadata = () => {
+            const duration = audio.duration;
+            audio.remove();
+            resolve(duration);
+        };
+        audio.onerror = () => resolve(0);
+    });
+}
 /**
  * Given a number of seconds, return a formatted time string ('HH:MM:SS').
  * Return an empty string if seconds is a negative number.

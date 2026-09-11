@@ -135,6 +135,27 @@ export async function api<Type>(uri: string, body: any = null, method: string = 
 	else data = await response.json();
 	return data;
 }
+export async function apiGet<Type>(uri: string, body: any = null) {
+	if (body) body = JSON.stringify(body);
+	const response = await fetch(uri, {
+		method: 'GET',
+		body: body,
+		headers: { "Content-type": "application/json; charset=UTF-8" }
+	});
+	if (!response.ok) return null;
+	else {
+		const data: Type = await response.json();
+		return data;
+	}
+}
+export async function apiPost(uri: string, body: any) {
+	const response = await fetch(uri, {
+		method: 'POST',
+		body: JSON.stringify(body),
+		headers: { "Content-type": "application/json; charset=UTF-8" }
+	});
+	return response;
+}
 
 /**
  * Given a Map with string keys of `Type`, convert its keys to uppercase, if

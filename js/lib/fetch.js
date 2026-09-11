@@ -142,6 +142,29 @@ export async function api(uri, body = null, method = '') {
         data = await response.json();
     return data;
 }
+export async function apiGet(uri, body = null) {
+    if (body)
+        body = JSON.stringify(body);
+    const response = await fetch(uri, {
+        method: 'GET',
+        body: body,
+        headers: { "Content-type": "application/json; charset=UTF-8" }
+    });
+    if (!response.ok)
+        return null;
+    else {
+        const data = await response.json();
+        return data;
+    }
+}
+export async function apiPost(uri, body) {
+    const response = await fetch(uri, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: { "Content-type": "application/json; charset=UTF-8" }
+    });
+    return response;
+}
 /**
  * Given a Map with string keys of `Type`, convert its keys to uppercase, if
  * necessary. The Map is modified in place, and the order of the Map entries may

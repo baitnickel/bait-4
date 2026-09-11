@@ -363,15 +363,15 @@ function testAudio(testOutput) {
 async function testTalkTimes(testOutput) {
     const MediaFolder = '../media/audio/watts';
     const mediaDurations = [];
-    const uri = 'media/files?subpath=audio/watts';
-    const audioFiles = await Fetch.api(`${PAGE.backend}/${uri}`);
+    const uri = `${PAGE.backend}/media/files?subpath=audio/watts`;
+    const audioFiles = await Fetch.apiGet(uri);
     if (audioFiles === null)
         console.error(`/media/files API returned no files!`);
     else {
         let counter = 0;
         const limit = 20;
         for (const audioFile of audioFiles) {
-            if (!T.AudioExtensions.includes(audioFile.extension.slice(1).toLowerCase()))
+            if (!T.IsAudioFile(audioFile.base))
                 continue;
             const duration = await A.AudioDuration(`${MediaFolder}/${audioFile.base}`);
             mediaDurations.push({ fileName: audioFile.name, seconds: Math.round(duration) });
@@ -380,12 +380,13 @@ async function testTalkTimes(testOutput) {
                 console.log(`${counter} of ${audioFiles.length} files processed`);
         }
         console.log(`${mediaDurations.length} files processed`);
-        fetch(`${PAGE.backend}/media/durations`, {
-            method: "POST",
-            body: JSON.stringify(mediaDurations),
-            headers: { "Content-type": "application/json; charset=UTF-8" },
-        })
-            .then((response) => console.log(`API Status: ${response.status}`));
+        if (mediaDurations.length) {
+            const uri = `${PAGE.backend}/media/durations?target=watts/durations.json`;
+            const response = await Fetch.apiPost(uri, mediaDurations);
+            console.log(`API Status: ${response.status}`);
+        }
+        else
+            console.log('no durations found');
     }
 }
 function testIP(testOutput) {

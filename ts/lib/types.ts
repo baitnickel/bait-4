@@ -51,18 +51,36 @@ export function ObjectKey(properties: string[]) {
 /**
  * File types (based on extensions).
  */
-const MarkdownExtension = /\.md$/i;
-const JsonExtension = /\.json$/i;
-const YamlExtension = /\.ya?ml$/i;
+export const Extension = /\.[^\.]+$/;
+export const ImageExtensions = ['bmp','gif','heic','jpeg','jpg','png','svg','tiff']; // deprecate export?
+export const AudioExtensions = ['aac','aiff','alac','au','flac','m4a','mp3','wav'];  // deprecate export?
+const VideoExtensions = ['m4v','m4p','m4v','mov','mp4','mpeg','mpg','mpv','qt','wmv'];
+const MarkdownExtensions = ['md'];
+const JsonExtensions = ['json'];
+const YamlExtensions = ['yml','yaml'];
 
+function FileType(pathName: string, extensions: string[]) {
+	const extensionDot = pathName.search(Extension);
+	const extension = (extensionDot >= 0) ? pathName.slice(extensionDot + 1) : '';
+	return (extensions.includes(extension.toLowerCase()));
+}
+export function IsImageFile(pathName: string) {
+	return FileType(pathName, ImageExtensions);
+}
+export function IsAudioFile(pathName: string) {
+	return FileType(pathName, AudioExtensions);
+}
+export function IsVideoFile(pathName: string) {
+	return FileType(pathName, VideoExtensions);
+}
 export function IsMarkdownFile(pathName: string) {
-	return MarkdownExtension.test(pathName);
+	return FileType(pathName, MarkdownExtensions);
 }
 export function IsJsonFile(pathName: string) {
-	return JsonExtension.test(pathName);
+	return FileType(pathName, JsonExtensions);
 }
 export function IsYamlFile(pathName: string) {
-	return YamlExtension.test(pathName);
+	return FileType(pathName, YamlExtensions);
 }
 
 /**
@@ -172,6 +190,8 @@ export function Dollars(number: number) {
 // 	text: string;
 // }
 
+// File.created, File.modified, File.accessed--all must be numbers (milliseconds).
+// Use primitives for any data that may be converted to JSON!
 /**
  * For Stats details, see:
  * https://nodejs.org/docs/latest-v16.x/api/fs.html#class-fsstats
@@ -369,7 +389,7 @@ export type Radical = {
 
 type Images = {
 	file: string;
-	created: string; /* Date */
+	created: string; /* Date */ // should be number, to be consistent
 }
 
 type Journal /* JournalEntry */ = { /* keyed by uri */
@@ -467,11 +487,6 @@ export type ThreadPassage = {
 	tag: string;
 	text: string;
 }
-
-/** for Image, Audio, Video Media */
-export const ImageExtensions = ['bmp','gif','heic','jpeg','jpg','png','svg','tiff'];
-export const AudioExtensions = ['aac','aiff','alac','au','flac','m4a','mp3','wav'];
-export const VideoExtensions = ['m4v','m4p','m4v','mov','mp4','mpeg','mpg','mpv','qt','wmv',];
 
 export type AudioTrack = {
 	file: string;

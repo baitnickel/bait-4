@@ -52,17 +52,35 @@ export function ObjectKey(properties) {
 /**
  * File types (based on extensions).
  */
-const MarkdownExtension = /\.md$/i;
-const JsonExtension = /\.json$/i;
-const YamlExtension = /\.ya?ml$/i;
+export const Extension = /\.[^\.]+$/;
+export const ImageExtensions = ['bmp', 'gif', 'heic', 'jpeg', 'jpg', 'png', 'svg', 'tiff']; // deprecate export?
+export const AudioExtensions = ['aac', 'aiff', 'alac', 'au', 'flac', 'm4a', 'mp3', 'wav']; // deprecate export?
+const VideoExtensions = ['m4v', 'm4p', 'm4v', 'mov', 'mp4', 'mpeg', 'mpg', 'mpv', 'qt', 'wmv'];
+const MarkdownExtensions = ['md'];
+const JsonExtensions = ['json'];
+const YamlExtensions = ['yml', 'yaml'];
+function FileType(pathName, extensions) {
+    const extensionDot = pathName.search(Extension);
+    const extension = (extensionDot >= 0) ? pathName.slice(extensionDot + 1) : '';
+    return (extensions.includes(extension.toLowerCase()));
+}
+export function IsImageFile(pathName) {
+    return FileType(pathName, ImageExtensions);
+}
+export function IsAudioFile(pathName) {
+    return FileType(pathName, AudioExtensions);
+}
+export function IsVideoFile(pathName) {
+    return FileType(pathName, VideoExtensions);
+}
 export function IsMarkdownFile(pathName) {
-    return MarkdownExtension.test(pathName);
+    return FileType(pathName, MarkdownExtensions);
 }
 export function IsJsonFile(pathName) {
-    return JsonExtension.test(pathName);
+    return FileType(pathName, JsonExtensions);
 }
 export function IsYamlFile(pathName) {
-    return YamlExtension.test(pathName);
+    return FileType(pathName, YamlExtensions);
 }
 /**
  * Given a `date` (and an optional `format`) return a string representing the
@@ -183,7 +201,3 @@ export function Dollars(number) {
     return '$' + number.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 export const EventTypes = ['All', 'Historical', 'Personal', 'Private'];
-/** for Image, Audio, Video Media */
-export const ImageExtensions = ['bmp', 'gif', 'heic', 'jpeg', 'jpg', 'png', 'svg', 'tiff'];
-export const AudioExtensions = ['aac', 'aiff', 'alac', 'au', 'flac', 'm4a', 'mp3', 'wav'];
-export const VideoExtensions = ['m4v', 'm4p', 'm4v', 'mov', 'mp4', 'mpeg', 'mpg', 'mpv', 'qt', 'wmv',];

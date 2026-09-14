@@ -306,9 +306,7 @@ function sortTalks(columnID: string) {
 		return result;
 	});
 	SortColumn = columnID;
-	listTalks(ListElement, Keywords, LogicalAnd);  
-
-	console.log(`Records 0: ${Records[0].title} SortColumn: ${SortColumn}, ReverseSort: ${ReverseSort}`);
+	listTalks(ListElement, Keywords, LogicalAnd);
 }
 
 function selectionElement() {

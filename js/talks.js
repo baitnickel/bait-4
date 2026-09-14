@@ -304,7 +304,6 @@ function sortTalks(columnID) {
     });
     SortColumn = columnID;
     listTalks(ListElement, Keywords, LogicalAnd);
-    console.log(`Records 0: ${Records[0].title} SortColumn: ${SortColumn}, ReverseSort: ${ReverseSort}`);
 }
 function selectionElement() {
     const selectionElement = document.createElement('div');

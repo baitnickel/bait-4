@@ -36,9 +36,12 @@ let Keywords = new Set();
 let LogicalAnd = false;
 const WordSegments = /\b(\w+)['’]?(\w+)?\b/g; /** words, including contractions */
 const Possessive = /\w+['’']s$/i; /** a word that ends with apostrophe-S */
-const SortByOptions = ['Title', 'Last Play'];
-let SortBy = SortByOptions[0];
-let ReverseSort = false;
+// old
+// const SortByOptions = ['Title', 'Last Play'];
+// let SortBy = SortByOptions[0];
+let ReverseSort = true;
+// new
+let SortColumn = 'COLUMN-0';
 const SelectionElement = selectionElement();
 SelectionElement.id = 'header-options';
 const ListElement = document.createElement('div');
@@ -49,16 +52,16 @@ export function render() {
     PAGE.setTitle('Talks Dataset');
     PAGE.header.append(SelectionElement);
     PAGE.content.append(ListElement);
-    sortTalks();
-    listTalks(ListElement, Keywords, LogicalAnd);
+    sortTalks(SortColumn);
+    // listTalks(ListElement, Keywords, LogicalAnd);  
 }
 function listTalks(division, keywords, logicalAnd) {
     division.innerHTML = '';
-    sortTalks();
+    // sortTalks();
     const table = new W.Table(['Title', 'Time', 'Plays', 'Last Play']);
     let i = 0;
     for (const record of Records) {
-        if (!keywords.size || hasKeywords(record, keywords, logicalAnd)) {
+        if (!keywords.size || hasKeywords(record, keywords, logicalAnd)) { /** filter - record must have keywords */
             const title = shortTitle(record.title);
             const lastPlayedDate = new Date(record.lastPlayed);
             table.addRow();
@@ -76,6 +79,12 @@ function listTalks(division, keywords, logicalAnd) {
     }
     table.fillTable(table.element);
     division.append(table.element);
+    for (let headingCell of table.headingCells) {
+        headingCell.addEventListener('click', (e) => {
+            const target = e.target;
+            sortTalks(target.id);
+        });
+    }
 }
 function showRecordDetails(index) {
     const record = Records[index];
@@ -265,58 +274,78 @@ function shortTitle(title, maximumLength = 35) {
 /**
  * Sort talk records based on `SortBy` and `ReverseSort` options.
  */
-function sortTalks() {
+// function sortTalks() {
+// 	Records.sort((a,b) => {
+// 		let result = 0;
+// 		if (SortBy == 'Last Play') result = a.lastPlayed - b.lastPlayed;
+// 		else result = a.title.localeCompare(b.title); /** default: sort by title */
+// 		if (ReverseSort) result *= -1;
+// 		return result;
+// 	});
+// }
+function sortTalks(columnID) {
+    if (columnID == SortColumn)
+        ReverseSort = !ReverseSort; /** toggle sort direction with each repeated click */
+    else
+        ReverseSort = false;
     Records.sort((a, b) => {
         let result = 0;
-        if (SortBy == 'Last Play')
+        if (columnID == 'COLUMN-1')
+            result = a.duration - b.duration;
+        else if (columnID == 'COLUMN-2')
+            result = a.playCount - b.playCount;
+        else if (columnID == 'COLUMN-3')
             result = a.lastPlayed - b.lastPlayed;
         else
-            result = a.title.localeCompare(b.title); /** default: sort by title */
+            result = a.title.toLowerCase().localeCompare(b.title.toLowerCase()); /** default: sort by title (COLUMN-0) */
         if (ReverseSort)
             result *= -1;
         return result;
     });
+    SortColumn = columnID;
+    listTalks(ListElement, Keywords, LogicalAnd);
+    console.log(`Records 0: ${Records[0].title} SortColumn: ${SortColumn}, ReverseSort: ${ReverseSort}`);
 }
 function selectionElement() {
     const selectionElement = document.createElement('div');
-    const sortByLabel = document.createTextNode('\u00a0\u00a0\u00a0\u00a0Sorted By: ');
-    const radioButtons = new W.RadioGroup('', SortByOptions, 'widget-radio-inline');
-    for (const inputElement of radioButtons.inputElements) {
-        inputElement.addEventListener('click', () => {
-            SortBy = radioButtons.value;
-            sortTalks();
-            listTalks(ListElement, Keywords, LogicalAnd);
-        });
-    }
-    const radioSpan = radioButtons.span;
+    // const sortByLabel = document.createTextNode('\u00a0\u00a0\u00a0\u00a0Sorted By: ');
+    // const radioButtons = new W.RadioGroup('', SortByOptions, 'widget-radio-inline');
+    // for (const inputElement of radioButtons.inputElements) {
+    // 	inputElement.addEventListener('click', () => {
+    // 		SortBy = radioButtons.value;
+    // 		sortTalks();
+    // 		listTalks(ListElement, Keywords, LogicalAnd);
+    // 	});
+    // }
+    // const radioSpan = radioButtons.span;
     const textEntry = new W.Text('Keywords: ', '');
     textEntry.element.addEventListener('change', () => {
         Keywords = uniqueWords(textEntry.element.value);
-        sortTalks();
+        // sortTalks();
         listTalks(ListElement, Keywords, LogicalAnd);
     });
     const logicalAnd = new W.Checkbox('All: ', false);
     logicalAnd.label.classList.add('talk-button-indent');
     logicalAnd.element.addEventListener('change', () => {
         LogicalAnd = logicalAnd.element.checked;
-        sortTalks();
+        // sortTalks();
         listTalks(ListElement, Keywords, LogicalAnd);
     });
-    const reverseSort = new W.Checkbox('Reversed: ', false);
-    reverseSort.label.classList.add('talk-button-indent');
-    reverseSort.element.addEventListener('change', () => {
-        ReverseSort = reverseSort.element.checked;
-        sortTalks();
-        listTalks(ListElement, Keywords, LogicalAnd);
-    });
+    // const reverseSort = new W.Checkbox('Reversed: ', false);
+    // reverseSort.label.classList.add('talk-button-indent');
+    // reverseSort.element.addEventListener('change', () => {
+    // 	ReverseSort = reverseSort.element.checked;
+    // 	sortTalks();
+    // 	listTalks(ListElement, Keywords, LogicalAnd);
+    // });
     selectionElement.append(textEntry.label);
     selectionElement.append(textEntry.element);
     selectionElement.append(logicalAnd.label);
     selectionElement.append(logicalAnd.element);
-    selectionElement.append(sortByLabel);
-    selectionElement.append(radioSpan);
-    selectionElement.append(reverseSort.label);
-    selectionElement.append(reverseSort.element);
+    // selectionElement.append(sortByLabel);
+    // selectionElement.append(radioSpan);
+    // selectionElement.append(reverseSort.label);
+    // selectionElement.append(reverseSort.element);
     return selectionElement;
 }
 // not yet supported

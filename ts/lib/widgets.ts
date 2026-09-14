@@ -322,6 +322,8 @@ export class Dialog {
 export class Table {
 	element: HTMLTableElement;
 	headingValues: string[]; /** values comprising the header row */
+	headingCells: HTMLTableCellElement[]; /** header cells (client may listen for click events, etc.) */
+	headingBaseID: string; /** base ID assigned to heading cells (will become <base>-0, <base>-1 ...) */
 	rowHeadings: number; /** number of cells at beginning of rows to be row headings */
 	row: HTMLTableRowElement|null; /** current row element (set after addRow) */
 	private rows: HTMLTableRowElement[];
@@ -329,6 +331,8 @@ export class Table {
 	constructor (headingValues: string[], rowHeadings = 0) {
 		this.element = document.createElement('table');
 		this.headingValues = headingValues;
+		this.headingCells = [];
+		this.headingBaseID = 'COLUMN';
 		this.rowHeadings = rowHeadings;
 		this.row = null;
 		this.rows = [];
@@ -378,13 +382,22 @@ export class Table {
 	 * optional, and if it is not provided, a new table will be created and may
 	 * be referenced in the object's `element` property. Set the `html` argument
 	 * to true if the any of the heading texts contain HTML.
+	 * 
+	 * IDs are assigned to heading cells here, using the value of
+	 * this.headingBaseID as a base, followed by a hyphen and the column number
+	 * beginning with 0 (e.g., 'COLUMN-0', 'COLUMN-1', etc.). This facilitates
+	 * adding event listeners to column heading names (for sorting, etc.).
 	 */
 	fillTable(table: HTMLTableElement|null = null, html = false) {
 		if (table === null) table = this.element;
 		table.innerHTML = '';
 		const row = document.createElement('tr');
+		let nextID = 0;
 		for (const headingValue of this.headingValues) {
 			const cell = document.createElement('th');
+			cell.id = `${this.headingBaseID}-${nextID}`;
+			nextID += 1;
+			this.headingCells.push(cell);
 			if (html) cell.innerHTML = headingValue;
 			else cell.innerText = headingValue;
 			row.append(cell);

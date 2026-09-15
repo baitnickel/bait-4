@@ -494,30 +494,28 @@ dialog.threads-dialog button {
 	height: 75%;
 }
 
-.talk-dialog-exit {
+.talk-dialog-location, .talk-dialog-exit {
 	position: absolute;
 	top: 3%;
-	right: 3%;
 	z-index: 2; /* force buttons to show up on top of images */
 	background: none;
 	border: none;
 	/* font-family: serif;  ... seems to make no difference */
-	font-size: 1.25rem;  /* 4rem; */
-	/* transform: translateY(-50%); */ /* push buttons up a bit to exactly dead center of vertical (Y) axis */
+	font-size: 1.5rem;  /* 4rem; */
 	color: black;
 	cursor: pointer; /* to support clicking on buttons */
 	border-radius: .50rem;
 	padding: 0;
-	/* background-color: rgba(9, 9, 9, .1); */ /* dark and mostly transparent background color */
 }
+.talk-dialog-location { right: 50%; }
+.talk-dialog-exit { right: 3%; }
 
+.talk-column {
+	cursor: pointer; /* to support clicking on text */
+}
 .talk-title {
-	font-family: sans-serif;
-	font-size: .75rem;
-	color: black;
-	background: none;
-	border: none;
-	cursor: pointer; /* to support clicking on buttons */
+	color: blue;
+	cursor: pointer; /* to support clicking on text */
 }
 
 .talk-detail {

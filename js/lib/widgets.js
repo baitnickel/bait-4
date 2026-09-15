@@ -369,7 +369,7 @@ export class Table {
         let nextID = 0;
         for (const headingValue of this.headingValues) {
             const cell = document.createElement('th');
-            cell.id = `${this.headingBaseID}-${nextID}`;
+            cell.id = `${this.headingBaseID}-${nextID}`; /** must end with "-id" */
             nextID += 1;
             this.headingCells.push(cell);
             if (html)

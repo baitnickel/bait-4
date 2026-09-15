@@ -41,12 +41,9 @@ let LogicalAnd = false;
 const WordSegments = /\b(\w+)['’]?(\w+)?\b/g; /** words, including contractions */
 const Possessive = /\w+['’']s$/i; /** a word that ends with apostrophe-S */
 
-// old
-// const SortByOptions = ['Title', 'Last Play'];
-// let SortBy = SortByOptions[0];
-let ReverseSort = true;
-// new
-let SortColumn = 'COLUMN-0';
+const Columns = ['Title', 'Time', 'Plays', 'Last Play'];
+let SortColumn = '';
+let ReverseSort = false;
 
 const SelectionElement = selectionElement();
 SelectionElement.id = 'header-options';
@@ -55,18 +52,23 @@ ListElement.className = 'talks-list-element';
 const DetailsElement = document.createElement('div');
 DetailsElement.className = 'talks-details-element';
 
+/** needs more testing: */
+// const PopupMessage = document.createElement('dialog');
+// PopupMessage.className = 'talk-popup-message';
+// PopupMessage.innerHTML = '';
+
 export function render() {
 	PAGE.setTitle('Talks Dataset');
 	PAGE.header.append(SelectionElement);
 	PAGE.content.append(ListElement);
-	sortTalks(SortColumn);
-	// listTalks(ListElement, Keywords, LogicalAnd);  
+	sortTalks();
+	listTalks(ListElement, Keywords, LogicalAnd);  
 }
 
 function listTalks(division: HTMLDivElement, keywords: Set<string>, logicalAnd: boolean) {
 	division.innerHTML = '';
 	// sortTalks();
-	const table = new W.Table(['Title', 'Time', 'Plays', 'Last Play']);
+	const table = new W.Table(Columns);
 	let i = 0;
 	for (const record of Records) {
 		if (!keywords.size || hasKeywords(record, keywords, logicalAnd)) { /** filter - record must have keywords */
@@ -74,8 +76,9 @@ function listTalks(division: HTMLDivElement, keywords: Set<string>, logicalAnd: 
 			const lastPlayedDate = new Date(record.lastPlayed);
 
 			table.addRow();
-			const titleHTML = `<input type='button' value='${title}' class='talk-title' id='${i}' />`;
-			const titleCell = table.addCell(titleHTML, '', true);
+			const titleCell = table.addCell(title);
+			titleCell.id = `${i}`;
+			titleCell.classList.add('talk-title');
 			table.addCell(A.FormatTime(record.duration));
 			table.addCell(record.playCount.toString());
 			table.addCell(T.DateString(lastPlayedDate, 14));
@@ -91,11 +94,26 @@ function listTalks(division: HTMLDivElement, keywords: Set<string>, logicalAnd: 
 	division.append(table.element);
 
 	for (let headingCell of table.headingCells) {
+		headingCell.classList.add('talk-column');
 		headingCell.addEventListener('click', (e: Event) => {
 			const target = e.target as HTMLTableCellElement;
-			sortTalks(target.id);
+			const column = columnName(target.id, Columns);
+			sortTalks(column);
+			listTalks(ListElement, Keywords, LogicalAnd);
 		});
 	}
+}
+
+/**
+ * Given the element `id` assigned to the column heading names by
+ * Table.fillTable, and the array of column names used to construct the Table,
+ * return the column name associated with `id`. Using the column names in such
+ * functions as `sortTalks` makes the code more readable and easier to maintain.
+ */
+function columnName(id: string, columns: string[]) {
+    const segments = id.split('-');
+    const index = Number(segments[segments.length - 1]);
+    return columns[index];
 }
 
 function showRecordDetails(index: number) {
@@ -127,12 +145,26 @@ function showRecordDetails(index: number) {
 	audio.controls = true;
 	dialog.append(audio);
 	A.Play(audio, uri);
+	
+	/** add 'location' button */
+	const locationButton = document.createElement('button');
+	locationButton.innerHTML = '\u2316';
+	locationButton.className = 'talk-dialog-location';
+	locationButton.addEventListener('click', () => {
+		const position = audio.currentTime; // always returns 0!
+		const copyText = (position == 0) ? record.title : A.FormatTime(position);
+		PAGE.clipboardCopy(copyText);
+		//   dialog popup here needs more testing //
+		// PopupMessage.innerHTML = copyText;
+		// PAGE.content.append(dialog);
+		// PAGE.popupMessage(PopupMessage, 3);
+	});
 
 	/** add 'close' button */
-	const button = document.createElement('button');
-	button.innerHTML = '&times;';
-	button.className = 'talk-dialog-exit';
-	button.addEventListener('click', () => {
+	const exitButton = document.createElement('button');
+	exitButton.innerHTML = '&times;';
+	exitButton.className = 'talk-dialog-exit';
+	exitButton.addEventListener('click', () => {
 		dialog.close();
 		dialog.remove();
 	});
@@ -145,7 +177,8 @@ function showRecordDetails(index: number) {
 	});
 	
 	dialog.innerHTML += markedUpText;
-	dialog.append(button);
+	dialog.append(locationButton);
+	dialog.append(exitButton);
 	PAGE.content.append(dialog);
 	dialog.showModal();
 }
@@ -281,46 +314,33 @@ function shortTitle(title: string, maximumLength = 35) {
 	return shortTitle;
 }
 
-/**
- * Sort talk records based on `SortBy` and `ReverseSort` options.
- */
-// function sortTalks() {
-// 	Records.sort((a,b) => {
-// 		let result = 0;
-// 		if (SortBy == 'Last Play') result = a.lastPlayed - b.lastPlayed;
-// 		else result = a.title.localeCompare(b.title); /** default: sort by title */
-// 		if (ReverseSort) result *= -1;
-// 		return result;
-// 	});
-// }
-function sortTalks(columnID: string) {
-	if (columnID == SortColumn) ReverseSort = !ReverseSort; /** toggle sort direction with each repeated click */
-	else ReverseSort = false;
+function sortTalks(column = '') {
+	if (column) {
+		/**
+		 * toggle sort direction on repeated clicks of the same column header,
+		 * or else use the default sort
+		 */
+		if (column == SortColumn) ReverseSort = !ReverseSort;
+		else ReverseSort = false;
+	}
 	Records.sort((a,b) => {
 		let result = 0;
-		if (columnID == 'COLUMN-1') result = a.duration - b.duration;
-		else if (columnID == 'COLUMN-2') result = a.playCount - b.playCount;
-		else if (columnID == 'COLUMN-3') result = a.lastPlayed - b.lastPlayed;
-		else result = a.title.toLowerCase().localeCompare(b.title.toLowerCase()); /** default: sort by title (COLUMN-0) */
+		if (column == 'Time') result = a.duration - b.duration;
+		else if (column == 'Plays') result = a.playCount - b.playCount;
+		else if (column == 'Last Play') result = a.lastPlayed - b.lastPlayed;
+		else {
+			/** default: sort by title */
+			column = 'Title';
+			result = a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+		}
 		if (ReverseSort) result *= -1;
 		return result;
 	});
-	SortColumn = columnID;
-	listTalks(ListElement, Keywords, LogicalAnd);
+	SortColumn = column;
 }
 
 function selectionElement() {
 	const selectionElement = document.createElement('div');
-	// const sortByLabel = document.createTextNode('\u00a0\u00a0\u00a0\u00a0Sorted By: ');
-	// const radioButtons = new W.RadioGroup('', SortByOptions, 'widget-radio-inline');
-	// for (const inputElement of radioButtons.inputElements) {
-	// 	inputElement.addEventListener('click', () => {
-	// 		SortBy = radioButtons.value;
-	// 		sortTalks();
-	// 		listTalks(ListElement, Keywords, LogicalAnd);
-	// 	});
-	// }
-	// const radioSpan = radioButtons.span;
 	const textEntry = new W.Text('Keywords: ', '');
 	textEntry.element.addEventListener('change', () => {
 		Keywords = uniqueWords(textEntry.element.value);
@@ -334,23 +354,11 @@ function selectionElement() {
 		// sortTalks();
 		listTalks(ListElement, Keywords, LogicalAnd);
 	});
-	// const reverseSort = new W.Checkbox('Reversed: ', false);
-	// reverseSort.label.classList.add('talk-button-indent');
-	// reverseSort.element.addEventListener('change', () => {
-	// 	ReverseSort = reverseSort.element.checked;
-	// 	sortTalks();
-	// 	listTalks(ListElement, Keywords, LogicalAnd);
-	// });
 
 	selectionElement.append(textEntry.label);
 	selectionElement.append(textEntry.element);
 	selectionElement.append(logicalAnd.label);
 	selectionElement.append(logicalAnd.element);
-	// selectionElement.append(sortByLabel);
-	// selectionElement.append(radioSpan);
-	// selectionElement.append(reverseSort.label);
-	// selectionElement.append(reverseSort.element);
-
 	return selectionElement;
 }
 

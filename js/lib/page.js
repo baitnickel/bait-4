@@ -248,6 +248,29 @@ export class Page {
         }
     }
     /**
+     * Copy the given `text` to the clipboard and confirm that it done via an
+     * alert.
+     */
+    clipboardCopy(text) {
+        navigator.clipboard.writeText(text);
+        window.alert(`Copied to Clipboard:\n${text}`);
+    }
+    /*
+        function call() { popup = window.open('http://www.google.co.in'); setTimeout(wait, 8000); }
+        function caller() { setInterval(call, 12000); }
+        function wait() { popup.close(); }
+    */
+    /** // needs more testing //
+     * Given an unopened `dialogElement` and the number of `seconds` it should
+     * be displayed, open the dialog and close it after the number of seconds
+     * has elapsed. `seconds` may be a fraction of a second.
+     */
+    popupMessage(dialogElement, seconds) {
+        const milliseconds = seconds * 1000;
+        dialogElement.show();
+        window.setTimeout(() => { dialogElement.close(); }, milliseconds);
+    }
+    /**
      * @todo
      * Given `folders`, an array of folder path names (e.g., ['Content/drafts',
      * 'Content/journals', 'Content/technical']), where the paths all follow the

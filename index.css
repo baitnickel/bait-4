@@ -517,6 +517,9 @@ dialog.threads-dialog button {
 	color: blue;
 	cursor: pointer; /* to support clicking on text */
 }
+.talk-time, .talk-play-count {
+	text-align: right;
+}
 
 .talk-detail {
 	font-weight: bold;

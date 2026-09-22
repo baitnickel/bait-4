@@ -36,7 +36,7 @@ let Keywords = new Set();
 let LogicalAnd = false;
 const WordSegments = /\b(\w+)['’]?(\w+)?\b/g; /** words, including contractions */
 const Possessive = /\w+['’']s$/i; /** a word that ends with apostrophe-S */
-const Columns = ['Title', 'Time', 'Plays', 'Last Play'];
+const Columns = ['Title', 'Type', 'Time', 'Plays', 'Last Play'];
 let SortColumn = '';
 let ReverseSort = false;
 const SelectionElement = selectionElement();
@@ -69,8 +69,11 @@ function listTalks(division, keywords, logicalAnd) {
             const titleCell = table.addCell(title);
             titleCell.id = `${i}`;
             titleCell.classList.add('talk-title');
-            table.addCell(A.FormatTime(record.duration));
-            table.addCell(record.playCount.toString());
+            table.addCell(record.type);
+            const timeCell = table.addCell(A.FormatTime(record.duration));
+            timeCell.classList.add('talk-time');
+            const playCountCell = table.addCell(record.playCount.toString());
+            playCountCell.classList.add('talk-play-count');
             table.addCell(T.DateString(lastPlayedDate, 14));
             titleCell.addEventListener('click', (e) => {
                 const target = e.target;
@@ -109,12 +112,17 @@ function showRecordDetails(index) {
     dialog.innerHTML = '';
     const textLines = [];
     textLines.push(`### ${record.title}\n`);
+    const categories = (record.categories.length) ? record.categories.join(' > ') : '';
+    if (categories)
+        textLines.push(categories);
+    if (record.type)
+        textLines.push(record.type);
     if (record.performers)
         textLines.push(`With: ${record.performers}`);
     if (record.begins)
-        textLines.push(record.begins);
+        textLines.push(`${record.begins} ...`);
     if (record.ends)
-        textLines.push(record.ends);
+        textLines.push(`... ${record.ends}`);
     /** sort most recent note at the top */
     record.notes.sort((a, b) => b.heading.localeCompare(a.heading));
     let first = true;
@@ -155,7 +163,7 @@ function showRecordDetails(index) {
         dialog.close();
         dialog.remove();
     });
-    /** support Escape key close */
+    /** support Escape key close - see: https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values */
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             dialog.close();
@@ -200,6 +208,8 @@ function hasKeywords(record, keywords, logicalAnd = false) {
     /** consolidate all the text lines from the record */
     const noteLines = [];
     noteLines.push(record.title);
+    noteLines.push(record.type);
+    noteLines.push(record.categories.join(' ')); // should be included?
     noteLines.push(record.performers);
     noteLines.push(record.begins);
     noteLines.push(record.ends);
@@ -314,7 +324,9 @@ function sortTalks(column = '') {
     }
     Records.sort((a, b) => {
         let result = 0;
-        if (column == 'Time')
+        if (column == 'Type')
+            result = a.type.localeCompare(b.type);
+        else if (column == 'Time')
             result = a.duration - b.duration;
         else if (column == 'Plays')
             result = a.playCount - b.playCount;

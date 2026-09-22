@@ -17,21 +17,21 @@ if (!PAGE.backendAvailable) {
     window.history.back();
 }
 console.log('v26.09.06');
-const AudioDataset = await Fetch.api(`${PAGE.backend}/media/talks`);
-if (AudioDataset === null) {
-    window.alert(`AudioDatset is empty!`);
+const AudioData = await Fetch.api(`${PAGE.backend}/media/talks`);
+if (!AudioData) {
+    window.alert(`AudioData is empty!`);
     window.history.back();
 }
 const MediaFolder = '../media/audio/watts';
-const TalkTimesData = './data/audio/watts-talk-times.txt';
-const Records = AudioDataset.data;
-// not yet supported ... might be better done with a button
-// ... (or done automatically by checking last update in metadata)
-if (PAGE.parameters.has('refresh-times')) {
-    refreshTimes(TalkTimesData, Records);
-    window.alert('Audio file times data refreshed');
-    window.history.back();
-}
+// const TalkTimesData = './data/audio/watts-talk-times.txt';
+const Records = AudioData;
+//  // not yet supported ... might be better done with a button
+//  // ... (or done automatically by checking last update in metadata)
+// if (PAGE.parameters.has('refresh-times')) {
+// 	refreshTimes(TalkTimesData, Records);
+// 	window.alert('Audio file times data refreshed');
+// 	window.history.back();
+// }
 let Keywords = new Set();
 let LogicalAnd = false;
 const WordSegments = /\b(\w+)['’]?(\w+)?\b/g; /** words, including contractions */
@@ -353,18 +353,18 @@ function selectionElement() {
     return selectionElement;
 }
 // not yet supported
-async function refreshTimes(dataFilePath, records) {
-    /*
-        Must loop over file names + extensions from `records`,
-        and for each one create an array of strings consisting of
-        name+extenstion and duration seconds,
-        separated by a delimiter (such as '\t').
-        Use the A.LoadAudioData function as demonstated in the home module,
-        function testTalkTime.
-        Then call an API passing the array of strings.
-        The API will (over)write a text file representing the array.
-        The text file can be read by the module that builds the AudioDataset.
-        Ideally, we should only *update* the text file for *new* files ...
-        ... if file was JSON, we could include an element for "last update".
-    */
-}
+// async function refreshTimes(dataFilePath: string, records: T.AudioData[]) {
+/*
+    Must loop over file names + extensions from `records`,
+    and for each one create an array of strings consisting of
+    name+extenstion and duration seconds,
+    separated by a delimiter (such as '\t').
+    Use the A.LoadAudioData function as demonstated in the home module,
+    function testTalkTime.
+    Then call an API passing the array of strings.
+    The API will (over)write a text file representing the array.
+    The text file can be read by the module that builds the AudioDataset.
+    Ideally, we should only *update* the text file for *new* files ...
+    ... if file was JSON, we could include an element for "last update".
+*/
+// }

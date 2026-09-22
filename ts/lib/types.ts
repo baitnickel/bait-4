@@ -505,44 +505,21 @@ export type AudioPlaylist = {
 	tracks: AudioTrack[],
 };
 
-/**
- * AudioData.notes may be defined as an array of Sections: `notes: Section[]`
- */
-export type Section = {
-	number: number; /** sequence number 0...N */
-	heading: string;
-	lines: string[];
-}
-
-/** 
- * The AudioFileData structure will typically be used in a Map, where the Map key is
- * a filename.
- */
-export type AudioMetadata = {
-	updated: number; /** milliseconds elapsed since the epoch */
-	audioFolder: string;
-	notesFolder: string;
-	catalogFile: string;
-}
-export type AudioData = {
-	title: string; /** audio file name (File.name) */
-	extension: string; /** file extension (File.extension) */
-	sequence: number; /** 0 if not part of a collection or group */
-	duration: number; /** number of seconds or 'HH:MM:SS' */
-	categories: string[];
-	type: string; /** application-specific */
-	lastPlayed: number; /** milliseconds elapsed since the epoch */
-	playCount: number;
-	writers: string;
-	performers: string;
-	notes: Section[];
-	begins: string; /** typically for spoken word audio */
-	ends: string; /** typically for spoken word audio */
-};
-export type AudioDataset = {
-	metadata: AudioMetadata;
-	data: AudioData[];
-}
+// export type AudioData = {
+// 	title: string; /** audio file name (File.name) */
+// 	extension: string; /** file extension (File.extension) */
+// 	sequence: number; /** 0 if not part of a collection or group */
+// 	duration: number; /** number of seconds or 'HH:MM:SS' */
+// 	categories: string[];
+// 	type: string; /** application-specific */
+// 	lastPlayed: number; /** milliseconds elapsed since the epoch */
+// 	playCount: number;
+// 	writers: string;
+// 	performers: string;
+// 	notes: Section[];
+// 	begins: string; /** typically for spoken word audio */
+// 	ends: string; /** typically for spoken word audio */
+// };
 
 export type MediaDuration = {
 	fileName: string,
@@ -565,4 +542,47 @@ export type TalkDetails = {
 export type StaticTalkData = {
 	metadata: AudioMetadata;
 	details: TalkDetails[];
+}
+
+/*********************************** */
+
+export type NoteSection = {
+	sequence: number;
+	heading: string;
+	lines: string[];
+}
+
+export type TalkData = { // to be deprecated
+	type: string;
+	performers: string;
+	begins: string;
+	ends: string;
+}
+
+export type AudioFile = {
+	title: string;
+	extension: string;
+	duration: number;
+}
+export type CatalogData = {
+	categories: string[];
+}
+export type NotesData = {
+	notes: NoteSection[];
+	lastPlayed: number;
+	playCount: number;
+} & TalkData;
+
+export type AudioData = AudioFile & NotesData & CatalogData;
+
+export type AudioMetadata = {
+	audioFolder: string;
+	notesFolder: string;
+	catalogFile: string;
+	talkFile: string;
+	speaker: string;
+}
+export type AudioDataset = {
+	metadata: AudioMetadata;
+	data: AudioData[];
 }

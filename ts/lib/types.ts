@@ -569,6 +569,7 @@ export type CatalogData = {
 }
 export type NotesData = {
 	notes: NoteSection[];
+	title: string;
 	lastPlayed: number;
 	playCount: number;
 } & TalkData;

@@ -85,7 +85,8 @@ function listTalks(division: HTMLDivElement, keywords: Set<string>, logicalAnd: 
 			timeCell.classList.add('talk-time');
 			const playCountCell = table.addCell(record.playCount.toString());
 			playCountCell.classList.add('talk-play-count');
-			table.addCell(T.DateString(lastPlayedDate, 14));
+			const lastPlayed = (record.lastPlayed) ? T.DateString(lastPlayedDate, 14) : '';
+			table.addCell(lastPlayed);
 
 			titleCell.addEventListener('click', (e: Event) => {
 				const target = e.target as HTMLTableCellElement;
@@ -146,20 +147,28 @@ function showRecordDetails(index: number) {
 	const highlightedTextLines = highlightKeywords(textLines, Keywords);
 	const markedUpText = Markup(highlightedTextLines);
 	
-	/** add Audio element */
-	const uri = `${MediaFolder}/${record.title}${record.extension}`;
-	const audio = new Audio();
-	audio.controls = true;
-	dialog.append(audio);
-	A.Play(audio, uri);
+	if (record.extension) {
+		/** add Audio element */
+		const uri = `${MediaFolder}/${record.title}${record.extension}`;
+		const audio = new Audio();
+		audio.controls = true;
+		dialog.append(audio);
+		A.Play(audio, uri);
+	}
+	else {
+		const noAudioMessage = document.createElement('paragraph');
+		noAudioMessage.innerText = '(No Audio File)';
+		dialog.append(noAudioMessage);
+	}
 	
 	/** add 'location' button */
 	const locationButton = document.createElement('button');
 	locationButton.innerHTML = '\u2316';
 	locationButton.className = 'talk-dialog-location';
 	locationButton.addEventListener('click', () => {
-		const position = audio.currentTime; // always returns 0!
-		const copyText = (position == 0) ? record.title : A.FormatTime(position);
+		// const position = audio.currentTime; // always returns 0!
+		// const copyText = (position == 0) ? record.title : A.FormatTime(position);
+		const copyText = record.title;
 		PAGE.clipboardCopy(copyText);
 		//   dialog popup here needs more testing //
 		// PopupMessage.innerHTML = copyText;

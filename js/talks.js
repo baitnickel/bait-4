@@ -3,7 +3,7 @@ import { Markup } from './lib/markup.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
-import * as A from './lib/play-audio.js';
+import * as PlayAudio from './lib/play-audio.js';
 /**
  * When the modal DetailElement is displayed, certain fields should become
  * clickable (this should be indicated by some subtle style). These are the
@@ -17,14 +17,14 @@ if (!PAGE.backendAvailable) {
     window.history.back();
 }
 console.log('v26.09.06');
-const AudioData = await Fetch.api(`${PAGE.backend}/media/talks`);
-if (!AudioData) {
-    window.alert(`AudioData is empty!`);
+const TalkRecords = await Fetch.api(`${PAGE.backend}/media/talks`);
+if (!TalkRecords) {
+    window.alert(`TalkRecords array is empty!`);
     window.history.back();
 }
 const MediaFolder = '../media/audio/watts';
 // const TalkTimesData = './data/audio/watts-talk-times.txt';
-const Records = AudioData;
+const Records = TalkRecords;
 //  // not yet supported ... might be better done with a button
 //  // ... (or done automatically by checking last update in metadata)
 // if (PAGE.parameters.has('refresh-times')) {
@@ -70,7 +70,7 @@ function listTalks(division, keywords, logicalAnd) {
             titleCell.id = `${i}`;
             titleCell.classList.add('talk-title');
             table.addCell(record.type);
-            const timeCell = table.addCell(A.FormatTime(record.duration));
+            const timeCell = table.addCell(PlayAudio.FormatTime(record.duration));
             timeCell.classList.add('talk-time');
             const playCountCell = table.addCell(record.playCount.toString());
             playCountCell.classList.add('talk-play-count');
@@ -125,14 +125,18 @@ function showRecordDetails(index) {
     if (record.ends)
         textLines.push(`... ${record.ends}`);
     /** sort most recent note at the top */
-    record.notes.sort((a, b) => b.heading.localeCompare(a.heading));
+    record.notes.sort((a, b) => b.date - a.date);
     let first = true;
     for (const note of record.notes) {
         if (!first)
             textLines.push('___');
-        textLines.push(`###### ${note.heading}\n`);
-        for (const line of note.lines)
-            textLines.push(line);
+        const heading = `${note.name} (${note.section + 1})`;
+        textLines.push(`###### ${heading}\n`);
+        if (!note.lines.length)
+            textLines.push('(no text lines)');
+        else
+            for (const line of note.lines)
+                textLines.push(line);
         first = false;
     }
     const highlightedTextLines = highlightKeywords(textLines, Keywords);
@@ -143,7 +147,7 @@ function showRecordDetails(index) {
         const audio = new Audio();
         audio.controls = true;
         dialog.append(audio);
-        A.Play(audio, uri);
+        PlayAudio.Play(audio, uri);
     }
     else {
         const noAudioMessage = document.createElement('paragraph');
@@ -156,7 +160,7 @@ function showRecordDetails(index) {
     locationButton.className = 'talk-dialog-location';
     locationButton.addEventListener('click', () => {
         // const position = audio.currentTime; // always returns 0!
-        // const copyText = (position == 0) ? record.title : A.FormatTime(position);
+        // const copyText = (position == 0) ? record.title : PlayAudio.FormatTime(position);
         const copyText = record.title;
         PAGE.clipboardCopy(copyText);
         //   dialog popup here needs more testing //
@@ -207,7 +211,7 @@ function highlightKeywords(textLines, keywords) {
     return highlightedTextLines;
 }
 /**
- * Given an AudioData record, an array of `keywords`, and the `logicalAnd`
+ * Given a TalkRecord, an array of `keywords`, and the `logicalAnd`
  * boolean, return true if any of the record texts contain any of the
  * `keywords`, else return false. When `logicalAnd` is true, the record texts
  * must contain all of the keywords to receive a true result.
@@ -374,13 +378,13 @@ function selectionElement() {
     return selectionElement;
 }
 // not yet supported
-// async function refreshTimes(dataFilePath: string, records: T.AudioData[]) {
+// async function refreshTimes(dataFilePath: string, records: T.TalkRecord[]) {
 /*
     Must loop over file names + extensions from `records`,
     and for each one create an array of strings consisting of
     name+extenstion and duration seconds,
     separated by a delimiter (such as '\t').
-    Use the A.LoadAudioData function as demonstated in the home module,
+    Use the PlayAudio.LoadAudioData function as demonstated in the home module,
     function testTalkTime.
     Then call an API passing the array of strings.
     The API will (over)write a text file representing the array.

@@ -552,7 +552,7 @@ export type NoteSection = {
 	lines: string[];
 }
 
-export type TalkData = { // to be deprecated
+export type TalkData = {
 	type: string;
 	performers: string;
 	begins: string;
@@ -586,4 +586,27 @@ export type AudioMetadata = {
 export type AudioDataset = {
 	metadata: AudioMetadata;
 	data: AudioData[];
+}
+
+/*********************************** */
+
+export type TalkNotes = {
+	name: string,
+	date: number,
+	section: number,
+	lines: string[],
+}
+
+export type TalkRecord = {
+	title: string,
+	extension: string,
+	duration: number,
+	categories: string[],
+	notes: TalkNotes[], // not compatible with T.NoteSection (sequence, heading, lines[])
+	type: string,
+	performers: string,
+	begins: string,
+	ends: string
+	playCount: number,
+	lastPlayed: number,
 }

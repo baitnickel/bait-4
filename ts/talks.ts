@@ -132,9 +132,9 @@ function showRecordDetails(index: number) {
 	const categories = (record.categories.length) ? record.categories.join(' > ') : '';
 	if (categories) textLines.push(categories);
 	if (record.type) textLines.push(record.type);
-	if (record.performers) textLines.push(`With: ${record.performers}`);
-	if (record.begins) textLines.push(`${record.begins} ...`);
-	if (record.ends) textLines.push(`... ${record.ends}`);
+	if (record.performers) textLines.push(`with: ${record.performers}`);
+	if (record.begins) textLines.push(addEllipsis(record.begins));
+	if (record.ends) textLines.push(addEllipsis(record.ends, false));
 	/** sort most recent note at the top */
 	record.notes.sort((a,b) => b.date - a.date);
 	let first = true;
@@ -285,6 +285,27 @@ function expansions(word: string) {
 	let expansions = [];
 	if (Possessive.test(word)) expansions.push(word.slice(0, -2));
 	return expansions;
+}
+
+/**
+ * Given a `text` string, return a new text string with an ellipsis added to the
+ * end (by default) or to the beginning (if `suffix` is set to false). If the
+ * `text` already contains a string of periods and/or whitespace characters at
+ * its end (or beginning), a "standard" three periods ellipsis will replace it,
+ * set apart from the text with a single space.
+ * 
+ * This function may not have general applicability as it will always trim the
+ * text.
+ */
+function addEllipsis(text: string, suffix = true) {
+    let newText = text.trim();
+    const ellipsis = '...';
+	let patternString = '([\\.\\s]*)';
+	patternString = (suffix) ? `${patternString}$` : `^${patternString}`;
+	const pattern = new RegExp(patternString);
+    if (newText.search(pattern) >= 0) newText = newText.replace(pattern, '');
+    newText = (suffix) ? `${newText} ${ellipsis}` : `${ellipsis} ${newText}`;
+	return newText.trim();
 }
 
 /**

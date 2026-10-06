@@ -368,13 +368,15 @@ const uriPlaying = (uri: string) => {
 function testAudio(testOutput: HTMLDivElement) {
 	const paragraph = document.createElement('p');
 	const output: string[] = [];
+
+	const folder = '../media/audio/tests/test-harp';
+	const uri = `${folder}/A Minor.m4a`;
+	// const folder = '../media/audio/watts';
+	// const uri = `${folder}/House Boat Summit.m4a`;
+
 	const audio = new Audio();
 	audio.controls = true;
 	testOutput.append(audio);
-	// const folder = '../media/audio/tests/test-harp';
-	// const uri = `${folder}/A Minor.m4a`;
-	const folder = '../media/audio/watts';
-	const uri = `${folder}/House Boat Summit.m4a`;
 	
 	output.push('call Play...');
 	A.Play(audio, uri, false);

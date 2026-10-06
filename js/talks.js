@@ -111,8 +111,21 @@ function showRecordDetails(index) {
     const dialog = document.createElement('dialog');
     dialog.className = 'talk-dialog';
     dialog.innerHTML = '';
+    // /** create 'title copy' button */
+    // const copyButton = document.createElement('button');
+    // copyButton.textContent = '⤵️' // ⤵️✓⇩⬇︎⏚⇣⬇️
+    // copyButton.className = 'talk-dialog-title-copy';
+    // copyButton.addEventListener('click', () => {
+    // 	const copyText = record.title;
+    // 	PAGE.clipboardCopy(copyText);
+    // });
+    // const headingElement = document.createElement('h3');
+    // headingElement.innerHTML = record.title + copyButton.outerHTML;
+    // dialog.append(headingElement);
+    // const headingLine = `{{.talk-dialog-title ${record.title}}}`;
     const textLines = [];
-    textLines.push(`### ${record.title}\n`);
+    textLines.push(`### ${record.title}`); // + copyButton.innerHTML);
+    // textLines.push(`### ${record.title}\n`);
     const categories = (record.categories.length) ? record.categories.join(' > ') : '';
     if (categories)
         textLines.push(categories);
@@ -154,20 +167,20 @@ function showRecordDetails(index) {
         noAudioMessage.innerText = '(No Audio File)';
         dialog.append(noAudioMessage);
     }
-    /** add 'location' button */
-    const locationButton = document.createElement('button');
-    locationButton.innerHTML = '\u2316';
-    locationButton.className = 'talk-dialog-location';
-    locationButton.addEventListener('click', () => {
-        // const position = audio.currentTime; // always returns 0!
-        // const copyText = (position == 0) ? record.title : PlayAudio.FormatTime(position);
-        const copyText = record.title;
-        PAGE.clipboardCopy(copyText);
-        //   dialog popup here needs more testing //
-        // PopupMessage.innerHTML = copyText;
-        // PAGE.content.append(dialog);
-        // PAGE.popupMessage(PopupMessage, 3);
-    });
+    // /** add 'location' button */
+    // const locationButton = document.createElement('button');
+    // locationButton.innerHTML = '\u2316';
+    // locationButton.className = 'talk-dialog-location';
+    // locationButton.addEventListener('click', () => {
+    // 	// const position = audio.currentTime; // always returns 0!
+    // 	// const copyText = (position == 0) ? record.title : PlayAudio.FormatTime(position);
+    // 	const copyText = record.title;
+    // 	PAGE.clipboardCopy(copyText);
+    // 	//   dialog popup here needs more testing //
+    // 	// PopupMessage.innerHTML = copyText;
+    // 	// PAGE.content.append(dialog);
+    // 	// PAGE.popupMessage(PopupMessage, 3);
+    // });
     /** add 'close' button */
     const exitButton = document.createElement('button');
     exitButton.innerHTML = '&times;';
@@ -184,7 +197,7 @@ function showRecordDetails(index) {
         }
     });
     dialog.innerHTML += markedUpText;
-    dialog.append(locationButton);
+    // dialog.append(locationButton);
     dialog.append(exitButton);
     PAGE.content.append(dialog);
     dialog.showModal();

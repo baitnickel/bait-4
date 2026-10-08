@@ -125,32 +125,46 @@ function showRecordDetails(index: number) {
 	const record = Records[index];
 	const dialog = document.createElement('dialog');
 	dialog.className = 'talk-dialog';
-	dialog.innerHTML = '';
 
-	// /** create 'title copy' button */
-	// const copyButton = document.createElement('button');
-	// copyButton.textContent = '⤵️' // ⤵️✓⇩⬇︎⏚⇣⬇️
-	// copyButton.className = 'talk-dialog-title-copy';
-	// copyButton.addEventListener('click', () => {
-	// 	const copyText = record.title;
-	// 	PAGE.clipboardCopy(copyText);
-	// });
-	// const headingElement = document.createElement('h3');
-	// headingElement.innerHTML = record.title + copyButton.outerHTML;
-	// dialog.append(headingElement);
+	const audioSection = document.createElement('div');
+	if (record.extension) {
+		/** add Audio element */
+		const uri = `${MediaFolder}/${record.title}${record.extension}`;
+		const audio = new Audio();
+		audio.controls = true;
+		audioSection.append(audio);
+		PlayAudio.Play(audio, uri);
+	}
+	else {
+		const noAudioMessage = document.createElement('paragraph');
+		noAudioMessage.innerText = '(No Audio File)';
+		audioSection.append(noAudioMessage);
+	}
 
-	// const headingLine = `{{.talk-dialog-title ${record.title}}}`;
+	const titleSection = document.createElement('div');
+	titleSection.className = 'talk-dialog-title-section';
+	const titleHeading = document.createElement('h3');
+	titleHeading.innerHTML = highlightKeywords(record.title, Keywords).join('');
+	/** create 'title copy' button */
+	const copyButton = document.createElement('button');
+	copyButton.innerHTML = '⇩'; // ⤵️✓⇩⬇︎⏚⇣⬇️
+	copyButton.className = 'talk-dialog-title-copy';
+	copyButton.addEventListener('click', () => {
+		const copyText = record.title;
+		PAGE.clipboardCopy(copyText);
+	});
+	titleHeading.append(copyButton);
+	titleSection.append(titleHeading);
+
+	const textSection = document.createElement('div');
 	const textLines: string[] = [];
-	textLines.push(`### ${record.title}`) // + copyButton.innerHTML);
-	// textLines.push(`### ${record.title}\n`);
-
 	const categories = (record.categories.length) ? record.categories.join(' > ') : '';
 	if (categories) textLines.push(categories);
 	if (record.type) textLines.push(record.type);
 	if (record.performers) textLines.push(`with: ${record.performers}`);
 	if (record.begins) textLines.push(addEllipsis(record.begins));
 	if (record.ends) textLines.push(addEllipsis(record.ends, false));
-	/** sort most recent note at the top */
+	/** sort the most recent notes to the top */
 	record.notes.sort((a,b) => b.date - a.date);
 	let first = true;
 	for (const note of record.notes) {
@@ -163,34 +177,16 @@ function showRecordDetails(index: number) {
 	}
 	const highlightedTextLines = highlightKeywords(textLines, Keywords);
 	const markedUpText = Markup(highlightedTextLines);
-	
-	if (record.extension) {
-		/** add Audio element */
-		const uri = `${MediaFolder}/${record.title}${record.extension}`;
-		const audio = new Audio();
-		audio.controls = true;
-		dialog.append(audio);
-		PlayAudio.Play(audio, uri);
-	}
-	else {
-		const noAudioMessage = document.createElement('paragraph');
-		noAudioMessage.innerText = '(No Audio File)';
-		dialog.append(noAudioMessage);
-	}
+	textSection.innerHTML = markedUpText;
 	
 	// /** add 'location' button */
 	// const locationButton = document.createElement('button');
 	// locationButton.innerHTML = '\u2316';
 	// locationButton.className = 'talk-dialog-location';
 	// locationButton.addEventListener('click', () => {
-	// 	// const position = audio.currentTime; // always returns 0!
-	// 	// const copyText = (position == 0) ? record.title : PlayAudio.FormatTime(position);
-	// 	const copyText = record.title;
+	// 	const position = audio.currentTime; // always returns 0!
+	// 	const copyText = (position == 0) ? '' : PlayAudio.FormatTime(position);
 	// 	PAGE.clipboardCopy(copyText);
-	// 	//   dialog popup here needs more testing //
-	// 	// PopupMessage.innerHTML = copyText;
-	// 	// PAGE.content.append(dialog);
-	// 	// PAGE.popupMessage(PopupMessage, 3);
 	// });
 
 	/** add 'close' button */
@@ -209,8 +205,9 @@ function showRecordDetails(index: number) {
 		}
 	});
 	
-	dialog.innerHTML += markedUpText;
-	// dialog.append(locationButton);
+	dialog.append(audioSection);
+	dialog.append(titleSection);
+	dialog.append(textSection);
 	dialog.append(exitButton);
 	PAGE.content.append(dialog);
 	dialog.showModal();
@@ -221,7 +218,8 @@ function showRecordDetails(index: number) {
  * markdown highlight characters (e.g., "==word==") to words in the `textLines`
  * that appear in the list of `keywords`.
  */
-function highlightKeywords(textLines: string[], keywords: Set<string>) {
+function highlightKeywords(textLines: string|string[], keywords: Set<string>) {
+	if (!Array.isArray(textLines)) textLines = [textLines];
 	if (!keywords.size) return textLines;
 	const highlightedTextLines: string[] = [];
 	for (const textLine of textLines) {

@@ -619,6 +619,13 @@ dialog.threads-dialog button {
 .talk-dialog-location { right: 50%; }
 .talk-dialog-exit { right: 3%; }
 
+.talk-dialog-title-copy {
+	cursor: pointer;
+	border: none;
+	background: none;
+	padding-left: .5rem;
+}
+
 .talk-column {
 	cursor: pointer; /* to support clicking on text */
 }

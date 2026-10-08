@@ -432,6 +432,115 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	color: #a76f6f;
 }
 
+/* Test Audio ================================================================== */
+
+/*
+Source - https://stackoverflow.com/a/37738603
+Posted by Michael Gaskill, modified by community. See post 'Timeline' for change history
+Retrieved 2026-10-07, License - CC BY-SA 4.0
+*/
+
+#audio-player {
+	height: 50px;
+	width: 500px;
+	overflow: hidden;
+	background-color: #2B2B2B;
+	color: white;
+
+	/* Invoke browser-specific styles to disable text selection of the controls:
+	*/
+
+	/* -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+	/* -moz-user-select: none;    /* mozilla browsers */
+	/* -khtml-user-select: none;  /* webkit (konqueror) browsers */
+	/* -ms-user-select: none;     /* IE10+ */
+}
+
+#controls {
+	height: 50px;
+	background-color: #808080;
+	width: 350px;
+}
+
+.time {
+	font-size: 10px;
+	color: white;
+	position: relative;
+	top: 14px;
+	margin: 5px;
+}
+
+/* The JQueryUI progressbar controls are styled with bar colors using the
+pre-defined classes: */
+
+.ui-progressbar {
+	background: #2B2B2B;
+}
+
+.ui-progressbar-value {
+	background: white;
+}
+
+/* div-based controls are made to layout properly by changing their display
+layout; controls are placed explicitly in the proper locations using relative
+positioning */
+
+#progressbar, #volume {
+	height: 10px;
+	display: inline-block;
+	border-radius: 0px;
+	border: none;
+	position: relative;
+	top: 16px;
+}
+
+#progressbar {
+	width: 150px;
+}
+
+#play, #mute {
+	font-size: 16px;
+	width: 20px;
+	position: relative;
+	top: 17px;
+}
+
+#play {
+	margin-left: 15px;
+}
+
+#volume {
+	width: 50px;
+}
+
+#more-info-box {
+	display: inline-block;
+	width: 150px;
+	height: 50px;
+	position: relative;
+	left: 350px;
+	top: -50px;
+	padding-top: 18px;
+	text-align: center;
+	font-family: sans-serif;
+	font-size: 12px;
+	color: white;
+}
+
+#more-info-box, #more-info-box > span {
+	cursor: context-menu;
+}
+
+#info-tray {
+	display: inline-block;
+	color: white;
+	position: relative;
+	width: 100%;
+	top: -65px;
+	height: 50px;
+	padding: 5px;
+}
+
 /* Canvas ====================================================================== */
 
 .canvas-main {

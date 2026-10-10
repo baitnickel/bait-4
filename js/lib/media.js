@@ -108,6 +108,24 @@ export class Audio extends Media {
         return button;
     }
 }
+/**
+ * Given a number of seconds, return a formatted time string ('HH:MM:SS').
+ * Return an empty string if seconds is a negative number. Also return an empty
+ * string if seconds is 0, unless `show0` is true.
+ */
+export function formatTime(seconds) {
+    let formattedTime = '';
+    seconds = Math.round(seconds);
+    if (seconds >= 0) {
+        const hours = Math.floor(seconds / 3600);
+        seconds -= (hours * 3600);
+        const minutes = Math.floor(seconds / 60);
+        seconds -= (minutes * 60);
+        formattedTime = (hours) ? `${hours}:` + `${minutes}`.padStart(2, '0') : `${minutes}`;
+        formattedTime += ':' + `${seconds}`.padStart(2, '0');
+    }
+    return formattedTime;
+}
 /* Source - https://stackoverflow.com/a/33802690
 
 <div class="hp_slide">

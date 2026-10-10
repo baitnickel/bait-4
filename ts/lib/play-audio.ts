@@ -86,12 +86,13 @@ export function AudioDuration(uri: string) {
 
 /**
  * Given a number of seconds, return a formatted time string ('HH:MM:SS').
- * Return an empty string if seconds is a negative number.
+ * Return an empty string if seconds is a negative number. Also return an empty
+ * string if seconds is 0, unless `show0` is true.
  */
-export function FormatTime(seconds: number) {
+export function FormatTime(seconds: number, show0 = false) {
 	let formattedTime = '';
 	seconds = Math.round(seconds);
-	if (seconds > 0) {
+	if (seconds > 0 || (show0 && seconds >= 0)) {
 		const hours = Math.floor(seconds/3600)
 		seconds -= (hours * 3600);
 		const minutes = Math.floor(seconds/60);

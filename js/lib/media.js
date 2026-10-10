@@ -108,3 +108,91 @@ export class Audio extends Media {
         return button;
     }
 }
+/* Source - https://stackoverflow.com/a/33802690
+
+<div class="hp_slide">
+    <div class="hp_range"></div>
+</div>
+
+.hp_slide{
+    width:100%;
+    background:white;
+    height:25px;
+}
+.hp_range{
+    width:0;
+    background:black;
+    height:25px;
+}
+
+var player = document.getElementById('player');
+player.addEventListener("timeupdate", function() {
+    var currentTime = player.currentTime;
+    var duration = player.duration;
+    $('.hp_range').stop(true,true).animate({'width':(currentTime +.25)/duration*100+'%'},250,'linear');
+});
+
+*/
+/*
+
+The approach is to use an input[type="range"] slider to reflect the progress and
+allow the user to seek through the track. When the range changes, set the
+audio.currentTime attribute, using the slider as a percent (you could also
+adjust the max attribute of the slider to match the audio.duration).
+
+In the other direction, I update the slider's progress on timeupdate event
+firing.
+
+One corner case is that if the user scrolls around with their mouse down on the
+slider, the timeupdate event will keep firing, causing the progress to hop
+around between wherever the user's cursor is hovering and the current audio
+progress. I use a boolean and the mousedown/mouseup events on the slider to
+prevent this from happening.
+
+See also JavaScript - HTML5 Audio / custom player's seekbar and current time for
+an extension of this code that displays the time:
+
+https://stackoverflow.com/questions/49814828/javascript-html5-audio-custom-players-seekbar-and-current-time/70638724#70638724
+
+<button>▶️</button>
+<input type="range" value="0" min="0" max="100" step="1">
+
+button {
+  font-size: 1.5em;
+}
+
+const url = "https://upload.wikimedia.org/wikipedia/en/a/a9/Webern_-_Sehr_langsam.ogg";
+const audio = new Audio(url);
+const playBtn = document.querySelector("button");
+const progressEl = document.querySelector('input[type="range"]');
+let mouseDownOnSlider = false;
+
+audio.addEventListener("loadeddata", () => {
+  progressEl.value = 0;
+});
+audio.addEventListener("timeupdate", () => {
+  if (!mouseDownOnSlider) {
+    progressEl.value = audio.currentTime / audio.duration * 100;
+  }
+});
+audio.addEventListener("ended", () => {
+  playBtn.textContent = "▶️";
+});
+
+playBtn.addEventListener("click", () => {
+  audio.paused ? audio.play() : audio.pause();
+  playBtn.textContent = audio.paused ? "▶️" : "⏸️";
+});
+
+progressEl.addEventListener("change", () => {
+  const pct = progressEl.value / 100;
+  audio.currentTime = (audio.duration || 0) * pct;
+});
+progressEl.addEventListener("mousedown", () => {
+  mouseDownOnSlider = true;
+});
+progressEl.addEventListener("mouseup", () => {
+  mouseDownOnSlider = false;
+});
+
+*/ 

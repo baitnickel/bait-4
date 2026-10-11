@@ -5,6 +5,7 @@
  * fed one or more audio files and play them in a sequence (sorted,
  * shuffled...).
  */
+const SVG = 'http://www.w3.org/2000/svg';
 export class Media {
     static odometer = 0;
     static idBase = 'Media';
@@ -125,6 +126,22 @@ export function formatTime(seconds) {
         formattedTime += ':' + `${seconds}`.padStart(2, '0');
     }
     return formattedTime;
+}
+function svgText(text) {
+    // let svg = document.createElementNS(SVG, 'svg');
+    // svg.setAttribute('x', coordinates.x.toString());
+    // svg.setAttribute('y', coordinates.y.toString());
+    // svg.setAttribute('width', coordinates.width.toString());
+    // svg.setAttribute('height', coordinates.height.toString());
+    let svgText = document.createElementNS(SVG, 'text');
+    // svgText.setAttribute('x', Math.round(coordinates.width * .5).toString());
+    // svgText.setAttribute('y', Math.round(coordinates.height * .7).toString());
+    svgText.setAttribute('text-anchor', 'middle');
+    svgText.setAttribute('font-family', text.fontFamily);
+    svgText.setAttribute('font-size', text.fontSize.toString());
+    // svgText.innerHTML = PrettyChord(text.value);
+    // svg.appendChild(svgText);
+    return svgText;
 }
 /* Source - https://stackoverflow.com/a/33802690
 

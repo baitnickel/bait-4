@@ -6,6 +6,9 @@
  * shuffled...).
  */
 
+const SVG = 'http://www.w3.org/2000/svg';
+type RichText = { value: string, fontSize: number, fontFamily: string };
+
 export class Media {
 	static odometer = 0;
 	static idBase = 'Media';
@@ -113,6 +116,18 @@ export class Audio extends Media {
 		});
 		return button;
 	}
+
+	/*
+	Play(playFace, pauseFace = '')
+	Pause(face)
+    Rewind(face)
+    Back(face, seconds)
+    Forward(face, seconds)
+    Last(face, seconds = 0)
+    Stop(face)
+    CopyTime(face)
+    Options(face)
+	*/
 }
 
 /**
@@ -133,6 +148,26 @@ export function formatTime(seconds: number) {
 	}
 	return formattedTime;
 }
+
+function svgText(text: RichText) {
+	// let svg = document.createElementNS(SVG, 'svg');
+	// svg.setAttribute('x', coordinates.x.toString());
+	// svg.setAttribute('y', coordinates.y.toString());
+	// svg.setAttribute('width', coordinates.width.toString());
+	// svg.setAttribute('height', coordinates.height.toString());
+
+	let svgText = document.createElementNS(SVG, 'text');
+	// svgText.setAttribute('x', Math.round(coordinates.width * .5).toString());
+	// svgText.setAttribute('y', Math.round(coordinates.height * .7).toString());
+	svgText.setAttribute('text-anchor', 'middle');
+	svgText.setAttribute('font-family', text.fontFamily);
+	svgText.setAttribute('font-size', text.fontSize.toString());
+	// svgText.innerHTML = PrettyChord(text.value);
+	// svg.appendChild(svgText);
+
+	return svgText;
+}
+
 
 
 /* Source - https://stackoverflow.com/a/33802690

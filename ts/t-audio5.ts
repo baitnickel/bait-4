@@ -24,27 +24,32 @@ export function render() {
 	PAGE.content.append(audio.element);
 
 	const locationButton = document.createElement('button');
+	locationButton.id = 'location';
 	locationButton.textContent = '📌'; // 🔆 \u2316 📌 🔖
 	locationButton.addEventListener('click', () => {
-		const position = audio.element.currentTime; // always returns 0!
+		const position = audio.element.currentTime;
 		const copyText = (position != 0) ? Media.formatTime(position) : '';
 		if (copyText) PAGE.clipboardCopy(copyText);
 	});
+
 	const time = document.createElement('span');
-	time.classList.add('time');
+	time.id = 'current-time';
 	time.textContent = Media.formatTime(0);
 	audio.element.addEventListener('timeupdate', () => {
 		time.textContent = Media.formatTime(audio.element.currentTime);
 	});
+
 	const pseudoBar = document.createElement('canvas');
+	pseudoBar.id = 'progress-bar';
 	pseudoBar.width = 320;
 	pseudoBar.height = 14;
 	const pseudoBarContext = pseudoBar.getContext('2d')!;
 	pseudoBarContext.fillStyle = 'gray';
 	pseudoBarContext.fillRect(0, 0, 320, 14);
+
 	const duration = document.createElement('span');
+	duration.id = 'duration';
 	duration.textContent = Media.formatTime(0);
-	duration.classList.add('time');
 	audio.element.addEventListener('loadedmetadata', () => {
 		duration.textContent = Media.formatTime(audio.element.duration);
 	});
@@ -64,14 +69,16 @@ export function render() {
 	const titleSection = document.createElement('div');
 	PAGE.content.append(titleSection);
 
-	const timeSection = document.createElement('div');
-	PAGE.content.append(timeSection);
-	timeSection.append(locationButton);
-	timeSection.append(time);
-	timeSection.append(pseudoBar);
-	timeSection.append(duration);
+	const consoleSection = document.createElement('div');
+	consoleSection.id = 'console';
+	PAGE.content.append(consoleSection);
+	consoleSection.append(locationButton);
+	consoleSection.append(time);
+	consoleSection.append(pseudoBar);
+	consoleSection.append(duration);
 	
 	const buttonSection = document.createElement('div');
+	buttonSection.classList.add('control-buttons');
 	PAGE.content.append(buttonSection);
 	buttonSection.append(playPauseButton);
 	buttonSection.append(skipBackButton);

@@ -436,22 +436,60 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 
 .media-module {
 
-	div {
-		margin-bottom: 2rem;
-	}
+	/* div { */
+		/* margin-bottom: 2rem; */
+		/* border: 1px solid red; */
+	/* } */
 
 	button {
 		font-size: 14pt;
 		cursor: pointer;
-		border: none;
+		/* border: none; */
 		background: none;
 		padding-left: .5rem;
+		/* border: 1px solid red; */
 	}
 
-	.time {
-		font-family: Verdana, Geneva, Tahoma, sans-serif;
+	#console {
+		height: 20px;
+		width: 500px;
+		position: relative;
+		margin: 10px 0;
+		/* border: 1px solid red; */
+	}
+
+	#location {
+		position: absolute;
+		left: 0%;
+		top: 15%;
+		cursor: pointer;
+		background: none;
+		padding: none;
 		font-size: 10pt;
+	}
+	#current-time {
+		position: absolute;
+		text-align: right;
+		left: 10%;
+		top: 18%;
+	}
+	#progress-bar {
+		position: absolute;
+		left: 20%;
+		top: 18%;
+	}
+	#duration {
+		position: absolute;
+		text-align: right;
+		left: 85%;
+		top: 18%;
+	}
+
+	#current-time, #duration {
+		font-family: Verdana, Geneva, Tahoma, sans-serif;
+		font-size: 8pt;
 		color:#000;
+		/* border: 1px solid red; */
 	}
 
 }

@@ -26,19 +26,31 @@ export function render() {
         if (copyText)
             PAGE.clipboardCopy(copyText);
     });
+    const progressBar = document.createElement('div');
+    progressBar.id = 'progress-bar';
+    const progressBarFill = document.createElement('div');
+    progressBarFill.id = 'progress-bar-fill';
     const time = document.createElement('span');
     time.id = 'current-time';
     time.textContent = Media.formatTime(0);
     audio.element.addEventListener('timeupdate', () => {
         time.textContent = Media.formatTime(audio.element.currentTime);
+        const barWidth = 320; // hardcoding!?!?!?
+        progressBarFill.style.width = `${audio.element.currentTime / audio.element.duration * barWidth}px`;
     });
-    const pseudoBar = document.createElement('canvas');
-    pseudoBar.id = 'progress-bar';
-    pseudoBar.width = 320;
-    pseudoBar.height = 14;
-    const pseudoBarContext = pseudoBar.getContext('2d');
-    pseudoBarContext.fillStyle = 'gray';
-    pseudoBarContext.fillRect(0, 0, 320, 14);
+    /*
+    <progress id="seekbar" value="0" max="1" style="width:400px;"></progress>
+    $('#player').on('timeupdate', function() {
+    $('#seekbar').attr("value", this.currentTime / this.duration);
+    });
+    */
+    // const pseudoBar = document.createElement('canvas');
+    // pseudoBar.id = 'progress-bar';
+    // pseudoBar.width = 320;
+    // pseudoBar.height = 14;
+    // const pseudoBarContext = pseudoBar.getContext('2d')!;
+    // pseudoBarContext.fillStyle = 'gray';
+    // pseudoBarContext.fillRect(0, 0, 320, 14);
     const duration = document.createElement('span');
     duration.id = 'duration';
     duration.textContent = Media.formatTime(0);
@@ -63,7 +75,9 @@ export function render() {
     PAGE.content.append(consoleSection);
     consoleSection.append(locationButton);
     consoleSection.append(time);
-    consoleSection.append(pseudoBar);
+    // consoleSection.append(pseudoBar);
+    consoleSection.append(progressBar);
+    consoleSection.append(progressBarFill);
     consoleSection.append(duration);
     const buttonSection = document.createElement('div');
     buttonSection.classList.add('control-buttons');
@@ -78,13 +92,3 @@ export function render() {
     PAGE.content.append(fileSection);
     fileSection.append(fileInput.element);
 }
-/*
-
-<html>
-Look at me - I'm a yellow box!
-<svg width="20" height="20">
-<rect width="20" height="20" style="fill:#E9E612;stroke-width:3;stroke:rgb(0,0,0)" />
-</svg>
-</html>
-
-*/ 

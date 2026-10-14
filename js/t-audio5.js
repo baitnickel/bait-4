@@ -1,26 +1,25 @@
 import { Page } from './lib/page.js';
 import * as Media from './lib/media.js';
-import * as W from './lib/widgets.js';
 const PAGE = new Page();
-let AudioFile = '../media/audio/tape-archives/jed-2003/20 Scary Things in the Woods at Night.m4a';
-// ▶️ ⏸ ⏯ ⏹ ⏭ ⏮ ⏩ ⏪ 
+let AudioFile = `../media/audio/watts/house boat summit.m4a`;
 export function render() {
     PAGE.setTitle('Test Media.Audio', 1);
     PAGE.content.classList.add('media-module');
     const audio = new Media.Audio();
     audio.element.src = AudioFile;
     audio.element.load();
-    const playPauseButton = audio.playPauseButton();
-    const skipBackButton = audio.skipBackButton();
-    const skipBack10Button = audio.skipBackButton(10);
-    const skipForward10Button = audio.skipForwardButton(10);
-    const skipForwardButton = audio.skipForwardButton();
-    const stopButton = audio.stopButton(playPauseButton);
+    audio.offset = 60;
+    const playPauseElement = audio.playPauseElement;
+    const skipBackElement = audio.skipToStartElement;
+    const skipBack10Element = audio.skipBackElement;
+    const skipForward10Element = audio.skipForwardElement;
+    const skipForwardElement = audio.skipToEndElement;
+    const stopElement = audio.stopElement;
     PAGE.content.append(audio.element);
-    const locationButton = document.createElement('button');
-    locationButton.id = 'location';
-    locationButton.textContent = '📌'; // 🔆 \u2316 📌 🔖
-    locationButton.addEventListener('click', () => {
+    const locationElement = document.createElement('span');
+    locationElement.id = 'location';
+    locationElement.textContent = '\u2316'; // 🔆 \u2316 📌 🔖
+    locationElement.addEventListener('click', () => {
         const position = audio.element.currentTime;
         const copyText = (position != 0) ? Media.formatTime(position) : '';
         if (copyText)
@@ -35,60 +34,32 @@ export function render() {
     time.textContent = Media.formatTime(0);
     audio.element.addEventListener('timeupdate', () => {
         time.textContent = Media.formatTime(audio.element.currentTime);
-        const barWidth = 320; // hardcoding!?!?!?
+        const barWidth = progressBar.offsetWidth;
         progressBarFill.style.width = `${audio.element.currentTime / audio.element.duration * barWidth}px`;
     });
-    /*
-    <progress id="seekbar" value="0" max="1" style="width:400px;"></progress>
-    $('#player').on('timeupdate', function() {
-    $('#seekbar').attr("value", this.currentTime / this.duration);
-    });
-    */
-    // const pseudoBar = document.createElement('canvas');
-    // pseudoBar.id = 'progress-bar';
-    // pseudoBar.width = 320;
-    // pseudoBar.height = 14;
-    // const pseudoBarContext = pseudoBar.getContext('2d')!;
-    // pseudoBarContext.fillStyle = 'gray';
-    // pseudoBarContext.fillRect(0, 0, 320, 14);
     const duration = document.createElement('span');
     duration.id = 'duration';
     duration.textContent = Media.formatTime(0);
     audio.element.addEventListener('loadedmetadata', () => {
         duration.textContent = Media.formatTime(audio.element.duration);
     });
-    const fileInput = new W.Text('Watts Talk', '');
-    fileInput.element.addEventListener('change', () => {
-        AudioFile = `../media/audio/watts/${fileInput.element.value.trim()}`;
-        audio.element.src = AudioFile;
-        audio.element.load();
-    });
-    /*
-    --------------- title ---------------
-    current time, progress bar, end time
-    ------------ buttons... -------------
-    */
     const titleSection = document.createElement('div');
     PAGE.content.append(titleSection);
     const consoleSection = document.createElement('div');
     consoleSection.id = 'console';
     PAGE.content.append(consoleSection);
-    consoleSection.append(locationButton);
+    consoleSection.append(locationElement);
     consoleSection.append(time);
-    // consoleSection.append(pseudoBar);
     consoleSection.append(progressBar);
     consoleSection.append(progressBarFill);
     consoleSection.append(duration);
-    const buttonSection = document.createElement('div');
-    buttonSection.classList.add('control-buttons');
-    PAGE.content.append(buttonSection);
-    buttonSection.append(playPauseButton);
-    buttonSection.append(skipBackButton);
-    buttonSection.append(skipBack10Button);
-    buttonSection.append(skipForward10Button);
-    buttonSection.append(skipForwardButton);
-    buttonSection.append(stopButton);
-    const fileSection = document.createElement('div');
-    PAGE.content.append(fileSection);
-    fileSection.append(fileInput.element);
+    const controlsSection = document.createElement('div');
+    controlsSection.classList.add('controls');
+    controlsSection.append(playPauseElement);
+    controlsSection.append(skipBackElement);
+    controlsSection.append(skipBack10Element);
+    controlsSection.append(skipForward10Element);
+    controlsSection.append(skipForwardElement);
+    controlsSection.append(stopElement);
+    consoleSection.append(controlsSection);
 }

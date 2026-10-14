@@ -21,6 +21,7 @@ export class Media {
 }
 export class Audio extends Media {
     element;
+    offset;
     playIcon;
     pauseIcon;
     playPauseIcon;
@@ -29,10 +30,22 @@ export class Audio extends Media {
     forwardIcon;
     endIcon;
     stopIcon;
+    playPauseElement;
+    skipToStartElement;
+    skipBackElement;
+    skipForwardElement;
+    skipToEndElement;
+    stopElement;
+    locationElement;
+    progressBar;
+    progressBarFill;
+    timeElement;
+    durationElement;
     constructor(id = '') {
         const element = document.createElement('audio');
         super(element, id);
         this.element = element;
+        this.offset = 10;
         this.playIcon = '▶️';
         this.pauseIcon = '⏸';
         this.playPauseIcon = '⏯';
@@ -41,72 +54,94 @@ export class Audio extends Media {
         this.forwardIcon = '⏩';
         this.endIcon = '⏭';
         this.stopIcon = '⏹';
-        element.addEventListener('ended', () => {
-            element.currentTime = 0;
-        });
-    }
-    playPauseButton() {
-        const button = document.createElement('button');
-        button.innerText = this.playPauseIcon; // not toggling
-        button.addEventListener('click', () => {
+        this.playPauseElement = document.createElement('span');
+        this.playPauseElement.textContent = this.playIcon;
+        this.skipToStartElement = document.createElement('span');
+        this.skipToStartElement.textContent = this.startIcon;
+        this.skipBackElement = document.createElement('span');
+        this.skipBackElement.textContent = this.backIcon;
+        this.skipForwardElement = document.createElement('span');
+        this.skipForwardElement.textContent = this.forwardIcon;
+        this.skipToEndElement = document.createElement('span');
+        this.skipToEndElement.textContent = this.endIcon;
+        this.stopElement = document.createElement('span');
+        this.stopElement.textContent = this.stopIcon;
+        this.locationElement = document.createElement('span');
+        this.locationElement.id = 'location';
+        this.locationElement.textContent = '\u2316'; // 🔆 \u2316 📌 🔖
+        this.progressBar = document.createElement('div');
+        this.progressBar.id = 'progress-bar';
+        this.progressBarFill = document.createElement('div');
+        this.progressBarFill.id = 'progress-bar-fill';
+        this.timeElement = document.createElement('span');
+        this.timeElement.id = 'current-time';
+        this.timeElement.textContent = formatTime(0);
+        this.durationElement = document.createElement('span');
+        this.durationElement.id = 'duration';
+        this.durationElement.textContent = formatTime(0);
+        this.playPauseElement.addEventListener('click', () => {
             if (this.element.paused) {
-                // button.innerText = this.pauseIcon;
+                this.playPauseElement.textContent = this.pauseIcon;
                 this.element.play();
             }
             else {
-                // button.innerText = this.playIcon;
+                this.playPauseElement.textContent = this.playIcon;
                 this.element.pause();
             }
-            console.log('playPause currentTime:', this.element.currentTime);
         });
-        return button;
-    }
-    skipBackButton(seconds = 0) {
-        const button = document.createElement('button');
-        button.innerText = (!seconds) ? this.startIcon : this.backIcon;
-        button.addEventListener('click', () => {
-            this.element.currentTime = this.newCurrentTime(seconds);
+        this.skipToStartElement.addEventListener('click', () => {
+            this.element.currentTime = this.newCurrentTime(0);
         });
-        return button;
-    }
-    skipForwardButton(seconds = 0) {
-        const button = document.createElement('button');
-        button.innerText = (!seconds) ? this.endIcon : this.forwardIcon;
-        button.addEventListener('click', () => {
-            this.element.currentTime = this.newCurrentTime(seconds, false);
+        this.skipBackElement.addEventListener('click', () => {
+            this.element.currentTime = this.newCurrentTime(this.offset);
         });
-        return button;
+        this.skipForwardElement.addEventListener('click', () => {
+            this.element.currentTime = this.newCurrentTime(this.offset, false);
+        });
+        this.skipToEndElement.addEventListener('click', () => {
+            this.element.currentTime = this.newCurrentTime(0, false);
+        });
+        this.stopElement.addEventListener('click', () => {
+            if (!this.element.paused)
+                this.element.pause();
+            this.element.currentTime = 0;
+            this.playPauseElement.textContent = this.playIcon; // raise event to trigger this
+        });
+        this.locationElement.addEventListener('click', () => {
+            const position = this.element.currentTime;
+            const copyText = (position != 0) ? formatTime(position) : '';
+            if (copyText) {
+                navigator.clipboard.writeText(copyText);
+                window.alert(`Copied to Clipboard:\n${copyText}`);
+            }
+        });
+        this.element.addEventListener('timeupdate', () => {
+            this.timeElement.textContent = formatTime(this.element.currentTime);
+            const barWidth = this.progressBar.offsetWidth;
+            this.progressBarFill.style.width = `${this.element.currentTime / this.element.duration * barWidth}px`;
+        });
+        this.element.addEventListener('loadedmetadata', () => {
+            this.durationElement.textContent = formatTime(this.element.duration);
+        });
+        this.element.addEventListener('ended', () => {
+            this.element.currentTime = 0;
+        });
     }
     newCurrentTime(seconds, backwards = true) {
         let newCurrentTime = 0;
         if (!seconds && backwards)
             newCurrentTime = 0;
         else if (!seconds)
-            newCurrentTime = this.element.duration - 10; // go to 10 seconds before the end
+            newCurrentTime = this.element.duration - this.offset;
         else if (backwards) {
             const beforeStart = this.element.currentTime < seconds;
             newCurrentTime = (beforeStart) ? 0 : this.element.currentTime - seconds;
         }
         else {
             const afterEnd = this.element.currentTime + seconds > this.element.duration;
-            newCurrentTime = (afterEnd) ? this.element.duration - 10 : this.element.currentTime + seconds;
+            newCurrentTime = (afterEnd) ? this.element.duration - this.offset : this.element.currentTime + seconds;
         }
-        if (backwards)
-            console.log('Back currentTime:', newCurrentTime);
-        else
-            console.log('Forward currentTime:', newCurrentTime);
         return newCurrentTime;
-    }
-    stopButton(playPauseButton) {
-        const button = document.createElement('button');
-        button.innerText = this.stopIcon;
-        button.addEventListener('click', () => {
-            if (!this.element.paused)
-                this.element.pause();
-            this.element.currentTime = 0;
-            playPauseButton.innerText = this.playPauseIcon; // redundant ... should be playIcon if we're toggling
-        });
-        return button;
     }
 }
 /**

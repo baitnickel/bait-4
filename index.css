@@ -435,75 +435,67 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 /* Test Media.Audio ============================================================ */
 
 .media-module {
-
-	/* div { */
-		/* margin-bottom: 2rem; */
-		/* border: 1px solid red; */
-	/* } */
-
-	button {
-		font-size: 14pt;
-		cursor: pointer;
-		/* border: none; */
-		background: none;
-		padding-left: .5rem;
-		/* border: 1px solid red; */
-	}
-
-	#console {
-		height: 20px;
-		width: 500px;
+	#console { /* change name later here and in media.ts */
 		position: relative;
-		margin: 10px 0;
-		/* border: 1px solid red; */
+		height: 38px;
+		width: 295px;
+		left: 5px;
+		background-color:rgb(210, 227, 247) ;
+		border: 1px solid blue;
+		border-radius: 10px;
+		padding: 10px;
 	}
-
-	#location {
-		position: absolute;
-		left: 0%;
-		top: 0%;
-		cursor: pointer;
-		background: none;
-		padding: none;
-		font-size: 10pt;
-	}
-	#current-time {
-		position: absolute;
-		text-align: right;
-		left: 10%;
-		top: 18%;
-	}
-	#progress-bar, #progress-bar-fill {
-		position: absolute;
-		left: 20%;
-		top: 32%;
-		width: 320px;
-		height: 8px;
-		border-radius: 20px;
-	}
-	#progress-bar {
-		/* width: 320px; */
-		background-color: #ddd;
-	}
-	#progress-bar-fill {
-		width: 0;
-		background-color: #aaa;
-		/* transition: width ease; */
-	}
-	#duration {
-		position: absolute;
-		text-align: right;
-		left: 85%;
-		top: 18%;
-	}
-
 	#current-time, #duration {
 		font-family: Verdana, Geneva, Tahoma, sans-serif;
 		font-size: 8pt;
 		color:#000;
-		/* border: 1px solid red; */
+		top: 5px;
 	}
-
+	#current-time {
+		position: absolute;
+		text-align: right;
+		width: 50px;
+		left: 0px;
+	}
+	#duration {
+		position: absolute;
+		left: 265px;
+	}
+	#progress-bar, #progress-bar-fill {
+		position: absolute;
+		left: 57px;
+		top: 8px;
+		width: 200px;
+		height: 8px;
+		border-radius: 20px;
+	}
+	#progress-bar {
+		background-color: #fff;
+	}
+	#progress-bar-fill {
+		width: 0;
+		background-color: #999;
+	}
+	#location {
+		position: absolute;
+		left: 10px;
+		top: 25px;
+		cursor: pointer;
+		background: none;
+		padding: none;
+		font-size: 16pt;
+	}
+	.controls {
+		position: absolute;
+		left: 35px;
+		top: 25px;
+	}
+	.controls span {
+		font-size: 14pt;
+		cursor: pointer;
+		background: none;
+		padding-left: 1rem;
+	}
 }
 
 /* Test Audio (dev.to) ========================================================= */

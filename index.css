@@ -433,9 +433,9 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 }
 
 /* Test Media.Audio ============================================================ */
-
+/*
 .media-module {
-	#console { /* change name later here and in media.ts */
+	#console {
 		position: relative;
 		height: 38px;
 		width: 295px;
@@ -497,6 +497,7 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 		padding-left: 1rem;
 	}
 }
+*/
 
 /* Test Audio (dev.to) ========================================================= */
 
@@ -731,27 +732,37 @@ dialog.threads-dialog button {
 	height: 75%;
 }
 
+/*
 .talk-dialog-location, .talk-dialog-exit {
 	position: absolute;
 	top: 3%;
-	z-index: 2; /* force buttons to show up on top of images */
+	z-index: 2;
 	background: none;
 	border: none;
-	/* font-family: serif;  ... seems to make no difference */
-	font-size: 1.5rem;  /* 4rem; */
+	font-size: 1.5rem; 
 	color: black;
-	cursor: pointer; /* to support clicking on buttons */
+	cursor: pointer;
 	border-radius: .50rem;
 	padding: 0;
 }
 .talk-dialog-location { right: 50%; }
 .talk-dialog-exit { right: 3%; }
-
-.talk-dialog-title-copy {
-	cursor: pointer;
-	border: none;
+*/
+.talk-dialog-exit {
+	position: absolute;
+	top: 3%;
+	right: 3%;
+	z-index: 2; /* force buttons to show up on top of images */
 	background: none;
-	padding-left: .5rem;
+	border: none;
+	font-size: 1.5rem;  /* 4rem; */
+	color: black;
+	cursor: pointer; /* to indicate element is clickable */
+	padding: 0;
+}
+
+#talk-dialog-title {
+	cursor: pointer;
 }
 
 .talk-column {

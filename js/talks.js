@@ -3,7 +3,7 @@ import { Markup } from './lib/markup.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
-import * as PlayAudio from './lib/play-audio.js';
+import * as Media from './lib/media.js';
 /**
  * When the modal DetailElement is displayed, certain fields should become
  * clickable (this should be indicated by some subtle style). These are the
@@ -70,7 +70,7 @@ function listTalks(division, keywords, logicalAnd) {
             titleCell.id = `${i}`;
             titleCell.classList.add('talk-title');
             table.addCell(record.type);
-            const timeCell = table.addCell(PlayAudio.FormatTime(record.duration));
+            const timeCell = table.addCell(Media.formatTime(record.duration, false));
             timeCell.classList.add('talk-time');
             const playCountCell = table.addCell(record.playCount.toString());
             playCountCell.classList.add('talk-play-count');
@@ -113,11 +113,11 @@ function showRecordDetails(index) {
     const audioSection = document.createElement('div');
     if (record.extension) {
         /** add Audio element */
-        const uri = `${MediaFolder}/${record.title}${record.extension}`;
-        const audio = new Audio();
-        audio.controls = true;
-        audioSection.append(audio);
-        PlayAudio.Play(audio, uri);
+        const audio = new Media.Audio();
+        audio.element.src = `${MediaFolder}/${record.title}${record.extension}`;
+        audio.element.load();
+        audioSection.append(audio.element);
+        audioSection.append(audio.panel);
     }
     else {
         const noAudioMessage = document.createElement('paragraph');
@@ -127,17 +127,28 @@ function showRecordDetails(index) {
     const titleSection = document.createElement('div');
     titleSection.className = 'talk-dialog-title-section';
     const titleHeading = document.createElement('h3');
+    titleHeading.id = 'talk-dialog-title';
     titleHeading.innerHTML = highlightKeywords(record.title, Keywords).join('');
-    /** create 'title copy' button */
-    const copyButton = document.createElement('button');
-    copyButton.innerHTML = '⇩'; // ⤵️✓⇩⬇︎⏚⇣⬇️
-    copyButton.className = 'talk-dialog-title-copy';
-    copyButton.addEventListener('click', () => {
-        const copyText = record.title;
-        PAGE.clipboardCopy(copyText);
+    /** click on title to copy it to the clipboard */
+    titleHeading.addEventListener('click', () => {
+        PAGE.clipboardCopy(record.title);
     });
-    titleHeading.append(copyButton);
     titleSection.append(titleHeading);
+    /** add 'close' button */
+    const exitButton = document.createElement('span');
+    exitButton.innerHTML = '&times;';
+    exitButton.className = 'talk-dialog-exit';
+    exitButton.addEventListener('click', () => {
+        dialog.close();
+        dialog.remove();
+    });
+    /** support Escape key close - see: https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values */
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            dialog.close();
+            dialog.remove();
+        }
+    });
     const textSection = document.createElement('div');
     const textLines = [];
     const categories = (record.categories.length) ? record.categories.join(' > ') : '';
@@ -169,30 +180,6 @@ function showRecordDetails(index) {
     const highlightedTextLines = highlightKeywords(textLines, Keywords);
     const markedUpText = Markup(highlightedTextLines);
     textSection.innerHTML = markedUpText;
-    // /** add 'location' button */
-    // const locationButton = document.createElement('button');
-    // locationButton.innerHTML = '\u2316';
-    // locationButton.className = 'talk-dialog-location';
-    // locationButton.addEventListener('click', () => {
-    // 	const position = audio.currentTime; // always returns 0!
-    // 	const copyText = (position == 0) ? '' : PlayAudio.FormatTime(position);
-    // 	PAGE.clipboardCopy(copyText);
-    // });
-    /** add 'close' button */
-    const exitButton = document.createElement('button');
-    exitButton.innerHTML = '&times;';
-    exitButton.className = 'talk-dialog-exit';
-    exitButton.addEventListener('click', () => {
-        dialog.close();
-        dialog.remove();
-    });
-    /** support Escape key close - see: https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values */
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            dialog.close();
-            dialog.remove();
-        }
-    });
     dialog.append(audioSection);
     dialog.append(titleSection);
     dialog.append(textSection);

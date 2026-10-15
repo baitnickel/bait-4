@@ -36,6 +36,7 @@ export class Audio extends Media {
 	forwardIcon: string;
 	endIcon: string;
 	stopIcon: string;
+	panel: HTMLDivElement;
 	playPauseElement: HTMLSpanElement;
 	skipToStartElement: HTMLSpanElement;
 	skipBackElement: HTMLSpanElement;
@@ -62,6 +63,7 @@ export class Audio extends Media {
 		this.endIcon = '⏭';
 		this.stopIcon = '⏹';
 
+		this.panel = document.createElement('div');
 		this.playPauseElement = document.createElement('span');
 		this.playPauseElement.textContent = this.playIcon;
 		this.skipToStartElement = document.createElement('span');
@@ -75,19 +77,36 @@ export class Audio extends Media {
 		this.stopElement = document.createElement('span');
 		this.stopElement.textContent = this.stopIcon;
 		this.locationElement = document.createElement('span');
-		this.locationElement.id = 'location';
+		// this.locationElement.id = 'location';
 		this.locationElement.textContent = '\u2316'; // 🔆 \u2316 📌 🔖
 		this.progressBar = document.createElement('div');
-		this.progressBar.id = 'progress-bar';
+		// this.progressBar.id = 'progress-bar';
 		this.progressBarFill = document.createElement('div');
-		this.progressBarFill.id = 'progress-bar-fill';
+		// this.progressBarFill.id = 'progress-bar-fill';
 		this.timeElement = document.createElement('span');
-		this.timeElement.id = 'current-time';
+		// this.timeElement.id = 'current-time';
 		this.timeElement.textContent = formatTime(0);
 		this.durationElement = document.createElement('span');
-		this.durationElement.id = 'duration';
+		// this.durationElement.id = 'duration';
 		this.durationElement.textContent = formatTime(0);
 
+		/** Fill Container Elements */
+		const controlsSection = document.createElement('div');
+		controlsSection.append(this.playPauseElement);
+		controlsSection.append(this.skipToStartElement);
+		controlsSection.append(this.skipBackElement);
+		controlsSection.append(this.skipForwardElement);
+		controlsSection.append(this.skipToEndElement);
+		controlsSection.append(this.stopElement);
+
+		this.panel.append(this.timeElement);
+		this.panel.append(this.progressBar);
+		this.panel.append(this.progressBarFill);
+		this.panel.append(this.durationElement);
+		this.panel.append(this.locationElement);
+		this.panel.append(controlsSection);
+
+		/** Event Handling */
 		this.playPauseElement.addEventListener('click', () => {
 			if (this.element.paused) {
 				this.playPauseElement.textContent = this.pauseIcon;
@@ -118,7 +137,7 @@ export class Audio extends Media {
 		this.stopElement.addEventListener('click', () => {
 			if (!this.element.paused) this.element.pause();
 			this.element.currentTime = 0;
-			this.playPauseElement.textContent = this.playIcon; // raise event to trigger this
+			this.playPauseElement.textContent = this.playIcon;
 		});
 
 		this.locationElement.addEventListener('click', () => {
@@ -142,10 +161,110 @@ export class Audio extends Media {
 
 		this.element.addEventListener('ended', () => {
 			this.element.currentTime = 0;
+			this.playPauseElement.textContent = this.playIcon;
 		});
+
+		/** Styling */
+		this.panel.style.position = 'relative';
+		this.panel.style.height = '38px';
+		this.panel.style.width = '295px';
+		// this.panel.style.left = '5px'; // why?
+		this.panel.style.backgroundColor = 'rgb(210,227,247)';
+		this.panel.style.border = '1px solid rgb(0,0,255)';
+		this.panel.style.borderRadius = '10px';
+		this.panel.style.padding = '10px';
+
+		const absolute = 'absolute';
+		const timeTop = '5px';
+		const barTop = '8px';
+		const barLeft = '57px';
+		const barHeight = '8px';
+		const barWidth = '200px';
+		const fontFamily = 'Verdana, Geneva, Tahoma, sans-serif';
+		const timesFontSize = '8pt';
+		const timesColor = 'rgb(0,0,0)';
+		const barBorderRadius = '20px';
+		const pointer = 'pointer';
+		const controlFontSize = '14pt';
+		const controlBackground = 'none';
+		const controlPaddingLeft = '16px'; // 1rem
+
+		this.timeElement.style.position = absolute;
+		this.timeElement.style.top = timeTop;
+		this.timeElement.style.left = '0px';
+		this.timeElement.style.width = '50px';
+		this.timeElement.style.fontFamily = fontFamily;
+		this.timeElement.style.fontSize = timesFontSize;
+		this.timeElement.style.textAlign = 'right';
+		this.timeElement.style.color = timesColor;
+
+		this.durationElement.style.position = absolute;
+		this.durationElement.style.top = timeTop;
+		this.durationElement.style.left = '265px';
+		this.durationElement.style.fontFamily = fontFamily;
+		this.durationElement.style.fontSize = timesFontSize;
+		this.durationElement.style.color = timesColor;
+
+		this.progressBar.style.position = absolute;
+		this.progressBar.style.top = barTop;
+		this.progressBar.style.left = barLeft;
+		this.progressBar.style.height = barHeight;
+		this.progressBar.style.width = barWidth;
+		this.progressBar.style.borderRadius = barBorderRadius;
+		this.progressBar.style.backgroundColor = 'rgb(255,255,255)';
+
+		this.progressBarFill.style.position = absolute;
+		this.progressBarFill.style.top = barTop;
+		this.progressBarFill.style.left = barLeft;
+		this.progressBarFill.style.height = barHeight;
+		this.progressBarFill.style.width = '0px';
+		this.progressBarFill.style.borderRadius = barBorderRadius;
+		this.progressBarFill.style.backgroundColor = 'rgb(153,153,153)';
+
+		this.locationElement.style.position = absolute;
+		this.locationElement.style.top = '25px';
+		this.locationElement.style.left = '10px';
+		this.locationElement.style.fontSize = '16pt';
+		this.locationElement.style.background = 'none';
+		this.locationElement.style.padding = 'none';
+		this.locationElement.style.cursor = pointer;
+
+		controlsSection.style.position = absolute;
+		controlsSection.style.top = '25px';
+		controlsSection.style.left = '35px';
+
+		this.playPauseElement.style.fontSize = controlFontSize;
+		this.playPauseElement.style.background = controlBackground;
+		this.playPauseElement.style.paddingLeft = controlPaddingLeft;
+		this.playPauseElement.style.cursor = pointer;
+
+		this.skipToStartElement.style.fontSize = controlFontSize;
+		this.skipToStartElement.style.background = controlBackground;
+		this.skipToStartElement.style.paddingLeft = controlPaddingLeft;
+		this.skipToStartElement.style.cursor = pointer;
+
+		this.skipBackElement.style.fontSize = controlFontSize;
+		this.skipBackElement.style.background = controlBackground;
+		this.skipBackElement.style.paddingLeft = controlPaddingLeft;
+		this.skipBackElement.style.cursor = pointer;
+
+		this.skipForwardElement.style.fontSize = controlFontSize;
+		this.skipForwardElement.style.background = controlBackground;
+		this.skipForwardElement.style.paddingLeft = controlPaddingLeft;
+		this.skipForwardElement.style.cursor = pointer;
+
+		this.skipToEndElement.style.fontSize = controlFontSize;
+		this.skipToEndElement.style.background = controlBackground;
+		this.skipToEndElement.style.paddingLeft = controlPaddingLeft;
+		this.skipToEndElement.style.cursor = pointer;
+
+		this.stopElement.style.fontSize = controlFontSize;
+		this.stopElement.style.background = controlBackground;
+		this.stopElement.style.paddingLeft = controlPaddingLeft;
+		this.stopElement.style.cursor = pointer;
 	}
 
-	private newCurrentTime(seconds: number, backwards = true) {
+	private newCurrentTime(seconds: number, backwards = true) { // needs: currentTime, duration, offset
 		let newCurrentTime = 0;
 		if (!seconds && backwards) newCurrentTime = 0;
 		else if (!seconds) newCurrentTime = this.element.duration - this.offset;
@@ -159,152 +278,272 @@ export class Audio extends Media {
 		}
 		return newCurrentTime;
 	}
+}
 
-	// panel() {
-	// 	const audioPanel = document.createElement('div');
-	// 	audioPanel.id = 'console'; // change name later here and in CSS
-	// 	audioPanel.classList.add('media-module');
+export class Audio2 extends Media {
+	element: HTMLAudioElement;
+	offset: number;
+	playIcon: string;
+	pauseIcon: string;
+	playPauseIcon: string;
+	startIcon: string;
+	backIcon: string;
+	forwardIcon: string;
+	endIcon: string;
+	stopIcon: string;
+	panel: HTMLDivElement;
+	playPauseElement: HTMLSpanElement;
+	skipToStartElement: HTMLSpanElement;
+	skipBackElement: HTMLSpanElement;
+	skipForwardElement: HTMLSpanElement;
+	skipToEndElement: HTMLSpanElement;
+	stopElement: HTMLSpanElement;
+	locationElement: HTMLSpanElement;
+	progressBar: HTMLDivElement;
+	progressBarFill: HTMLDivElement;
+	timeElement: HTMLSpanElement;
+	durationElement: HTMLSpanElement;
 
-	// 	const playPauseElement = this.playPauseElement();
-	// 	const skipBackElement = this.skipBackElement();
-	// 	const skipBack10Element = this.skipBackElement(this.offset);
-	// 	const skipForward10Element = this.skipForwardElement(this.offset);
-	// 	const skipForwardElement = this.skipForwardElement();
-	// 	const stopElement = this.stopElement(playPauseElement);
-	// 	const locationElement = this.locationElement();
-	// 	const progressBar = this.progressBar();
-	// 	const progressBarFill = this.progressBarFill();
-	// 	// const timeElement = this.timeElement();
-	// 	const durationElement = this.durationElement();
+	constructor(id = '') {
+		const element = document.createElement('audio');
+		super(element, id);
+		this.element = element;
+		this.offset = 10;
+		this.playIcon = '▶️';
+		this.pauseIcon = '⏸';
+		this.playPauseIcon = '⏯';
+		this.startIcon = '⏮';
+		this.backIcon = '⏪';
+		this.forwardIcon = '⏩';
+		this.endIcon = '⏭';
+		this.stopIcon = '⏹';
 
-	// 	playPauseElement.addEventListener('click', () => {
-	// 		if (this.element.paused) {
-	// 			playPauseElement.textContent = this.pauseIcon;
-	// 			this.element.play();
-	// 		}
-	// 		else {
-	// 			playPauseElement.textContent = this.playIcon;
-	// 			this.element.pause();
-	// 		}
-	// 	});
-	// }
+		this.panel = document.createElement('div');
+		this.playPauseElement = document.createElement('span');
+		this.playPauseElement.textContent = this.playIcon;
+		this.skipToStartElement = document.createElement('span');
+		this.skipToStartElement.textContent = this.startIcon;
+		this.skipBackElement = document.createElement('span');
+		this.skipBackElement.textContent = this.backIcon;
+		this.skipForwardElement = document.createElement('span');
+		this.skipForwardElement.textContent = this.forwardIcon;
+		this.skipToEndElement = document.createElement('span');
+		this.skipToEndElement.textContent = this.endIcon;
+		this.stopElement = document.createElement('span');
+		this.stopElement.textContent = this.stopIcon;
+		this.locationElement = document.createElement('span');
+		// this.locationElement.id = 'location';
+		this.locationElement.textContent = '\u2316'; // 🔆 \u2316 📌 🔖
+		this.progressBar = document.createElement('div');
+		// this.progressBar.id = 'progress-bar';
+		this.progressBarFill = document.createElement('div');
+		// this.progressBarFill.id = 'progress-bar-fill';
+		this.timeElement = document.createElement('span');
+		// this.timeElement.id = 'current-time';
+		this.timeElement.textContent = formatTime(0);
+		this.durationElement = document.createElement('span');
+		// this.durationElement.id = 'duration';
+		this.durationElement.textContent = formatTime(0);
 
-	// playPauseElement() {
-		// const element = document.createElement('span');
-		// element.textContent = this.playIcon;
-		// element.addEventListener('click', () => {
-		// 	if (this.element.paused) {
-		// 		element.textContent = this.pauseIcon;
-		// 		this.element.play();
-		// 	}
-		// 	else {
-		// 		element.textContent = this.playIcon;
-		// 		this.element.pause();
-		// 	}
-		// });
-		// return element;
-	// }
+		/** Fill Container Elements */
+		const controlsSection = document.createElement('div');
+		controlsSection.append(this.playPauseElement);
+		controlsSection.append(this.skipToStartElement);
+		controlsSection.append(this.skipBackElement);
+		controlsSection.append(this.skipForwardElement);
+		controlsSection.append(this.skipToEndElement);
+		controlsSection.append(this.stopElement);
 
-	// skipBackElement(seconds = 0) {
-	// 	const element = document.createElement('span');
-	// 	element.textContent = (!seconds) ? this.startIcon : this.backIcon;
-	// 	element.addEventListener('click', () => {
-	// 		this.element.currentTime = this.newCurrentTime(seconds);
-	// 	});
-	// 	return element
-	// }
+		this.panel.append(this.timeElement);
+		this.panel.append(this.progressBar);
+		this.panel.append(this.progressBarFill);
+		this.panel.append(this.durationElement);
+		this.panel.append(this.locationElement);
+		this.panel.append(controlsSection);
 
-	// skipForwardElement(seconds = 0) {
-	// 	const element = document.createElement('span');
-	// 	element.textContent = (!seconds) ? this.endIcon : this.forwardIcon;
-	// 	element.addEventListener('click', () => {
-	// 		this.element.currentTime = this.newCurrentTime(seconds, false);
-	// 	});
-	// 	return element
-	// }
+		/** Event Handling */
+		this.playPauseElement.addEventListener('click', () => {
+			if (this.element.paused) {
+				this.playPauseElement.textContent = this.pauseIcon;
+				this.element.play();
+			}
+			else {
+				this.playPauseElement.textContent = this.playIcon;
+				this.element.pause();
+			}
+		});
 
-	// stopElement(playPauseElement: HTMLSpanElement) {
-	// 	const element = document.createElement('span');
-	// 	element.textContent = this.stopIcon;
-	// 	element.addEventListener('click', () => {
-	// 		if (!this.element.paused) this.element.pause();
-	// 		this.element.currentTime = 0;
-	// 		playPauseElement.textContent = this.playIcon; // raise event to trigger this
-	// 	});
-	// 	return element;
-	// }
+		this.skipToStartElement.addEventListener('click', () => {
+			this.element.currentTime = this.newCurrentTime(0);
+		});
 
-	// locationElement() {
-	// 	const element = document.createElement('span');
-	// 	element.id = 'location';
-	// 	element.textContent = '\u2316'; // 🔆 \u2316 📌 🔖
-	// 	element.addEventListener('click', () => {
-	// 		const position = this.element.currentTime;
-	// 		const copyText = (position != 0) ? formatTime(position) : '';
-	// 		if (copyText) {
-	// 			navigator.clipboard.writeText(copyText);
-	// 			window.alert(`Copied to Clipboard:\n${copyText}`);
-	// 		}
-	// 	});
-	// 	return element;
-	// }
+		this.skipBackElement.addEventListener('click', () => {
+			this.element.currentTime = this.newCurrentTime(this.offset);
+		});
 
-	// progressBar() {
-	// 	const element = document.createElement('div');
-	// 	element.id = 'progress-bar';
-	// 	return element;
-	// }
+		this.skipForwardElement.addEventListener('click', () => {
+			this.element.currentTime = this.newCurrentTime(this.offset, false);
+		});
 
-	// progressBarFill() {
-	// 	const element = document.createElement('div');
-	// 	element.id = 'progress-bar-fill';
-	// 	return element;
-	// }
+		this.skipToEndElement.addEventListener('click', () => {
+			this.element.currentTime = this.newCurrentTime(0, false);
+		});
 
-	// timeElement() {
-	// 	const element = document.createElement('span');
-	// 	element.id = 'current-time';
-	// 	element.textContent = formatTime(0);
-	// 	this.element.addEventListener('timeupdate', () => {
-	// 		element.textContent = formatTime(this.element.currentTime);
-	// 		const barWidth = progressBar.offsetWidth;
-	// 		progressBarFill.style.width = `${audio.element.currentTime / audio.element.duration * barWidth}px`;
-	// 	});
-	// 	return element;
-	// }
+		this.stopElement.addEventListener('click', () => {
+			if (!this.element.paused) this.element.pause();
+			this.element.currentTime = 0;
+			this.playPauseElement.textContent = this.playIcon;
+		});
 
-	// durationElement() {
-	// 	const element = document.createElement('span');
-	// 	element.id = 'duration';
-	// 	element.textContent = formatTime(0);
-	// 	this.element.addEventListener('loadedmetadata', () => {
-	// 		element.textContent = formatTime(this.element.duration);
-	// 	});
-	// 	return element;
-	// }
+		this.locationElement.addEventListener('click', () => {
+			const position = this.element.currentTime;
+			const copyText = (position != 0) ? formatTime(position) : '';
+			if (copyText) {
+				navigator.clipboard.writeText(copyText);
+				window.alert(`Copied to Clipboard:\n${copyText}`);
+			}
+		});
 
-	/*
-	Play(playFace, pauseFace = '')
-	Pause(face)
-    Rewind(face)
-    Back(face, seconds)
-    Forward(face, seconds)
-    Last(face, seconds = 0)
-    Stop(face)
-    CopyTime(face)
-    Options(face)
-	*/
+		this.element.addEventListener('timeupdate', () => {
+			this.timeElement.textContent = formatTime(this.element.currentTime);
+			const barWidth = this.progressBar.offsetWidth;
+			this.progressBarFill.style.width = `${this.element.currentTime / this.element.duration * barWidth}px`;
+		});
+
+		this.element.addEventListener('loadedmetadata', () => {
+			this.durationElement.textContent = formatTime(this.element.duration);
+		});
+
+		this.element.addEventListener('ended', () => {
+			this.element.currentTime = 0;
+			this.playPauseElement.textContent = this.playIcon;
+		});
+
+		/** Styling */
+		this.panel.style.position = 'relative';
+		this.panel.style.height = '38px';
+		this.panel.style.width = '295px';
+		// this.panel.style.left = '5px'; // why?
+		this.panel.style.backgroundColor = 'rgb(210,227,247)';
+		this.panel.style.border = '1px solid rgb(0,0,255)';
+		this.panel.style.borderRadius = '10px';
+		this.panel.style.padding = '10px';
+
+		const absolute = 'absolute';
+		const timeTop = '5px';
+		const barTop = '8px';
+		const barLeft = '57px';
+		const barHeight = '8px';
+		const barWidth = '200px';
+		const fontFamily = 'Verdana, Geneva, Tahoma, sans-serif';
+		const timesFontSize = '8pt';
+		const timesColor = 'rgb(0,0,0)';
+		const barBorderRadius = '20px';
+		const pointer = 'pointer';
+		const controlFontSize = '14pt';
+		const controlBackground = 'none';
+		const controlPaddingLeft = '16px'; // 1rem
+
+		this.timeElement.style.position = absolute;
+		this.timeElement.style.top = timeTop;
+		this.timeElement.style.left = '0px';
+		this.timeElement.style.width = '50px';
+		this.timeElement.style.fontFamily = fontFamily;
+		this.timeElement.style.fontSize = timesFontSize;
+		this.timeElement.style.textAlign = 'right';
+		this.timeElement.style.color = timesColor;
+
+		this.durationElement.style.position = absolute;
+		this.durationElement.style.top = timeTop;
+		this.durationElement.style.left = '265px';
+		this.durationElement.style.fontFamily = fontFamily;
+		this.durationElement.style.fontSize = timesFontSize;
+		this.durationElement.style.color = timesColor;
+
+		this.progressBar.style.position = absolute;
+		this.progressBar.style.top = barTop;
+		this.progressBar.style.left = barLeft;
+		this.progressBar.style.height = barHeight;
+		this.progressBar.style.width = barWidth;
+		this.progressBar.style.borderRadius = barBorderRadius;
+		this.progressBar.style.backgroundColor = 'rgb(255,255,255)';
+
+		this.progressBarFill.style.position = absolute;
+		this.progressBarFill.style.top = barTop;
+		this.progressBarFill.style.left = barLeft;
+		this.progressBarFill.style.height = barHeight;
+		this.progressBarFill.style.width = '0px';
+		this.progressBarFill.style.borderRadius = barBorderRadius;
+		this.progressBarFill.style.backgroundColor = 'rgb(153,153,153)';
+
+		this.locationElement.style.position = absolute;
+		this.locationElement.style.top = '25px';
+		this.locationElement.style.left = '10px';
+		this.locationElement.style.fontSize = '16pt';
+		this.locationElement.style.background = 'none';
+		this.locationElement.style.padding = 'none';
+		this.locationElement.style.cursor = pointer;
+
+		controlsSection.style.position = absolute;
+		controlsSection.style.top = '25px';
+		controlsSection.style.left = '35px';
+
+		this.playPauseElement.style.fontSize = controlFontSize;
+		this.playPauseElement.style.background = controlBackground;
+		this.playPauseElement.style.paddingLeft = controlPaddingLeft;
+		this.playPauseElement.style.cursor = pointer;
+
+		this.skipToStartElement.style.fontSize = controlFontSize;
+		this.skipToStartElement.style.background = controlBackground;
+		this.skipToStartElement.style.paddingLeft = controlPaddingLeft;
+		this.skipToStartElement.style.cursor = pointer;
+
+		this.skipBackElement.style.fontSize = controlFontSize;
+		this.skipBackElement.style.background = controlBackground;
+		this.skipBackElement.style.paddingLeft = controlPaddingLeft;
+		this.skipBackElement.style.cursor = pointer;
+
+		this.skipForwardElement.style.fontSize = controlFontSize;
+		this.skipForwardElement.style.background = controlBackground;
+		this.skipForwardElement.style.paddingLeft = controlPaddingLeft;
+		this.skipForwardElement.style.cursor = pointer;
+
+		this.skipToEndElement.style.fontSize = controlFontSize;
+		this.skipToEndElement.style.background = controlBackground;
+		this.skipToEndElement.style.paddingLeft = controlPaddingLeft;
+		this.skipToEndElement.style.cursor = pointer;
+
+		this.stopElement.style.fontSize = controlFontSize;
+		this.stopElement.style.background = controlBackground;
+		this.stopElement.style.paddingLeft = controlPaddingLeft;
+		this.stopElement.style.cursor = pointer;
+	}
+
+	private newCurrentTime(seconds: number, backwards = true) { // needs: currentTime, duration, offset
+		let newCurrentTime = 0;
+		if (!seconds && backwards) newCurrentTime = 0;
+		else if (!seconds) newCurrentTime = this.element.duration - this.offset;
+		else if (backwards) {
+			const beforeStart = this.element.currentTime < seconds;
+			newCurrentTime = (beforeStart) ? 0 : this.element.currentTime - seconds;
+		}
+		else {
+			const afterEnd = this.element.currentTime + seconds > this.element.duration;
+			newCurrentTime = (afterEnd) ? this.element.duration - this.offset : this.element.currentTime + seconds;
+		}
+		return newCurrentTime;
+	}
 }
 
 /**
  * Given a number of seconds, return a formatted time string ('HH:MM:SS').
- * Return an empty string if seconds is a negative number. Also return an empty
- * string if seconds is 0, unless `show0` is true.
+ * Return an empty string if seconds is a negative number, or if seconds is zero
+ * and show0 is false.
  */
-export function formatTime(seconds: number) {
+export function formatTime(seconds: number, show0 = true) {
 	let formattedTime = '';
 	seconds = Math.round(seconds);
-	if (seconds >= 0) {
+	if (seconds > 0 || (show0 && seconds >= 0)) {
 		const hours = Math.floor(seconds/3600)
 		seconds -= (hours * 3600);
 		const minutes = Math.floor(seconds/60);
@@ -333,95 +572,3 @@ function svgText(text: RichText) {
 
 	return svgText;
 }
-
-
-
-/* Source - https://stackoverflow.com/a/33802690
-
-<div class="hp_slide">
-	<div class="hp_range"></div>
-</div>
-
-.hp_slide{
-	width:100%;
-	background:white;
-	height:25px;
-}
-.hp_range{
-	width:0;
-	background:black;
-	height:25px;
-}
-
-var player = document.getElementById('player');    
-player.addEventListener("timeupdate", function() {
-	var currentTime = player.currentTime;
-	var duration = player.duration;
-	$('.hp_range').stop(true,true).animate({'width':(currentTime +.25)/duration*100+'%'},250,'linear');
-});
-
-*/
-
-/*
-
-The approach is to use an input[type="range"] slider to reflect the progress and
-allow the user to seek through the track. When the range changes, set the
-audio.currentTime attribute, using the slider as a percent (you could also
-adjust the max attribute of the slider to match the audio.duration).
-
-In the other direction, I update the slider's progress on timeupdate event
-firing.
-
-One corner case is that if the user scrolls around with their mouse down on the
-slider, the timeupdate event will keep firing, causing the progress to hop
-around between wherever the user's cursor is hovering and the current audio
-progress. I use a boolean and the mousedown/mouseup events on the slider to
-prevent this from happening.
-
-See also JavaScript - HTML5 Audio / custom player's seekbar and current time for
-an extension of this code that displays the time:
-
-https://stackoverflow.com/questions/49814828/javascript-html5-audio-custom-players-seekbar-and-current-time/70638724#70638724
-
-<button>▶️</button>
-<input type="range" value="0" min="0" max="100" step="1">
-
-button {
-  font-size: 1.5em;
-}
-
-const url = "https://upload.wikimedia.org/wikipedia/en/a/a9/Webern_-_Sehr_langsam.ogg";
-const audio = new Audio(url);
-const playBtn = document.querySelector("button");
-const progressEl = document.querySelector('input[type="range"]');
-let mouseDownOnSlider = false;
-
-audio.addEventListener("loadeddata", () => {
-  progressEl.value = 0;
-});
-audio.addEventListener("timeupdate", () => {
-  if (!mouseDownOnSlider) {
-    progressEl.value = audio.currentTime / audio.duration * 100;
-  }
-});
-audio.addEventListener("ended", () => {
-  playBtn.textContent = "▶️";
-});
-
-playBtn.addEventListener("click", () => {
-  audio.paused ? audio.play() : audio.pause();
-  playBtn.textContent = audio.paused ? "▶️" : "⏸️";
-});
-
-progressEl.addEventListener("change", () => {
-  const pct = progressEl.value / 100;
-  audio.currentTime = (audio.duration || 0) * pct;
-});
-progressEl.addEventListener("mousedown", () => {
-  mouseDownOnSlider = true;
-});
-progressEl.addEventListener("mouseup", () => {
-  mouseDownOnSlider = false;
-});
-
-*/

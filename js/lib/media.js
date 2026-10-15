@@ -21,110 +21,78 @@ export class Media {
 }
 export class Audio extends Media {
     element;
-    offset;
-    playIcon;
-    pauseIcon;
-    playPauseIcon;
-    startIcon;
-    backIcon;
-    forwardIcon;
-    endIcon;
-    stopIcon;
+    skip;
     panel;
-    playPauseElement;
-    skipToStartElement;
-    skipBackElement;
-    skipForwardElement;
-    skipToEndElement;
-    stopElement;
-    locationElement;
-    progressBar;
-    progressBarFill;
-    timeElement;
-    durationElement;
     constructor(id = '') {
         const element = document.createElement('audio');
         super(element, id);
         this.element = element;
-        this.offset = 10;
-        this.playIcon = '▶️';
-        this.pauseIcon = '⏸';
-        this.playPauseIcon = '⏯';
-        this.startIcon = '⏮';
-        this.backIcon = '⏪';
-        this.forwardIcon = '⏩';
-        this.endIcon = '⏭';
-        this.stopIcon = '⏹';
+        this.skip = 15;
         this.panel = document.createElement('div');
-        this.playPauseElement = document.createElement('span');
-        this.playPauseElement.textContent = this.playIcon;
-        this.skipToStartElement = document.createElement('span');
-        this.skipToStartElement.textContent = this.startIcon;
-        this.skipBackElement = document.createElement('span');
-        this.skipBackElement.textContent = this.backIcon;
-        this.skipForwardElement = document.createElement('span');
-        this.skipForwardElement.textContent = this.forwardIcon;
-        this.skipToEndElement = document.createElement('span');
-        this.skipToEndElement.textContent = this.endIcon;
-        this.stopElement = document.createElement('span');
-        this.stopElement.textContent = this.stopIcon;
-        this.locationElement = document.createElement('span');
-        // this.locationElement.id = 'location';
-        this.locationElement.textContent = '\u2316'; // 🔆 \u2316 📌 🔖
-        this.progressBar = document.createElement('div');
-        // this.progressBar.id = 'progress-bar';
-        this.progressBarFill = document.createElement('div');
-        // this.progressBarFill.id = 'progress-bar-fill';
-        this.timeElement = document.createElement('span');
-        // this.timeElement.id = 'current-time';
-        this.timeElement.textContent = formatTime(0);
-        this.durationElement = document.createElement('span');
-        // this.durationElement.id = 'duration';
-        this.durationElement.textContent = formatTime(0);
-        /** Fill Container Elements */
+        /** define internal section to hold controls (Play, Pause, etc.) */
         const controlsSection = document.createElement('div');
-        controlsSection.append(this.playPauseElement);
-        controlsSection.append(this.skipToStartElement);
-        controlsSection.append(this.skipBackElement);
-        controlsSection.append(this.skipForwardElement);
-        controlsSection.append(this.skipToEndElement);
-        controlsSection.append(this.stopElement);
-        this.panel.append(this.timeElement);
-        this.panel.append(this.progressBar);
-        this.panel.append(this.progressBarFill);
-        this.panel.append(this.durationElement);
-        this.panel.append(this.locationElement);
-        this.panel.append(controlsSection);
+        controlsSection.style.position = 'absolute';
+        controlsSection.style.top = '25px';
+        controlsSection.style.left = '35px';
+        const playIcon = '▶️';
+        const pauseIcon = '⏸';
+        const playPauseIcon = '⏯';
+        const startIcon = '⏮';
+        const backIcon = '⏪';
+        const forwardIcon = '⏩';
+        const endIcon = '⏭';
+        const stopIcon = '⏹';
+        const locationIcon = '\u2316'; // 🔆 \u2316 📌 🔖
+        const playPause = document.createElement('span');
+        const skipToStart = document.createElement('span');
+        const skipBack = document.createElement('span');
+        const skipForward = document.createElement('span');
+        const skipToEnd = document.createElement('span');
+        const stop = document.createElement('span');
+        const location = document.createElement('span');
+        const progressBar = document.createElement('div');
+        const progressBarFill = document.createElement('div');
+        const time = document.createElement('span');
+        const duration = document.createElement('span');
+        playPause.textContent = playIcon;
+        skipToStart.textContent = startIcon;
+        skipBack.textContent = backIcon;
+        skipForward.textContent = forwardIcon;
+        skipToEnd.textContent = endIcon;
+        stop.textContent = stopIcon;
+        location.textContent = locationIcon;
+        time.textContent = formatTime(0);
+        duration.textContent = formatTime(0);
         /** Event Handling */
-        this.playPauseElement.addEventListener('click', () => {
+        playPause.addEventListener('click', () => {
             if (this.element.paused) {
-                this.playPauseElement.textContent = this.pauseIcon;
+                playPause.textContent = pauseIcon;
                 this.element.play();
             }
             else {
-                this.playPauseElement.textContent = this.playIcon;
+                playPause.textContent = playIcon;
                 this.element.pause();
             }
         });
-        this.skipToStartElement.addEventListener('click', () => {
+        skipToStart.addEventListener('click', () => {
             this.element.currentTime = this.newCurrentTime(0);
         });
-        this.skipBackElement.addEventListener('click', () => {
-            this.element.currentTime = this.newCurrentTime(this.offset);
+        skipBack.addEventListener('click', () => {
+            this.element.currentTime = this.newCurrentTime(this.skip);
         });
-        this.skipForwardElement.addEventListener('click', () => {
-            this.element.currentTime = this.newCurrentTime(this.offset, false);
+        skipForward.addEventListener('click', () => {
+            this.element.currentTime = this.newCurrentTime(this.skip, false);
         });
-        this.skipToEndElement.addEventListener('click', () => {
+        skipToEnd.addEventListener('click', () => {
             this.element.currentTime = this.newCurrentTime(0, false);
         });
-        this.stopElement.addEventListener('click', () => {
+        stop.addEventListener('click', () => {
             if (!this.element.paused)
                 this.element.pause();
             this.element.currentTime = 0;
-            this.playPauseElement.textContent = this.playIcon;
+            playPause.textContent = playIcon;
         });
-        this.locationElement.addEventListener('click', () => {
+        location.addEventListener('click', () => {
             const position = this.element.currentTime;
             const copyText = (position != 0) ? formatTime(position) : '';
             if (copyText) {
@@ -133,22 +101,21 @@ export class Audio extends Media {
             }
         });
         this.element.addEventListener('timeupdate', () => {
-            this.timeElement.textContent = formatTime(this.element.currentTime);
-            const barWidth = this.progressBar.offsetWidth;
-            this.progressBarFill.style.width = `${this.element.currentTime / this.element.duration * barWidth}px`;
+            time.textContent = formatTime(this.element.currentTime);
+            const barWidth = progressBar.offsetWidth;
+            progressBarFill.style.width = `${this.element.currentTime / this.element.duration * barWidth}px`;
         });
         this.element.addEventListener('loadedmetadata', () => {
-            this.durationElement.textContent = formatTime(this.element.duration);
+            duration.textContent = formatTime(this.element.duration);
         });
         this.element.addEventListener('ended', () => {
             this.element.currentTime = 0;
-            this.playPauseElement.textContent = this.playIcon;
+            playPause.textContent = playIcon;
         });
         /** Styling */
         this.panel.style.position = 'relative';
         this.panel.style.height = '38px';
         this.panel.style.width = '295px';
-        // this.panel.style.left = '5px'; // why?
         this.panel.style.backgroundColor = 'rgb(210,227,247)';
         this.panel.style.border = '1px solid rgb(0,0,255)';
         this.panel.style.borderRadius = '10px';
@@ -167,87 +134,103 @@ export class Audio extends Media {
         const controlFontSize = '14pt';
         const controlBackground = 'none';
         const controlPaddingLeft = '16px'; // 1rem
-        this.timeElement.style.position = absolute;
-        this.timeElement.style.top = timeTop;
-        this.timeElement.style.left = '0px';
-        this.timeElement.style.width = '50px';
-        this.timeElement.style.fontFamily = fontFamily;
-        this.timeElement.style.fontSize = timesFontSize;
-        this.timeElement.style.textAlign = 'right';
-        this.timeElement.style.color = timesColor;
-        this.durationElement.style.position = absolute;
-        this.durationElement.style.top = timeTop;
-        this.durationElement.style.left = '265px';
-        this.durationElement.style.fontFamily = fontFamily;
-        this.durationElement.style.fontSize = timesFontSize;
-        this.durationElement.style.color = timesColor;
-        this.progressBar.style.position = absolute;
-        this.progressBar.style.top = barTop;
-        this.progressBar.style.left = barLeft;
-        this.progressBar.style.height = barHeight;
-        this.progressBar.style.width = barWidth;
-        this.progressBar.style.borderRadius = barBorderRadius;
-        this.progressBar.style.backgroundColor = 'rgb(255,255,255)';
-        this.progressBarFill.style.position = absolute;
-        this.progressBarFill.style.top = barTop;
-        this.progressBarFill.style.left = barLeft;
-        this.progressBarFill.style.height = barHeight;
-        this.progressBarFill.style.width = '0px';
-        this.progressBarFill.style.borderRadius = barBorderRadius;
-        this.progressBarFill.style.backgroundColor = 'rgb(153,153,153)';
-        this.locationElement.style.position = absolute;
-        this.locationElement.style.top = '25px';
-        this.locationElement.style.left = '10px';
-        this.locationElement.style.fontSize = '16pt';
-        this.locationElement.style.background = 'none';
-        this.locationElement.style.padding = 'none';
-        this.locationElement.style.cursor = pointer;
-        controlsSection.style.position = absolute;
-        controlsSection.style.top = '25px';
-        controlsSection.style.left = '35px';
-        this.playPauseElement.style.fontSize = controlFontSize;
-        this.playPauseElement.style.background = controlBackground;
-        this.playPauseElement.style.paddingLeft = controlPaddingLeft;
-        this.playPauseElement.style.cursor = pointer;
-        this.skipToStartElement.style.fontSize = controlFontSize;
-        this.skipToStartElement.style.background = controlBackground;
-        this.skipToStartElement.style.paddingLeft = controlPaddingLeft;
-        this.skipToStartElement.style.cursor = pointer;
-        this.skipBackElement.style.fontSize = controlFontSize;
-        this.skipBackElement.style.background = controlBackground;
-        this.skipBackElement.style.paddingLeft = controlPaddingLeft;
-        this.skipBackElement.style.cursor = pointer;
-        this.skipForwardElement.style.fontSize = controlFontSize;
-        this.skipForwardElement.style.background = controlBackground;
-        this.skipForwardElement.style.paddingLeft = controlPaddingLeft;
-        this.skipForwardElement.style.cursor = pointer;
-        this.skipToEndElement.style.fontSize = controlFontSize;
-        this.skipToEndElement.style.background = controlBackground;
-        this.skipToEndElement.style.paddingLeft = controlPaddingLeft;
-        this.skipToEndElement.style.cursor = pointer;
-        this.stopElement.style.fontSize = controlFontSize;
-        this.stopElement.style.background = controlBackground;
-        this.stopElement.style.paddingLeft = controlPaddingLeft;
-        this.stopElement.style.cursor = pointer;
+        time.style.position = absolute;
+        time.style.top = timeTop;
+        time.style.left = '0px';
+        time.style.width = '50px';
+        time.style.fontFamily = fontFamily;
+        time.style.fontSize = timesFontSize;
+        time.style.textAlign = 'right';
+        time.style.color = timesColor;
+        duration.style.position = absolute;
+        duration.style.top = timeTop;
+        duration.style.left = '265px';
+        duration.style.fontFamily = fontFamily;
+        duration.style.fontSize = timesFontSize;
+        duration.style.color = timesColor;
+        for (const element of [progressBar, progressBarFill]) {
+            element.style.position = absolute;
+            element.style.top = barTop;
+            element.style.left = barLeft;
+            element.style.height = barHeight;
+            element.style.borderRadius = barBorderRadius;
+        }
+        progressBar.style.width = barWidth;
+        progressBar.style.backgroundColor = 'rgb(255,255,255)';
+        progressBarFill.style.width = '0px';
+        progressBarFill.style.backgroundColor = 'rgb(153,153,153)';
+        location.style.position = absolute;
+        location.style.top = '25px';
+        location.style.left = '10px';
+        location.style.fontSize = '16pt';
+        location.style.background = 'none';
+        location.style.padding = 'none';
+        location.style.cursor = pointer;
+        /** Style controls and load them into the controlsSection */
+        for (const element of [playPause, skipToStart, skipBack, skipForward, skipToEnd, stop]) {
+            element.style.fontSize = controlFontSize;
+            element.style.background = controlBackground;
+            element.style.paddingLeft = controlPaddingLeft;
+            element.style.cursor = pointer;
+            controlsSection.append(element);
+        }
+        /** Load all elements into this.panel */
+        for (const element of [time, progressBar, progressBarFill, duration, location, controlsSection]) {
+            this.panel.append(element);
+        }
     }
     newCurrentTime(seconds, backwards = true) {
         let newCurrentTime = 0;
         if (!seconds && backwards)
             newCurrentTime = 0;
         else if (!seconds)
-            newCurrentTime = this.element.duration - this.offset;
+            newCurrentTime = this.element.duration - this.skip;
         else if (backwards) {
             const beforeStart = this.element.currentTime < seconds;
             newCurrentTime = (beforeStart) ? 0 : this.element.currentTime - seconds;
         }
         else {
             const afterEnd = this.element.currentTime + seconds > this.element.duration;
-            newCurrentTime = (afterEnd) ? this.element.duration - this.offset : this.element.currentTime + seconds;
+            newCurrentTime = (afterEnd) ? this.element.duration - this.skip : this.element.currentTime + seconds;
         }
         return newCurrentTime;
     }
 }
-export class Audio2 extends Media {
+/**
+ * Given a number of seconds, return a formatted time string ('HH:MM:SS').
+ * Return an empty string if seconds is a negative number, or if seconds is zero
+ * and show0 is false.
+ */
+export function formatTime(seconds, show0 = true) {
+    let formattedTime = '';
+    seconds = Math.round(seconds);
+    if (seconds > 0 || (show0 && seconds >= 0)) {
+        const hours = Math.floor(seconds / 3600);
+        seconds -= (hours * 3600);
+        const minutes = Math.floor(seconds / 60);
+        seconds -= (minutes * 60);
+        formattedTime = (hours) ? `${hours}:` + `${minutes}`.padStart(2, '0') : `${minutes}`;
+        formattedTime += ':' + `${seconds}`.padStart(2, '0');
+    }
+    return formattedTime;
+}
+function svgText(text) {
+    // let svg = document.createElementNS(SVG, 'svg');
+    // svg.setAttribute('x', coordinates.x.toString());
+    // svg.setAttribute('y', coordinates.y.toString());
+    // svg.setAttribute('width', coordinates.width.toString());
+    // svg.setAttribute('height', coordinates.height.toString());
+    let svgText = document.createElementNS(SVG, 'text');
+    // svgText.setAttribute('x', Math.round(coordinates.width * .5).toString());
+    // svgText.setAttribute('y', Math.round(coordinates.height * .7).toString());
+    svgText.setAttribute('text-anchor', 'middle');
+    svgText.setAttribute('font-family', text.fontFamily);
+    svgText.setAttribute('font-size', text.fontSize.toString());
+    // svgText.innerHTML = PrettyChord(text.value);
+    // svg.appendChild(svgText);
+    return svgText;
+}
+export class Audio1 extends Media {
     element;
     offset;
     playIcon;
@@ -474,38 +457,4 @@ export class Audio2 extends Media {
         }
         return newCurrentTime;
     }
-}
-/**
- * Given a number of seconds, return a formatted time string ('HH:MM:SS').
- * Return an empty string if seconds is a negative number, or if seconds is zero
- * and show0 is false.
- */
-export function formatTime(seconds, show0 = true) {
-    let formattedTime = '';
-    seconds = Math.round(seconds);
-    if (seconds > 0 || (show0 && seconds >= 0)) {
-        const hours = Math.floor(seconds / 3600);
-        seconds -= (hours * 3600);
-        const minutes = Math.floor(seconds / 60);
-        seconds -= (minutes * 60);
-        formattedTime = (hours) ? `${hours}:` + `${minutes}`.padStart(2, '0') : `${minutes}`;
-        formattedTime += ':' + `${seconds}`.padStart(2, '0');
-    }
-    return formattedTime;
-}
-function svgText(text) {
-    // let svg = document.createElementNS(SVG, 'svg');
-    // svg.setAttribute('x', coordinates.x.toString());
-    // svg.setAttribute('y', coordinates.y.toString());
-    // svg.setAttribute('width', coordinates.width.toString());
-    // svg.setAttribute('height', coordinates.height.toString());
-    let svgText = document.createElementNS(SVG, 'text');
-    // svgText.setAttribute('x', Math.round(coordinates.width * .5).toString());
-    // svgText.setAttribute('y', Math.round(coordinates.height * .7).toString());
-    svgText.setAttribute('text-anchor', 'middle');
-    svgText.setAttribute('font-family', text.fontFamily);
-    svgText.setAttribute('font-size', text.fontSize.toString());
-    // svgText.innerHTML = PrettyChord(text.value);
-    // svg.appendChild(svgText);
-    return svgText;
 }

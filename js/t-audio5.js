@@ -8,7 +8,7 @@ export function render() {
     const audio = new Media.Audio();
     audio.element.src = AudioFile;
     audio.element.load();
-    audio.offset = 60;
+    audio.skip = 60;
     PAGE.content.append(audio.element);
     PAGE.content.append(audio.panel);
     // const playPauseElement = audio.playPauseElement;

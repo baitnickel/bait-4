@@ -148,7 +148,12 @@ function showRecordDetails(index: number) {
 	titleHeading.innerHTML = highlightKeywords(record.title, Keywords).join('');
 	/** click on title to copy it to the clipboard */
 	titleHeading.addEventListener('click', () => {
-		PAGE.clipboardCopy(record.title);
+		navigator.clipboard.writeText(record.title);
+		// alternative - only on success display a flag or something,
+		// or use Popover API to say "Title Copied"
+		// window.navigator.clipboard.writeText(record.title).then(() => {
+		// 	const intervalID = setInterval('code', 3000)
+		// });
 	});
 	titleSection.append(titleHeading);
 	

@@ -52,6 +52,7 @@ export class Audio extends Media {
         // const location = document.createElement('span');
         const progressBar = document.createElement('div');
         const progressBarFill = document.createElement('div');
+        const progressBarOverlay = document.createElement('div'); /** transparent bar for clicking on */
         const time = document.createElement('span');
         const duration = document.createElement('span');
         playPause.textContent = playIcon;
@@ -64,6 +65,9 @@ export class Audio extends Media {
         time.textContent = formatTime(0);
         duration.textContent = formatTime(0);
         /** Event Handling */
+        time.addEventListener('click', () => {
+            navigator.clipboard.writeText(formatTime(this.element.currentTime));
+        });
         playPause.addEventListener('click', () => {
             if (this.element.paused) {
                 playPause.textContent = pauseIcon;
@@ -92,14 +96,16 @@ export class Audio extends Media {
             this.element.currentTime = 0;
             playPause.textContent = playIcon;
         });
-        time.addEventListener('click', () => {
-            navigator.clipboard.writeText(formatTime(this.element.currentTime));
-            // const position = this.element.currentTime;
-            // const positionText = (position != 0) ? formatTime(position) : '';
-            // if (positionText) {
-            // 	navigator.clipboard.writeText(positionText);
-            // 	// window.alert(`Copied to Clipboard:\n${copyText}`);
-            // }
+        /** reset currentTime when clicking on progress bar */
+        progressBarOverlay.addEventListener('click', (e) => {
+            const barWidth = progressBarOverlay.offsetWidth;
+            const clickPoint = e.offsetX; /** returns 0 ... barWidth-1 */
+            let newTime = clickPoint / barWidth * this.element.duration;
+            if (newTime < 0)
+                newTime = 0;
+            else if (newTime > this.element.duration)
+                newTime = this.element.duration;
+            this.element.currentTime = newTime;
         });
         this.element.addEventListener('timeupdate', () => {
             time.textContent = formatTime(this.element.currentTime);
@@ -150,7 +156,7 @@ export class Audio extends Media {
         duration.style.fontFamily = fontFamily;
         duration.style.fontSize = timesFontSize;
         duration.style.color = timesColor;
-        for (const element of [progressBar, progressBarFill]) {
+        for (const element of [progressBar, progressBarFill, progressBarOverlay]) {
             element.style.position = absolute;
             element.style.top = barTop;
             element.style.left = barLeft;
@@ -161,6 +167,9 @@ export class Audio extends Media {
         progressBar.style.backgroundColor = 'rgb(255,255,255)';
         progressBarFill.style.width = '0px';
         progressBarFill.style.backgroundColor = 'rgb(153,153,153)';
+        progressBarOverlay.style.width = barWidth;
+        progressBarOverlay.style.opacity = '0';
+        progressBarOverlay.style.cursor = pointer;
         // location.style.position = absolute;
         // location.style.top = '25px';
         // location.style.left = '10px';
@@ -178,7 +187,7 @@ export class Audio extends Media {
         }
         /** Load all elements into this.panel */
         // for (const element of [time, progressBar, progressBarFill, duration, location, controlsSection]) {
-        for (const element of [time, progressBar, progressBarFill, duration, controlsSection]) {
+        for (const element of [time, progressBar, progressBarFill, progressBarOverlay, duration, controlsSection]) {
             this.panel.append(element);
         }
     }

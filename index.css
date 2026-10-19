@@ -19,7 +19,7 @@
 /* document defaults */
 
 html {
-	font-size: 12pt; /* root font size (rem) */
+	font-size: 12pt; /* root font size (rem) ... remove--this is the browser default (16px) */
 	color: #000; /* default font color */
 	background-color: var(--viewport-background-color);
 }
@@ -83,7 +83,7 @@ body {
 	color: var(--banner-text-color);
 	background-color: var(--banner-background-color);
 	font-family: sans-serif;
-	font-size: 9pt;
+	font-size: 9pt; /* equivalent: .75rem or 12px*/
 }
 
 #footer-bluesky-item {
@@ -282,7 +282,8 @@ blockquote {
 	border-left: .5em solid #ccc;
 } 
 
-/* article pages */
+/* article pages ================================================================ */
+
 .article-header {
 	width: -moz-fit-content; /* still required for Firefox? */
 	width: fit-content;
@@ -304,7 +305,8 @@ blockquote {
 	font-size: .75em;
 }
 
-/* camp page(s) */
+/* camp page(s) ================================================================= */
+
 .alert {background-color: #f00; color: #000;}
 .campsite-good {background-color: #90ee90;}
 .campsite-bad {background-color: #e9967a;}
@@ -337,7 +339,8 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 }
 .camp-button-indent {padding-left: 1rem;}
 
-/* iching page(s) */
+/* iching page(s) =============================================================== */
+
 .iching-selection {
 	margin: 1rem 0;
 }
@@ -401,7 +404,8 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	font-style: italic;
 }
 
-/* songbook page(s) */
+/* songbook page(s) ============================================================= */
+
 .song-title-link {
 	margin: .5em 1em;
 }
@@ -420,7 +424,7 @@ th, td {font-family: sans-serif; font-size: .75em; padding: 3px;}
 	border-left: .4em solid #ccc;
 }
 #song-sheet {
-	font-size: 9pt;
+	font-size: 9pt; /* equivalent: .75rem or 12px*/
 }
 .songbook-metadata-label {
 	font-weight: bold;
@@ -732,22 +736,6 @@ dialog.threads-dialog button {
 	height: 75%;
 }
 
-/*
-.talk-dialog-location, .talk-dialog-exit {
-	position: absolute;
-	top: 3%;
-	z-index: 2;
-	background: none;
-	border: none;
-	font-size: 1.5rem; 
-	color: black;
-	cursor: pointer;
-	border-radius: .50rem;
-	padding: 0;
-}
-.talk-dialog-location { right: 50%; }
-.talk-dialog-exit { right: 3%; }
-*/
 .talk-dialog-exit {
 	position: absolute;
 	top: 3%;
@@ -784,6 +772,7 @@ dialog.threads-dialog button {
 	background-color: #d0d0d0
 
 }
+
 /* Carousel ====================================================================== */
 
 .carousel {
@@ -935,72 +924,6 @@ dialog.threads-dialog button {
 .timeline-element { display: block; height: 80vh; overflow-y: scroll; } 
 .timeline-date { white-space: nowrap; text-align: right; }
 .timeline-age { white-space: nowrap; }
-
-/* DEPRECATED
-.timeline-container {
-	display: grid;
-	grid-template-columns: .3fr 2fr 8fr 1fr;
-	font-family: sans-serif;
-}
-.timeline-date {
-	background-color: lightgray;
-	border: 1px solid gray;;
-	padding: .25rem;
-	font-size: .75rem;
-	text-align: right;
-}
-.timeline-description {
-	background-color: #f1f1f1;
-	border: 1px solid lightgray;
-	padding: .25rem .5rem;
-	font-size: .75rem;
-	text-align: left;
-}
-.timeline-age, .timeline-type {
-	background-color: lightgray;
-	border: 1px solid gray;
-	padding: .25rem;
-	font-size: .75rem;
-	text-align: left;
-}
-*/
-
-/*
-font-family: 'Cormorant', serif;
-font-family: 'Inter', sans-serif;
-font-family: 'Special Elite', cursive;
-font-family: 'Halant', serif;
-font-family: 'Abhaya Libre', serif;
-font-family: 'Average Sans', sans-serif;
-font-family: 'Cambay', sans-serif;
-font-family: 'NTR', sans-serif;
-font-family: 'Rosarivo', serif;
-font-family: sans-serif;
-*/
-
-/* .image-row { */
-	/* padding: 0 1em 0 0; */
-/* } */
-
-/* home page */
-/* #banner-image { */
-	/* width: auto; */
-	/* max-height: 100vh; */
-/* } */
-/* #home-quote { */
-	/* font-size: 90%; */
-	/* margin-top: 1em; */
-	/* padding-left: 1em; */
-	/* border-left: .5em solid #ccc; */
-/* } */
-
-/* .quote {
-	background-color: #aecef1;
-	padding: 0 1.5em;
-	border: .2em solid #5480df;
-	border-radius: 1em;
-	margin: 1em 3em;
-} */
 
 /* audio */
 #controls-block {

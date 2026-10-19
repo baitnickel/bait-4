@@ -145,7 +145,7 @@ function showRecordDetails(index: number) {
 	titleSection.className = 'talk-dialog-title-section';
 	const titleHeading = document.createElement('h3');
 	titleHeading.id = 'talk-dialog-title';
-	titleHeading.innerHTML = highlightKeywords(record.title, Keywords).join('');
+	titleHeading.innerHTML = Markup(highlightKeywords(record.title, Keywords).join(''));
 	/** click on title to copy it to the clipboard */
 	titleHeading.addEventListener('click', () => {
 		navigator.clipboard.writeText(record.title);

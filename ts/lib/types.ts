@@ -58,6 +58,7 @@ const VideoExtensions = ['m4v','m4p','m4v','mov','mp4','mpeg','mpg','mpv','qt','
 const MarkdownExtensions = ['md'];
 const JsonExtensions = ['json'];
 const YamlExtensions = ['yml','yaml'];
+const XXXX = 'XXXX';
 
 function FileType(pathName: string, extensions: string[]) {
 	const extensionDot = pathName.search(Extension);
@@ -433,7 +434,8 @@ export type Annotation = {
 /** for `timeline` API */
 
 export type Moment = { /** for upgrades Timeline code 2026-10-23 */
-	timeKey: string;
+	momentID: string;
+	value: number; /** milliseconds */
 	access: number; /** e.g., 0: private, 1: family, 2: public */
 	precision: number; /** e.g., 1: Y, 2: YM, 3: YMD, 4: YMDh, 5: YMDhm, 6: YMDhms */
 	circa: boolean; /** approximation ... do we need `earliest` and/or `latest` range? */
@@ -441,8 +443,8 @@ export type Moment = { /** for upgrades Timeline code 2026-10-23 */
 	note: string; /** e.g., placed in braces with description */
 }
 export type Era = {
-	timeKey1: string;
-	timeKey2: string;
+	firstMomentID: string;
+	lastMomentID: string;
 	description: string;
 }
 

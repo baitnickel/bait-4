@@ -103,7 +103,8 @@ export function render() {
 		// testers.push( { name: 'YAML', function: testYaml } );
 		// testers.push( { name: 'Email', function: testEmail } );
 		// testers.push( { name: 'Cookies', function: testCookies } );
-		testers.push( { name: 'Words', function: testWords})
+		testers.push( { name: 'Words', function: testWords } );
+		testers.push( { name: 'Moments', function: testMoments } );
 		if (PAGE.backendAvailable) {
 			testers.push( {name: 'Fetch.api', function: testFetchAPI } );
 		}
@@ -669,6 +670,26 @@ function wordSegments(text: string) {
 	}
 	if (nextIndex < text.length) segments.push(text.slice(nextIndex));
 	return segments;
+}
+
+function testMoments(testOutput: HTMLDivElement) {
+	const outputLines: string[] = [];
+	Fetch.api<T.Moment[]>(`${PAGE.backend}/moments`).then((moments) => {
+		if (moments !== null) {
+			for (const moment of moments) {
+				const segments: string[] = [];
+				segments.push(moment.momentID);
+				segments.push(moment.value.toString());
+				segments.push(moment.access.toString());
+				segments.push(moment.precision.toString());
+				segments.push(moment.circa.toString());
+				segments.push(moment.description);
+				segments.push(moment.note);
+				outputLines.push(segments.join('|'));
+			}
+		}
+	});
+	PAGE.appendParagraph(testOutput, outputLines);
 }
 
 // /* Form POST */

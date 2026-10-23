@@ -431,6 +431,21 @@ export type Annotation = {
 }
 
 /** for `timeline` API */
+
+export type Moment = { /** for upgrades Timeline code 2026-10-23 */
+	timeKey: string;
+	access: number; /** e.g., 0: private, 1: family, 2: public */
+	precision: number; /** e.g., 1: Y, 2: YM, 3: YMD, 4: YMDh, 5: YMDhm, 6: YMDhms */
+	circa: boolean; /** approximation ... do we need `earliest` and/or `latest` range? */
+	description: string;
+	note: string; /** e.g., placed in braces with description */
+}
+export type Era = {
+	timeKey1: string;
+	timeKey2: string;
+	description: string;
+}
+
 export type TimedEvent = {
 	dateValue: number; /** number of milliseconds */
 	precision: number; /** segment count (1:Y, 2:YM, 3:YMD) */

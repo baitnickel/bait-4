@@ -688,8 +688,8 @@ function testMoments(testOutput: HTMLDivElement) {
 				outputLines.push(segments.join('|'));
 			}
 		}
+		PAGE.appendParagraph(testOutput, outputLines);
 	});
-	PAGE.appendParagraph(testOutput, outputLines);
 }
 
 // /* Form POST */

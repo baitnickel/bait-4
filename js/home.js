@@ -621,8 +621,8 @@ function testMoments(testOutput) {
                 outputLines.push(segments.join('|'));
             }
         }
+        PAGE.appendParagraph(testOutput, outputLines);
     });
-    PAGE.appendParagraph(testOutput, outputLines);
 }
 // /* Form POST */
 // const formDivision = PAGE.appendContent();

@@ -58,7 +58,6 @@ const VideoExtensions = ['m4v','m4p','m4v','mov','mp4','mpeg','mpg','mpv','qt','
 const MarkdownExtensions = ['md'];
 const JsonExtensions = ['json'];
 const YamlExtensions = ['yml','yaml'];
-const XXXX = 'XXXX';
 
 function FileType(pathName: string, extensions: string[]) {
 	const extensionDot = pathName.search(Extension);

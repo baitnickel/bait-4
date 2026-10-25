@@ -678,14 +678,22 @@ function testMoments(testOutput: HTMLDivElement) {
 		if (moments !== null) {
 			for (const moment of moments) {
 				const segments: string[] = [];
-				segments.push(moment.momentID);
+				segments.push(moment.id);
 				segments.push(moment.value.toString());
 				segments.push(moment.access.toString());
 				segments.push(moment.precision.toString());
 				segments.push(moment.circa.toString());
-				segments.push(moment.description);
+				// segments.push(moment.description);
 				segments.push(moment.note);
+				const date = new Date(moment.value);
+				segments.push(date.toString());
 				outputLines.push(segments.join('|'));
+
+				// if (moment.momentID == '2026–06–20') {
+				// 	const date = new Date(moment.value);
+				// 	outputLines.push(date.toISOString());
+				// }
+				// else outputLines.push('what?');
 			}
 		}
 		PAGE.appendParagraph(testOutput, outputLines);

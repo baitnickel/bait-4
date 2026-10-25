@@ -47,6 +47,7 @@ const AlternateSeparators = ['/'];
  * the Date constructor, M is not an offset--values should be 01...12.
  */
 export class Time extends Date {
+    static precisions = ['', 'Y', 'YM', 'YMD']; /** for converting strings to (index) numbers */
     static msPerSecond = 1000;
     static msPerMinute = 1000 * 60;
     static msPerHour = 1000 * 60 * 60;

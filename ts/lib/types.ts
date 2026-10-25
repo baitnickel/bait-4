@@ -433,7 +433,7 @@ export type Annotation = {
 /** for `timeline` API */
 
 export type Moment = { /** for upgrades Timeline code 2026-10-23 */
-	momentID: string;
+	id: string;
 	value: number; /** milliseconds */
 	access: number; /** e.g., 0: private, 1: family, 2: public */
 	precision: number; /** e.g., 1: Y, 2: YM, 3: YMD, 4: YMDh, 5: YMDhm, 6: YMDhms */
@@ -442,8 +442,8 @@ export type Moment = { /** for upgrades Timeline code 2026-10-23 */
 	note: string; /** e.g., placed in braces with description */
 }
 export type Era = {
-	firstMomentID: string;
-	lastMomentID: string;
+	firstId: string;
+	lastId: string;
 	description: string;
 }
 

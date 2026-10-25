@@ -46,6 +46,7 @@ const EventOptions = {
 };
 const ApiRoute = 'events';
 const Options = EventOptions;
+const Moments = await Fetch.api(`${PAGE.backend}/moments`, Options);
 const QueryButtonElement = document.createElement('div');
 QueryButtonElement.classList.add('timeline-query-button');
 const QueryElement = document.createElement('div');
@@ -90,7 +91,18 @@ function addQueryButton(dialog) {
         dialog.element.showModal();
     });
 }
+/*
+    Note that the backend API will receive the T.EventOptions object, as defined
+    in types.ts, via the `request` parameter:
+
+    app.post('/events', (request, response) => {
+        const options: T.EventOptions = request.body;
+        const events = E.events(options);
+        response.json(events);
+    });
+*/
 function getEvents() {
+    // Fetch.api<T.Moment[]>(`${PAGE.backend}/moments`).then((moments) => {
     Fetch.api(`${PAGE.backend}/${ApiRoute}`, Options).then((events) => {
         displayTable(TimelineElement, events);
     });

@@ -200,4 +200,5 @@ export function Dollars(number) {
     /* Might also use Unicode's small dollar sign ('\uFE69'), but this appears to force monospace fonts. */
     return '$' + number.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+export const AccessTypes = ['All', 'Public', 'Personal', 'Private'];
 export const EventTypes = ['All', 'Historical', 'Personal', 'Private'];

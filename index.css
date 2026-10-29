@@ -911,17 +911,20 @@ dialog.threads-dialog button {
 .query-button {
 	margin-bottom: 1rem;
 };
-.timeline-query-button {
+
+/* timeline */
+/* .timeline-query-button { */
 	/* position: fixed; */
-	/* margin: 1rem; */
-	display: block;
+	/* margin-bottom: 1rem; */
+	/* display: block;
 	padding: .5rem;
 	border: var(--diagnositic-border);
 	border-radius: .5rem;
-	background-color: var(--content-background-color);
-};
-.timeline-query-element button { margin: 1rem; }
-.timeline-element { display: block; height: 80vh; overflow-y: scroll; } 
+	background-color: var(--content-background-color); */
+/* }; */
+/* .timeline-query-button { margin: 1rem; } */
+.timeline-element { margin-top: 1rem; display: block; height: 80vh; overflow-y: scroll; } 
+.timeline-access { font-size: .5rem; }
 .timeline-date { white-space: nowrap; text-align: right; }
 .timeline-age { white-space: nowrap; }
 

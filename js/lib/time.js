@@ -440,4 +440,17 @@ export class Time extends Date {
             validity = true;
         return validity;
     }
+    /**
+     * Given a `date` in the form of Month/Day/Year, convert it to YYYY-MM-DD.
+     */
+    static reformatMDY(date) {
+        const matches = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(date);
+        if (matches) {
+            const month = matches[1].padStart(2, '0');
+            const day = matches[2].padStart(2, '0');
+            const year = matches[3];
+            date = `${year}-${month}-${day}`;
+        }
+        return date;
+    }
 }

@@ -294,7 +294,7 @@ function testPark(testOutput) {
     PAGE.appendParagraph(testOutput, output);
 }
 function testTimes(testOutput) {
-    const tests = ['1960', '1961/01/01', '1962/02/28', '3/1963', '21/6/1964', '1965/07/31', '1966/08/01', '1967/01/01', '1968/11/08', '149'];
+    const tests = ['6/21/1952', '6-21-1952', '1960', '1961/01/01', '1962/02/28', '3/1963', '21/6/1964', '1965/07/31', '1966/08/01', '1967/01/01', '1968/11/08', '149'];
     const output = [];
     const time = new Time();
     output.push(`(${time.precision}) Now: ${time.formatted()}`);
@@ -303,6 +303,8 @@ function testTimes(testOutput) {
         if (time !== null)
             output.push(`(${time.precision}) ${test}: ${time.formatted()}`);
     }
+    const date = new Date('6-21-1952');
+    output.push(date.toISOString());
     PAGE.appendParagraph(testOutput, output);
 }
 function testUTC(testOutput) {

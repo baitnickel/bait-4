@@ -446,6 +446,16 @@ export type Era = {
 	lastId: string;
 	description: string;
 }
+export const AccessTypes = ['All', 'Public', 'Personal', 'Private'];
+export type TimelineOptions = {
+	source: string; /** path of file containing raw data */
+	from: string;  /** Time string, e.g. '12/31/1999' */
+	until: string; /** Time string, e.g. '1/1/2000' */
+	keywords: string;
+	accessTypes: string;
+	birthdate: string;
+	sortAscending: boolean;
+}
 
 export type TimedEvent = {
 	dateValue: number; /** number of milliseconds */

@@ -683,7 +683,6 @@ function testMoments(testOutput: HTMLDivElement) {
 				segments.push(moment.id);
 				segments.push(moment.value.toString());
 				segments.push(moment.access.toString());
-				segments.push(moment.precision.toString());
 				segments.push(moment.circa.toString());
 				// segments.push(moment.description);
 				segments.push(moment.note);

@@ -47,7 +47,7 @@ const TimelineOptions = {
 const Options = TimelineOptions;
 const Moments = await Fetch.api(`${PAGE.backend}/moments`);
 const QueryButtonElement = document.createElement('div');
-// QueryButtonElement.classList.add('timeline-query-button');
+QueryButtonElement.classList.add('timeline-query-button');
 const QueryElement = document.createElement('div');
 // QueryElement.className = 'timeline-query-element';
 const TimelineElement = document.createElement('div');
@@ -58,7 +58,16 @@ export function render() {
     PAGE.content.append(QueryElement);
     const dialog = createModalDialog(Options);
     addQueryButton(dialog);
-    dialog.element.showModal();
+    // dialog.element.showModal();
+    getMoments();
+    // /** for testing: */
+    // Options.from = '1962';
+    // Options.until = '1963';
+    // Options.keywords = '';
+    // Options.accessTypes = '';
+    // Options.birthdate = '';
+    // Options.sortAscending = true;
+    // getMoments();
 }
 function createModalDialog(Options) {
     const dialog = new W.Dialog('Timeline Options');
@@ -73,7 +82,7 @@ function createModalDialog(Options) {
         Options.until = untilYear.value;
         Options.keywords = keywords.value;
         Options.accessTypes = accessTypes.value;
-        Options.birthdate = Time.reformatMDY(birthdate.value); /** convert M/D/Y to YYY-MM-DD */
+        Options.birthdate = Time.reformatMDY(birthdate.value); /** convert M/D/Y to YYYY-MM-DD */
         Options.sortAscending = sortAscending.checked;
         getMoments();
     });
@@ -115,19 +124,19 @@ function displayTable(container, moments) {
     }
     const headings = ['', 'Date', 'Description'];
     if (Options.birthdate)
-        headings.push('Age');
+        headings.push('Age (Grade)');
     const table = new W.Table(headings, 1);
     for (const moment of moments) {
-        const time = new Time(moment.value);
+        const time = new Time(moment.id);
         const description = MarkupLine(moment.description, 'met');
         table.addRow();
         table.addCell(accessType(moment), 'class:timeline-access');
-        table.addCell(time.formatted(), 'class:timeline-date');
+        const date = (moment.circa) ? `c. ${time.formatted()}` : time.formatted();
+        table.addCell(date, 'class:timeline-date');
         table.addCell(description, '', true);
         let ageGrade = '';
         if (Options.birthdate) {
             const birthTime = new Time(Options.birthdate);
-            console.log(Options.birthdate, birthTime.valid);
             const age = birthTime.until(time);
             let grade = '';
             /** for efficiency, assume that grades only apply in the age range 4...22 */
@@ -144,6 +153,7 @@ function displayTable(container, moments) {
 function filterMoments(moments, options) {
     const fromTime = (options.from) ? new Time(options.from) : null;
     const untilTime = (options.until) ? new Time(options.until) : null;
+    // moments = moments.filter((moment) => { moment.id == '1962-01'} );
     moments = moments.filter((moment) => {
         if (fromTime !== null && moment.value < fromTime.valueOf())
             return false;

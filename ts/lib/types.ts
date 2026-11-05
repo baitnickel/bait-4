@@ -185,11 +185,6 @@ export function Dollars(number: number) {
 	return '$' + number.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
 }
 
-// export type Message = {
-// 	type: 'E' | 'W' | 'I';
-// 	text: string;
-// }
-
 // File.created, File.modified, File.accessed--all must be numbers (milliseconds).
 // Use primitives for any data that may be converted to JSON!
 /**
@@ -222,6 +217,15 @@ export type FileStats = {
 	id: number;
 	access: number;
 	revision: number; /* Date.valueOf(); */
+}
+
+/** General purpose object representing a Quote */
+export type Quote = {
+	text: string;
+	attribution: string;
+	note: string;
+	date: string; /* Date.toISOString() */
+	source: string;
 }
 
 /**
@@ -260,103 +264,7 @@ export type FakesheetLookups = {
 	artist: string;
 }
 
-export type Option = {
-	element: string;
-	type: string;
-}
-
-// export type Song = {
-// 	title: string;
-// 	composers: string[];
-// 	copyright: string;
-// }
-
-// export type Chord = {
-// 	name: string;
-// 	notation: string;
-// }
-
-// export type FakeSheet = {
-// 	song: Song;
-// 	artist: string;
-// 	key: string;
-// 	capo: number;
-// 	tuning: string;
-// 	tempo: number;
-// 	chords: Chord[];
-// 	text: string;
-// }
-
-// export type Collection = {
-// 	title: string;
-// 	entry: Song[];  /** or Song[]|Video[] ... */
-// }
-
-// export type Song = {
-// 	audio: string;      /** e.g., audio/my-title.mp3*/
-// 	fakesheet: string;  /** e.g., fakesheets/my-title.md */
-// 	title: string;
-// };
-
-// type Location = {
-// 	city: string;
-// 	state: string;
-// 	country: string;
-// }
-
-type Photo = {
-	uri: string;
-	width: number;
-	height: number;
-}
-
-// type JournalEntry = {
-// 	id: string;
-// 	source: string;
-// 	created: Date;
-// 	modified: Date;
-// 	favorite: boolean;
-// 	tags: string[];
-// 	location: Location;
-// 	photo: Photo;
-// 	text: string;
-// }
-
-/**
- * @todo we should define a `Media` type, and extend it with `Audio`, `Video`,
- * `Image` types; similarly we should have a `Song` type, extended with `Audio`,
- * `Sheet`, &c.
- */
-
-/**
- * From the bait-3 JSON files
- */
-
-type Track = {
-	id: number;
-	title: string;
-	performers: string[];
-	composers: string[];
-	date: string; /* year */
-	audio: string; /* file path */
-	sheets: string[]; /* unused */
-	notes: string;
-}
-type Album = {
-	id: number; /* key */
-	title: string;
-	images: string[]; /* unused */
-	tracks: Track[];
-	notes: string;
-}
-
-type SongSheet = {
-	file: string; /* key */
-	title: string;
-	artist: string;
-	copyright: string;
-}
-
+/** for I Ching frontend page */
 export type HexagramText = {     // bait-3: IChingTexts
 	commentary: string[];
 	verse: string[];
@@ -387,65 +295,7 @@ export type Radical = {
 	positive: boolean|null;  // bait-3: boolean only
 }
 
-type Images = {
-	file: string;
-	created: string; /* Date */ // should be number, to be consistent
-}
-
-type Journal /* JournalEntry */ = { /* keyed by uri */
-	summary: string;
-	created: string; /* Date */
-	modified: string; /* Date */
-	starred: boolean;
-	tags: string[];
-	/* Location */
-	city: string;
-	state: string;
-	country: string;
-	/* Photo */
-	photoFile: string;
-	photoWidth: number;
-	photoHeight: number;
-}
-
-export type Quote = {
-	text: string;
-	attribution: string;
-	note: string;
-	date: string; /* Date.toISOString() */
-	source: string;
-}
-
-/** for `log` API */
-export type LogEntry = {
-	text: string;
-}
-
-/** for `annotations` API */
-export type Annotation = {
-	date: string;
-	query: string;
-	title: string;
-	id: number|null;
-	note: string;
-}
-
-/** for `timeline` API */
-
-export type Moment = { /** for upgrades Timeline code 2026-10-23 */
-	id: string;
-	value: number; /** milliseconds */
-	access: number; /** e.g., 0: private, 1: family, 2: public */
-	// precision: number; /** e.g., 1: Y, 2: YM, 3: YMD, 4: YMDh, 5: YMDhm, 6: YMDhms */
-	circa: boolean; /** approximation ... do we need `earliest` and/or `latest` range? */
-	description: string;
-	note: string; /** e.g., placed in braces with description */
-}
-export type Era = {
-	firstId: string;
-	lastId: string;
-	description: string;
-}
+/** for `timeline` query frontend  */
 export const AccessTypes = ['All', 'Public', 'Personal', 'Private'];
 export type TimelineOptions = {
 	source: string; /** path of file containing raw data */
@@ -457,38 +307,20 @@ export type TimelineOptions = {
 	sortAscending: boolean;
 }
 
-export type TimedEvent = {
-	dateValue: number; /** number of milliseconds */
-	precision: number; /** segment count (1:Y, 2:YM, 3:YMD) */
-	approximate: boolean;
-	personal: boolean;
-	description: string; /** markdown */
-	note: string; /** markdown */
+/** for `timeline` API */
+export type Moment = { /** for upgrades Timeline code 2026-10-23 */
+	id: string;
+	value: number; /** milliseconds */
+	access: number; /** e.g., 0: private, 1: family, 2: public */
+	circa: boolean; /** approximation ... do we need `earliest` and/or `latest` range? */
+	description: string;
+	note: string; /** e.g., placed in braces with description */
 }
-export type Event = { /** replaces TimedEvent */
-	timeString: string;
-	timeValue: number|null;
-	precision: string; /** Y, YM, YMD, Full (DEPRECATED: YMDhms,  M, MY, MD, MDY) */
-	approximate: boolean;
-	personal: boolean;
-	private: boolean;
-	typeIcon: string;
-	description: string; /** markdown */
-	note: string; /** markdown */
-	age: number|null;
-	grade: string;
-	ageGrade: string; /** age and grade formatted in one string */
+export type Era = {
+	firstId: string;
+	lastId: string;
+	description: string;
 }
-export type EventOptions = {
-	source: string; /** path of file containing raw data */
-	from: string;  /** Time string, e.g. '12/31/2000' */
-	until: string; /** Time string, e.g. '12/31/2000' */
-	keywords: string;
-	eventTypes: string;
-	birthdate: string;
-	sortAscending: boolean;
-}
-export const EventTypes = ['All', 'Historical', 'Personal', 'Private'];
 
 /** for `media/images` API */
 export type MediaImageData = {
@@ -514,115 +346,19 @@ export type ThreadPassage = {
 	text: string;
 }
 
-export type AudioTrack = {
-	file: string;
-	title: string;
-	performers: string[];
-	composers: string[];
-	date: string;
-	notes: string;
-};	
-export type AudioPlaylist = {
-	folder: string,
-	title: string,
-	image: string,
-	notes: string,
-	sequence: string[],
-	tracks: AudioTrack[],
-};
-
-// export type AudioData = {
-// 	title: string; /** audio file name (File.name) */
-// 	extension: string; /** file extension (File.extension) */
-// 	sequence: number; /** 0 if not part of a collection or group */
-// 	duration: number; /** number of seconds or 'HH:MM:SS' */
-// 	categories: string[];
-// 	type: string; /** application-specific */
-// 	lastPlayed: number; /** milliseconds elapsed since the epoch */
-// 	playCount: number;
-// 	writers: string;
-// 	performers: string;
-// 	notes: Section[];
-// 	begins: string; /** typically for spoken word audio */
-// 	ends: string; /** typically for spoken word audio */
-// };
-
+/** for `/media/durations` API */
 export type MediaDuration = {
 	fileName: string,
 	seconds: number
 };
 
-/**
- * Static Talk data will be set on the backend and used to fill in details in
- * the AudioDataset structure.
- */
-export type TalkDetails = {
-	title: string;
-	type: string; /** e.g., seminar, lecture, program, interview */
-	duration: number; /** number of seconds */
-	categories: string[];
-	performers: string;
-	begins: string;
-	ends: string;
-}
-export type StaticTalkData = {
-	metadata: AudioMetadata;
-	details: TalkDetails[];
-}
-
-/*********************************** */
-
-export type NoteSection = {
-	sequence: number;
-	heading: string;
-	lines: string[];
-}
-
-export type TalkData = {
-	type: string;
-	performers: string;
-	begins: string;
-	ends: string;
-}
-
-export type AudioFile = {
-	title: string;
-	extension: string;
-	duration: number;
-}
-export type CatalogData = {
-	categories: string[];
-}
-export type NotesData = {
-	notes: NoteSection[];
-	title: string;
-	lastPlayed: number;
-	playCount: number;
-} & TalkData;
-
-export type AudioData = AudioFile & NotesData & CatalogData;
-
-export type AudioMetadata = {
-	audioFolder: string;
-	notesFolder: string;
-	catalogFile: string;
-	talkFile: string;
-	speaker: string;
-}
-export type AudioDataset = {
-	metadata: AudioMetadata;
-	data: AudioData[];
-}
-
-/*********************************** */
-
+/** for `/media/talks` API */
 export type TalkNotes = {
 	name: string,
 	date: number,
 	section: number,
 	lines: string[],
 }
-
 export type TalkRecord = {
 	title: string,
 	extension: string,
@@ -635,4 +371,18 @@ export type TalkRecord = {
 	ends: string
 	playCount: number,
 	lastPlayed: number,
+}
+
+/** for `log` API */
+export type LogEntry = {
+	text: string;
+}
+
+/** for `annotations` API */
+export type Annotation = {
+	date: string;
+	query: string;
+	title: string;
+	id: number|null;
+	note: string;
 }

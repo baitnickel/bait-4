@@ -370,7 +370,7 @@ function sortTalks(column = '') {
         else if (column == 'Plays')
             result = a.playCount - b.playCount;
         else if (column == 'Last Play')
-            result = a.lastPlayed - b.lastPlayed;
+            result = b.lastPlayed - a.lastPlayed;
         else {
             /** default: sort by title */
             column = 'Title';

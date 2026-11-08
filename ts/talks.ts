@@ -373,7 +373,7 @@ function sortTalks(column = '') {
 		if (column == 'Type') result = a.type.localeCompare(b.type);
 		else if (column == 'Time') result = a.duration - b.duration;
 		else if (column == 'Plays') result = a.playCount - b.playCount;
-		else if (column == 'Last Play') result = a.lastPlayed - b.lastPlayed;
+		else if (column == 'Last Play') result = b.lastPlayed - a.lastPlayed;
 		else {
 			/** default: sort by title */
 			column = 'Title';

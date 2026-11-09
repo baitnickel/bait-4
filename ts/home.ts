@@ -83,6 +83,7 @@ export function render() {
 		testContent.append(testOutput);
 
 		const testers: Tester[] = [];
+		testers.push( { name: 'URI', function: testURI } );
 		// testers.push( { name: 'SVG', function: testSVG } );
 		testers.push( { name: 'Chord', function: testChord } );
 		testers.push( { name: 'MIDI Notes', function: testMidiNotes } );
@@ -128,6 +129,59 @@ export function render() {
 		}
 	}
 }
+
+function testURI(testOutput: HTMLDivElement) {
+	const IMAGE_PATTERN =    /!\[(.*?)\]\((.*?)\)/g; 
+	const LINK_PATTERN = /(?<!!)\[(.*?)]\((.*?)\)/; /* lookbehind assertion prevents image pattern match */
+	// const LINK_PATTERN = /(?<!!)\[(.*?)]\((.*)\)/; /* lookbehind assertion prevents image pattern match */
+
+	const lines: string[] = [];
+	lines.push('first [bindu](https://en.wikipedia.org/wiki/Bindu_(symbol)): Hindu point (comment)');
+	lines.push('second [two](https://baitnickel.com/(test)/x/y/(z)): fake');
+	lines.push('multi [prime](https://baitnickel.com/a/b/c) and [secondary](https://baitnickel.com/d/e/f)');
+
+	const paragraph = document.createElement('p');
+	const output: string[] = [];
+
+	for (const line of lines) {
+		const newLine = markupLinks(line, [LINK_PATTERN]);
+		output.push(newLine);
+	}
+
+	paragraph.innerHTML = output.join('<br>');
+	testOutput.append(paragraph);
+}
+function markupLinks(segment: string, patterns: RegExp[]) {
+	const LINK_TAG = 'a';
+	// const patterns = [LINK_PATTERN, WIKILINK_PATTERN]; /* support both standard markdown links and wikilinks */
+	for (const pattern of patterns) {
+		const globalPattern = new RegExp(pattern, 'g');
+		const links = segment.match(globalPattern); /* get all links in the segment */
+		if (links) {
+			for (const link of links){
+				const components = link.match(pattern); /* get this link's components (label and uri) */
+				if (components) {
+					let label = components[1];
+					let uri = components[2];
+					// if (pattern.toString() === WIKILINK_PATTERN.toString()) {
+					// 	label = components[2];
+					// 	uri = components[1];
+					// }
+					// if (!EXTERNAL_LINK.test(uri)) {
+					// 	const originPathname = `${window.location.origin}${window.location.pathname}`; /** URL preceding query */
+					// 	const page = 'articles'; //### hardcoding - should be a function of the Article type
+					// 	const query = `page=${page}&path=${uri}`;
+					// 	uri = `${originPathname}?${query}`;
+					// 	uri = encodeURI(uri);
+					// }
+					segment = segment.replace(link, `<${LINK_TAG} href="${uri}">${label}</${LINK_TAG}>`);
+				}
+			}
+		}
+	}
+	return segment;
+}
+
 
 // function testSVG(testOutput: HTMLDivElement) {
 // 	const fretWidth = 40; /** this determines the scale of everything. 25...50 is a reasonable range */

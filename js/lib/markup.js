@@ -38,6 +38,8 @@ import { Resource } from './resource.js';
  * Span - {{.class content}}
  */
 console.log(`markup: 2025.03.03`); /* report version */
+const LOCATION_ORIGIN = window.location.origin;
+const LOCATION_PATHNAME = window.location.pathname;
 /* HTML tags */
 const PARAGRAPH_TAG = 'p';
 const LINE_BREAK_TAG = 'br';
@@ -81,10 +83,10 @@ const BOLD_PATTERN = /\*{2}(.+?)\*{2}/g;
 const SUPERSCRIPT_PATTERN = /([\S])(\d+)\^/g;
 const HIGHLIGHT_PATTERN = /={2}(.+?)={2}/g;
 const STRIKETHROUGH_PATTERN = /~{2}(.+?)~{2}/g;
-const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g;
+const IMAGE_PATTERN = /!\[(.+?)\]\((.+?)\)/g;
 /* complex inline patterns--replacements will be performed in a while loop */
-const LINK_PATTERN = /(?<!!)\[(.*?)]\((.*?)\)/; /* lookbehind assertion prevents image pattern match */
-const WIKILINK_PATTERN = /\[\[(.*?)\|(.*?)\]\]/; /* [[path|label]] */
+const LINK_PATTERN = /(?<!!)\[(.+?)]\((.+?)\)/; /* lookbehind assertion prevents image pattern match */
+const WIKILINK_PATTERN = /\[\[(.+?)\|(.+?)\]\]/; /* [[path|label]] see: https://en.wikipedia.org/wiki/Help:Link */
 const EXTERNAL_LINK = /^(https?:\/\/|localhost\/)/; /* non-external links require special handling */
 const IMAGE_REFERENCE_PATTERN = /!\[(.*?)\]\[(\S*?)\]/;
 const LINK_REFERENCE_PATTERN = /\[(.*?)\]\[(\S*?)\]/;
@@ -781,38 +783,93 @@ function markupText(text, resources = null) {
     return markedUpText;
 }
 /**
- * Markup Hyperlinks, doing special handling of local relative URLs (both
- * standard markdown links and Wikilinks).
+ * Markup Hyperlinks (both standard markdown links and Wiki links), doing
+ * special handling of local relative URIs.
  */
 function markupLinks(segment) {
-    const patterns = [LINK_PATTERN, WIKILINK_PATTERN]; /* support both standard markdown links and wikilinks */
-    for (const pattern of patterns) {
-        const globalPattern = new RegExp(pattern, 'g');
-        const links = segment.match(globalPattern); /* get all links in the segment */
-        if (links) {
-            for (const link of links) {
-                const components = link.match(pattern); /* get this link's components (label and uri) */
-                if (components) {
-                    let label = components[1];
-                    let uri = components[2];
-                    if (pattern.toString() === WIKILINK_PATTERN.toString()) {
-                        label = components[2];
-                        uri = components[1];
-                    }
-                    if (!EXTERNAL_LINK.test(uri)) {
-                        const originPathname = `${window.location.origin}${window.location.pathname}`; /** URL preceding query */
-                        const page = 'articles'; //### hardcoding - should be a function of the Article type
-                        const query = `page=${page}&path=${uri}`;
-                        uri = `${originPathname}?${query}`;
-                        uri = encodeURI(uri);
-                    }
-                    segment = segment.replace(link, `<${LINK_TAG} href="${uri}">${label}</${LINK_TAG}>`);
-                }
-            }
+    const linkPattern = new RegExp(LINK_PATTERN, 'g');
+    let linkMatch;
+    while ((linkMatch = linkPattern.exec(segment)) !== null) {
+        const label = linkMatch[1];
+        let uri = linkMatch[2];
+        if (uri.includes('(')) {
+            const uriIndex = linkMatch.index + linkMatch[1].length + 3; /** add 3 to account for "[", "]", and "(" */
+            uri = handleParentheses(segment, uriIndex);
         }
+        const link = `[${label}](${uri})`;
+        if (!EXTERNAL_LINK.test(uri))
+            uri = adjustInternalLink(uri);
+        segment = segment.replace(link, `<${LINK_TAG} href="${encodeURI(uri)}">${label}</${LINK_TAG}>`);
+    }
+    const wikiPattern = new RegExp(WIKILINK_PATTERN, 'g');
+    let wikiMatch;
+    while ((wikiMatch = wikiPattern.exec(segment)) !== null) {
+        const label = wikiMatch[2];
+        let uri = wikiMatch[1];
+        if (!EXTERNAL_LINK.test(uri))
+            uri = adjustInternalLink(uri);
+        segment = segment.replace(wikiMatch[0], `<${LINK_TAG} href="${encodeURI(uri)}">${label}</${LINK_TAG}>`);
     }
     return segment;
 }
+/**
+ * When a URI contains embedded parentheses, we will attempt to bypass them to
+ * get the complete and correct URI.
+ */
+function handleParentheses(segment, uriIndex) {
+    let newUri = '';
+    let embedded = 0; /** number of pending parentheses clauses */
+    for (let i = uriIndex; i < segment.length; i += 1) {
+        if (segment[i] == ')' && !embedded)
+            break;
+        if (segment[i] == ')')
+            embedded -= 1;
+        else if (segment[i] == '(')
+            embedded += 1;
+        newUri += segment[i];
+    }
+    return newUri;
+}
+/**
+ * Internal links (not starting with "http" or "localhost") are assumed to be
+ * links to markdown text files. The URI link will be adjusted here and
+ * returned, displaying the markdown text in the "articles" page.
+ */
+function adjustInternalLink(uri) {
+    const page = 'articles'; //### hardcoding - should be a function of the Article type
+    const query = `page=${page}&path=${uri}`;
+    return `${LOCATION_ORIGIN}${LOCATION_PATHNAME}?${query}`;
+}
+/** original markupLinks w/ bug when URI contains "(" */
+// function markupLinks(segment: string) {
+// 	const patterns = [LINK_PATTERN, WIKILINK_PATTERN]; /* support both standard markdown links and wikilinks */
+// 	for (const pattern of patterns) {
+// 		const globalPattern = new RegExp(pattern, 'g');
+// 		const links = segment.match(globalPattern); /* get all links in the segment */
+// 		if (links) {
+// 			for (const link of links){
+// 				const components = link.match(pattern); /* get this link's components (label and uri) */
+// 				if (components) {
+// 					let label = components[1];
+// 					let uri = components[2];
+// 					if (pattern.toString() === WIKILINK_PATTERN.toString()) {
+// 						label = components[2];
+// 						uri = components[1];
+// 					}
+// 					if (!EXTERNAL_LINK.test(uri)) {
+// 						const originPathname = `${window.location.origin}${window.location.pathname}`; /** URL preceding query */
+// 						const page = 'articles'; //### hardcoding - should be a function of the Article type
+// 						const query = `page=${page}&path=${uri}`;
+// 						uri = `${originPathname}?${query}`;
+// 						uri = encodeURI(uri);
+// 					}
+// 					segment = segment.replace(link, `<${LINK_TAG} href="${uri}">${label}</${LINK_TAG}>`);
+// 				}
+// 			}
+// 		}
+// 	}
+// 	return segment;
+// }
 /**
  * Image and Link markdown using references, resolved in Resource objects.
  */

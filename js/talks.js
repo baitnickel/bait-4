@@ -1,5 +1,5 @@
 import { Page } from './lib/page.js';
-import { Markup } from './lib/markup.js';
+import { Markup, MarkupLine } from './lib/markup.js';
 import * as T from './lib/types.js';
 import * as Fetch from './lib/fetch.js';
 import * as W from './lib/widgets.js';
@@ -58,7 +58,6 @@ export function render() {
 }
 function listTalks(division, keywords, logicalAnd) {
     division.innerHTML = '';
-    // sortTalks();
     const table = new W.Table(Columns);
     let i = 0;
     for (const record of Records) {
@@ -111,6 +110,8 @@ function showRecordDetails(index) {
     const dialog = document.createElement('dialog');
     dialog.className = 'talk-dialog';
     // dialog.autofocus = false; /** does nothing */
+    const dialogTop = document.createElement('div');
+    dialogTop.className = 'talk-dialog-top';
     const audioSection = document.createElement('div');
     if (record.extension) {
         /** add Audio element */
@@ -127,19 +128,17 @@ function showRecordDetails(index) {
     }
     const titleSection = document.createElement('div');
     titleSection.className = 'talk-dialog-title-section';
-    const titleHeading = document.createElement('h3');
-    titleHeading.id = 'talk-dialog-title';
-    titleHeading.innerHTML = Markup(highlightKeywords(record.title, Keywords).join(''));
-    /** click on title to copy it to the clipboard */
-    titleHeading.addEventListener('click', () => {
-        navigator.clipboard.writeText(record.title);
-        // alternative - only on success display a flag or something,
-        // or use Popover API to say "Title Copied"
-        // window.navigator.clipboard.writeText(record.title).then(() => {
-        // 	const intervalID = setInterval('code', 3000)
-        // });
+    const highlightedTitle = highlightKeywords(record.title, Keywords).join('');
+    const titleHeading = MarkupLine(highlightedTitle, 'MET');
+    const titleCopyButton = document.createElement('span');
+    titleCopyButton.className = 'talk-title-copy';
+    titleCopyButton.innerHTML = '▽'; // ▽⬇︎⤵︎
+    titleCopyButton.addEventListener('click', () => {
+        navigator.clipboard.writeText(record.title); /** copy title to clipboard */
     });
-    titleSection.append(titleHeading);
+    // there must be a simpler way to include a clickable "button" on a line??
+    titleSection.innerHTML = `${titleHeading} `;
+    titleSection.append(titleCopyButton);
     const summarySection = document.createElement('div');
     summarySection.className = 'talk-dialog-summary-section';
     const summaryLines = [];
@@ -158,10 +157,11 @@ function showRecordDetails(index) {
     const highlightedSummaryLines = highlightKeywords(summaryLines, Keywords);
     const markedUpSummary = Markup(highlightedSummaryLines);
     summarySection.innerHTML = markedUpSummary;
+    dialogTop.append(audioSection, titleSection, summarySection);
     /** add 'close' button */
     const exitButton = document.createElement('span');
-    exitButton.innerHTML = '&times;';
     exitButton.className = 'talk-dialog-exit';
+    exitButton.innerHTML = '&times;';
     exitButton.addEventListener('click', () => {
         dialog.close();
         dialog.remove();
@@ -176,12 +176,6 @@ function showRecordDetails(index) {
     const notesSection = document.createElement('div');
     notesSection.className = 'talk-notes';
     const notesLines = [];
-    // const categories = (record.categories.length) ? record.categories.join(' > ') : '';
-    // if (categories) notesLines.push(categories);
-    // if (record.type) notesLines.push(record.type);
-    // if (record.performers) notesLines.push(`with: ${record.performers}`);
-    // if (record.begins) notesLines.push(addEllipsis(record.begins));
-    // if (record.ends) notesLines.push(addEllipsis(record.ends, false));
     /** sort the most recent notes to the top */
     record.notes.sort((a, b) => b.date - a.date);
     let first = true;
@@ -200,9 +194,10 @@ function showRecordDetails(index) {
     const highlightedNotesLines = highlightKeywords(notesLines, Keywords);
     const markedUpNotes = Markup(highlightedNotesLines);
     notesSection.innerHTML = markedUpNotes;
-    dialog.append(audioSection);
-    dialog.append(titleSection);
-    dialog.append(summarySection);
+    // dialog.append(audioSection);
+    // dialog.append(titleSection);
+    // dialog.append(summarySection);
+    dialog.append(dialogTop);
     dialog.append(notesSection);
     dialog.append(exitButton);
     PAGE.content.append(dialog);
@@ -404,14 +399,15 @@ function selectionElement() {
     textEntry.element.addEventListener('change', () => {
         // if (!Keywords) LogicalAnd = false; // when Keywords == '' also set LogicalAnd to false
         Keywords = uniqueWords(textEntry.element.value);
-        // sortTalks();
         listTalks(ListElement, Keywords, LogicalAnd);
     });
+    // perhaps use toggling button:
+    // logical or: ∨ (Having Any of) (with Any)
+    // logical and: ∧ (Having All of) (with All)
     const logicalAnd = new W.Checkbox('All: ', false);
     logicalAnd.label.classList.add('talk-button-indent');
     logicalAnd.element.addEventListener('change', () => {
         LogicalAnd = logicalAnd.element.checked;
-        // sortTalks();
         listTalks(ListElement, Keywords, LogicalAnd);
     });
     selectionElement.append(textEntry.label);

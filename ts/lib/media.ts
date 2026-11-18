@@ -30,11 +30,11 @@ export class Audio extends Media {
 	skip: number;
 	panel: HTMLDivElement;
 
-	constructor(id = '') {
+	constructor(skipAmount = 15, id = '') {
 		const element = document.createElement('audio');
 		super(element, id);
 		this.element = element;
-		this.skip = 15;
+		this.skip = skipAmount;
 		this.panel = document.createElement('div');
 
 		/** define internal section to hold controls (Play, Pause, etc.) */
@@ -59,7 +59,6 @@ export class Audio extends Media {
 		const forward = document.createElement('span');
 		const end = document.createElement('span');
 		const stop = document.createElement('span');
-		// const location = document.createElement('span');
 		const progressBar = document.createElement('div');
 		const progressBarFill = document.createElement('div');
 		const progressBarOverlay = document.createElement('div'); /** transparent bar for clicking on */
@@ -72,14 +71,13 @@ export class Audio extends Media {
 		forward.textContent = forwardIcon;
 		end.textContent = endIcon;
 		stop.textContent = stopIcon;
-		// location.textContent = locationIcon; 
 		time.textContent = formatTime(0);
 		duration.textContent = formatTime(0);
 
 		/** Event Handling */
-		time.addEventListener('click', () => {
-			navigator.clipboard.writeText(formatTime(this.element.currentTime));
-		});
+		// time.addEventListener('click', () => {
+		// 	navigator.clipboard.writeText(formatTime(this.element.currentTime));
+		// });
 
 		playPause.addEventListener('click', () => {
 			if (this.element.paused) {
@@ -171,7 +169,7 @@ export class Audio extends Media {
 		time.style.fontSize = timesFontSize;
 		time.style.textAlign = 'right';
 		time.style.color = timesColor;
-		time.style.cursor = pointer;
+		// time.style.cursor = pointer;
 
 		duration.style.position = absolute;
 		duration.style.top = timeTop;
@@ -197,14 +195,6 @@ export class Audio extends Media {
 		progressBarOverlay.style.opacity = '0';
 		progressBarOverlay.style.cursor = pointer;
 
-		// location.style.position = absolute;
-		// location.style.top = '25px';
-		// location.style.left = '10px';
-		// location.style.fontSize = '16pt';
-		// location.style.background = 'none';
-		// location.style.padding = 'none';
-		// location.style.cursor = pointer;
-
 		/** Style controls and load them into the controlsSection */
 		for (const element of [playPause, rewind, back, forward, end, stop]) {
 			element.style.fontSize = controlFontSize;
@@ -215,7 +205,6 @@ export class Audio extends Media {
 		}
 
 		/** Load all elements into this.panel */
-		// for (const element of [time, progressBar, progressBarFill, duration, location, controlsSection]) {
 		for (const element of [time, progressBar, progressBarFill, progressBarOverlay, duration, controlsSection]) {
 			this.panel.append(element);
 		}

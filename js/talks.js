@@ -110,6 +110,7 @@ function showRecordDetails(index) {
     const record = Records[index];
     const dialog = document.createElement('dialog');
     dialog.className = 'talk-dialog';
+    // dialog.autofocus = false; /** does nothing */
     const audioSection = document.createElement('div');
     if (record.extension) {
         /** add Audio element */
@@ -139,6 +140,24 @@ function showRecordDetails(index) {
         // });
     });
     titleSection.append(titleHeading);
+    const summarySection = document.createElement('div');
+    summarySection.className = 'talk-dialog-summary-section';
+    const summaryLines = [];
+    if (record.type)
+        summaryLines.push(record.type.toUpperCase());
+    if (record.performers)
+        summaryLines.push(`\xA0 with: ${record.performers}`);
+    const categories = (record.categories.length) ? record.categories.join(' > ') : '';
+    if (categories)
+        summaryLines.push(categories);
+    if (record.begins)
+        summaryLines.push(addEllipsis(record.begins));
+    if (record.ends)
+        summaryLines.push(addEllipsis(record.ends, false));
+    summaryLines.push('___');
+    const highlightedSummaryLines = highlightKeywords(summaryLines, Keywords);
+    const markedUpSummary = Markup(highlightedSummaryLines);
+    summarySection.innerHTML = markedUpSummary;
     /** add 'close' button */
     const exitButton = document.createElement('span');
     exitButton.innerHTML = '&times;';
@@ -154,40 +173,37 @@ function showRecordDetails(index) {
             dialog.remove();
         }
     });
-    const textSection = document.createElement('div');
-    const textLines = [];
-    const categories = (record.categories.length) ? record.categories.join(' > ') : '';
-    if (categories)
-        textLines.push(categories);
-    if (record.type)
-        textLines.push(record.type);
-    if (record.performers)
-        textLines.push(`with: ${record.performers}`);
-    if (record.begins)
-        textLines.push(addEllipsis(record.begins));
-    if (record.ends)
-        textLines.push(addEllipsis(record.ends, false));
+    const notesSection = document.createElement('div');
+    notesSection.className = 'talk-notes';
+    const notesLines = [];
+    // const categories = (record.categories.length) ? record.categories.join(' > ') : '';
+    // if (categories) notesLines.push(categories);
+    // if (record.type) notesLines.push(record.type);
+    // if (record.performers) notesLines.push(`with: ${record.performers}`);
+    // if (record.begins) notesLines.push(addEllipsis(record.begins));
+    // if (record.ends) notesLines.push(addEllipsis(record.ends, false));
     /** sort the most recent notes to the top */
     record.notes.sort((a, b) => b.date - a.date);
     let first = true;
     for (const note of record.notes) {
         if (!first)
-            textLines.push('___');
+            notesLines.push('___');
         const heading = `${note.name} (${note.section + 1})`;
-        textLines.push(`###### ${heading}\n`);
+        notesLines.push(`###### ${heading}\n`);
         if (!note.lines.length)
-            textLines.push('(no text lines)');
+            notesLines.push('(no text lines)');
         else
             for (const line of note.lines)
-                textLines.push(line);
+                notesLines.push(line);
         first = false;
     }
-    const highlightedTextLines = highlightKeywords(textLines, Keywords);
-    const markedUpText = Markup(highlightedTextLines);
-    textSection.innerHTML = markedUpText;
+    const highlightedNotesLines = highlightKeywords(notesLines, Keywords);
+    const markedUpNotes = Markup(highlightedNotesLines);
+    notesSection.innerHTML = markedUpNotes;
     dialog.append(audioSection);
     dialog.append(titleSection);
-    dialog.append(textSection);
+    dialog.append(summarySection);
+    dialog.append(notesSection);
     dialog.append(exitButton);
     PAGE.content.append(dialog);
     dialog.showModal();
@@ -224,19 +240,19 @@ function highlightKeywords(textLines, keywords) {
 function hasKeywords(record, keywords, logicalAnd = false) {
     let hasKeywords = (logicalAnd) ? true : false;
     /** consolidate all the text lines from the record */
-    const noteLines = [];
-    noteLines.push(record.title);
-    noteLines.push(record.type);
-    noteLines.push(record.categories.join(' ')); // should be included?
-    noteLines.push(record.performers);
-    noteLines.push(record.begins);
-    noteLines.push(record.ends);
+    const textLines = [];
+    textLines.push(record.title);
+    textLines.push(record.type);
+    textLines.push(record.categories.join(' ')); // should be included?
+    textLines.push(record.performers);
+    textLines.push(record.begins);
+    textLines.push(record.ends);
     for (const note of record.notes) {
         for (const line of note.lines) {
-            noteLines.push(line);
+            textLines.push(line);
         }
     }
-    const noteText = noteLines.join(' ');
+    const noteText = textLines.join(' ');
     const noteWords = uniqueWords(noteText, true);
     for (const keyword of keywords) {
         if (logicalAnd && !noteWords.has(keyword))
@@ -386,6 +402,7 @@ function selectionElement() {
     const selectionElement = document.createElement('div');
     const textEntry = new W.Text('Keywords: ', '');
     textEntry.element.addEventListener('change', () => {
+        // if (!Keywords) LogicalAnd = false; // when Keywords == '' also set LogicalAnd to false
         Keywords = uniqueWords(textEntry.element.value);
         // sortTalks();
         listTalks(ListElement, Keywords, LogicalAnd);

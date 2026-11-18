@@ -753,6 +753,27 @@ dialog.threads-dialog button {
 	cursor: pointer;
 }
 
+.talk-dialog-summary-section {
+	font-family: sans-serif;
+	font-weight: 500;
+	font-size: .9rem;
+	color: #008;
+}
+
+.talk-notes {
+	/* border:0; outline:none; // tried it, doesn't work */
+	/* box-shadow:none;        // tried it, doesn't work  */
+	/* input:focus {		   // this one is invalid syntax
+		outline: none;
+	} */
+	/* border: 1px solid black; for testing */
+	height: 75%;
+	overflow: scroll;
+	font-family: sans-serif;
+	font-weight: normal;
+	font-size: .8rem;
+}
+
 .talk-column {
 	cursor: pointer; /* to support clicking on text */
 }

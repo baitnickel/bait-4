@@ -27,16 +27,9 @@ if (!TalkRecords) {
 
 const TEST = (PAGE.parameters.has('test'));
 const MediaFolder = '../media/audio/watts';
-// const TalkTimesData = './data/audio/watts-talk-times.txt';
 const Records = TalkRecords!;
 
-//  // not yet supported ... might be better done with a button
-//  // ... (or done automatically by checking last update in metadata)
-// if (PAGE.parameters.has('refresh-times')) {
-// 	refreshTimes(TalkTimesData, Records);
-// 	window.alert('Audio file times data refreshed');
-// 	window.history.back();
-// }
+// for Records with zero duration, call API to run in background
 
 let Keywords = new Set<string>();
 let LogicalAnd = false;
@@ -53,11 +46,6 @@ const ListElement = document.createElement('div');
 ListElement.className = 'talks-list-element';
 const DetailsElement = document.createElement('div');
 DetailsElement.className = 'talks-details-element';
-
-/** needs more testing: */
-// const PopupMessage = document.createElement('dialog');
-// PopupMessage.className = 'talk-popup-message';
-// PopupMessage.innerHTML = '';
 
 export function render() {
 	PAGE.setTitle('Talks Dataset');

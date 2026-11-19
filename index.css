@@ -737,13 +737,38 @@ dialog.threads-dialog button {
 	/* overflow: visible; */
 }
 
+#talk-details {
+	width: 50%;
+	height: 75%;
+	padding: 1rem;
+}
+
 /* hacking ... probably wrong */
 .talk-dialog-top {
 	position: static;
 	/* top: 0; */
 }
 
+/* hacking ... probably wrong */
+#talk-details-top {
+	position: static;
+	/* top: 0; */
+}
+
 .talk-dialog-exit {
+	position: absolute;
+	top: 3%;
+	right: 3%;
+	z-index: 2; /* force buttons to show up on top of images */
+	background: none;
+	border: none;
+	font-size: 1.5rem;  /* 4rem; */
+	color: black;
+	cursor: pointer; /* to indicate element is clickable */
+	padding: 0;
+}
+
+#talk-details-exit {
 	position: absolute;
 	top: 3%;
 	right: 3%;
@@ -763,11 +788,29 @@ dialog.threads-dialog button {
 	font-size: 1.1rem;
 }
 
+#talk-details-title-section {
+	margin-top: 1rem;
+	font-family: sans-serif;
+	font-weight: normal;
+	font-size: 1.1rem;
+}
+
 .talk-title-copy {
 	cursor: pointer;
 }
 
+#talk-title-copy {
+	cursor: pointer;
+}
+
 .talk-dialog-summary-section {
+	font-family: sans-serif;
+	font-weight: 500;
+	font-size: .9rem;
+	color: #008;
+}
+
+#talk-details-summary-section {
 	font-family: sans-serif;
 	font-weight: 500;
 	font-size: .9rem;
@@ -782,10 +825,20 @@ dialog.threads-dialog button {
 	} */
 	/* border: 1px solid black; for testing */
 	height: 75%;
+	overflow-y: scroll;
+	font-family: sans-serif;
+	font-weight: normal;
+	font-size: .8rem;
+}
+
+#talk-notes {
+	/* border: 1px solid black; for testing */
+	height: 75%;
 	overflow: auto;
 	font-family: sans-serif;
 	font-weight: normal;
 	font-size: .8rem;
+	/* line-height: 1.5;   affects wrapped "lines" also!! */
 }
 
 .talk-column {
@@ -799,6 +852,7 @@ dialog.threads-dialog button {
 	text-align: right;
 }
 
+/* not used
 .talk-detail {
 	font-weight: bold;
 	border: none;
@@ -806,7 +860,7 @@ dialog.threads-dialog button {
 	padding: none;
 	background-color: #d0d0d0
 
-}
+} */
 
 /* Carousel ====================================================================== */
 

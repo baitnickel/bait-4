@@ -25,6 +25,7 @@ if (!TalkRecords) {
 	window.history.back();
 }
 
+const TEST = (PAGE.parameters.has('test'));
 const MediaFolder = '../media/audio/watts';
 // const TalkTimesData = './data/audio/watts-talk-times.txt';
 const Records = TalkRecords!;
@@ -62,6 +63,7 @@ export function render() {
 	PAGE.setTitle('Talks Dataset');
 	PAGE.header.append(SelectionElement);
 	PAGE.content.append(ListElement);
+	console.log(`Testing? ${TEST}`);
 	sortTalks();
 	listTalks(ListElement, Keywords, LogicalAnd);  
 }
@@ -89,7 +91,8 @@ function listTalks(division: HTMLDivElement, keywords: Set<string>, logicalAnd: 
 
 			titleCell.addEventListener('click', (e: Event) => {
 				const target = e.target as HTMLTableCellElement;
-				showRecordDetails(Number(target.id));
+				if (TEST) showRecordDetailsOld(Number(target.id));
+				else showRecordDetails(Number(target.id));
 			});
 		}
 		i += 1;
@@ -120,7 +123,7 @@ function columnName(id: string, columns: string[]) {
     return columns[index];
 }
 
-function showRecordDetails(index: number) {
+function showRecordDetailsOld(index: number) {
 	const record = Records[index];
 	const dialog = document.createElement('dialog');
 	dialog.className = 'talk-dialog';
@@ -440,3 +443,100 @@ function selectionElement() {
 		... if file was JSON, we could include an element for "last update".
 	*/
 // }
+
+
+
+/** new function, using popover instead of dialog */
+
+function showRecordDetails(index: number) {
+	const record = Records[index];
+	const details = document.createElement('div');
+	details.id = 'talk-details';
+	details.popover = 'manual';
+
+	const detailsTop = document.createElement('div');
+	detailsTop.id = 'talk-details-top';
+
+	const audioSection = document.createElement('div');
+	if (record.extension) {
+		/** add Audio element */
+		const audio = new Media.Audio(30);
+		audio.element.src = `${MediaFolder}/${record.title}${record.extension}`;
+		audio.element.load();
+		audioSection.append(audio.element);
+		audioSection.append(audio.panel);
+	}
+	else {
+		const noAudioMessage = document.createElement('paragraph');
+		noAudioMessage.innerText = '(No Audio File)';
+		audioSection.append(noAudioMessage);
+	}
+
+	const titleSection = document.createElement('div');
+	titleSection.id = 'talk-details-title-section';
+	const highlightedTitle = highlightKeywords(record.title, Keywords).join('')
+	const titleHeading = MarkupLine(highlightedTitle, 'MET');
+	const title = document.createElement('span');
+	title.innerHTML = titleHeading;
+	const titleCopyButton = document.createElement('span');
+	titleCopyButton.id = 'talk-title-copy';
+	titleCopyButton.innerHTML = '🔖'; // ▽⬇︎⤵︎🔑🪄📥🔖📌⌘C
+	titleCopyButton.addEventListener('click', () => {
+		navigator.clipboard.writeText(record.title); /** copy title to clipboard */
+	});
+	titleSection.append(titleCopyButton, ' ', title);
+
+	const summarySection = document.createElement('div');
+	summarySection.id = 'talk-details-summary-section';
+	const summaryLines: string[] = [];
+	if (record.type) summaryLines.push(record.type.toUpperCase());
+	if (record.performers) summaryLines.push(`\xA0 with: ${record.performers}`);
+	const categories = (record.categories.length) ? record.categories.join(' > ') : '';
+	if (categories) summaryLines.push(categories);
+	if (record.begins) summaryLines.push(addEllipsis(record.begins));
+	if (record.ends) summaryLines.push(addEllipsis(record.ends, false));
+	summaryLines.push('___');
+	const highlightedSummaryLines = highlightKeywords(summaryLines, Keywords);
+	const markedUpSummary = Markup(highlightedSummaryLines);
+	summarySection.innerHTML = markedUpSummary;
+	
+	detailsTop.append(audioSection, titleSection, summarySection);
+
+	/** add 'close' button */
+	const exitButton = document.createElement('span');
+	exitButton.id = 'talk-details-exit';
+	exitButton.innerHTML = '&times;';
+	exitButton.addEventListener('click', () => {
+		details.hidePopover();
+		details.remove();
+	});
+	/** https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values */
+	document.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape') {
+			details.hidePopover();
+			details.remove();
+		}
+	});
+
+	const notesSection = document.createElement('div');
+	notesSection.id = 'talk-notes';
+	const notesLines: string[] = [];
+	/** sort the most recent notes to the top */
+	record.notes.sort((a,b) => b.date - a.date);
+	let first = true;
+	for (const note of record.notes) {
+		if (!first) notesLines.push('___');
+		const heading = `${note.name} (${note.section + 1})`;
+		notesLines.push(`###### ${heading}\n`);
+		if (!note.lines.length) notesLines.push('(no text lines)');
+		else for (const line of note.lines) notesLines.push(line);
+		first = false;
+	}
+	const highlightedNotesLines = highlightKeywords(notesLines, Keywords);
+	const markedUpNotes = Markup(highlightedNotesLines);
+	notesSection.innerHTML = markedUpNotes;
+	
+	details.append(detailsTop, exitButton, notesSection);
+	PAGE.content.append(details);
+	details.showPopover();
+}

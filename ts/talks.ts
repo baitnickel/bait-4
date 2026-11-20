@@ -79,8 +79,8 @@ function listTalks(division: HTMLDivElement, keywords: Set<string>, logicalAnd: 
 
 			titleCell.addEventListener('click', (e: Event) => {
 				const target = e.target as HTMLTableCellElement;
-				if (TEST) showRecordDetailsOld(Number(target.id));
-				else showRecordDetails(Number(target.id));
+				if (TEST) showRecordDetails2(Number(target.id));
+				else showRecordDetails3(Number(target.id));
 			});
 		}
 		i += 1;
@@ -111,7 +111,7 @@ function columnName(id: string, columns: string[]) {
     return columns[index];
 }
 
-function showRecordDetailsOld(index: number) {
+function showRecordDetails1(index: number) {
 	const record = Records[index];
 	const dialog = document.createElement('dialog');
 	dialog.className = 'talk-dialog';
@@ -436,14 +436,14 @@ function selectionElement() {
 
 /** new function, using popover instead of dialog */
 
-function showRecordDetails(index: number) {
+function showRecordDetails2(index: number) {
 	const record = Records[index];
 	const details = document.createElement('div');
 	details.id = 'talk-details';
 	details.popover = 'manual';
 
-	const detailsTop = document.createElement('div');
-	detailsTop.id = 'talk-details-top';
+	const overviewSection = document.createElement('div');
+	overviewSection.id = 'talk-details-top';
 
 	const audioSection = document.createElement('div');
 	if (record.extension) {
@@ -468,7 +468,7 @@ function showRecordDetails(index: number) {
 	title.innerHTML = titleHeading;
 	const titleCopyButton = document.createElement('span');
 	titleCopyButton.id = 'talk-title-copy';
-	titleCopyButton.innerHTML = '🔖'; // ▽⬇︎⤵︎🔑🪄📥🔖📌⌘C
+	titleCopyButton.innerHTML = '⬇︎'; // ▽⬇︎⤵︎🔑🪄📥🔖📌⌘C
 	titleCopyButton.addEventListener('click', () => {
 		navigator.clipboard.writeText(record.title); /** copy title to clipboard */
 	});
@@ -488,7 +488,7 @@ function showRecordDetails(index: number) {
 	const markedUpSummary = Markup(highlightedSummaryLines);
 	summarySection.innerHTML = markedUpSummary;
 	
-	detailsTop.append(audioSection, titleSection, summarySection);
+	overviewSection.append(audioSection, titleSection, summarySection);
 
 	/** add 'close' button */
 	const exitButton = document.createElement('span');
@@ -524,7 +524,162 @@ function showRecordDetails(index: number) {
 	const markedUpNotes = Markup(highlightedNotesLines);
 	notesSection.innerHTML = markedUpNotes;
 	
-	details.append(detailsTop, exitButton, notesSection);
+	details.append(overviewSection, exitButton, notesSection);
 	PAGE.content.append(details);
 	details.showPopover();
+}
+
+function showRecordDetails3(index: number) {
+	const record = Records[index];
+	const details = document.createElement('div');
+	// details.id = 'talk-details';
+	// details.popover = 'manual';
+	// details.style.backgroundColor = 'rgb(230, 240, 255)';
+	detailsGrid(details, record);
+	PAGE.content.append(details);
+	details.showPopover();
+}
+
+/**
+ * Given a `container` element (e.g., HTMLDivElement), load the `summary` and
+ * `details` items into the container.
+ * 
+ * - Are there any requirements/assumptions for the container?
+ * - 
+ */
+function detailsGrid(container: HTMLElement, record: T.TalkRecord) {
+	container.style.width = '50%';
+	container.style.height = '75%';
+	container.style.padding = '1rem';
+	container.style.backgroundColor = 'rgb(230, 240, 255)';
+	container.style.display = 'grid';
+	container.popover = 'manual';
+	const overview = overviewSection(record, container);
+	const notes = notesSection(record);
+	container.append(overview, notes);
+}
+
+function overviewSection(record: T.TalkRecord, container: HTMLElement) {
+	const overview = document.createElement('div');
+	// overview.id = 'talk-details-top';
+	const button = exitButton(record, container);
+	const audio = audioSection(record);
+	const title = titleSection(record);
+	const summary = summarySection(record);
+	overview.append(button, audio, title, summary);
+	return overview;
+}
+
+function exitButton(record: T.TalkRecord, container: HTMLElement) {
+	const button =  document.createElement('span');
+	// button.id = 'talk-details-exit';
+	button.style.position = 'absolute';
+	button.style.top = '3%';
+	button.style.right = '3%';
+	button.style.zIndex = '2'; /* force buttons to show up on top of images */
+	button.style.background = 'none';
+	button.style.border = 'none';
+	button.style.fontSize = '1.5rem';  /* 4rem; */
+	button.style.color = 'black';
+	button.style.cursor = 'pointer'; /* to indicate element is clickable */
+	button.style.padding = '0';
+	button.innerHTML = '&times;';
+	button.addEventListener('click', () => {
+		container.hidePopover();
+		container.remove();
+	});
+	/** https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values */
+	document.addEventListener('keydown', (e) => { // document -> container?
+		if (e.key === 'Escape') {
+			container.hidePopover();
+			container.remove();
+		}
+	});
+	return button;
+}
+
+function audioSection(record: T.TalkRecord) {
+	const audio = document.createElement('div');
+	if (record.extension) {
+		/** add Audio element */
+		const audioObject = new Media.Audio(30);
+		audioObject.element.src = `${MediaFolder}/${record.title}${record.extension}`;
+		audioObject.element.load();
+		audio.append(audioObject.element);
+		audio.append(audioObject.panel);
+	}
+	else {
+		const noAudioMessage = document.createElement('paragraph');
+		noAudioMessage.innerText = '(No Audio File)';
+		audio.append(noAudioMessage);
+	}
+	return audio;
+}
+
+function titleSection(record: T.TalkRecord) {
+	const title = document.createElement('div');
+	// title.id = 'talk-details-title-section';
+	title.style.marginTop = '1rem';
+	title.style.fontFamily = 'sans-serif';
+	title.style.fontWeight = 'normal';
+	title.style.fontSize = '1.1rem';
+	const highlightedTitle = highlightKeywords(record.title, Keywords).join('')
+	const titleHeading = MarkupLine(highlightedTitle, 'MET');
+	const titleText = document.createElement('span');
+	titleText.innerHTML = titleHeading;
+	const titleCopyButton = document.createElement('span');
+	titleCopyButton.id = 'talk-title-copy';
+	titleCopyButton.innerHTML = '🔖'; // ▽⬇︎⤵︎🔑🪄📥🔖📌⌘C
+	titleCopyButton.addEventListener('click', () => {
+		navigator.clipboard.writeText(record.title); /** copy title to clipboard */
+	});
+	title.append(titleCopyButton, ' ', titleText);
+	return title;
+}
+
+function summarySection(record: T.TalkRecord) {
+	const summary = document.createElement('div');
+	// summary.id = 'talk-details-summary-section';
+	summary.style.fontFamily = 'sans-serif';
+	summary.style.fontWeight = '500';
+	summary.style.fontSize = '.9rem';
+	summary.style.color = '#600';
+	const summaryLines: string[] = [];
+	if (record.type) summaryLines.push(record.type.toUpperCase());
+	if (record.performers) summaryLines.push(`\xa0 with: ${record.performers}`);
+	const categories = (record.categories.length) ? record.categories.join(' > ') : '';
+	if (categories) summaryLines.push(categories);
+	if (record.begins) summaryLines.push(addEllipsis(record.begins));
+	if (record.ends) summaryLines.push(addEllipsis(record.ends, false));
+	summaryLines.push('___');
+	const highlightedSummaryLines = highlightKeywords(summaryLines, Keywords);
+	const markedUpSummary = Markup(highlightedSummaryLines);
+	summary.innerHTML = markedUpSummary;
+	return summary;
+}
+
+function notesSection(record: T.TalkRecord) {
+	const notes = document.createElement('div');
+	// notes.id = 'talk-notes';
+	// notes.style.height = '75%';
+	notes.style.overflow = 'auto';
+	notes.style.fontFamily = 'sans-serif';
+	notes.style.fontWeight = 'normal';
+	notes.style.fontSize = '.8rem';
+	const notesLines: string[] = [];
+	/** sort the most recent notes to the top */
+	record.notes.sort((a,b) => b.date - a.date);
+	let first = true;
+	for (const note of record.notes) {
+		if (!first) notesLines.push('___');
+		const heading = `${note.name} (${note.section + 1})`;
+		notesLines.push(`###### ${heading}\n`);
+		if (!note.lines.length) notesLines.push('(no text lines)');
+		else for (const line of note.lines) notesLines.push(line);
+		first = false;
+	}
+	const highlightedNotesLines = highlightKeywords(notesLines, Keywords);
+	const markedUpNotes = Markup(highlightedNotesLines);
+	notes.innerHTML = markedUpNotes;
+	return notes;
 }

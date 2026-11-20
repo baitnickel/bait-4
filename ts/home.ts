@@ -688,11 +688,11 @@ function gridTest(testOutput: HTMLDivElement) {
 	const container = document.createElement('div');
 	// container.className = 'grid-container';
 	container.style.display = 'grid';
-	container.style.width = '300px';
-	container.style.height = '400px';
-	container.style.gridTemplateColumns = '1fr';
+	container.style.width = '25rem';
+	container.style.height = '30rem';
+	// container.style.gridTemplateColumns = '1fr'; // it seems the default is vertical stack?
 	container.style.backgroundColor = 'rgba(249, 249, 229, 0.647)';
-	container.style.padding = '5px';
+	container.style.padding = '.5rem';
 	container.style.marginTop = '2rem';
 
 	// for (let i = 1; i <= 8; i += 1) {
@@ -704,27 +704,28 @@ function gridTest(testOutput: HTMLDivElement) {
 	// 	container.append(item);
 	// }
 
-	const item1 = document.createElement('div');
-		itemStyle(item1);
-		item1.innerHTML = `<h3>This is some content.</h3>
+	const overview = document.createElement('div');
+		itemStyle(overview);
+		overview.innerHTML = `<h3>This is overview content.</h3>
 		This block should not scroll.<br>
 		The block below <em>should</em> scroll.</p>`;
-	container.append(item1);
-	const item2 = document.createElement('div');
-		itemStyle(item2);
-		item2.style.overflow = 'auto';
-		item2.innerHTML = `<p>Mollit fugiat sit sint fugiat veniam Lorem dolore sit ipsum velit cupidatat. Reprehenderit minim nisi ex sit tempor amet magna sint. Consectetur pariatur cupidatat cillum quis anim qui laboris quis culpa dolor. Lorem ut irure pariatur do aute qui velit officia pariatur exercitation cupidatat amet do. Aliqua magna consequat qui elit dolore eiusmod ullamco veniam reprehenderit eiusmod enim aliquip. Reprehenderit ea mollit veniam pariatur ut laborum. Irure elit laboris qui nisi culpa ad do voluptate nulla elit.</p>
+	const notes = document.createElement('div');
+		itemStyle(notes, '');
+		notes.style.overflow = 'auto';
+		notes.innerHTML = `<p>This is notes content</p>
+		<p>Mollit fugiat sit sint fugiat veniam Lorem dolore sit ipsum velit cupidatat. Reprehenderit minim nisi ex sit tempor amet magna sint. Consectetur pariatur cupidatat cillum quis anim qui laboris quis culpa dolor. Lorem ut irure pariatur do aute qui velit officia pariatur exercitation cupidatat amet do. Aliqua magna consequat qui elit dolore eiusmod ullamco veniam reprehenderit eiusmod enim aliquip. Reprehenderit ea mollit veniam pariatur ut laborum. Irure elit laboris qui nisi culpa ad do voluptate nulla elit.</p>
 		
 		<p>Est enim do amet aute nisi officia culpa incididunt culpa. Reprehenderit anim tempor commodo Lorem enim ipsum incididunt magna labore elit nulla irure. Incididunt exercitation ex ex est ut enim dolor est nostrud anim reprehenderit duis magna.</p>
 		
 		<p>Consequat voluptate commodo consectetur culpa incididunt quis nulla laboris commodo deserunt tempor sit. Et pariatur exercitation cillum amet id culpa. Non nostrud culpa velit cupidatat consectetur commodo do ullamco. Veniam laboris duis dolore nostrud pariatur aliqua labore. Elit esse ipsum ullamco elit sit sunt ad. Eiusmod cupidatat veniam ad elit.</p>
 		
 		<p>The End.</p>`;
-	container.append(item2);
-
+		
+	container.append(overview, notes);
 	testOutput.append(container);
 }
-function itemStyle(item: HTMLDivElement) {
+function itemStyle(item: HTMLDivElement, height = '') {
+	if (height) item.style.height = height;
 	item.style.backgroundColor = '#f1f1f1';
 	item.style.border = '1px solid lightgray';
 	item.style.paddingLeft = '.5rem';

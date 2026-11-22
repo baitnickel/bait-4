@@ -79,8 +79,7 @@ function listTalks(division: HTMLDivElement, keywords: Set<string>, logicalAnd: 
 
 			titleCell.addEventListener('click', (e: Event) => {
 				const target = e.target as HTMLTableCellElement;
-				if (TEST) showRecordDetails2(Number(target.id));
-				else showRecordDetails3(Number(target.id));
+				showRecordDetails(Number(target.id));
 			});
 		}
 		i += 1;
@@ -109,104 +108,6 @@ function columnName(id: string, columns: string[]) {
     const segments = id.split('-');
     const index = Number(segments[segments.length - 1]);
     return columns[index];
-}
-
-function showRecordDetails1(index: number) {
-	const record = Records[index];
-	const dialog = document.createElement('dialog');
-	dialog.className = 'talk-dialog';
-	// dialog.autofocus = false; /** does nothing */
-
-	const dialogTop = document.createElement('div');
-	dialogTop.className = 'talk-dialog-top';
-
-	const audioSection = document.createElement('div');
-	if (record.extension) {
-		/** add Audio element */
-		const audio = new Media.Audio();
-		audio.element.src = `${MediaFolder}/${record.title}${record.extension}`;
-		audio.element.load();
-		audioSection.append(audio.element);
-		audioSection.append(audio.panel);
-	}
-	else {
-		const noAudioMessage = document.createElement('paragraph');
-		noAudioMessage.innerText = '(No Audio File)';
-		audioSection.append(noAudioMessage);
-	}
-
-	const titleSection = document.createElement('div');
-	titleSection.className = 'talk-dialog-title-section';
-	const highlightedTitle = highlightKeywords(record.title, Keywords).join('')
-	const titleHeading = MarkupLine(highlightedTitle, 'MET');
-	const titleCopyButton = document.createElement('span');
-	titleCopyButton.className = 'talk-title-copy';
-	titleCopyButton.innerHTML = '▽'; // ▽⬇︎⤵︎
-	titleCopyButton.addEventListener('click', () => {
-		navigator.clipboard.writeText(record.title); /** copy title to clipboard */
-	});
-	// there must be a simpler way to include a clickable "button" on a line??
-	titleSection.innerHTML = `${titleHeading} `;
-	titleSection.append(titleCopyButton);
-
-	const summarySection = document.createElement('div');
-	summarySection.className = 'talk-dialog-summary-section';
-	const summaryLines: string[] = [];
-	if (record.type) summaryLines.push(record.type.toUpperCase());
-	if (record.performers) summaryLines.push(`\xA0 with: ${record.performers}`);
-	const categories = (record.categories.length) ? record.categories.join(' > ') : '';
-	if (categories) summaryLines.push(categories);
-	if (record.begins) summaryLines.push(addEllipsis(record.begins));
-	if (record.ends) summaryLines.push(addEllipsis(record.ends, false));
-	summaryLines.push('___');
-	const highlightedSummaryLines = highlightKeywords(summaryLines, Keywords);
-	const markedUpSummary = Markup(highlightedSummaryLines);
-	summarySection.innerHTML = markedUpSummary;
-	
-	dialogTop.append(audioSection, titleSection, summarySection);
-
-	/** add 'close' button */
-	const exitButton = document.createElement('span');
-	exitButton.className = 'talk-dialog-exit';
-	exitButton.innerHTML = '&times;';
-	exitButton.addEventListener('click', () => {
-		dialog.close();
-		dialog.remove();
-	});
-	/** support Escape key close - see: https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values */
-	document.addEventListener('keydown', (e) => {
-		if (e.key === 'Escape') {
-			dialog.close();
-			dialog.remove();
-		}
-	});
-
-	const notesSection = document.createElement('div');
-	notesSection.className = 'talk-notes';
-	const notesLines: string[] = [];
-	/** sort the most recent notes to the top */
-	record.notes.sort((a,b) => b.date - a.date);
-	let first = true;
-	for (const note of record.notes) {
-		if (!first) notesLines.push('___');
-		const heading = `${note.name} (${note.section + 1})`;
-		notesLines.push(`###### ${heading}\n`);
-		if (!note.lines.length) notesLines.push('(no text lines)');
-		else for (const line of note.lines) notesLines.push(line);
-		first = false;
-	}
-	const highlightedNotesLines = highlightKeywords(notesLines, Keywords);
-	const markedUpNotes = Markup(highlightedNotesLines);
-	notesSection.innerHTML = markedUpNotes;
-	
-	// dialog.append(audioSection);
-	// dialog.append(titleSection);
-	// dialog.append(summarySection);
-	dialog.append(dialogTop);
-	dialog.append(notesSection);
-	dialog.append(exitButton);
-	PAGE.content.append(dialog);
-	dialog.showModal();
 }
 
 /**
@@ -415,153 +316,40 @@ function selectionElement() {
 	return selectionElement;
 }
 
-// not yet supported
-// async function refreshTimes(dataFilePath: string, records: T.TalkRecord[]) {
-	/*
-		Must loop over file names + extensions from `records`,
-		and for each one create an array of strings consisting of
-		name+extenstion and duration seconds,
-		separated by a delimiter (such as '\t').
-		Use the PlayAudio.LoadAudioData function as demonstated in the home module,
-		function testTalkTime.
-		Then call an API passing the array of strings.
-		The API will (over)write a text file representing the array.
-		The text file can be read by the module that builds the AudioDataset.
-		Ideally, we should only *update* the text file for *new* files ...
-		... if file was JSON, we could include an element for "last update".
-	*/
-// }
-
-
-
-/** new function, using popover instead of dialog */
-
-function showRecordDetails2(index: number) {
+/** Show record details in a "modal" Popover */
+function showRecordDetails(index: number) {
 	const record = Records[index];
 	const details = document.createElement('div');
-	details.id = 'talk-details';
-	details.popover = 'manual';
-
-	const overviewSection = document.createElement('div');
-	overviewSection.id = 'talk-details-top';
-
-	const audioSection = document.createElement('div');
-	if (record.extension) {
-		/** add Audio element */
-		const audio = new Media.Audio(30);
-		audio.element.src = `${MediaFolder}/${record.title}${record.extension}`;
-		audio.element.load();
-		audioSection.append(audio.element);
-		audioSection.append(audio.panel);
-	}
-	else {
-		const noAudioMessage = document.createElement('paragraph');
-		noAudioMessage.innerText = '(No Audio File)';
-		audioSection.append(noAudioMessage);
-	}
-
-	const titleSection = document.createElement('div');
-	titleSection.id = 'talk-details-title-section';
-	const highlightedTitle = highlightKeywords(record.title, Keywords).join('')
-	const titleHeading = MarkupLine(highlightedTitle, 'MET');
-	const title = document.createElement('span');
-	title.innerHTML = titleHeading;
-	const titleCopyButton = document.createElement('span');
-	titleCopyButton.id = 'talk-title-copy';
-	titleCopyButton.innerHTML = '⬇︎'; // ▽⬇︎⤵︎🔑🪄📥🔖📌⌘C
-	titleCopyButton.addEventListener('click', () => {
-		navigator.clipboard.writeText(record.title); /** copy title to clipboard */
-	});
-	titleSection.append(titleCopyButton, ' ', title);
-
-	const summarySection = document.createElement('div');
-	summarySection.id = 'talk-details-summary-section';
-	const summaryLines: string[] = [];
-	if (record.type) summaryLines.push(record.type.toUpperCase());
-	if (record.performers) summaryLines.push(`\xA0 with: ${record.performers}`);
-	const categories = (record.categories.length) ? record.categories.join(' > ') : '';
-	if (categories) summaryLines.push(categories);
-	if (record.begins) summaryLines.push(addEllipsis(record.begins));
-	if (record.ends) summaryLines.push(addEllipsis(record.ends, false));
-	summaryLines.push('___');
-	const highlightedSummaryLines = highlightKeywords(summaryLines, Keywords);
-	const markedUpSummary = Markup(highlightedSummaryLines);
-	summarySection.innerHTML = markedUpSummary;
-	
-	overviewSection.append(audioSection, titleSection, summarySection);
-
-	/** add 'close' button */
-	const exitButton = document.createElement('span');
-	exitButton.id = 'talk-details-exit';
-	exitButton.innerHTML = '&times;';
-	exitButton.addEventListener('click', () => {
-		details.hidePopover();
-		details.remove();
-	});
-	/** https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values */
-	document.addEventListener('keydown', (e) => {
-		if (e.key === 'Escape') {
-			details.hidePopover();
-			details.remove();
-		}
-	});
-
-	const notesSection = document.createElement('div');
-	notesSection.id = 'talk-notes';
-	const notesLines: string[] = [];
-	/** sort the most recent notes to the top */
-	record.notes.sort((a,b) => b.date - a.date);
-	let first = true;
-	for (const note of record.notes) {
-		if (!first) notesLines.push('___');
-		const heading = `${note.name} (${note.section + 1})`;
-		notesLines.push(`###### ${heading}\n`);
-		if (!note.lines.length) notesLines.push('(no text lines)');
-		else for (const line of note.lines) notesLines.push(line);
-		first = false;
-	}
-	const highlightedNotesLines = highlightKeywords(notesLines, Keywords);
-	const markedUpNotes = Markup(highlightedNotesLines);
-	notesSection.innerHTML = markedUpNotes;
-	
-	details.append(overviewSection, exitButton, notesSection);
-	PAGE.content.append(details);
-	details.showPopover();
-}
-
-function showRecordDetails3(index: number) {
-	const record = Records[index];
-	const details = document.createElement('div');
-	// details.id = 'talk-details';
-	// details.popover = 'manual';
-	// details.style.backgroundColor = 'rgb(230, 240, 255)';
 	detailsGrid(details, record);
 	PAGE.content.append(details);
+	ListElement.inert = true; /** make popover modal-like */
 	details.showPopover();
 }
 
 /**
  * Given a `container` element (e.g., HTMLDivElement), load the `summary` and
  * `details` items into the container.
- * 
- * - Are there any requirements/assumptions for the container?
- * - 
  */
 function detailsGrid(container: HTMLElement, record: T.TalkRecord) {
 	container.style.width = '50%';
 	container.style.height = '75%';
 	container.style.padding = '1rem';
-	container.style.backgroundColor = 'rgb(230, 240, 255)';
+	container.style.backgroundColor = 'rgb(252, 252, 252)'; // 'rgb(230, 240, 255)';
 	container.style.display = 'grid';
+	container.style.gridTemplateRows = 'min-content 1fr';
 	container.popover = 'manual';
 	const overview = overviewSection(record, container);
 	const notes = notesSection(record);
 	container.append(overview, notes);
 }
 
+/**
+ * The first (top-most) element in the details grid will be an overview of the
+ * talk, containing an Exit button, an Audio player, and the talk title and
+ * summary
+ */
 function overviewSection(record: T.TalkRecord, container: HTMLElement) {
 	const overview = document.createElement('div');
-	// overview.id = 'talk-details-top';
 	const button = exitButton(record, container);
 	const audio = audioSection(record);
 	const title = titleSection(record);
@@ -570,9 +358,12 @@ function overviewSection(record: T.TalkRecord, container: HTMLElement) {
 	return overview;
 }
 
+/**
+ * An exit "button" and the keyboard Escape key will be used to dismiss the
+ * popover element.
+ */
 function exitButton(record: T.TalkRecord, container: HTMLElement) {
 	const button =  document.createElement('span');
-	// button.id = 'talk-details-exit';
 	button.style.position = 'absolute';
 	button.style.top = '3%';
 	button.style.right = '3%';
@@ -587,21 +378,27 @@ function exitButton(record: T.TalkRecord, container: HTMLElement) {
 	button.addEventListener('click', () => {
 		container.hidePopover();
 		container.remove();
+		ListElement.inert = false;
 	});
 	/** https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values */
-	document.addEventListener('keydown', (e) => { // document -> container?
+	document.addEventListener('keydown', (e) => {
 		if (e.key === 'Escape') {
 			container.hidePopover();
 			container.remove();
+			ListElement.inert = false;
 		}
 	});
 	return button;
 }
 
+/**
+ * The Audio section contains an Audio player or, if the audio file is not
+ * known, a message indicating that there is no audio available.
+ */
 function audioSection(record: T.TalkRecord) {
 	const audio = document.createElement('div');
 	if (record.extension) {
-		/** add Audio element */
+		/** add Audio controls element */
 		const audioObject = new Media.Audio(30);
 		audioObject.element.src = `${MediaFolder}/${record.title}${record.extension}`;
 		audioObject.element.load();
@@ -616,9 +413,12 @@ function audioSection(record: T.TalkRecord) {
 	return audio;
 }
 
+/**
+ * The title section contains the talk's title with a button to copy the title
+ * to the system clipboard (so it may be pasted into another application).
+ */
 function titleSection(record: T.TalkRecord) {
 	const title = document.createElement('div');
-	// title.id = 'talk-details-title-section';
 	title.style.marginTop = '1rem';
 	title.style.fontFamily = 'sans-serif';
 	title.style.fontWeight = 'normal';
@@ -637,9 +437,15 @@ function titleSection(record: T.TalkRecord) {
 	return title;
 }
 
+/**
+ * The summary section contains general Talk information: Talk type,
+ * participants in addition to the main speaker, categorization, and beginning
+ * and ending words spoken in the Talk. Any or all of these items may be
+ * unavailable for a particular Talk, in which case nothing is shown for that
+ * item.
+ */
 function summarySection(record: T.TalkRecord) {
 	const summary = document.createElement('div');
-	// summary.id = 'talk-details-summary-section';
 	summary.style.fontFamily = 'sans-serif';
 	summary.style.fontWeight = '500';
 	summary.style.fontSize = '.9rem';
@@ -658,10 +464,13 @@ function summarySection(record: T.TalkRecord) {
 	return summary;
 }
 
+/**
+ * The second (bottom-most) element in the details grid will display one or more
+ * text entries retrieved from the backend system (we're currently using
+ * Obsidian to maintain these notes).
+ */
 function notesSection(record: T.TalkRecord) {
 	const notes = document.createElement('div');
-	// notes.id = 'talk-notes';
-	// notes.style.height = '75%';
 	notes.style.overflow = 'auto';
 	notes.style.fontFamily = 'sans-serif';
 	notes.style.fontWeight = 'normal';
@@ -683,3 +492,20 @@ function notesSection(record: T.TalkRecord) {
 	notes.innerHTML = markedUpNotes;
 	return notes;
 }
+
+// not yet supported
+// async function refreshTimes(dataFilePath: string, records: T.TalkRecord[]) {
+	/*
+		Must loop over file names + extensions from `records`,
+		and for each one create an array of strings consisting of
+		name+extenstion and duration seconds,
+		separated by a delimiter (such as '\t').
+		Use the PlayAudio.LoadAudioData function as demonstated in the home module,
+		function testTalkTime.
+		Then call an API passing the array of strings.
+		The API will (over)write a text file representing the array.
+		The text file can be read by the module that builds the AudioDataset.
+		Ideally, we should only *update* the text file for *new* files ...
+		... if file was JSON, we could include an element for "last update".
+	*/
+// }

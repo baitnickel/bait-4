@@ -691,6 +691,7 @@ function gridTest(testOutput: HTMLDivElement) {
 	container.style.width = '25rem';
 	container.style.height = '30rem';
 	// container.style.gridTemplateColumns = '1fr'; // it seems the default is vertical stack?
+	container.style.gridTemplateRows = 'min-content 1fr';
 	container.style.backgroundColor = 'rgba(249, 249, 229, 0.647)';
 	container.style.padding = '.5rem';
 	container.style.marginTop = '2rem';
@@ -713,13 +714,14 @@ function gridTest(testOutput: HTMLDivElement) {
 		itemStyle(notes, '');
 		notes.style.overflow = 'auto';
 		notes.innerHTML = `<p>This is notes content</p>
-		<p>Mollit fugiat sit sint fugiat veniam Lorem dolore sit ipsum velit cupidatat. Reprehenderit minim nisi ex sit tempor amet magna sint. Consectetur pariatur cupidatat cillum quis anim qui laboris quis culpa dolor. Lorem ut irure pariatur do aute qui velit officia pariatur exercitation cupidatat amet do. Aliqua magna consequat qui elit dolore eiusmod ullamco veniam reprehenderit eiusmod enim aliquip. Reprehenderit ea mollit veniam pariatur ut laborum. Irure elit laboris qui nisi culpa ad do voluptate nulla elit.</p>
+		<p>Mollit fugiat sit sint fugiat veniam Lorem dolore sit ipsum velit cupidatat. Reprehenderit minim nisi ex sit tempor amet magna sint. Consectetur pariatur cupidatat cillum quis anim qui laboris quis culpa dolor.`;
+		// Lorem ut irure pariatur do aute qui velit officia pariatur exercitation cupidatat amet do. Aliqua magna consequat qui elit dolore eiusmod ullamco veniam reprehenderit eiusmod enim aliquip. Reprehenderit ea mollit veniam pariatur ut laborum. Irure elit laboris qui nisi culpa ad do voluptate nulla elit.</p>
 		
-		<p>Est enim do amet aute nisi officia culpa incididunt culpa. Reprehenderit anim tempor commodo Lorem enim ipsum incididunt magna labore elit nulla irure. Incididunt exercitation ex ex est ut enim dolor est nostrud anim reprehenderit duis magna.</p>
+		// <p>Est enim do amet aute nisi officia culpa incididunt culpa. Reprehenderit anim tempor commodo Lorem enim ipsum incididunt magna labore elit nulla irure. Incididunt exercitation ex ex est ut enim dolor est nostrud anim reprehenderit duis magna.</p>
 		
-		<p>Consequat voluptate commodo consectetur culpa incididunt quis nulla laboris commodo deserunt tempor sit. Et pariatur exercitation cillum amet id culpa. Non nostrud culpa velit cupidatat consectetur commodo do ullamco. Veniam laboris duis dolore nostrud pariatur aliqua labore. Elit esse ipsum ullamco elit sit sunt ad. Eiusmod cupidatat veniam ad elit.</p>
+		// <p>Consequat voluptate commodo consectetur culpa incididunt quis nulla laboris commodo deserunt tempor sit. Et pariatur exercitation cillum amet id culpa. Non nostrud culpa velit cupidatat consectetur commodo do ullamco. Veniam laboris duis dolore nostrud pariatur aliqua labore. Elit esse ipsum ullamco elit sit sunt ad. Eiusmod cupidatat veniam ad elit.</p>
 		
-		<p>The End.</p>`;
+		// <p>The End.</p>`;
 		
 	container.append(overview, notes);
 	testOutput.append(container);

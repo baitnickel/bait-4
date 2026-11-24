@@ -69,6 +69,7 @@ export function render() {
         testButtons.className = 'grid-buttons';
         testContent.append(testButtons);
         const testOutput = document.createElement('div');
+        testOutput.style.marginTop = '1rem';
         testContent.append(testOutput);
         const testers = [];
         testers.push({ name: 'URI', function: testURI });
@@ -94,6 +95,7 @@ export function render() {
         // testers.push( { name: 'Cookies', function: testCookies } );
         testers.push({ name: 'Words', function: testWords });
         testers.push({ name: 'Moments', function: testMoments });
+        testers.push({ name: 'Button Labels', function: testButtonLabels });
         if (PAGE.backendAvailable) {
             testers.push({ name: 'Fetch.api', function: testFetchAPI });
         }
@@ -113,6 +115,31 @@ export function render() {
             });
             testButtons.append(button);
         }
+    }
+}
+function testButtonLabels(testOutput) {
+    const textLabels = ['▶️', '⏸', '⏹'];
+    for (const textLabel of textLabels) {
+        const button = document.createElement('button');
+        button.style.marginLeft = '1em';
+        button.style.border = 'none';
+        button.style.backgroundColor = 'transparent';
+        button.textContent = textLabel;
+        button.addEventListener('click', () => { alert(`${textLabel}!`); });
+        testOutput.append(button);
+    }
+    const svgLabels = ['play', 'pause', 'stop'];
+    for (const svgLabel of svgLabels) {
+        const svgImage = document.createElement('img');
+        svgImage.setAttribute('src', `images/icons/${svgLabel}-circle-outline.svg`);
+        svgImage.width = 16; // a width seems to be required?
+        const button = document.createElement('button');
+        button.style.marginLeft = '1em';
+        button.style.border = 'none';
+        button.style.backgroundColor = 'transparent';
+        button.append(svgImage);
+        button.addEventListener('click', () => { alert(`${svgLabel}!`); });
+        testOutput.append(button);
     }
 }
 function testURI(testOutput) {

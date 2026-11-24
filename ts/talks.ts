@@ -334,7 +334,7 @@ function detailsGrid(container: HTMLElement, record: T.TalkRecord) {
 	container.style.width = '50%';
 	container.style.height = '75%';
 	container.style.padding = '1rem';
-	container.style.backgroundColor = 'rgb(252, 252, 252)'; // 'rgb(230, 240, 255)';
+	container.style.backgroundColor = '#fcfcfc';
 	container.style.display = 'grid';
 	container.style.gridTemplateRows = 'min-content 1fr';
 	container.popover = 'manual';
@@ -431,7 +431,16 @@ function titleSection(record: T.TalkRecord) {
 	titleCopyButton.id = 'talk-title-copy';
 	titleCopyButton.innerHTML = '🔖'; // ▽⬇︎⤵︎🔑🪄📥🔖📌⌘C
 	titleCopyButton.addEventListener('click', () => {
-		navigator.clipboard.writeText(record.title); /** copy title to clipboard */
+		/** copy title text to clipboard */
+		navigator.clipboard.writeText(record.title).then(() => {
+			const label = titleCopyButton.innerHTML;
+			titleCopyButton.inert = true;
+			titleCopyButton.innerHTML = '👍';
+			setTimeout(() => {
+				titleCopyButton.inert = false;
+				titleCopyButton.innerHTML = label;
+			}, 1000);
+		});
 	});
 	title.append(titleCopyButton, ' ', titleText);
 	return title;

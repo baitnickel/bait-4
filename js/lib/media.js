@@ -32,11 +32,11 @@ export class Audio extends Media {
         /** define internal section to hold controls (Play, Pause, etc.) */
         const controlsSection = document.createElement('div');
         controlsSection.style.position = 'absolute';
-        controlsSection.style.top = (test) ? '14px' : '25px';
+        controlsSection.style.top = (test) ? '14px' : '22px'; // '25px';
         controlsSection.style.left = (test) ? '35px' : '35px';
         const playIcon = '▶️';
         const pauseIcon = '⏸';
-        const playPauseIcon = '⏯';
+        // const playPauseIcon = '⏯';
         const rewindIcon = '⏮';
         const backIcon = '⏪';
         const forwardIcon = '⏩';
@@ -194,11 +194,11 @@ export class Audio extends Media {
         const barHeight = '8px';
         const barWidth = '200px';
         const fontFamily = 'Verdana, Geneva, Tahoma, sans-serif';
-        const timesFontSize = '8pt';
+        const timesFontSize = '11px'; // '8pt';
         const timesColor = 'rgb(0,0,0)';
         const barBorderRadius = '20px';
         const pointer = 'pointer';
-        const controlFontSize = '14pt';
+        const controlFontSize = '18px'; // '14pt';
         const controlBackground = 'none';
         const controlPaddingLeft = '16px'; // 1rem
         time.style.position = absolute;
@@ -230,22 +230,22 @@ export class Audio extends Media {
         progressBarOverlay.style.width = barWidth;
         progressBarOverlay.style.opacity = '0';
         progressBarOverlay.style.cursor = pointer;
-        if (test) {
+        if (!test) {
             /** Style controls and load them into the controlsSection */
-            for (const element of [rewindButton, backButton, playButton, forwardButton, endButton, stopButton]) {
-                element.style.border = 'none';
-                // element.style.color = 'rgb(150,150,150)';
-                element.style.backgroundColor = 'transparent';
+            for (const element of [rewind, back, playPause, forward, end, stop]) {
+                element.style.fontSize = (element === playPause) ? '28px' : controlFontSize;
+                element.style.background = controlBackground;
+                element.style.paddingLeft = controlPaddingLeft;
                 element.style.cursor = pointer;
                 controlsSection.append(element);
             }
         }
         else {
             /** Style controls and load them into the controlsSection */
-            for (const element of [rewind, back, playPause, forward, end, stop]) {
-                element.style.fontSize = controlFontSize;
-                element.style.background = controlBackground;
-                element.style.paddingLeft = controlPaddingLeft;
+            for (const element of [rewindButton, backButton, playButton, forwardButton, endButton, stopButton]) {
+                element.style.border = 'none';
+                // element.style.color = 'rgb(150,150,150)';
+                element.style.backgroundColor = 'transparent';
                 element.style.cursor = pointer;
                 controlsSection.append(element);
             }

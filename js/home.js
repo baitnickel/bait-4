@@ -141,6 +141,11 @@ function testButtonLabels(testOutput) {
         button.addEventListener('click', () => { alert(`${svgLabel}!`); });
         testOutput.append(button);
     }
+    const paragraph = document.createElement('p');
+    paragraph.style.fontSize = '80px';
+    paragraph.style.fontFamily = 'sans-serif';
+    paragraph.textContent = '▶️⏸';
+    testOutput.append(paragraph);
 }
 function testURI(testOutput) {
     const IMAGE_PATTERN = /!\[(.*?)\]\((.*?)\)/g;

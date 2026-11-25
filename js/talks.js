@@ -388,7 +388,7 @@ function audioSection(record) {
     const audio = document.createElement('div');
     if (record.extension) {
         /** add Audio controls element */
-        const audioObject = new Media.Audio(30);
+        const audioObject = new Media.Audio('', TEST);
         audioObject.element.src = `${MediaFolder}/${record.title}${record.extension}`;
         audioObject.element.load();
         audio.append(audioObject.element);

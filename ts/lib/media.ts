@@ -30,18 +30,18 @@ export class Audio extends Media {
 	skip: number;
 	panel: HTMLDivElement;
 
-	constructor(skipAmount = 15, id = '') {
+	constructor(id = '', test = false) {
 		const element = document.createElement('audio');
 		super(element, id);
 		this.element = element;
-		this.skip = skipAmount;
+		this.skip = 20;
 		this.panel = document.createElement('div');
 
 		/** define internal section to hold controls (Play, Pause, etc.) */
 		const controlsSection = document.createElement('div');
 		controlsSection.style.position = 'absolute';
-		controlsSection.style.top = '25px';
-		controlsSection.style.left = '35px';
+		controlsSection.style.top = (test) ? '14px' : '25px';
+		controlsSection.style.left = (test) ? '35px': '35px';
 
 		const playIcon = '▶️';
 		const pauseIcon = '⏸';
@@ -53,12 +53,80 @@ export class Audio extends Media {
 		const stopIcon = '⏹';
 		// const locationIcon = '\u2316'; // 🔆 \u2316 📌 🔖
 
+		//TEST
+		const svgImageNames = ['play-skip-back', 'play-back', 'play', 'pause', 'play-forward', 'play-skip-forward', 'stop'];
+		const svgImages: HTMLImageElement[] = [];
+		const svgButtons: HTMLButtonElement[] = [];
+		for (let i = 0; i < svgImageNames.length; i += 1) {
+			const label = svgImageNames[i];
+			const svgImage = document.createElement('img');
+			// svgImage.style.color = '#0f0'; // how to set color??
+			// svgImage.setAttribute('fill', '#f00'); // how to set color??
+			svgImage.setAttribute('src', `images/icons/${label}-gray-circle-outline.svg`);
+			svgImage.width = (label == 'play' || label == 'pause') ? 44 : 32; // a width seems to be required?
+			svgImages.push(svgImage);
+			const button = document.createElement('button');
+			button.style.padding = '4px';
+			button.style.border = 'none'; //'1px solid gray';
+			button.style.backgroundColor = 'transparent';
+			button.append(svgImage);
+			svgButtons.push(button);
+		}
+		//EOT
+
+		/** these are the elements that will be placed into this.panel (the controlsSection) */
 		const playPause = document.createElement('span');
 		const rewind = document.createElement('span');
 		const back = document.createElement('span');
 		const forward = document.createElement('span');
 		const end = document.createElement('span');
 		const stop = document.createElement('span');
+
+		//TEST
+		const playButton = svgButtons[svgImageNames.indexOf('play')];
+		playButton.addEventListener('click', () => {
+			if (this.element.paused) {
+				playButton.innerHTML = '';
+				playButton.append(svgImages[svgImageNames.indexOf('pause')]);
+				this.element.play();
+			}
+			else {
+				playButton.innerHTML = '';
+				playButton.append(svgImages[svgImageNames.indexOf('play')]);
+				this.element.pause();
+			}
+		});
+		// const pauseButton = svgButtons[svgImages.indexOf('pause')];
+		const rewindButton = svgButtons[svgImageNames.indexOf('play-skip-back')];
+		const backButton = svgButtons[svgImageNames.indexOf('play-back')];
+		const forwardButton = svgButtons[svgImageNames.indexOf('play-forward')];
+		const endButton = svgButtons[svgImageNames.indexOf('play-skip-forward')];
+		const stopButton = svgButtons[svgImageNames.indexOf('stop')];
+		rewindButton.addEventListener('click', () => {
+			this.element.currentTime = this.newCurrentTime(0);
+		});
+
+		backButton.addEventListener('click', () => {
+			this.element.currentTime = this.newCurrentTime(this.skip);
+		});
+
+		forwardButton.addEventListener('click', () => {
+			this.element.currentTime = this.newCurrentTime(this.skip, false);
+		});
+
+		endButton.addEventListener('click', () => {
+			this.element.currentTime = this.newCurrentTime(0, false);
+		});
+
+		stopButton.addEventListener('click', () => {
+			if (!this.element.paused) this.element.pause();
+			this.element.currentTime = 0;
+			// playPause.textContent = playIcon;
+			playButton.innerHTML = '';
+			playButton.append(svgImages[svgImageNames.indexOf('play')]);
+		});
+		//EOT
+
 		const progressBar = document.createElement('div');
 		const progressBarFill = document.createElement('div');
 		const progressBarOverlay = document.createElement('div'); /** transparent bar for clicking on */
@@ -139,7 +207,7 @@ export class Audio extends Media {
 
 		/** Styling */
 		this.panel.style.position = 'relative';
-		this.panel.style.height = '38px';
+		this.panel.style.height = (test) ? '44px' :'38px';
 		this.panel.style.width = '295px';
 		this.panel.style.backgroundColor = 'rgb(210,227,247)';
 		this.panel.style.border = '1px solid rgb(0,0,255)';
@@ -195,13 +263,25 @@ export class Audio extends Media {
 		progressBarOverlay.style.opacity = '0';
 		progressBarOverlay.style.cursor = pointer;
 
-		/** Style controls and load them into the controlsSection */
-		for (const element of [playPause, rewind, back, forward, end, stop]) {
-			element.style.fontSize = controlFontSize;
-			element.style.background = controlBackground;
-			element.style.paddingLeft = controlPaddingLeft;
-			element.style.cursor = pointer;
-			controlsSection.append(element);
+		if (test) {
+			/** Style controls and load them into the controlsSection */
+			for (const element of [rewindButton, backButton, playButton, forwardButton, endButton, stopButton]) {
+				element.style.border = 'none';
+				// element.style.color = 'rgb(150,150,150)';
+				element.style.backgroundColor = 'transparent';
+				element.style.cursor = pointer;
+				controlsSection.append(element);
+			}
+		}
+		else {
+			/** Style controls and load them into the controlsSection */
+			for (const element of [rewind, back, playPause, forward, end, stop]) {
+				element.style.fontSize = controlFontSize;
+				element.style.background = controlBackground;
+				element.style.paddingLeft = controlPaddingLeft;
+				element.style.cursor = pointer;
+				controlsSection.append(element);
+			}
 		}
 
 		/** Load all elements into this.panel */

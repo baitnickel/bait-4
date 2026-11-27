@@ -98,6 +98,7 @@ export function render() {
 		testers.push( { name: 'Dialog', function: testDialog } );
 		// testers.push( { name: 'Radio', function: testRadio } );
 		testers.push( { name: 'Grid', function: gridTest } );
+		testers.push( { name: 'Flex', function: flexTest } );
 		// testers.push( { name: 'Spinner', function: testSpinner } );
 		testers.push( { name: 'Images', function: testImages } );
 		// testers.push( { name: 'Map', function: testMap } );
@@ -130,6 +131,84 @@ export function render() {
 			testButtons.append(button);
 		}
 	}
+}
+
+function flexTest(testOutput: HTMLDivElement) {
+	const container = document.createElement('div');
+	container.style.display = 'flex';
+	container.style.flexWrap = 'wrap';
+	container.style.gap = '8px';
+	container.style.justifyContent = 'center';
+	container.style.height = '80px';
+	container.style.width = '300px';
+	container.style.backgroundColor = '#d2e3f7';
+	container.style.border = '1px solid #0000ff';
+	container.style.borderRadius = '10px';
+
+	const timeValue = '0:00';
+	const durationValue = '1:02:03';
+	const timesFontSize = '11px';
+	const fontFamily = 'Verdana, Geneva, Tahoma, sans-serif';
+	const topRowHeight = '15px';
+	const controlFontSize = '18px'; // '14pt';
+
+	const time = document.createElement('span');
+	const progressBar = document.createElement('div');
+	// const progressBarFill = document.createElement('div');
+	// const progressBarOverlay = document.createElement('div'); /** clickable */
+	const duration = document.createElement('span');
+
+	time.style.width = '50px';
+	time.style.height = topRowHeight;
+	time.style.backgroundColor = '#ccc'
+	time.style.fontFamily = fontFamily;
+	time.style.fontSize = timesFontSize;
+	time.style.textAlign = 'right'; // alignItems = 'right';
+	time.append(timeValue);
+	
+	progressBar.style.width = '170px';
+	progressBar.style.height = topRowHeight;
+	progressBar.style.backgroundColor = '#999';
+	
+	duration.style.width = '50px';
+	duration.style.height = topRowHeight;
+	duration.style.backgroundColor = '#ccc'
+	duration.style.fontFamily = fontFamily;
+	duration.style.fontSize = timesFontSize;
+	duration.append(durationValue);
+
+	container.append(time, progressBar, duration);
+
+	const playIcon = '▶️';
+	const pauseIcon = '⏸';
+	const rewindIcon = '⏮';
+	const backIcon = '⏪';
+	const forwardIcon = '⏩';
+	const endIcon = '⏭';
+	const stopIcon = '⏹';
+
+	const playPause = document.createElement('button');
+	const rewind = document.createElement('button');
+	const back = document.createElement('button');
+	const forward = document.createElement('button');
+	const end = document.createElement('button');
+	const stop = document.createElement('button');
+	playPause.innerText = playIcon;
+	rewind.textContent = rewindIcon;
+	back.textContent = backIcon;
+	forward.textContent = forwardIcon;
+	end.textContent = endIcon;
+	stop.textContent = stopIcon;
+
+	for (const element of [rewind, back, playPause, forward, end, stop]) {
+		element.style.fontSize = (element === playPause) ? '28px' : controlFontSize;
+		element.style.background = 'transparent';
+		element.style.cursor = 'pointer';
+		container.append(element);
+	}
+
+
+	testOutput.append(container)
 }
 
 function testButtonLabels(testOutput: HTMLDivElement) {
